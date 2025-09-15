@@ -6,13 +6,13 @@ import { getFirestore } from "firebase/firestore";
 
 // Config Firebase (tốt nhất nên để ở .env)
 const firebaseConfig = {
-  apiKey: "AIzaSyAQKPz8K4oCE2_lKS5OmeyerUJmWT5WYZg",
-  authDomain: "chat-realtime-54e66.firebaseapp.com",
-  projectId: "chat-realtime-54e66",
-  storageBucket: "chat-realtime-54e66.appspot.com",
-  messagingSenderId: "473742057944",
-  appId: "1:473742057944:web:ea3e70fbfbada2b878d2ad",
-  measurementId: "G-KMPZEFLRDY"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
