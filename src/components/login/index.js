@@ -1,7 +1,8 @@
 import React from "react";
 import { Row, Col, Button, Typography } from "antd";
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "firebase/auth";
-import app from "../../firebase/config"; // file config bạn đã tạo
+import app from "../../firebase/config"; 
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
