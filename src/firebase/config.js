@@ -1,8 +1,8 @@
 // Import SDKs cần thiết
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
 // Cấu hình Firebase
 const firebaseConfig = {
@@ -21,5 +21,12 @@ const analytics = getAnalytics(app);
 // Export các service để dùng
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+if (window.location.hostname === "localhost") {
+  // Dùng connectAuthEmulator thay vì auth.useEmulator
+  connectAuthEmulator(auth, "http://localhost:9099");
+  // Dùng connectFirestoreEmulator thay vì db.useEmulator
+  connectFirestoreEmulator(db, "localhost", 8080);
+}
 
 export default app;

@@ -20,10 +20,11 @@ export default function AuthProvider({ children }) {
                 setUser({ displayName, email, photoURL, uid });
                 navigate("/");
                 setIsLoading(false);
-                setUser(null);
-            } else {
-                navigate("/login");
-            }
+                return;
+            }  
+            setUser(null);
+            setIsLoading(false);
+            navigate("/login"); 
         });
 
         return () => unsubscribe();
