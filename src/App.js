@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AuthProvider from './context/authProvider';
 import AppProvider from './context/appProvider';
 import AddRoomModal from './components/modals/addRoomModal';
+import { PrivateRoute } from './context/privateRoute';
 
 function App() {
   return (
@@ -13,7 +14,14 @@ function App() {
         <AppProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={<ChatRoom />} />
+            <Route 
+              path="/" 
+              element={
+                <PrivateRoute>
+                  <ChatRoom />
+                </PrivateRoute>
+              } 
+            />
           </Routes>
           <AddRoomModal />
         </AppProvider>

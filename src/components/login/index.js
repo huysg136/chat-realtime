@@ -32,11 +32,11 @@ export default function Login() {
               providerId: additionalUserInfo.providerId,
             });
           }
-          window.location.href = "/chat"; // chuyển sang chat
         }
       })
       .catch(console.error);
   }, []);
+
 
   const handleLoginGoogle = async () => {
     try {
@@ -53,7 +53,7 @@ export default function Login() {
           providerId: additionalUserInfo.providerId,
         });
       }
-      window.location.href = "/chat";
+      window.location.href = "/";
     } catch (err) {
       console.error("Google login error:", err);
     }
@@ -78,7 +78,7 @@ export default function Login() {
               providerId: additionalUserInfo.providerId,
             });
           }
-          window.location.href = "/chat";
+          window.location.href = "/";
         })
         .catch((err) => console.error("Facebook login error:", err));
     }
