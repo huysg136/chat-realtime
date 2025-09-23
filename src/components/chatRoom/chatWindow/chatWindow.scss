@@ -1,0 +1,84 @@
+.chat-window {
+  height: 100vh;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 56px;
+    padding: 0 16px;
+    border-bottom: 1px solid rgb(230, 230, 230);
+    background: #fff;
+
+    .header__info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .header__title {
+      margin: 0;
+      font-weight: bold;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .header__description {
+      font-size: 12px;
+      color: gray;
+      line-height: 1.2;
+    }
+
+    .button-group-right {
+      margin-left: auto;
+
+      .button-group-style {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 22px;
+        cursor: pointer;
+
+        .ant-btn {
+          font-size: inherit;
+          background: transparent;
+          border: none;
+          transition: color 0.2s;
+
+          &:hover .anticon {
+            color: #0066ff;
+          }
+        }
+      }
+    }
+  }
+
+  &__content {
+    height: calc(98% - 66px);
+    display: flex;
+    flex-direction: column;
+    padding: 11px;
+    justify-content: flex-end;
+
+    .message-list-style {
+      max-height: 100%;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      padding-right: 10px;
+    }
+
+    .form-style {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 2px 2px 0;
+      border: 1px solid rgb(230, 230, 230);
+      border-radius: 2px;
+
+      .ant-form-item {
+        flex: 1;
+        margin-bottom: 0;
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+.searching-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f2f3f7;
+  border-radius: 8px;
+  gap: 12px;
+
+  .search-box {
+    flex: 1;
+    background: #f2f3f7;
+  }
+
+  .icons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 22px;
+    color: #1d3557;
+    cursor: pointer;
+
+    &:hover {
+      color: #0066ff;
+    }
+  }
+}

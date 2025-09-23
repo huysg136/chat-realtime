@@ -1,0 +1,62 @@
+.sidebar {
+  height: 100vh;
+  width: 64px;
+  background-color: #2067ff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+
+  .user-avatar {
+    background-color: white !important;
+    color: #000000;
+    margin-bottom: 10px;
+    border: 2px solid #ffffff44;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: #fff;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .icon-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+
+    &.top {
+      margin-top: 12px;
+    }
+
+    &.bottom {
+      margin-top: auto;
+      margin-bottom: 16px;
+    }
+
+    .icon-item {
+      font-size: 26px;
+      color: white;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: all 0.3s;
+
+      &:hover {
+        background-color: #5689ff;
+        color: #fff;
+      }
+
+      &.active {
+        background-color: #5689ff;
+        color: #fff;
+      }
+
+      svg {
+        display: block;
+      }
+    }
+  }
+}

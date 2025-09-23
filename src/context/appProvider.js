@@ -1,13 +1,12 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import app from "../firebase/config";
-import { getAuth } from "firebase/auth";
-import { AuthContext } from './authProvider';
-import { useFirestore } from '../hooks/useFirestore';
+import React, { useState } from "react";
+import { AuthContext } from "./authProvider";
+import { useFirestore } from "../hooks/useFirestore";
 
 export const AppContext = React.createContext();
 
 export default function AppProvider({ children }) {
+    const [isAddRoomVisible, setIsAddRoomVisible] = useState(false);
+
     const { user } = React.useContext(AuthContext);
     
     const roomsCondition = React.useMemo(
@@ -22,7 +21,7 @@ export default function AppProvider({ children }) {
     const rooms = useFirestore("rooms", roomsCondition);
 
     return (
-        <AppContext.Provider value={{ rooms }}>
+        <AppContext.Provider value={{ rooms, isAddRoomVisible, setIsAddRoomVisible }}>
             {children}
         </AppContext.Provider>
     );
