@@ -1,5 +1,5 @@
-import React from "react";
-import { Row, Col, Button, Typography, Space, Divider } from "antd";
+import React, { useState } from "react";
+import { Row, Col, Button, Typography, Space, Divider, Select } from "antd";
 import { GoogleOutlined, FacebookOutlined } from "@ant-design/icons";
 import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, getAdditionalUserInfo } from "firebase/auth";
 import app from "../../firebase/config";
@@ -7,12 +7,15 @@ import { addDocument } from "../../firebase/services";
 import "./index.scss";
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 
 export default function Login() {
+  const [lang, setLang] = useState("en"); // 'en' hoặc 'vi'
+
   const handleLogin = async (provider) => {
     try {
       const result = await signInWithPopup(auth, provider);
@@ -34,14 +37,38 @@ export default function Login() {
     }
   };
 
+  // Text song ngữ
+  const text = {
+    en: {
+      google: "Continue with Google",
+      facebook: "Continue with Facebook",
+      safe: "Safe & Secure",
+      privacy: "Your privacy is protected. We never share your data.",
+    },
+    vi: {
+      google: "Tiếp tục với Google",
+      facebook: "Tiếp tục với Facebook",
+      safe: "An toàn & Bảo mật",
+      privacy: "Quyền riêng tư của bạn được bảo vệ. Chúng tôi không chia sẻ dữ liệu của bạn.",
+    },
+  };
+
   return (
     <div className="login-wrapper">
+      {/* Chọn ngôn ngữ */}
+      <div className="lang-select" style={{ position: "absolute", top: 20, right: 20, zIndex: 2 }}>
+        <Select value={lang} onChange={setLang} style={{ width: 120 }}>
+          <Option value="en">English</Option>
+          <Option value="vi">Tiếng Việt</Option>
+        </Select>
+      </div>
+
       <div className="background-shapes">
         <div className="shape shape-1"></div>
         <div className="shape shape-2"></div>
         <div className="shape shape-3"></div>
       </div>
-      
+
       <Row justify="center" align="middle" className="login-container">
         <Col xs={22} sm={18} md={14} lg={10} xl={8} className="login-card">
           <div className="login-header">
@@ -53,31 +80,28 @@ export default function Login() {
                     <stop offset="100%" stopColor="#000dff" />
                   </linearGradient>
                 </defs>
-                
+
                 {/* Background circle */}
                 <circle cx="40" cy="40" r="38" fill="url(#logoGradient)" />
-                
+
                 {/* Chat bubble 1 */}
                 <rect x="18" y="22" width="24" height="16" rx="8" fill="white" fillOpacity="0.9" />
                 <circle cx="24" cy="30" r="2" fill="#6b73ff" />
                 <circle cx="30" cy="30" r="2" fill="#6b73ff" />
                 <circle cx="36" cy="30" r="2" fill="#6b73ff" />
-                
+
                 {/* Chat bubble 2 */}
                 <rect x="38" y="42" width="24" height="16" rx="8" fill="white" fillOpacity="0.9" />
                 <circle cx="44" cy="50" r="2" fill="#000dff" />
                 <circle cx="50" cy="50" r="2" fill="#000dff" />
                 <circle cx="56" cy="50" r="2" fill="#000dff" />
-                
+
                 {/* Chat tails */}
                 <path d="M18 34 L12 38 L18 38 Z" fill="white" fillOpacity="0.9" />
                 <path d="M62 46 L68 50 L62 50 Z" fill="white" fillOpacity="0.9" />
               </svg>
             </div>
             <Title level={2} className="app-title">ChitChat</Title>
-            {/* <Text className="app-subtitle">
-              Where conversations come alive
-            </Text> */}
           </div>
 
           <div className="login-content">
@@ -90,9 +114,9 @@ export default function Login() {
                 onClick={() => handleLogin(googleProvider)}
                 block
               >
-                Continue with Google
+                {text[lang].google}
               </Button>
-              
+
               <Button
                 type="primary"
                 size="large"
@@ -101,17 +125,15 @@ export default function Login() {
                 onClick={() => handleLogin(facebookProvider)}
                 block
               >
-                Continue with Facebook
+                {text[lang].facebook}
               </Button>
             </Space>
-            
+
             <Divider className="login-divider">
-              <Text type="secondary" className="divider-text">Safe & Secure</Text>
+              <Text type="secondary" className="divider-text">{text[lang].safe}</Text>
             </Divider>
-            
-            <Text type="secondary" className="privacy-text">
-              Your privacy is protected. We never share your data.
-            </Text>
+
+            <Text type="secondary" className="privacy-text" style={{ fontSize: lang === "vi" ? 12 : 14 }}>{text[lang].privacy}</Text>
           </div>
         </Col>
       </Row>
