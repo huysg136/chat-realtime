@@ -4,6 +4,7 @@ import { GoogleOutlined, FacebookOutlined } from "@ant-design/icons";
 import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, getAdditionalUserInfo } from "firebase/auth";
 import app from "../../firebase/config";
 import { addDocument } from "../../firebase/services";
+import { useNavigate } from 'react-router-dom';
 import "./index.scss";
 
 const { Title, Text } = Typography;
@@ -15,6 +16,7 @@ const facebookProvider = new FacebookAuthProvider();
 
 export default function Login() {
   const [lang, setLang] = useState("en");
+  const navigate = useNavigate();
 
   // Xử lý kết quả redirect (Facebook mobile)
   useEffect(() => {
@@ -39,48 +41,17 @@ export default function Login() {
 
 
   const handleLoginGoogle = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      const additionalUserInfo = getAdditionalUserInfo(result);
-
-      if (additionalUserInfo?.isNewUser) {
-        await addDocument("users", {
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          uid: user.uid,
-          providerId: additionalUserInfo.providerId,
-        });
-      }
-      window.location.href = "/";
-    } catch (err) {
-      console.error("Google login error:", err);
-    }
+    const result = await signInWithPopup(auth, googleProvider);
+    // save user nếu cần
+    navigate("/");
   };
 
   const handleLoginFacebook = () => {
     if (/Mobi|Android/i.test(navigator.userAgent)) {
-      // mobile: redirect
-      signInWithRedirect(auth, facebookProvider);
+      signInWithRedirect(auth, facebookProvider); // mobile
     } else {
-      // desktop: popup
       signInWithPopup(auth, facebookProvider)
-        .then((result) => {
-          const user = result.user;
-          const additionalUserInfo = getAdditionalUserInfo(result);
-          if (additionalUserInfo?.isNewUser) {
-            addDocument("users", {
-              displayName: user.displayName,
-              email: user.email,
-              photoURL: user.photoURL,
-              uid: user.uid,
-              providerId: additionalUserInfo.providerId,
-            });
-          }
-          window.location.href = "/";
-        })
-        .catch((err) => console.error("Facebook login error:", err));
+        .then(() => navigate("/")); // desktop
     }
   };
 

@@ -1,34 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getAuth, getRedirectResult, onAuthStateChanged } from "firebase/auth";
+import { Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import app from "../firebase/config";
-import { getAuth } from "firebase/auth";
-import { Spin } from 'antd';
 
 export const AuthContext = React.createContext();
 const auth = getAuth(app);
 
 export default function AuthProvider({ children }) {
-    const [user, setUser] = React.useState(null);
-    const navigate = useNavigate();
-    const [ isLoading, setIsLoading ] = React.useState(true);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-    React.useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            if (user) {
-            const { displayName, email, photoURL, uid } = user;
-            setUser({ displayName, email, photoURL, uid });
-            } else {
-            setUser(null);
-            }
-            setIsLoading(false);
-        });
+  useEffect(() => {
+    // Xử lý redirect Facebook mobile
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          setUser(result.user);        // set user từ redirect
+          navigate("/chat");           // chuyển sang chat
+        }
+      })
+      .catch(console.error);
 
-        return () => unsubscribe();
-    }, []);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
 
-    return (
-        <AuthContext.Provider value={{ user }}>
-            {isLoading ? <Spin /> : children}
-        </AuthContext.Provider>
-    );
+    return () => unsubscribe();
+  }, [navigate]);
+
+  return (
+    <AuthContext.Provider value={{ user, loading }}>
+      {loading ? <Spin /> : children}
+    </AuthContext.Provider>
+  );
 }
