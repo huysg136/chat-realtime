@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Row, Col, Button, Typography, Space, Divider, Select } from "antd";
 import { GoogleOutlined, FacebookOutlined } from "@ant-design/icons";
-import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, getAdditionalUserInfo } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, getAdditionalUserInfo } from "firebase/auth";
 import app from "../../firebase/config";
 import { addDocument } from "../../firebase/services";
-import { useNavigate } from 'react-router-dom';
 import "./index.scss";
 
 const { Title, Text } = Typography;
@@ -15,46 +14,30 @@ const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 
 export default function Login() {
-  const [lang, setLang] = useState("en");
-  const navigate = useNavigate();
+  const [lang, setLang] = useState("en"); 
 
-  // Xử lý kết quả redirect (Facebook mobile)
-  useEffect(() => {
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result) {
-          const user = result.user;
-          const additionalUserInfo = getAdditionalUserInfo(result);
-          if (additionalUserInfo?.isNewUser) {
-            addDocument("users", {
-              displayName: user.displayName,
-              email: user.email,
-              photoURL: user.photoURL,
-              uid: user.uid,
-              providerId: additionalUserInfo.providerId,
-            });
-          }
-        }
-      })
-      .catch(console.error);
-  }, []);
+  const handleLogin = async (provider) => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const additionalUserInfo = getAdditionalUserInfo(result);
 
-
-  const handleLoginGoogle = async () => {
-    const result = await signInWithPopup(auth, googleProvider);
-    // save user nếu cần
-    navigate("/");
-  };
-
-  const handleLoginFacebook = () => {
-    if (/Mobi|Android/i.test(navigator.userAgent)) {
-      signInWithRedirect(auth, facebookProvider); // mobile
-    } else {
-      signInWithPopup(auth, facebookProvider)
-        .then(() => navigate("/")); // desktop
+      if (additionalUserInfo?.isNewUser) {
+        addDocument("users", {
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          uid: user.uid,
+          providerId: additionalUserInfo.providerId,
+        });
+      }
+      console.log(`${provider.providerId} login success:`, user);
+    } catch (err) {
+      console.error(`${provider.providerId} login error:`, err);
     }
   };
 
+  // Text song ngữ
   const text = {
     en: {
       google: "Continue with Google",
@@ -72,6 +55,7 @@ export default function Login() {
 
   return (
     <div className="login-wrapper">
+      {/* Chọn ngôn ngữ */}
       <div className="lang-select" style={{ position: "absolute", top: 20, right: 20, zIndex: 2 }}>
         <Select value={lang} onChange={setLang} style={{ width: 120 }}>
           <Option value="en">English</Option>
@@ -127,7 +111,7 @@ export default function Login() {
                 size="large"
                 icon={<GoogleOutlined />}
                 className="social-btn google-btn"
-                onClick={handleLoginGoogle}
+                onClick={() => handleLogin(googleProvider)}
                 block
               >
                 {text[lang].google}
@@ -138,7 +122,7 @@ export default function Login() {
                 size="large"
                 icon={<FacebookOutlined />}
                 className="social-btn facebook-btn"
-                onClick={handleLoginFacebook}
+                onClick={() => handleLogin(facebookProvider)}
                 block
               >
                 {text[lang].facebook}
@@ -149,9 +133,7 @@ export default function Login() {
               <Text type="secondary" className="divider-text">{text[lang].safe}</Text>
             </Divider>
 
-            <Text type="secondary" className="privacy-text" style={{ fontSize: lang === "vi" ? 12 : 14 }}>
-              {text[lang].privacy}
-            </Text>
+            <Text type="secondary" className="privacy-text" style={{ fontSize: lang === "vi" ? 12 : 14 }}>{text[lang].privacy}</Text>
           </div>
         </Col>
       </Row>
