@@ -15,16 +15,19 @@ export default function AuthProvider({ children }) {
     React.useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
-            const { displayName, email, photoURL, uid } = user;
-            setUser({ displayName, email, photoURL, uid });
+                const { displayName, email, photoURL, uid } = user;
+                setUser({ displayName, email, photoURL, uid });
+                navigate('/');
+                setIsLoading(false);
             } else {
-            setUser(null);
+                navigate('/login');
+                setUser(null);
+                setIsLoading(false);
             }
-            setIsLoading(false);
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [navigate]);
 
     return (
         <AuthContext.Provider value={{ user }}>
