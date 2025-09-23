@@ -17,11 +17,15 @@ export default function AuthProvider({ children }) {
             if (user) {
                 const { displayName, email, photoURL, uid } = user;
                 setUser({ displayName, email, photoURL, uid });
-                navigate('/');
-                setIsLoading(false);
+
+                // Delay 2 giây trước khi navigate
+                setTimeout(() => {
+                    navigate('/');
+                    setIsLoading(false);
+                }, 2000);
             } else {
-                navigate('/login');
                 setUser(null);
+                navigate('/login');
                 setIsLoading(false);
             }
         });
