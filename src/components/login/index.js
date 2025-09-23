@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Row, Col, Button, Typography, Space, Divider, Select } from "antd";
 import { GoogleOutlined, FacebookOutlined } from "@ant-design/icons";
-import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, getAdditionalUserInfo } from "firebase/auth";
+import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, FacebookAuthProvider, getAdditionalUserInfo } from "firebase/auth";
 import app from "../../firebase/config";
 import { addDocument } from "../../firebase/services";
 import "./index.scss";
@@ -14,16 +14,38 @@ const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 
 export default function Login() {
-  const [lang, setLang] = useState("en"); // 'en' hoặc 'vi'
+  const [lang, setLang] = useState("en");
 
-  const handleLogin = async (provider) => {
+  // Xử lý kết quả redirect (Facebook mobile)
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          const user = result.user;
+          const additionalUserInfo = getAdditionalUserInfo(result);
+          if (additionalUserInfo?.isNewUser) {
+            addDocument("users", {
+              displayName: user.displayName,
+              email: user.email,
+              photoURL: user.photoURL,
+              uid: user.uid,
+              providerId: additionalUserInfo.providerId,
+            });
+          }
+          window.location.href = "/chat"; // chuyển sang chat
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const handleLoginGoogle = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const additionalUserInfo = getAdditionalUserInfo(result);
 
       if (additionalUserInfo?.isNewUser) {
-        addDocument("users", {
+        await addDocument("users", {
           displayName: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
@@ -31,13 +53,37 @@ export default function Login() {
           providerId: additionalUserInfo.providerId,
         });
       }
-      console.log(`${provider.providerId} login success:`, user);
+      window.location.href = "/chat";
     } catch (err) {
-      console.error(`${provider.providerId} login error:`, err);
+      console.error("Google login error:", err);
     }
   };
 
-  // Text song ngữ
+  const handleLoginFacebook = () => {
+    if (/Mobi|Android/i.test(navigator.userAgent)) {
+      // mobile: redirect
+      signInWithRedirect(auth, facebookProvider);
+    } else {
+      // desktop: popup
+      signInWithPopup(auth, facebookProvider)
+        .then((result) => {
+          const user = result.user;
+          const additionalUserInfo = getAdditionalUserInfo(result);
+          if (additionalUserInfo?.isNewUser) {
+            addDocument("users", {
+              displayName: user.displayName,
+              email: user.email,
+              photoURL: user.photoURL,
+              uid: user.uid,
+              providerId: additionalUserInfo.providerId,
+            });
+          }
+          window.location.href = "/chat";
+        })
+        .catch((err) => console.error("Facebook login error:", err));
+    }
+  };
+
   const text = {
     en: {
       google: "Continue with Google",
@@ -55,7 +101,6 @@ export default function Login() {
 
   return (
     <div className="login-wrapper">
-      {/* Chọn ngôn ngữ */}
       <div className="lang-select" style={{ position: "absolute", top: 20, right: 20, zIndex: 2 }}>
         <Select value={lang} onChange={setLang} style={{ width: 120 }}>
           <Option value="en">English</Option>
@@ -111,7 +156,7 @@ export default function Login() {
                 size="large"
                 icon={<GoogleOutlined />}
                 className="social-btn google-btn"
-                onClick={() => handleLogin(googleProvider)}
+                onClick={handleLoginGoogle}
                 block
               >
                 {text[lang].google}
@@ -122,7 +167,7 @@ export default function Login() {
                 size="large"
                 icon={<FacebookOutlined />}
                 className="social-btn facebook-btn"
-                onClick={() => handleLogin(facebookProvider)}
+                onClick={handleLoginFacebook}
                 block
               >
                 {text[lang].facebook}
@@ -133,7 +178,9 @@ export default function Login() {
               <Text type="secondary" className="divider-text">{text[lang].safe}</Text>
             </Divider>
 
-            <Text type="secondary" className="privacy-text" style={{ fontSize: lang === "vi" ? 12 : 14 }}>{text[lang].privacy}</Text>
+            <Text type="secondary" className="privacy-text" style={{ fontSize: lang === "vi" ? 12 : 14 }}>
+              {text[lang].privacy}
+            </Text>
           </div>
         </Col>
       </Row>
