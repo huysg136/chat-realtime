@@ -236,6 +236,14 @@
   }
 }
 
+@media (prefers-color-scheme: light) {
+  .login-divider {
+    .divider-text {
+      color: #9ca3af;
+    }
+  }
+}
+
 // Animation for card entrance
 .login-card {
   animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);

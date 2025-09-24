@@ -12,26 +12,22 @@ export default function AuthProvider({ children }) {
     const navigate = useNavigate();
     const [ isLoading, setIsLoading ] = React.useState(true);
 
-    React.useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            if (user) {
-                const { displayName, email, photoURL, uid } = user;
-                setUser({ displayName, email, photoURL, uid });
-
-                // Delay 2 giây trước khi navigate
-                setTimeout(() => {
+        React.useEffect(() => {
+            const unsubscribe = auth.onAuthStateChanged((user) => {
+                if (user) {
+                    const { displayName, email, photoURL, uid } = user;
+                    setUser({ displayName, email, photoURL, uid });
                     navigate('/');
                     setIsLoading(false);
-                }, 2000);
-            } else {
-                setUser(null);
-                navigate('/login');
-                setIsLoading(false);
-            }
-        });
+                } else {
+                    navigate('/login');
+                    setUser(null);
+                    setIsLoading(false);
+                }
+            });
 
-        return () => unsubscribe();
-    }, [navigate]);
+            return () => unsubscribe();
+        }, [navigate]);
 
     return (
         <AuthContext.Provider value={{ user }}>
