@@ -1,71 +1,61 @@
-Chat Realtime App
-Ứng dụng chat realtime được xây dựng bằng ReactJS + Firebase + Ant Design.
+Ứng dụng nhắn tin real-time bằng ReactJS và Firebase 
 
-HƯỚNG DẪN CÀI ĐẶT
+Live Demo: https://chat-realtime-iota.vercel.app/
 
-Bước 1: Clone project
-git clone https://github.com/huysg136/chat-realtime.git
+Getting Started with Create React App
+This project was bootstrapped with Create React App.
 
-cd chat-realtime
+Available Scripts
+In the project directory, you can run:
 
-Bước 2: Cài dependencies
-Nếu dùng yarn (khuyên dùng):
-yarn install
-
-Hoặc nếu dùng npm:
-npm install
-
-Bước 3: Tạo file môi trường .env ở thư mục gốc
-Thêm thông tin Firebase vào file .env:
-
-REACT_APP_FIREBASE_API_KEY=your_api_key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain
-REACT_APP_FIREBASE_PROJECT_ID=your_project_id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-REACT_APP_FIREBASE_APP_ID=your_app_id
-REACT_APP_FIREBASE_MEASUREMENT_ID=your_measurement_id
-
-Lưu ý: File .env đã được bỏ qua trong .gitignore, KHÔNG commit lên GitHub.
-
-Bước 4: Chạy dự án
 yarn start
-hoặc
-npm start
+Runs the app in the development mode.
+Open http://localhost:3000 to view it in the browser.
 
-Dự án sẽ chạy tại: http://localhost:3000
+The page will reload if you make edits.
+You will also see any lint errors in the console.
 
-CÔNG NGHỆ SỬ DỤNG
+yarn test
+Launches the test runner in the interactive watch mode.
+See the section about running tests for more information.
 
-ReactJS
+yarn build
+Builds the app for production to the build folder.
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-Firebase (Auth, Firestore, Hosting)
+The build is minified and the filenames include the hashes.
+Your app is ready to be deployed!
 
-Ant Design
+See the section about deployment for more information.
 
-Styled Components
+yarn eject
+Note: this is a one-way operation. Once you eject, you can’t go back!
 
-React Router
+If you aren’t satisfied with the build tool and configuration choices, you can eject at any time. This command will remove the single build dependency from your project.
 
-Lodash
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except eject will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-date-fns
+You don’t have to ever use eject. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-GHI CHÚ
+Learn More
+You can learn more in the Create React App documentation.
 
-Bật Firebase Authentication (Google, Facebook, Email/Password) trong Firebase Console.
+To learn React, check out the React documentation.
 
-Nếu dùng Facebook Login, thêm http://localhost:3000/
- vào danh sách Valid OAuth Redirect URIs trong Facebook Developer.
+Code Splitting
+This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
 
-SCRIPTS CÓ SẴN
+Analyzing the Bundle Size
+This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
 
-yarn start → chạy project dev
+Making a Progressive Web App
+This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
 
-yarn build → build production
+Advanced Configuration
+This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
 
-yarn test → chạy test
+Deployment
+This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
 
-yarn eject → eject CRA config
-
-Author: huysg136
+yarn build fails to minify
+This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
