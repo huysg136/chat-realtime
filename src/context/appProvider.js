@@ -6,6 +6,8 @@ export const AppContext = React.createContext();
 
 export default function AppProvider({ children }) {
     const [isAddRoomVisible, setIsAddRoomVisible] = useState(false);
+    const [isInviteMemberVisible, setIsInviteMemberVisible] = useState(false);
+    const [selectedRoomId, setSelectedRoomId] = useState('')
 
     const { user } = React.useContext(AuthContext);
     
@@ -21,7 +23,15 @@ export default function AppProvider({ children }) {
     const rooms = useFirestore("rooms", roomsCondition);
 
     return (
-        <AppContext.Provider value={{ rooms, isAddRoomVisible, setIsAddRoomVisible }}>
+        <AppContext.Provider value={{ 
+            rooms, 
+            isAddRoomVisible, 
+            setIsAddRoomVisible, 
+            selectedRoomId, 
+            setSelectedRoomId,
+            isInviteMemberVisible, 
+            setIsInviteMemberVisible
+        }}>
             {children}
         </AppContext.Provider>
     );

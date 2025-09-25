@@ -19,6 +19,36 @@
     background: rgba(0, 0, 0, 0.05);
   }
 
+  /* Avatar hoặc group avatar */
+  .ant-avatar {
+    flex-shrink: 0; // avatar không bị co lại
+  }
+
+  .room-circular-avatar-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; // luôn sát trái
+    flex-shrink: 0;
+
+    .room-avatar-circle {
+      position: relative;
+      width: 40px;  // khung chứa avatar group bằng avatar thường
+      height: 40px;
+    }
+
+    .room-circle-avatar {
+      border: 1px solid white;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .remaining-count {
+      background-color: #bebebeff;
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+    }
+  }
+
   .room-info {
     flex: 1;
     display: flex;
@@ -49,5 +79,6 @@
     font-size: 12px;
     color: #757575;
     white-space: nowrap;
+    margin-left: auto; // đẩy sát phải
   }
 }

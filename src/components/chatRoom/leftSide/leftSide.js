@@ -1,16 +1,31 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { MessageOutlined, TeamOutlined, SettingOutlined } from "@ant-design/icons";
+import { MdOutlinePendingActions } from "react-icons/md";
 import { AiOutlineLogout } from "react-icons/ai";
 import { Avatar, Dropdown, Menu } from "antd";
 import { auth } from "../../../firebase/config";
 import { AuthContext } from "../../../context/authProvider";
+import { db } from "../../../firebase/config";
+import { doc, updateDoc } from "firebase/firestore";
 import "./leftSide.scss"; 
+
+const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
 export default function LeftSide() {
   const [active, setActive] = useState("message");
   const { user } = useContext(AuthContext);
   const displayName = user?.displayName;
   const photoURL = user?.photoURL;
+
+  // Nếu user không có avatar thì set mặc định vào Firestore
+  useEffect(() => {
+    if (user && !photoURL) {
+      const userRef = doc(db, "users", user.uid);
+      updateDoc(userRef, {
+        photoURL: defaultAvatar
+      }).catch((err) => console.error("Error updating avatar:", err));
+    }
+  }, [user, photoURL]);
 
   const menu = (
     <Menu>
@@ -35,12 +50,16 @@ export default function LeftSide() {
     <div className="sidebar">
       {/* Avatar */}
       <Dropdown overlay={menu} placement="bottomRight" trigger={["click"]}>
-        <Avatar size={40} src={photoURL} className="user-avatar">
+        <Avatar
+          size={40}
+          src={photoURL || defaultAvatar}
+          className="user-avatar"
+        >
           {!photoURL && displayName?.charAt(0)?.toUpperCase()}
         </Avatar>
       </Dropdown>
 
-      {/* Nhóm icon phía trên (có active) */}
+      {/* Nhóm icon phía trên */}
       <div className="icon-group top">
         <div
           className={`icon-item ${active === "message" ? "active" : ""}`}
@@ -54,9 +73,15 @@ export default function LeftSide() {
         >
           <TeamOutlined />
         </div>
+        <div
+          className={`icon-item ${active === "approval" ? "active" : ""}`}
+          onClick={() => setActive("approval")}
+        >
+          <MdOutlinePendingActions />
+        </div>
       </div>
 
-      {/* Nhóm icon phía dưới (chỉ hover, không active) */}
+      {/* Nhóm icon phía dưới */}
       <div className="icon-group bottom">
         <div className="icon-item" onClick={() => auth.signOut()}>
           <AiOutlineLogout />

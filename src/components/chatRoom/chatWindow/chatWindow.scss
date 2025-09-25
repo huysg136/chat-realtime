@@ -1,5 +1,6 @@
 .chat-window {
   height: 100vh;
+  background-color: rgb(239, 239, 239);
 
   &__header {
     display: flex;
@@ -35,7 +36,7 @@
       .button-group-style {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 5px;
         font-size: 22px;
         cursor: pointer;
 
@@ -82,3 +83,92 @@
     }
   }
 }
+
+.circular-avatar-group {
+  .avatar-circle {
+    position: relative;
+    width: 50px;  // Giảm từ 60px xuống 50px
+    height: 50px; // Giảm từ 60px xuống 50px
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .circle-avatar {
+      transition: all 0.3s ease;
+      z-index: 1;
+      
+      // &:hover {
+      //   transform: translate(-50%, -50%) scale(1.1);
+      //   z-index: 2;
+      //   box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+      // }
+      
+      // &.remaining-count {
+      //   &:hover {
+      //     transform: translate(-50%, -50%) scale(1.1);
+      //   }
+      // }
+    }
+  }
+  
+  // // Animation khi hover vào group
+  // &:hover {
+  //   .circle-avatar {
+  //     animation: pulse 0.6s ease-in-out;
+  //   }
+  // }
+}
+
+// Animation pulse effect
+@keyframes pulse {
+  0% {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  50% {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  100% {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .circular-avatar-group {
+    .avatar-circle {
+      width: 40px;  // Giảm từ 50px xuống 40px cho mobile
+      height: 40px; // Giảm từ 50px xuống 40px cho mobile
+    }
+  }
+}
+
+.chat-window.no-room {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9f9f9; // nhẹ nhàng hơn background chat
+  text-align: center;
+
+  .welcome-screen {
+    color: #555;
+
+    h2 {
+      margin-top: 16px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    p {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #777;
+    }
+
+    .anticon {
+      font-size: 64px;
+      color: #1890ff;
+    }
+  }
+}
+

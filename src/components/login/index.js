@@ -3,7 +3,7 @@ import { Row, Col, Button, Typography, Space, Divider, Select } from "antd";
 import { GoogleOutlined, FacebookOutlined } from "@ant-design/icons";
 import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, getAdditionalUserInfo } from "firebase/auth";
 import app from "../../firebase/config";
-import { addDocument } from "../../firebase/services";
+import { addDocument, generateKeywords } from "../../firebase/services";
 import "./index.scss";
 
 const { Title, Text } = Typography;
@@ -26,9 +26,10 @@ export default function Login() {
         addDocument("users", {
           displayName: user.displayName,
           email: user.email,
-          photoURL: user.photoURL,
+          photoURL: user.photoURL || "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg",
           uid: user.uid,
           providerId: additionalUserInfo.providerId,
+          keywords: generateKeywords(user.displayName)
         });
       }
       console.log(`${provider.providerId} login success:`, user);
