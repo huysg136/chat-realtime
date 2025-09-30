@@ -134,7 +134,7 @@ export default function AddRoomModal() {
                         mode="multiple"
                         placeholder="Nhập tên người dùng..."
                         fetchOptions={fetchUserList}
-                        curMembers={[uid]} // người tạo không thể xóa
+                        curMembers={[uid]}
                         style={{ width: '100%' }}
                     />
                 </Form.Item>

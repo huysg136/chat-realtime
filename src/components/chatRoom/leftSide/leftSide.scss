@@ -1,23 +1,23 @@
 .sidebar {
   height: 100vh;
   width: 64px;
-  background-color: #2067ff;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 12px 0;
+  border-right: 2px solid rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 
   .user-avatar {
-    background-color: white !important;
-    color: #000000;
     margin-bottom: 10px;
-    border: 2px solid #ffffff44;
+    border: 2px solid rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s;
 
     &:hover {
-      border-color: #fff;
-      box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+      border-color: #ffffff;
+      box-shadow: 0 0 6px rgba(42, 42, 42, 0.6);
     }
   }
 
@@ -25,7 +25,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
 
     &.top {
       margin-top: 12px;
@@ -38,19 +38,19 @@
 
     .icon-item {
       font-size: 26px;
-      color: white;
+      color: #555; /* màu mặc định icon */
       cursor: pointer;
       padding: 8px;
       border-radius: 8px;
       transition: all 0.3s;
 
       &:hover {
-        background-color: #5689ff;
-        color: #fff;
+        background-color: rgba(220, 220, 220, 0.6);
+        //color: #fff;
       }
 
       &.active {
-        background-color: #5689ff;
+        background-color: rgba(42, 42, 42, 0.6);
         color: #fff;
       }
 

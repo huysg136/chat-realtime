@@ -1,6 +1,4 @@
 import React, { useState, useContext, useEffect } from "react";
-import { MessageOutlined, TeamOutlined, SettingOutlined } from "@ant-design/icons";
-import { MdOutlinePendingActions } from "react-icons/md";
 import { AiOutlineLogout } from "react-icons/ai";
 import { Avatar, Dropdown, Menu } from "antd";
 import { auth } from "../../../firebase/config";
@@ -8,6 +6,12 @@ import { AuthContext } from "../../../context/authProvider";
 import { db } from "../../../firebase/config";
 import { doc, updateDoc } from "firebase/firestore";
 import "./leftSide.scss"; 
+import { GoHome, GoHomeFill, GoHeart, GoHeartFill } from "react-icons/go";
+import { HiSearch } from "react-icons/hi";
+import { RiMessengerFill, RiMessengerLine } from "react-icons/ri";
+import { CgDetailsMore } from "react-icons/cg";
+import { UserOutlined, SettingOutlined, SaveOutlined, MessageOutlined, LogoutOutlined } from '@ant-design/icons';
+
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
@@ -30,15 +34,28 @@ export default function LeftSide() {
   const menu = (
     <Menu>
       <Menu.Item key="name" disabled>
-        <strong style={{ color: "black" }}>{displayName}</strong>
+        <strong style={{ color: "black", display: "block", textAlign: "center" }}>
+          {displayName}
+        </strong>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="profile">Hồ sơ của tôi</Menu.Item>
-      <Menu.Item key="settings">Cài đặt</Menu.Item>
+      <Menu.Item key="profile" icon={<UserOutlined />}>
+        Trang cá nhân
+      </Menu.Item>
+      <Menu.Item key="settings" icon={<SettingOutlined />}>
+        Cài đặt
+      </Menu.Item>
+      <Menu.Item key="saved" icon={<SaveOutlined />}>
+        Đã lưu
+      </Menu.Item>
+      <Menu.Item key="request" icon={<MessageOutlined />}>
+        Tin nhắn đang chờ
+      </Menu.Item>
       <Menu.Divider />
       <Menu.Item
         key="logout"
         onClick={() => auth.signOut()}
+        icon={<LogoutOutlined />}
         style={{ color: "red", fontWeight: "500" }}
       >
         Đăng xuất
@@ -62,22 +79,28 @@ export default function LeftSide() {
       {/* Nhóm icon phía trên */}
       <div className="icon-group top">
         <div
+          className={`icon-item ${active === "home" ? "active" : ""}`}
+          onClick={() => setActive("home")}
+        >
+          {active === "home" ? <GoHomeFill /> : <GoHome />}
+        </div>
+        <div
+          className={`icon-item ${active === "search" ? "active" : ""}`}
+          onClick={() => setActive("search")}
+        >
+          {active === "search" ? <HiSearch /> : <HiSearch />}
+        </div>
+        <div
           className={`icon-item ${active === "message" ? "active" : ""}`}
           onClick={() => setActive("message")}
         >
-          <MessageOutlined />
+          {active === "message" ? <RiMessengerFill /> : <RiMessengerLine />}
         </div>
         <div
-          className={`icon-item ${active === "team" ? "active" : ""}`}
-          onClick={() => setActive("team")}
+          className={`icon-item ${active === "heart" ? "active" : ""}`}
+          onClick={() => setActive("heart")}
         >
-          <TeamOutlined />
-        </div>
-        <div
-          className={`icon-item ${active === "approval" ? "active" : ""}`}
-          onClick={() => setActive("approval")}
-        >
-          <MdOutlinePendingActions />
+          {active === "heart" ? <GoHeartFill /> : <GoHeart />}
         </div>
       </div>
 
@@ -86,9 +109,12 @@ export default function LeftSide() {
         <div className="icon-item" onClick={() => auth.signOut()}>
           <AiOutlineLogout />
         </div>
-        <div className="icon-item">
-          <SettingOutlined />
-        </div>
+        {/* <div
+          className={`icon-item ${active === "more" ? "active" : ""}`}
+          onClick={() => setActive("more")}
+        >
+          {active === "more" ? <CgDetailsMore /> : <CgDetailsMore />}
+        </div> */}
       </div>
     </div>
   );

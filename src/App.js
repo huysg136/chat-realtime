@@ -14,6 +14,7 @@ function App() {
         <AppProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/direct" element={<ChatRoom />} />
             <Route path="/" element={<ChatRoom />} />
           </Routes>
           <AddRoomModal />

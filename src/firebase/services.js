@@ -1,5 +1,5 @@
 import { db } from "./config";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, updateDoc, doc, serverTimestamp } from "firebase/firestore";
 
 export const addDocument = async (collectionName, data) => {
   try {
@@ -10,6 +10,20 @@ export const addDocument = async (collectionName, data) => {
     return docRef;
   } catch (error) {
     console.error("Error adding document: ", error);
+  }
+};
+
+export const updateDocument = async (collectionName, docId, data) => {
+  try {
+    const docRef = doc(db, collectionName, docId);
+    await updateDoc(docRef, {
+      ...data,
+      updatedAt: serverTimestamp() 
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating document: ", error);
+    return false;
   }
 };
 

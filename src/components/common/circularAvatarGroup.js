@@ -32,7 +32,7 @@ const CircularAvatarGroup = ({ members, maxDisplay = 3 }) => {
   // Tính toán vị trí avatar
   const getAvatarPosition = (index, total, avatarSize = 24) => {
     if (total === 2) {
-      const spacing = avatarSize / 2 - 6;
+      const spacing = avatarSize / 2 - 8;
       return { x: index === 0 ? -spacing : spacing, y: 0 };
     }
     const angle = (2 * Math.PI * index) / total;
@@ -57,7 +57,7 @@ const CircularAvatarGroup = ({ members, maxDisplay = 3 }) => {
     <div className="circular-avatar-group">
       <div
         className="avatar-circle"
-        style={{ position: "relative", width: 48, height: 48 }}
+        style={{ position: "relative", width: 40, height: 40 }}
       >
         {displayMembers.map((member, index) => {
           const position = getAvatarPosition(index, totalToDisplay, avatarSize);

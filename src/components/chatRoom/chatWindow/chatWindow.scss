@@ -1,6 +1,6 @@
 .chat-window {
   height: 100vh;
-  background-color: rgb(239, 239, 239);
+  background-color: rgb(255, 255, 255);
 
   &__header {
     display: flex;
@@ -147,7 +147,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f9f9f9; // nhẹ nhàng hơn background chat
+  background: #f9f9f9; 
   text-align: center;
 
   .welcome-screen {
