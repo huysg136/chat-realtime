@@ -1,144 +1,212 @@
-import React, { useContext, useState, useMemo } from 'react';
-import { Modal, Form, Input, Select, Spin, Avatar } from 'antd';
+import React, { useContext, useState, useEffect } from 'react';
+import { Modal, Input, Avatar, Spin, Checkbox, Button } from 'antd';
 import { AppContext } from '../../context/appProvider';
 import { AuthContext } from '../../context/authProvider';
-import { addDocument } from '../../firebase/services';
-import debounce from 'lodash/debounce';
 import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/config";
+import debounce from 'lodash/debounce';
+import { addDocument } from '../../firebase/services';
 
-/* DebounceSelect Component */
-function DebounceSelect({ fetchOptions, debounceTimeout = 300, curMembers = [], ...props }) {
-    const [fetching, setFetching] = useState(false);
-    const [options, setOptions] = useState([]);
+export default function AddRoomModal({ openRoom = (room) => console.log('Open room:', room) }) {
+  const { isAddRoomVisible, setIsAddRoomVisible } = useContext(AppContext);
+  const { user } = useContext(AuthContext);
+  const uid = user?.uid;
 
-    const debounceFetcher = useMemo(() => {
-        const loadOptions = (value) => {
-            setOptions([]);
-            setFetching(true);
-            fetchOptions(value, curMembers).then(newOptions => {
-                setOptions(newOptions);
-                setFetching(false);
-            });
-        };
-        return debounce(loadOptions, debounceTimeout);
-    }, [fetchOptions, debounceTimeout, curMembers]);
+  const [searchText, setSearchText] = useState('');
+  const [options, setOptions] = useState([]);
+  const [fetching, setFetching] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState([]); // lưu full user object
 
-    return (
-        <Select
-            labelInValue
-            filterOption={false}
-            onSearch={debounceFetcher}
-            notFoundContent={fetching ? <Spin size="small" /> : null}
-            {...props}
-        >
-            {options.map(opt => (
-                <Select.Option 
-                    key={opt.value} 
-                    value={opt.value} 
-                    disabled={curMembers.includes(opt.value)}
-                    title={opt.label}
-                >
-                    <Avatar size="small" src={opt.photoURL} style={{ marginRight: 5 }} />
-                    {opt.label} {curMembers.includes(opt.value) ? "(Bạn)" : ""}
-                </Select.Option>
-            ))}
-        </Select>
-    );
-}
+  // Reset fields mỗi khi modal đóng
+  useEffect(() => {
+    if (!isAddRoomVisible) {
+      setSearchText('');
+      setSelectedMembers([]);
+      setOptions([]);
+      setFetching(false);
+    }
+  }, [isAddRoomVisible]);
 
-/* Fetch Users from Firestore */
-async function fetchUserList(search, curMembers = []) {
-    if (!search) return [];
+  // Debounce search
+  const fetchUserList = async (text) => {
+    if (!text) return setOptions([]);
+    setFetching(true);
     const q = query(
-        collection(db, "users"),
-        where("keywords", "array-contains", search),
-        orderBy("displayName"),
-        limit(20)
+      collection(db, "users"),
+      where("keywords", "array-contains", text),
+      orderBy("displayName"),
+      limit(20)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs
-        .map(doc => ({
-            label: doc.data().displayName,
-            value: doc.data().uid,
-            photoURL: doc.data().photoURL
-        }))
-        .filter(opt => !curMembers.includes(opt.value));
-}
+    const users = snapshot.docs
+      .map(doc => ({
+        uid: doc.data().uid,
+        displayName: doc.data().displayName,
+        photoURL: doc.data().photoURL,
+        username: doc.data().username || ''
+      }))
+      .filter(u => u.uid !== uid);
+    setOptions(users);
+    setFetching(false);
+  };
 
-/* AddRoomModal */
-export default function AddRoomModal() {
-    const { isAddRoomVisible, setIsAddRoomVisible } = useContext(AppContext);
-    const { user } = useContext(AuthContext);
-    const uid = user?.uid;
+  const debounceFetcher = debounce(fetchUserList, 300);
 
-    const [form] = Form.useForm();
-    const [hasSelected, setHasSelected] = useState(false);
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchText(value);
+    debounceFetcher(value);
+  };
 
-    const handleOk = async () => {
-        try {
-            const values = await form.validateFields();
-            if (!uid) return;
+  const handleToggleMember = (user) => {
+    setSelectedMembers(prev => {
+      if (prev.find(u => u.uid === user.uid)) {
+        return prev.filter(u => u.uid !== user.uid);
+      }
+      return [...prev, user];
+    });
+  };
 
-            // Người tạo + thành viên được chọn
-            const members = Array.from(new Set([
-                uid,
-                ...(values.members || []).map(m => m.value)
-            ]));
+  const handleOk = async () => {
+    if (!uid || selectedMembers.length === 0) return;
 
-            await addDocument('rooms', {
-                name: values.name,
-                description: values.description || '',
-                members
-            });
+    if (selectedMembers.length === 1) {
+      // Chat private
+      const otherUser = selectedMembers[0];
 
-            form.resetFields();
-            setHasSelected(false);
-            setIsAddRoomVisible(false);
-        } catch (err) {
-            console.error("Error creating room:", err);
+      const q = query(
+        collection(db, 'rooms'),
+        where('type', '==', 'private'),
+        where('members', 'array-contains', uid),
+        limit(20)
+      );
+      const snapshot = await getDocs(q);
+
+      let room = null;
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.members.includes(otherUser.uid) && data.members.length === 2) {
+          room = { id: doc.id, ...data };
         }
-    };
+      });
 
-    const handleCancel = () => {
-        form.resetFields();
-        setHasSelected(false);
-        setIsAddRoomVisible(false);
-    };
+      if (!room) {
+        const newRoom = {
+          name: otherUser.displayName,
+          type: 'private',
+          members: [uid, otherUser.uid],
+          avatar: otherUser.photoURL
+        };
+        const docRef = await addDocument('rooms', newRoom);
+        room = { id: docRef.id, ...newRoom };
+      }
 
-    const onValuesChange = (_, allValues) => {
-        setHasSelected((allValues.members || []).length > 0);
-    };
+      openRoom(room);
+    } else {
+      // Chat group
+      const members = Array.from(new Set([uid, ...selectedMembers.map(u => u.uid)]));
+      const roomName = [user.displayName, ...selectedMembers.map(u => u.displayName)].join(', ');
 
-    return (
-        <Modal
-            title="Tạo nhóm"
-            open={isAddRoomVisible}
-            onOk={handleOk}
-            onCancel={handleCancel}
-            okButtonProps={{ disabled: false }}
-        >
-            <Form
-                form={form}
-                layout="vertical"
-                onValuesChange={onValuesChange}
-            >
-                <Form.Item label="Tên nhóm" name="name" rules={[{ required: true, message: 'Nhập tên nhóm' }]}>
-                    <Input placeholder="Nhập tên nhóm" />
-                </Form.Item>
-                <Form.Item label="Mô tả" name="description">
-                    <Input.TextArea placeholder="Nhập mô tả" />
-                </Form.Item>
-                <Form.Item label="Mời thành viên" name="members">
-                    <DebounceSelect
-                        mode="multiple"
-                        placeholder="Nhập tên người dùng..."
-                        fetchOptions={fetchUserList}
-                        curMembers={[uid]}
-                        style={{ width: '100%' }}
-                    />
-                </Form.Item>
-            </Form>
-        </Modal>
-    );
+      const newRoom = {
+        name: roomName,
+        type: 'group',
+        members
+      };
+      const docRef = await addDocument('rooms', newRoom);
+      openRoom({ id: docRef.id, ...newRoom });
+    }
+
+    // Reset modal
+    setSearchText('');
+    setSelectedMembers([]);
+    setOptions([]);
+    setFetching(false);
+    setIsAddRoomVisible(false);
+  };
+
+  const handleCancel = () => {
+    setSearchText('');
+    setSelectedMembers([]);
+    setOptions([]);
+    setFetching(false);
+    setIsAddRoomVisible(false);
+  };
+
+  const filteredOptions = options.filter(u => !selectedMembers.find(s => s.uid === u.uid));
+
+  return (
+    <Modal
+      title="Tin nhắn mới"
+      open={isAddRoomVisible}
+      onCancel={handleCancel}
+      footer={null}
+    >
+      <div style={{ marginBottom: 10 }}>
+        <Input
+          placeholder="Tìm kiếm..."
+          value={searchText}
+          onChange={handleSearchChange}
+        />
+      </div>
+
+      <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+        {fetching && <Spin size="small" />}
+        {filteredOptions.map(user => (
+          <div
+            key={user.uid}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '5px 0',
+              cursor: 'pointer'
+            }}
+            onClick={() => handleToggleMember(user)}
+          >
+            <Avatar src={user.photoURL} size={32} style={{ marginRight: 10 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 500 }}>{user.displayName}</div>
+              <div style={{ fontSize: 12, color: 'gray' }}>@{user.username}</div>
+            </div>
+            <Checkbox checked={selectedMembers.find(u => u.uid === user.uid)} />
+          </div>
+        ))}
+      </div>
+
+      {selectedMembers.length > 0 && (
+        <>
+          <div style={{ marginTop: 15, fontWeight: 500 }}>Đã chọn:</div>
+          <div style={{ maxHeight: 150, overflowY: 'auto' }}>
+            {selectedMembers.map(user => (
+              <div
+                key={user.uid}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '5px 0',
+                  cursor: 'pointer'
+                }}
+                onClick={() => handleToggleMember(user)}
+              >
+                <Avatar src={user.photoURL} size={32} style={{ marginRight: 10 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 500 }}>{user.displayName}</div>
+                </div>
+                <Checkbox checked={true} />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      <Button
+        type="primary"
+        block
+        disabled={selectedMembers.length === 0}
+        onClick={handleOk}
+        style={{ marginTop: 10 }} 
+      >
+        Chat
+      </Button>
+    </Modal>
+  );
 }

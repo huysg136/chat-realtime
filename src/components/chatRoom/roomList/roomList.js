@@ -1,11 +1,13 @@
 import React, { useContext, useMemo } from "react";
 import { Avatar } from "antd";
 import { AppContext } from "../../../context/appProvider";
+import { AuthContext } from "../../../context/authProvider";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import "./roomList.scss";
 
 export default function RoomList() {
   const { rooms = [], users = [], selectedRoomId, setSelectedRoomId } = useContext(AppContext);
+  const { user } = useContext(AuthContext);
 
   // Map uid -> user
   const usersById = useMemo(() => {
@@ -60,11 +62,8 @@ export default function RoomList() {
         .map(uid => users.find(u => String(u.uid).trim() === String(uid).trim()))
         .filter(Boolean);
 
-        // // Debug
-        // console.log("Room:", room.name);
-        // console.log("Member UIDs:", memberUids);
-        // console.log("Members Data:", membersData);
-        // console.log("UsersById:", usersById);
+        // Check if private room (2 members)
+        const isPrivate = room.type === 'private' && membersData.length === 2;
 
         return (
           <div
@@ -74,7 +73,11 @@ export default function RoomList() {
           >
             {/* Avatar phòng / member */}
             <div className="room-avatar">
-              {membersData.length === 0 ? (
+              {isPrivate ? (
+                <Avatar src={membersData.find(u => u.uid !== user?.uid)?.photoURL}>
+                  {(membersData.find(u => u.uid !== user?.uid)?.displayName || "?").charAt(0).toUpperCase()}
+                </Avatar>
+              ) : membersData.length === 0 ? (
                 <Avatar>{(room.name || "?").charAt(0).toUpperCase()}</Avatar>
               ) : membersData.length === 1 ? (
                 <Avatar src={membersData[0].photoURL}>
@@ -92,7 +95,11 @@ export default function RoomList() {
 
             {/* Thông tin phòng */}
             <div className="room-info">
-              <p className="room-name">{room.name || (membersData[0]?.displayName ?? "No Name")}</p>
+              <p className="room-name">
+                {isPrivate
+                  ? membersData.find(u => u.uid !== user?.uid)?.displayName || "No Name"
+                  : room.name || (membersData[0]?.displayName ?? "No Name")}
+              </p>
               
               {room.lastMessage ? (
                 <p className="last-message">
@@ -117,7 +124,7 @@ export default function RoomList() {
                   })()}
                 </p>
               ) : (
-                <p className="last-message">No messages yet</p>
+                <p className="last-message">Chưa có tin nhắn</p>
               )}
             </div>
 

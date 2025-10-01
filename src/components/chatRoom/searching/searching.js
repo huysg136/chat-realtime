@@ -1,7 +1,8 @@
 import React, { useContext } from "react";
 import { Input } from "antd";
-import { SearchOutlined, UserAddOutlined } from "@ant-design/icons";
+import { SearchOutlined} from "@ant-design/icons";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
+import { IoCreateOutline } from "react-icons/io5";
 import { AppContext } from "../../../context/appProvider";
 import "./searching.scss"; // import file SCSS
 
@@ -21,12 +22,12 @@ export default function Searching() {
         bordered={false}
       />
 
-      <div className="icons">
-        <UserAddOutlined />
-      </div>
       <div className="icons" onClick={handleAddRoom}>
-        <AiOutlineUsergroupAdd />
+        <IoCreateOutline />
       </div>
+      {/* <div className="icons" onClick={handleAddRoom}>
+        <AiOutlineUsergroupAdd />
+      </div> */}
     </div>
   );
 }

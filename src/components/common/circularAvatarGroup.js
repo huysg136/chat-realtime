@@ -44,6 +44,7 @@ const CircularAvatarGroup = ({ members, maxDisplay = 3 }) => {
 
   // Kích thước avatar theo số lượng
   const getAvatarSize = (count) => {
+    if (count === 1) return 32;
     if (count === 2) return 28;
     if (count === 3) return 24;
     if (count === 4) return 16;
