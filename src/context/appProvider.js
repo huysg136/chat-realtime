@@ -21,15 +21,17 @@ export default function AppProvider({ children }) {
     );
 
     const rooms = useFirestore("rooms", roomsCondition);
+    const users = useFirestore("users");
 
     return (
-        <AppContext.Provider value={{ 
-            rooms, 
-            isAddRoomVisible, 
-            setIsAddRoomVisible, 
-            selectedRoomId, 
+        <AppContext.Provider value={{
+            rooms,
+            users,
+            isAddRoomVisible,
+            setIsAddRoomVisible,
+            selectedRoomId,
             setSelectedRoomId,
-            isInviteMemberVisible, 
+            isInviteMemberVisible,
             setIsInviteMemberVisible
         }}>
             {children}

@@ -1,64 +1,133 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import { Avatar } from "antd";
 import { AppContext } from "../../../context/appProvider";
-import CircularAvatarGroup from "../../common/circularAvatarGroup"; // import mới
+import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import "./roomList.scss";
 
 export default function RoomList() {
-  const { rooms, selectedRoomId, setSelectedRoomId } = useContext(AppContext);
+  const { rooms = [], users = [], selectedRoomId, setSelectedRoomId } = useContext(AppContext);
+
+  // Map uid -> user
+  const usersById = useMemo(() => {
+    const map = {};
+    users.forEach(u => {
+      if (u && u.uid) map[String(u.uid).trim()] = u;
+    });
+    return map;
+  }, [users]);
+
+  // Chuyển timestamp các dạng -> ms
+  const toMs = (ts) => {
+    if (!ts) return null;
+    if (typeof ts === "number") return ts;
+    if (ts.seconds) return ts.seconds * 1000;
+    if (ts instanceof Date) return ts.getTime();
+    if (typeof ts === "string") return Date.parse(ts);
+    return null;
+  };
+
+  // Hiển thị thời gian
   const timeAgo = (timestamp) => {
-    if (!timestamp) return "";
-
-    const now = new Date();
-    const time = timestamp instanceof Date ? timestamp : new Date(timestamp);
-    const diff = Math.floor((now - time) / 1000); // chênh lệch giây
-
-    if (diff < 60) return "vài giây trước";
+    const ms = toMs(timestamp);
+    if (!ms) return "";
+    const diff = Math.floor((Date.now() - ms) / 1000);
+    if (diff < 10) return "vừa xong";
+    if (diff < 60) return `${diff} giây trước`;
     if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
     if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-    if (diff < 172800) return `Hôm qua`;
-    
-    return `${time.getDate()}/${time.getMonth() + 1}/${time.getFullYear()}`;
+    if (diff < 172800) return "Hôm qua";
+    const d = new Date(ms);
+    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
   };
-  
+
+  // Sort rooms by lastMessage.createdAt descending
+  const sortedRooms = [...rooms].sort((a, b) => {
+    const aTime = toMs(a.lastMessage?.createdAt) || 0;
+    const bTime = toMs(b.lastMessage?.createdAt) || 0;
+    return bTime - aTime;
+  });
+
   return (
     <div className="room-list-wrapper">
-      {rooms.map((room) => (
-        <div
-          className={`room-item ${selectedRoomId === room.id ? "active" : ""}`}
-          key={room.id}
-          onClick={() => setSelectedRoomId(room.id)}
-        >
-          {room.avatar ? (
-            <Avatar src={room.avatar} size={40}>
-              {room.name?.charAt(0)?.toUpperCase()}
-            </Avatar>
-          ) : (
-            <CircularAvatarGroup members={room.members || []} size={40} />
-          )}
+      {sortedRooms.map((room) => {
+        // Chuẩn hóa member UIDs
+        const memberUids = Array.isArray(room.members)
+          ? room.members.map(m => (typeof m === "string" ? m : m?.uid)).filter(Boolean)
+          : [];
 
-          <div className="room-info">
-            <p className="room-name">{room.name}</p>
-            {room.lastMessage ? (
-              <p className="last-message">
-                {room.lastMessage.displayName}: {room.lastMessage.text}
-              </p>
-            ) : (
-              <p className="last-message">No messages yet</p>
-            )}
+        // Lấy thông tin member từ users
+        const membersData = memberUids
+        .map(uid => users.find(u => String(u.uid).trim() === String(uid).trim()))
+        .filter(Boolean);
+
+        // // Debug
+        // console.log("Room:", room.name);
+        // console.log("Member UIDs:", memberUids);
+        // console.log("Members Data:", membersData);
+        // console.log("UsersById:", usersById);
+
+        return (
+          <div
+            className={`room-item ${selectedRoomId === room.id ? "active" : ""}`}
+            key={room.id}
+            onClick={() => setSelectedRoomId && setSelectedRoomId(room.id)}
+          >
+            {/* Avatar phòng / member */}
+            <div className="room-avatar">
+              {membersData.length === 0 ? (
+                <Avatar>{(room.name || "?").charAt(0).toUpperCase()}</Avatar>
+              ) : membersData.length === 1 ? (
+                <Avatar src={membersData[0].photoURL}>
+                  {(membersData[0].displayName || "?").charAt(0).toUpperCase()}
+                </Avatar>
+              ) : (
+                <CircularAvatarGroup
+                  members={membersData.map(u => ({
+                    avatar: u.photoURL || null,
+                    name: u.displayName || "?"
+                  }))}
+                />
+              )}
+            </div>
+
+            {/* Thông tin phòng */}
+            <div className="room-info">
+              <p className="room-name">{room.name || (membersData[0]?.displayName ?? "No Name")}</p>
+              
+              {room.lastMessage ? (
+                <p className="last-message">
+                  {(() => {
+                    const senderUid = room.lastMessage?.uid;
+                    const sender = senderUid ? usersById[String(senderUid).trim()] : null;
+                    const senderName = sender?.displayName || room.lastMessage?.displayName || "Unknown";
+                    const senderPhoto = sender?.photoURL || room.lastMessage?.photoURL || null;
+
+                    return (
+                      <>
+                        {senderPhoto && (
+                          <Avatar
+                            size={16}
+                            src={senderPhoto}
+                            style={{ marginRight: 4 }}
+                          />
+                        )}
+                        {senderName}: {room.lastMessage.text}
+                      </>
+                    );
+                  })()}
+                </p>
+              ) : (
+                <p className="last-message">No messages yet</p>
+              )}
+            </div>
+
+            {/* Thời gian tin nhắn */}
+            <span className="room-time">
+              {room.lastMessage?.createdAt ? timeAgo(room.lastMessage.createdAt) : ""}
+            </span>
           </div>
-
-          <span className="room-time">
-            {room.lastMessage?.createdAt
-              ? timeAgo(
-                  room.lastMessage.createdAt.seconds
-                    ? room.lastMessage.createdAt.seconds * 1000
-                    : room.lastMessage.createdAt
-                )
-              : ""}
-          </span>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

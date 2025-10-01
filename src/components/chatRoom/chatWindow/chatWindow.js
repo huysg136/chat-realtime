@@ -28,7 +28,7 @@ function formatDate(timestamp) {
 }
 
 export default function ChatWindow() {
-  const { rooms, selectedRoomId, setIsInviteMemberVisible } =
+  const { rooms, users, selectedRoomId, setIsInviteMemberVisible } =
     useContext(AppContext);
   const authContext = useContext(AuthContext) || {};
   const user = authContext.user || {};
@@ -158,15 +158,12 @@ export default function ChatWindow() {
   }
 
   const members = selectedRoom.members || [];
+  const membersData = members.map(uid => users.find(u => String(u.uid).trim() === String(uid).trim())).filter(Boolean);
 
   return (
     <div className="chat-window">
       <header className="chat-window__header">
-        {selectedRoom.avatar ? (
-          <Avatar src={selectedRoom.avatar} size={44} />
-        ) : (
-          <CircularAvatarGroup members={members} maxDisplay={3} />
-        )}
+        <CircularAvatarGroup members={membersData.map(u => ({avatar: u.photoURL, name: u.displayName}))} maxDisplay={3} />
 
         <div className="header__info">
           <p className="header__title">{selectedRoom.name}</p>
@@ -206,7 +203,7 @@ export default function ChatWindow() {
               </div>
               <p className="empty-name">{selectedRoom.name}</p>
               <p className="empty-info">
-                {selectedRoom.description || "Instagram"}
+                {selectedRoom.description || "ChitChat"}
               </p>
               <p className="empty-hint">
                 Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện
