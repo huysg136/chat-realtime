@@ -111,9 +111,15 @@ export default function ChatWindow() {
     if (sending) return;
 
     setSending(true);
+    const messageText = inputValue.trim();
+    
+    // Reset form và input ngay lập tức
+    form.resetFields(["message"]);
+    setInputValue("");
+    
     try {
       await addDocument("messages", {
-        text: inputValue.trim(),
+        text: messageText,
         uid,
         photoURL,
         roomId: selectedRoom.id,
@@ -124,20 +130,18 @@ export default function ChatWindow() {
       await updateDocument("rooms", selectedRoom.id, {
         lastMessage: {
           displayName,
-          text: inputValue.trim(),
+          text: messageText,
           createdAt: new Date(),
         },
       });
-
-      form.resetFields(["message"]);
-      setInputValue("");
     } catch (err) {
       console.error("Failed to send message:", err);
     } finally {
       setSending(false);
-      if (inputRef.current) {
-      inputRef.current.focus();
-  }
+      // Focus lại input sau một khoảng thời gian ngắn
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
     }
   };
 
@@ -243,7 +247,7 @@ export default function ChatWindow() {
 
           <Form.Item name="message">
             <Input
-              ref={inputRef} 
+              ref={inputRef}
               value={inputValue}
               onChange={handleInputChange}
               onPressEnter={handleOnSubmit}
