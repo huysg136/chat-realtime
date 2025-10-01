@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { Modal, Input, Avatar, Spin, Checkbox, Button } from 'antd';
 import { AppContext } from '../../context/appProvider';
 import { AuthContext } from '../../context/authProvider';
@@ -7,8 +7,8 @@ import { db } from "../../firebase/config";
 import debounce from 'lodash/debounce';
 import { addDocument } from '../../firebase/services';
 
-export default function AddRoomModal({ openRoom = (room) => console.log('Open room:', room) }) {
-  const { isAddRoomVisible, setIsAddRoomVisible } = useContext(AppContext);
+export default function AddRoomModal() {
+  const { isAddRoomVisible, setIsAddRoomVisible, setSelectedRoomId } = useContext(AppContext);
   const { user } = useContext(AuthContext);
   const uid = user?.uid;
 
@@ -101,7 +101,7 @@ export default function AddRoomModal({ openRoom = (room) => console.log('Open ro
         room = { id: docRef.id, ...newRoom };
       }
 
-      openRoom(room);
+      setSelectedRoomId(room.id);
     } else {
       // Chat group
       const members = Array.from(new Set([uid, ...selectedMembers.map(u => u.uid)]));
@@ -113,7 +113,7 @@ export default function AddRoomModal({ openRoom = (room) => console.log('Open ro
         members
       };
       const docRef = await addDocument('rooms', newRoom);
-      openRoom({ id: docRef.id, ...newRoom });
+      setSelectedRoomId(docRef.id);
     }
 
     // Reset modal
