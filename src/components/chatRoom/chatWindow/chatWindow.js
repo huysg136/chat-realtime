@@ -60,7 +60,6 @@ export default function ChatWindow() {
 
   const messages = useFirestore("messages", condition) || [];
 
-  // chuẩn hoá thời gian
   const normalizedMessages = useMemo(() => {
     if (!Array.isArray(messages)) return [];
     return messages.map((msg, index) => {
@@ -112,11 +111,10 @@ export default function ChatWindow() {
 
     setSending(true);
     const messageText = inputValue.trim();
-    
-    // Reset form và input ngay lập tức
+
     form.resetFields(["message"]);
     setInputValue("");
-    
+
     try {
       await addDocument("messages", {
         text: messageText,
@@ -131,6 +129,7 @@ export default function ChatWindow() {
         lastMessage: {
           displayName,
           text: messageText,
+          uid,
           createdAt: new Date(),
         },
       });
@@ -138,7 +137,6 @@ export default function ChatWindow() {
       console.error("Failed to send message:", err);
     } finally {
       setSending(false);
-      // Focus lại input sau một khoảng thời gian ngắn
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
@@ -158,17 +156,46 @@ export default function ChatWindow() {
   }
 
   const members = selectedRoom.members || [];
-  const membersData = members.map(uid => users.find(u => String(u.uid).trim() === String(uid).trim())).filter(Boolean);
+  const membersData = members
+    .map((m) => (typeof m === "string" ? m : m?.uid))
+    .filter(Boolean)
+    .map((mid) => users.find((u) => String(u.uid).trim() === String(mid).trim()))
+    .filter(Boolean);
+
+  const isPrivate = selectedRoom.type === "private";
+  const otherUser = isPrivate
+    ? membersData.find((m) => String(m.uid).trim() !== String(uid).trim())
+    : null;
 
   return (
     <div className="chat-window">
       <header className="chat-window__header">
-        <CircularAvatarGroup members={membersData.map(u => ({avatar: u.photoURL, name: u.displayName}))} maxDisplay={3} />
+        <div className="header-avatar">
+          {isPrivate ? (
+            otherUser ? (
+              <Avatar src={otherUser.photoURL} size={40}>
+                {(otherUser.displayName || "?").charAt(0).toUpperCase()}
+              </Avatar>
+            ) : (
+              <Avatar size={64}>{(selectedRoom.name || "?").charAt(0).toUpperCase()}</Avatar>
+            )
+          ) : selectedRoom.avatar ? (
+            <Avatar src={selectedRoom.avatar} size={40} />
+          ) : (
+            <CircularAvatarGroup
+              members={membersData.map((u) => ({ avatar: u.photoURL, name: u.displayName }))}
+              size={64}
+              maxDisplay={3}
+            />
+          )}
+        </div>
 
         <div className="header__info">
-          <p className="header__title">{selectedRoom.name}</p>
+          <p className="header__title">
+            {isPrivate ? otherUser?.displayName || selectedRoom.name : selectedRoom.name}
+          </p>
           <span className="header__description">
-            {selectedRoom.description || "Đang hoạt động"}
+            {selectedRoom.description || (isPrivate ? "Đang hoạt động" : "Đang hoạt động")}
           </span>
         </div>
 
@@ -176,56 +203,52 @@ export default function ChatWindow() {
           <div className="button-group-style">
             <Button type="text" icon={<PhoneOutlined />} />
             <Button type="text" icon={<VideoCameraOutlined />} />
-            <Button
-              type="text"
-              icon={<UserAddOutlined />}
-              onClick={() => setIsInviteMemberVisible(true)}
-            />
+            {!isPrivate && (
+              <Button
+                type="text"
+                icon={<UserAddOutlined />}
+                onClick={() => setIsInviteMemberVisible(true)}
+              />
+            )}
           </div>
         </div>
       </header>
 
       <div className="chat-window__content">
         <div
-          className={`message-list-style ${
-            sortedMessages.length < 7 ? "few-messages" : ""
-          }`}
+          className={`message-list-style ${sortedMessages.length < 7 ? "few-messages" : ""}`}
           ref={messageListRef}
         >
           {sortedMessages.length === 0 ? (
             <div className="empty-chat">
               <div className="empty-avatar">
-                {selectedRoom.avatar ? (
+                {isPrivate ? (
+                  otherUser ? (
+                    <Avatar src={otherUser.photoURL} size={80} />
+                  ) : (
+                    <Avatar size={80}>{(selectedRoom.name || "?").charAt(0).toUpperCase()}</Avatar>
+                  )
+                ) : selectedRoom.avatar ? (
                   <Avatar src={selectedRoom.avatar} size={80} />
                 ) : (
-                  <CircularAvatarGroup members={members} size={80} />
+                  <CircularAvatarGroup members={membersData.map((u) => ({ avatar: u.photoURL, name: u.displayName }))} size={80} />
                 )}
               </div>
-              <p className="empty-name">{selectedRoom.name}</p>
-              <p className="empty-info">
-                {selectedRoom.description || "ChitChat"}
-              </p>
-              <p className="empty-hint">
-                Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện
-              </p>
+              <p className="empty-name">{isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}</p>
+              <p className="empty-info">{selectedRoom.description || "ChitChat"}</p>
+              <p className="empty-hint">Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện</p>
             </div>
           ) : (
             sortedMessages.map((msg, index) => {
               const prevMsg = sortedMessages[index - 1];
               const showTime =
                 !prevMsg ||
-                new Date(prevMsg.createdAt).getMinutes() !==
-                  new Date(msg.createdAt).getMinutes() ||
-                new Date(prevMsg.createdAt).getHours() !==
-                  new Date(msg.createdAt).getHours();
+                new Date(prevMsg.createdAt).getMinutes() !== new Date(msg.createdAt).getMinutes() ||
+                new Date(prevMsg.createdAt).getHours() !== new Date(msg.createdAt).getHours();
 
               return (
                 <React.Fragment key={msg.id}>
-                  {showTime && (
-                    <div className="chat-time-separator">
-                      {formatDate(msg.createdAt)}
-                    </div>
-                  )}
+                  {showTime && <div className="chat-time-separator">{formatDate(msg.createdAt)}</div>}
                   <Message
                     text={msg.text || ""}
                     photoURL={msg.photoURL || null}
@@ -241,7 +264,6 @@ export default function ChatWindow() {
 
         <Form className="form-style" form={form}>
           <Button type="text" icon={<SmileOutlined />} className="input-icon-btn" />
-
           <Form.Item name="message">
             <Input
               ref={inputRef}
@@ -256,31 +278,13 @@ export default function ChatWindow() {
           </Form.Item>
 
           {inputValue.trim() ? (
-            <Button
-              type="text"
-              onClick={handleOnSubmit}
-              loading={sending}
-              className="send-btn"
-            >
+            <Button type="text" onClick={handleOnSubmit} loading={sending} className="send-btn">
               Gửi
             </Button>
           ) : (
             <div className="input-actions">
-              <Button
-                type="text"
-                icon={<AudioOutlined />}
-                className="input-icon-btn"
-              />
-              <Button
-                type="text"
-                icon={<PictureOutlined />}
-                className="input-icon-btn"
-              />
-              <Button
-                type="text"
-                icon={<HeartOutlined />}
-                className="input-icon-btn"
-              />
+              <Button type="text" icon={<AudioOutlined />} className="input-icon-btn" />
+              <Button type="text" icon={<PictureOutlined />} className="input-icon-btn" />
             </div>
           )}
         </Form>

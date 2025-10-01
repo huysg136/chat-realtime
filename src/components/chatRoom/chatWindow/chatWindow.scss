@@ -86,10 +86,6 @@
       gap: 4px;
       min-height: 0;
 
-      &.few-messages {
-        justify-content: flex-end;
-      }
-
       &::-webkit-scrollbar {
         width: 6px;
       }

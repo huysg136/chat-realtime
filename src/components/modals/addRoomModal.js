@@ -165,7 +165,7 @@ export default function AddRoomModal() {
             <Avatar src={user.photoURL} size={32} style={{ marginRight: 10 }} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 500 }}>{user.displayName}</div>
-              <div style={{ fontSize: 12, color: 'gray' }}>@{user.username}</div>
+              {/* <div style={{ fontSize: 12, color: 'gray' }}>@{user.username}</div> */}
             </div>
             <Checkbox checked={selectedMembers.find(u => u.uid === user.uid)} />
           </div>

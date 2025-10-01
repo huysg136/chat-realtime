@@ -16,39 +16,37 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 
   &:hover {
-    background: rgba(0, 0, 0, 0.07);
+    background: rgba(0, 0, 0, 0.03);
   }
 
   &.active {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.06);
   }
 
-  .ant-avatar {
+  .room-avatar {
     flex-shrink: 0;
-  }
-
-  .room-circular-avatar-group {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    flex-shrink: 0;
+    justify-content: center;
 
-    .room-avatar-circle {
-      position: relative;
-      width: 40px;  // khung chứa avatar group bằng avatar thường
+    .ant-avatar {
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    /* Avatar khi chỉ có 1 thành viên (to hơn) */
+    .single-avatar {
+      width: 48px;
+      height: 48px;
+      line-height: 48px;
+      font-size: 18px;
+    }
+
+    /* wrapper cho circular group (giữ size khung giống avatar) */
+    .room-circular-avatar-wrapper {
+      width: 40px;
       height: 40px;
-    }
-
-    .room-circle-avatar {
-      border: 1px solid white;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-
-    .remaining-count {
-      background-color: #bebebeff;
-      color: white;
-      font-size: 10px;
-      font-weight: bold;
+      display: flex;
+      align-items: center;
     }
   }
 
@@ -59,8 +57,8 @@
     overflow: hidden;
 
     .room-name {
-      font-size: 16px;
-      font-weight: 500;
+      font-size: 15px;
+      //font-weight: 500;
       color: black;
       margin: 0;
       white-space: nowrap;
@@ -72,9 +70,16 @@
       font-size: 14px;
       color: #757575;
       margin: 0;
+      display: flex;
+      align-items: center;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+
+      .ant-avatar {
+        margin-right: 6px;
+        flex-shrink: 0;
+      }
     }
   }
 
@@ -82,6 +87,6 @@
     font-size: 12px;
     color: #757575;
     white-space: nowrap;
-    margin-left: auto; // đẩy sát phải
+    margin-left: auto;
   }
 }

@@ -1,5 +1,6 @@
 import React, { useContext, useMemo } from "react";
 import { Avatar } from "antd";
+import { TeamOutlined } from "@ant-design/icons";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
@@ -49,6 +50,9 @@ export default function RoomList() {
     return bTime - aTime;
   });
 
+  // Helper: safe string
+  const str = v => (v == null ? "" : String(v).trim());
+
   return (
     <div className="room-list-wrapper">
       {sortedRooms.map((room) => {
@@ -59,11 +63,34 @@ export default function RoomList() {
 
         // Lấy thông tin member từ users
         const membersData = memberUids
-        .map(uid => users.find(u => String(u.uid).trim() === String(uid).trim()))
-        .filter(Boolean);
+          .map(uid => users.find(u => String(u.uid).trim() === String(uid).trim()))
+          .filter(Boolean);
 
         // Check if private room (2 members)
         const isPrivate = room.type === 'private' && membersData.length === 2;
+
+        // Xác định group (nhiều thành viên) — dùng room.type==='group' nếu có, hoặc fallback membersData.length>1
+        const isGroup = !isPrivate && (room.type === 'group' || membersData.length > 1);
+
+        // lastMessage data
+        const lm = room.lastMessage || {};
+        const lmUid = str(lm.uid);
+        const currentUid = str(user?.uid);
+        const isOwnMessage = lmUid
+          ? lmUid === currentUid
+          : lm.displayName && user?.displayName
+            ? str(lm.displayName) === str(user.displayName)
+            : false;
+
+        const sender = lm.uid ? usersById[lmUid] : null;
+        const senderName = isOwnMessage
+          ? "Tôi"
+          : (sender?.displayName || lm.displayName || "Unknown");
+        const senderPhoto = sender?.photoURL || lm.photoURL || null;
+
+        // Determine avatar rendering
+        const singleMember = !isPrivate && membersData.length === 1;
+        const singleMemberData = singleMember ? membersData[0] : null;
 
         return (
           <div
@@ -74,54 +101,50 @@ export default function RoomList() {
             {/* Avatar phòng / member */}
             <div className="room-avatar">
               {isPrivate ? (
-                <Avatar src={membersData.find(u => u.uid !== user?.uid)?.photoURL}>
+                <Avatar
+                  src={membersData.find(u => u.uid !== user?.uid)?.photoURL}
+                  size={40}
+                >
                   {(membersData.find(u => u.uid !== user?.uid)?.displayName || "?").charAt(0).toUpperCase()}
                 </Avatar>
-              ) : membersData.length === 0 ? (
-                <Avatar>{(room.name || "?").charAt(0).toUpperCase()}</Avatar>
-              ) : membersData.length === 1 ? (
-                <Avatar src={membersData[0].photoURL}>
-                  {(membersData[0].displayName || "?").charAt(0).toUpperCase()}
+              ) : singleMember ? (
+                // Nếu chỉ có 1 member (không phải private) => hiện to hơn
+                <Avatar
+                  className="single-avatar"
+                  src={singleMemberData?.photoURL}
+                  size={48}
+                >
+                  {(singleMemberData?.displayName || "?").charAt(0).toUpperCase()}
                 </Avatar>
+              ) : membersData.length === 0 ? (
+                <Avatar size={40}>{(room.name || "?").charAt(0).toUpperCase()}</Avatar>
               ) : (
-                <CircularAvatarGroup
-                  members={membersData.map(u => ({
-                    avatar: u.photoURL || null,
-                    name: u.displayName || "?"
-                  }))}
-                />
+                <div className="room-circular-avatar-wrapper">
+                  <CircularAvatarGroup
+                    members={membersData.map(u => ({
+                      avatar: u.photoURL || null,
+                      name: u.displayName || "?"
+                    }))}
+                    maxDisplay={3}
+                  />
+                </div>
               )}
             </div>
 
             {/* Thông tin phòng */}
             <div className="room-info">
               <p className="room-name">
+                {isGroup && (
+                  <TeamOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />
+                )}
                 {isPrivate
                   ? membersData.find(u => u.uid !== user?.uid)?.displayName || "No Name"
                   : room.name || (membersData[0]?.displayName ?? "No Name")}
               </p>
-              
+
               {room.lastMessage ? (
                 <p className="last-message">
-                  {(() => {
-                    const senderUid = room.lastMessage?.uid;
-                    const sender = senderUid ? usersById[String(senderUid).trim()] : null;
-                    const senderName = sender?.displayName || room.lastMessage?.displayName || "Unknown";
-                    const senderPhoto = sender?.photoURL || room.lastMessage?.photoURL || null;
-
-                    return (
-                      <>
-                        {senderPhoto && (
-                          <Avatar
-                            size={16}
-                            src={senderPhoto}
-                            style={{ marginRight: 4 }}
-                          />
-                        )}
-                        {senderName}: {room.lastMessage.text}
-                      </>
-                    );
-                  })()}
+                  {senderName}: {lm.text || lm?.content || ""}
                 </p>
               ) : (
                 <p className="last-message">Chưa có tin nhắn</p>
