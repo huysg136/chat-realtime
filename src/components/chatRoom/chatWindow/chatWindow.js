@@ -39,6 +39,7 @@ export default function ChatWindow() {
   const [form] = Form.useForm();
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
+  const inputRef = useRef(null);
 
   const selectedRoom = useMemo(
     () => rooms.find((room) => room.id === selectedRoomId),
@@ -134,6 +135,9 @@ export default function ChatWindow() {
       console.error("Failed to send message:", err);
     } finally {
       setSending(false);
+      if (inputRef.current) {
+      inputRef.current.focus();
+  }
     }
   };
 
@@ -239,6 +243,7 @@ export default function ChatWindow() {
 
           <Form.Item name="message">
             <Input
+              ref={inputRef} 
               value={inputValue}
               onChange={handleInputChange}
               onPressEnter={handleOnSubmit}
