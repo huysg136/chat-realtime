@@ -1,6 +1,6 @@
 import React from "react";
 import { Avatar } from "antd";
-import { formatRelative } from "date-fns";
+import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import "./message.scss";
 
@@ -13,8 +13,7 @@ function formatDate(timestamp) {
     date = new Date(timestamp);
   }
   if (isNaN(date)) return "";
-  let formattedDate = formatRelative(date, new Date(), { locale: vi });
-  return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  return format(date, "HH:mm dd/MM/yy", { locale: vi });
 }
 
 export default function Message({ text, displayName, createdAt, photoURL, isOwn }) {
@@ -36,7 +35,6 @@ export default function Message({ text, displayName, createdAt, photoURL, isOwn 
           {!isOwn && <span className="message-name">{displayName}</span>}
           <span className="message-text">{text}</span>
         </div>
-        <span className="message-time">{formatDate(createdAt)}</span>
       </div>
     </div>
   );

@@ -74,15 +74,21 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-height: 0;
 
     .message-list-style {
       flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 16px 20px;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end; 
       gap: 4px;
+      min-height: 0;
+
+      &.few-messages {
+        justify-content: flex-end;
+      }
 
       &::-webkit-scrollbar {
         width: 6px;
@@ -106,7 +112,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100%;
+        min-height: 100%;
         text-align: center;
         color: #262626;
 
@@ -336,4 +342,10 @@
       }
     }
   }
+}
+.chat-time-separator {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  margin: 12px 0;
 }

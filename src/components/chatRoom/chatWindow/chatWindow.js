@@ -19,6 +19,14 @@ import { addDocument, updateDocument } from "../../../firebase/services";
 import { AuthContext } from "../../../context/authProvider";
 import { useFirestore } from "../../../hooks/useFirestore";
 
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+
+function formatDate(timestamp) {
+  if (!timestamp) return "";
+  return format(new Date(timestamp), "HH:mm dd/MM/yy", { locale: vi });
+}
+
 export default function ChatWindow() {
   const { rooms, selectedRoomId, setIsInviteMemberVisible } =
     useContext(AppContext);
@@ -51,35 +59,31 @@ export default function ChatWindow() {
 
   const messages = useFirestore("messages", condition) || [];
 
+  // chuẩn hoá thời gian
   const normalizedMessages = useMemo(() => {
-    try {
-      if (!Array.isArray(messages)) return [];
-      return messages.map((msg, index) => {
-        let timestamp = Date.now();
-        const createdAt = msg?.createdAt;
+    if (!Array.isArray(messages)) return [];
+    return messages.map((msg, index) => {
+      let timestamp = Date.now();
+      const createdAt = msg?.createdAt;
 
-        if (createdAt != null) {
-          if (typeof createdAt === "number") {
-            timestamp = createdAt;
-          } else if (createdAt.seconds && typeof createdAt.seconds === "number") {
-            timestamp = createdAt.seconds * 1000;
-          } else if (typeof createdAt.toMillis === "function") {
-            timestamp = createdAt.toMillis();
-          } else if (createdAt instanceof Date) {
-            timestamp = createdAt.getTime();
-          }
+      if (createdAt != null) {
+        if (typeof createdAt === "number") {
+          timestamp = createdAt;
+        } else if (createdAt.seconds) {
+          timestamp = createdAt.seconds * 1000;
+        } else if (typeof createdAt.toMillis === "function") {
+          timestamp = createdAt.toMillis();
+        } else if (createdAt instanceof Date) {
+          timestamp = createdAt.getTime();
         }
+      }
 
-        return {
-          ...msg,
-          createdAt: timestamp,
-          id: msg.id || msg._id || `msg-${index}`,
-        };
-      });
-    } catch (err) {
-      console.error("Error normalizing messages:", err);
-      return [];
-    }
+      return {
+        ...msg,
+        createdAt: timestamp,
+        id: msg.id || msg._id || `msg-${index}`,
+      };
+    });
   }, [messages]);
 
   const sortedMessages = useMemo(() => {
@@ -94,11 +98,7 @@ export default function ChatWindow() {
     const el = messageListRef.current;
     if (!el) return;
     requestAnimationFrame(() => {
-      try {
-        el.scrollTop = el.scrollHeight;
-      } catch (err) {
-        console.warn("Scroll to bottom failed:", err);
-      }
+      el.scrollTop = el.scrollHeight;
     });
   }, [sortedMessages, selectedRoomId]);
 
@@ -106,10 +106,7 @@ export default function ChatWindow() {
 
   const handleOnSubmit = async () => {
     if (!inputValue.trim() || !selectedRoom) return;
-    if (!uid) {
-      console.warn("User not ready yet. Can't send message.");
-      return;
-    }
+    if (!uid) return;
     if (sending) return;
 
     setSending(true);
@@ -172,10 +169,7 @@ export default function ChatWindow() {
 
         <div className="button-group-right">
           <div className="button-group-style">
-            <Button
-              type="text"
-              icon={<PhoneOutlined />}
-            />
+            <Button type="text" icon={<PhoneOutlined />} />
             <Button type="text" icon={<VideoCameraOutlined />} />
             <Button
               type="text"
@@ -187,7 +181,12 @@ export default function ChatWindow() {
       </header>
 
       <div className="chat-window__content">
-        <div className="message-list-style" ref={messageListRef}>
+        <div
+          className={`message-list-style ${
+            sortedMessages.length < 7 ? "few-messages" : ""
+          }`}
+          ref={messageListRef}
+        >
           {sortedMessages.length === 0 ? (
             <div className="empty-chat">
               <div className="empty-avatar">
@@ -198,30 +197,46 @@ export default function ChatWindow() {
                 )}
               </div>
               <p className="empty-name">{selectedRoom.name}</p>
-              <p className="empty-info">{selectedRoom.description || "Instagram"}</p>
-              <p className="empty-hint">Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện</p>
+              <p className="empty-info">
+                {selectedRoom.description || "Instagram"}
+              </p>
+              <p className="empty-hint">
+                Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện
+              </p>
             </div>
           ) : (
-            sortedMessages.map((msg) => (
-              <Message
-                key={msg.id}
-                text={msg.text || ""}
-                photoURL={msg.photoURL || null}
-                displayName={msg.displayName || "Unknown"}
-                createdAt={msg.createdAt}
-                isOwn={msg.uid === uid}
-              />
-            ))
+            sortedMessages.map((msg, index) => {
+              const prevMsg = sortedMessages[index - 1];
+              const showTime =
+                !prevMsg ||
+                new Date(prevMsg.createdAt).getMinutes() !==
+                  new Date(msg.createdAt).getMinutes() ||
+                new Date(prevMsg.createdAt).getHours() !==
+                  new Date(msg.createdAt).getHours();
+
+              return (
+                <React.Fragment key={msg.id}>
+                  {showTime && (
+                    <div className="chat-time-separator">
+                      {formatDate(msg.createdAt)}
+                    </div>
+                  )}
+                  <Message
+                    text={msg.text || ""}
+                    photoURL={msg.photoURL || null}
+                    displayName={msg.displayName || "Unknown"}
+                    createdAt={msg.createdAt}
+                    isOwn={msg.uid === uid}
+                  />
+                </React.Fragment>
+              );
+            })
           )}
         </div>
 
         <Form className="form-style" form={form}>
-          <Button 
-            type="text" 
-            icon={<SmileOutlined />} 
-            className="input-icon-btn"
-          />
-          
+          <Button type="text" icon={<SmileOutlined />} className="input-icon-btn" />
+
           <Form.Item name="message">
             <Input
               value={inputValue}
@@ -235,9 +250,9 @@ export default function ChatWindow() {
           </Form.Item>
 
           {inputValue.trim() ? (
-            <Button 
-              type="text" 
-              onClick={handleOnSubmit} 
+            <Button
+              type="text"
+              onClick={handleOnSubmit}
               loading={sending}
               className="send-btn"
             >
@@ -245,9 +260,21 @@ export default function ChatWindow() {
             </Button>
           ) : (
             <div className="input-actions">
-              <Button type="text" icon={<AudioOutlined />} className="input-icon-btn" />
-              <Button type="text" icon={<PictureOutlined />} className="input-icon-btn" />
-              <Button type="text" icon={<HeartOutlined />} className="input-icon-btn" />
+              <Button
+                type="text"
+                icon={<AudioOutlined />}
+                className="input-icon-btn"
+              />
+              <Button
+                type="text"
+                icon={<PictureOutlined />}
+                className="input-icon-btn"
+              />
+              <Button
+                type="text"
+                icon={<HeartOutlined />}
+                className="input-icon-btn"
+              />
             </div>
           )}
         </Form>

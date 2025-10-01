@@ -1,8 +1,8 @@
 .message-row {
   display: flex;
   align-items: flex-end;
-  margin-bottom: 8px;
-  gap: 8px;
+  //margin-bottom: 8px;
+  //gap: 8px;
 
   &.own {
     flex-direction: row-reverse;
@@ -29,6 +29,7 @@
 .message-avatar {
   flex-shrink: 0;
   border: 1.5px solid #f0f0f0;
+  margin-right: 5px;
 }
 
 .message-content {
