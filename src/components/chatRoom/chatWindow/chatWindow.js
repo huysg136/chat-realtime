@@ -1,6 +1,15 @@
 import React, { useContext, useState, useMemo, useRef, useEffect } from "react";
 import { Button, Avatar, Form, Input } from "antd";
-import { PhoneOutlined, VideoCameraOutlined, UserAddOutlined, MessageOutlined } from "@ant-design/icons";
+import {
+  PhoneOutlined,
+  VideoCameraOutlined,
+  UserAddOutlined,
+  MessageOutlined,
+  SmileOutlined,
+  PictureOutlined,
+  AudioOutlined,
+  HeartOutlined,
+} from "@ant-design/icons";
 
 import Message from "../message/message";
 import { AppContext } from "../../../context/appProvider";
@@ -11,25 +20,34 @@ import { AuthContext } from "../../../context/authProvider";
 import { useFirestore } from "../../../hooks/useFirestore";
 
 export default function ChatWindow() {
-  const { rooms, selectedRoomId, setIsInviteMemberVisible } = useContext(AppContext);
+  const { rooms, selectedRoomId, setIsInviteMemberVisible } =
+    useContext(AppContext);
   const authContext = useContext(AuthContext) || {};
   const user = authContext.user || {};
   const uid = user.uid || "";
   const photoURL = user.photoURL || null;
   const displayName = user.displayName || "Unknown";
+
   const [form] = Form.useForm();
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
-  const selectedRoom = useMemo(() => rooms.find(room => room.id === selectedRoomId), [rooms, selectedRoomId]);
-  const condition = useMemo(() =>
-    selectedRoomId ? {
-      fieldName: "roomId",
-      operator: "==",
-      compareValue: selectedRoomId
-    } : null,
+
+  const selectedRoom = useMemo(
+    () => rooms.find((room) => room.id === selectedRoomId),
+    [rooms, selectedRoomId]
+  );
+
+  const condition = useMemo(
+    () =>
+      selectedRoomId
+        ? {
+            fieldName: "roomId",
+            operator: "==",
+            compareValue: selectedRoomId,
+          }
+        : null,
     [selectedRoomId]
   );
-  
 
   const messages = useFirestore("messages", condition) || [];
 
@@ -55,7 +73,7 @@ export default function ChatWindow() {
         return {
           ...msg,
           createdAt: timestamp,
-          id: msg.id || msg._id || `msg-${index}`
+          id: msg.id || msg._id || `msg-${index}`,
         };
       });
     } catch (err) {
@@ -65,7 +83,9 @@ export default function ChatWindow() {
   }, [messages]);
 
   const sortedMessages = useMemo(() => {
-    return [...normalizedMessages].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+    return [...normalizedMessages].sort(
+      (a, b) => (a.createdAt || 0) - (b.createdAt || 0)
+    );
   }, [normalizedMessages]);
 
   const messageListRef = useRef(null);
@@ -100,15 +120,15 @@ export default function ChatWindow() {
         photoURL,
         roomId: selectedRoom.id,
         displayName,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
 
       await updateDocument("rooms", selectedRoom.id, {
         lastMessage: {
           displayName,
           text: inputValue.trim(),
-          createdAt: new Date()
-        }
+          createdAt: new Date(),
+        },
       });
 
       form.resetFields(["message"]);
@@ -120,14 +140,13 @@ export default function ChatWindow() {
     }
   };
 
-  // Khi chưa chọn phòng
   if (!selectedRoom) {
     return (
       <div className="chat-window no-room">
         <div className="welcome-screen">
-          <MessageOutlined style={{ fontSize: "64px", color: "#1890ff" }} />
-          <h2>Chào mừng đến với ChitChat</h2>
-          <p>👉 Hãy chọn một phòng chat ở sidebar để bắt đầu trò chuyện</p>
+          <MessageOutlined />
+          <h2>Tin nhắn của bạn</h2>
+          <p>Gửi ảnh và tin nhắn riêng tư cho bạn bè</p>
         </div>
       </div>
     );
@@ -139,21 +158,30 @@ export default function ChatWindow() {
     <div className="chat-window">
       <header className="chat-window__header">
         {selectedRoom.avatar ? (
-          <Avatar src={selectedRoom.avatar} size={48} />
+          <Avatar src={selectedRoom.avatar} size={44} />
         ) : (
           <CircularAvatarGroup members={members} maxDisplay={3} />
         )}
 
         <div className="header__info">
           <p className="header__title">{selectedRoom.name}</p>
-          <span className="header__description">{selectedRoom.description}</span>
+          <span className="header__description">
+            {selectedRoom.description || "Đang hoạt động"}
+          </span>
         </div>
 
         <div className="button-group-right">
           <div className="button-group-style">
-            <Button type="text" icon={<UserAddOutlined />} onClick={() => setIsInviteMemberVisible(true)} />
-            <Button type="text" icon={<PhoneOutlined />} />
+            <Button
+              type="text"
+              icon={<PhoneOutlined />}
+            />
             <Button type="text" icon={<VideoCameraOutlined />} />
+            <Button
+              type="text"
+              icon={<UserAddOutlined />}
+              onClick={() => setIsInviteMemberVisible(true)}
+            />
           </div>
         </div>
       </header>
@@ -161,7 +189,18 @@ export default function ChatWindow() {
       <div className="chat-window__content">
         <div className="message-list-style" ref={messageListRef}>
           {sortedMessages.length === 0 ? (
-            <p>Chưa có tin nhắn nào</p>
+            <div className="empty-chat">
+              <div className="empty-avatar">
+                {selectedRoom.avatar ? (
+                  <Avatar src={selectedRoom.avatar} size={80} />
+                ) : (
+                  <CircularAvatarGroup members={members} size={80} />
+                )}
+              </div>
+              <p className="empty-name">{selectedRoom.name}</p>
+              <p className="empty-info">{selectedRoom.description || "Instagram"}</p>
+              <p className="empty-hint">Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện</p>
+            </div>
           ) : (
             sortedMessages.map((msg) => (
               <Message
@@ -170,26 +209,47 @@ export default function ChatWindow() {
                 photoURL={msg.photoURL || null}
                 displayName={msg.displayName || "Unknown"}
                 createdAt={msg.createdAt}
+                isOwn={msg.uid === uid}
               />
             ))
           )}
         </div>
 
         <Form className="form-style" form={form}>
+          <Button 
+            type="text" 
+            icon={<SmileOutlined />} 
+            className="input-icon-btn"
+          />
+          
           <Form.Item name="message">
             <Input
               value={inputValue}
               onChange={handleInputChange}
               onPressEnter={handleOnSubmit}
-              placeholder="Nhập tin nhắn"
+              placeholder="Nhắn tin..."
               bordered={false}
               autoComplete="off"
               disabled={sending}
             />
           </Form.Item>
-          <Button type="primary" onClick={handleOnSubmit} loading={sending}>
-            Gửi
-          </Button>
+
+          {inputValue.trim() ? (
+            <Button 
+              type="text" 
+              onClick={handleOnSubmit} 
+              loading={sending}
+              className="send-btn"
+            >
+              Gửi
+            </Button>
+          ) : (
+            <div className="input-actions">
+              <Button type="text" icon={<AudioOutlined />} className="input-icon-btn" />
+              <Button type="text" icon={<PictureOutlined />} className="input-icon-btn" />
+              <Button type="text" icon={<HeartOutlined />} className="input-icon-btn" />
+            </div>
+          )}
         </Form>
       </div>
     </div>

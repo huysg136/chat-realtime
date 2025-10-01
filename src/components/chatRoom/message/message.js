@@ -1,38 +1,42 @@
-import React from 'react';
-import { Avatar, Typography } from 'antd';
-import { formatRelative } from 'date-fns';
-import { vi } from 'date-fns/locale';
-import './message.scss';
+import React from "react";
+import { Avatar } from "antd";
+import { formatRelative } from "date-fns";
+import { vi } from "date-fns/locale";
+import "./message.scss";
 
 function formatDate(timestamp) {
-  if (!timestamp) return '';
+  if (!timestamp) return "";
   let date;
   if (timestamp.seconds) {
     date = new Date(timestamp.seconds * 1000);
   } else {
     date = new Date(timestamp);
   }
-  if (isNaN(date)) return '';
-  // format lại tiếng việt
+  if (isNaN(date)) return "";
   let formattedDate = formatRelative(date, new Date(), { locale: vi });
   return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 }
 
-export default function Message({ text, displayName, createdAt, photoURL }) {
+export default function Message({ text, displayName, createdAt, photoURL, isOwn }) {
   return (
-    <div className="message-wrapper">
-      <div className="message-header">
+    <div className={`message-row ${isOwn ? "own" : ""}`}>
+      {!isOwn && (
         <Avatar
-          size="small"
-          src={photoURL || "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg"}
+          className="message-avatar"
+          src={
+            photoURL ||
+            "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg"
+          }
+          size={28}
         />
-        <Typography.Text className="author">{displayName}</Typography.Text>
-        <Typography.Text className="date">
-          {formatDate(createdAt)}
-        </Typography.Text>
-      </div>
+      )}
+
       <div className="message-content">
-        <Typography.Text>{text}</Typography.Text>
+        <div className="message-bubble">
+          {!isOwn && <span className="message-name">{displayName}</span>}
+          <span className="message-text">{text}</span>
+        </div>
+        <span className="message-time">{formatDate(createdAt)}</span>
       </div>
     </div>
   );
