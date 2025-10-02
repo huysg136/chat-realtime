@@ -10,7 +10,6 @@ export default function RoomList() {
   const { rooms = [], users = [], selectedRoomId, setSelectedRoomId } = useContext(AppContext);
   const { user } = useContext(AuthContext);
 
-  // Map uid -> user
   const usersById = useMemo(() => {
     const map = {};
     users.forEach(u => {
@@ -19,7 +18,6 @@ export default function RoomList() {
     return map;
   }, [users]);
 
-  // Chuyển timestamp các dạng -> ms
   const toMs = (ts) => {
     if (!ts) return null;
     if (typeof ts === "number") return ts;
@@ -29,7 +27,6 @@ export default function RoomList() {
     return null;
   };
 
-  // Hiển thị thời gian
   const timeAgo = (timestamp) => {
     const ms = toMs(timestamp);
     if (!ms) return "";
@@ -43,36 +40,34 @@ export default function RoomList() {
     return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
   };
 
-  // Sort rooms by lastMessage.createdAt descending
   const sortedRooms = [...rooms].sort((a, b) => {
     const aTime = toMs(a.lastMessage?.createdAt) || 0;
     const bTime = toMs(b.lastMessage?.createdAt) || 0;
     return bTime - aTime;
   });
 
-  // Helper: safe string
   const str = v => (v == null ? "" : String(v).trim());
 
   return (
     <div className="room-list-wrapper">
+      <div className="room-header">
+        <span className="header-1">Tin nhắn</span>
+        <span className="header-2">Tin nhắn đang chờ</span>
+      </div>
+      
       {sortedRooms.map((room) => {
-        // Chuẩn hóa member UIDs
         const memberUids = Array.isArray(room.members)
           ? room.members.map(m => (typeof m === "string" ? m : m?.uid)).filter(Boolean)
           : [];
 
-        // Lấy thông tin member từ users
         const membersData = memberUids
           .map(uid => users.find(u => String(u.uid).trim() === String(uid).trim()))
           .filter(Boolean);
 
-        // Check if private room (2 members)
         const isPrivate = room.type === 'private' && membersData.length === 2;
 
-        // Xác định group (nhiều thành viên) — dùng room.type==='group' nếu có, hoặc fallback membersData.length>1
         const isGroup = !isPrivate && (room.type === 'group' || membersData.length > 1);
 
-        // lastMessage data
         const lm = room.lastMessage || {};
         const lmUid = str(lm.uid);
         const currentUid = str(user?.uid);
@@ -86,9 +81,7 @@ export default function RoomList() {
         const senderName = isOwnMessage
           ? "Tôi"
           : (sender?.displayName || lm.displayName || "Unknown");
-        const senderPhoto = sender?.photoURL || lm.photoURL || null;
 
-        // Determine avatar rendering
         const singleMember = !isPrivate && membersData.length === 1;
         const singleMemberData = singleMember ? membersData[0] : null;
 
@@ -98,7 +91,6 @@ export default function RoomList() {
             key={room.id}
             onClick={() => setSelectedRoomId && setSelectedRoomId(room.id)}
           >
-            {/* Avatar phòng / member */}
             <div className="room-avatar">
               {isPrivate ? (
                 <Avatar
@@ -108,7 +100,6 @@ export default function RoomList() {
                   {(membersData.find(u => u.uid !== user?.uid)?.displayName || "?").charAt(0).toUpperCase()}
                 </Avatar>
               ) : singleMember ? (
-                // Nếu chỉ có 1 member (không phải private) => hiện to hơn
                 <Avatar
                   className="single-avatar"
                   src={singleMemberData?.photoURL}
@@ -130,8 +121,6 @@ export default function RoomList() {
                 </div>
               )}
             </div>
-
-            {/* Thông tin phòng */}
             <div className="room-info">
               <p className="room-name">
                 {isGroup && (
@@ -150,8 +139,6 @@ export default function RoomList() {
                 <p className="last-message">Chưa có tin nhắn</p>
               )}
             </div>
-
-            {/* Thời gian tin nhắn */}
             <span className="room-time">
               {room.lastMessage?.createdAt ? timeAgo(room.lastMessage.createdAt) : ""}
             </span>

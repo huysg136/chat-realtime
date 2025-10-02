@@ -6,10 +6,11 @@ import { AuthContext } from "../../../context/authProvider";
 import { db } from "../../../firebase/config";
 import { doc, updateDoc } from "firebase/firestore";
 import "./leftSide.scss"; 
-import { GoHome, GoHomeFill, GoHeart, GoHeartFill } from "react-icons/go";
+import { GoHome, GoHomeFill} from "react-icons/go";
 import { HiSearch } from "react-icons/hi";
 import { RiMessengerFill, RiMessengerLine } from "react-icons/ri";
-import { CgDetailsMore } from "react-icons/cg";
+import { IoNotifications } from "react-icons/io5";
+import { IoMdNotificationsOutline } from "react-icons/io";
 import { UserOutlined, SettingOutlined, SaveOutlined, MessageOutlined, LogoutOutlined } from '@ant-design/icons';
 
 
@@ -32,12 +33,7 @@ export default function LeftSide() {
   }, [user, photoURL]);
 
   const menu = (
-    <Menu>
-      <Menu.Item key="name" disabled>
-        <strong style={{ color: "black", display: "block", textAlign: "center" }}>
-          {displayName}
-        </strong>
-      </Menu.Item>
+    <Menu style={{cursor: "pointer"}}>
       <Menu.Divider />
       <Menu.Item key="profile" icon={<UserOutlined />}>
         Trang cá nhân
@@ -65,7 +61,6 @@ export default function LeftSide() {
 
   return (
     <div className="sidebar">
-      {/* Avatar */}
       <Dropdown overlay={menu} placement="bottomRight" trigger={["click"]}>
         <Avatar
           size={40}
@@ -76,7 +71,6 @@ export default function LeftSide() {
         </Avatar>
       </Dropdown>
 
-      {/* Nhóm icon phía trên */}
       <div className="icon-group top">
         <div
           className={`icon-item ${active === "home" ? "active" : ""}`}
@@ -97,24 +91,17 @@ export default function LeftSide() {
           {active === "message" ? <RiMessengerFill /> : <RiMessengerLine />}
         </div>
         <div
-          className={`icon-item ${active === "heart" ? "active" : ""}`}
-          onClick={() => setActive("heart")}
+          className={`icon-item ${active === "notification" ? "active" : ""}`}
+          onClick={() => setActive("notification")}
         >
-          {active === "heart" ? <GoHeartFill /> : <GoHeart />}
+          {active === "notification" ? <IoNotifications /> : <IoMdNotificationsOutline />}
         </div>
       </div>
 
-      {/* Nhóm icon phía dưới */}
       <div className="icon-group bottom">
         <div className="icon-item" onClick={() => auth.signOut()}>
           <AiOutlineLogout />
         </div>
-        {/* <div
-          className={`icon-item ${active === "more" ? "active" : ""}`}
-          onClick={() => setActive("more")}
-        >
-          {active === "more" ? <CgDetailsMore /> : <CgDetailsMore />}
-        </div> */}
       </div>
     </div>
   );
