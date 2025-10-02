@@ -375,7 +375,7 @@ export default function ChatWindow() {
                   </Avatar>
                   <div className="overview-info">
                     <p className="name">{otherUser.displayName}</p>
-                    <p className="sub">{otherUser.username || otherUser.uid}</p>
+                    {/* <p className="sub">{otherUser.username || otherUser.uid}</p> */}
                   </div>
                 </div>
               ) : null
@@ -409,19 +409,40 @@ export default function ChatWindow() {
           </div>
 
           <div className="members-section">
-            <h4>Thành viên ({membersData.length})</h4>
+            <h4>
+              Thành viên 
+              {
+                isPrivate ? "" : 
+                ` (${membersData.length})`
+              }
+            </h4>
             <div className="members-list">
-              {membersData.map((m) => (
-                <div className="member-item" key={m.uid}>
-                  <Avatar src={m.photoURL} size={40}>{(m.displayName || "?").charAt(0).toUpperCase()}</Avatar>
-                  <div className="member-info">
-                    <p className="member-name">{m.displayName}</p>
-                    <span className="member-id">{m.username || m.uid}</span>
+              {isPrivate ? (
+                otherUser && (
+                  <div className="member-item" key={otherUser.uid}>
+                    <Avatar src={otherUser.photoURL} size={40}>
+                      {(otherUser.displayName || "?").charAt(0).toUpperCase()}
+                    </Avatar>
+                    <div className="member-info">
+                      <p className="member-name">{otherUser.displayName}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              ) : (
+                membersData.map((m) => (
+                  <div className="member-item" key={m.uid}>
+                    <Avatar src={m.photoURL} size={40}>
+                      {(m.displayName || "?").charAt(0).toUpperCase()}
+                    </Avatar>
+                    <div className="member-info">
+                      <p className="member-name">{m.displayName}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
+
 
           <div className="chat-actions">
             <button className="danger-btn" onClick={handleReport}>Báo cáo</button>
