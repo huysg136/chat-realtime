@@ -50,10 +50,6 @@ export default function RoomList() {
 
   return (
     <div className="room-list-wrapper">
-      <div className="room-header">
-        <span className="header-1">Tin nhắn</span>
-        <span className="header-2">Tin nhắn đang chờ</span>
-      </div>
       
       {sortedRooms.map((room) => {
         const memberUids = Array.isArray(room.members)

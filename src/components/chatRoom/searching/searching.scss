@@ -1,16 +1,17 @@
 .searching-panel {
   background: #ffffff;
-  
+  display: flex;
+  flex-direction: column;
+
   .user-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 16px 8px 16px;
+    padding: 10px 16px 8px 16px;
 
     .username-wrapper {
       display: flex;
       align-items: center;
-      //gap: 4px;
       padding: 4px 8px 4px 4px;
       border-radius: 6px;
       transition: background-color 0.2s;
@@ -18,7 +19,7 @@
       .username {
         font-size: 18px;
         font-weight: 700;
-        color: #000000;
+        color: #000;
         line-height: 1.2;
         cursor: default;
       }
@@ -31,13 +32,13 @@
       align-items: center;
       justify-content: center;
       padding: 0;
-      color: #000000;
+      color: #000;
       font-size: 24px;
       border-radius: 50%;
 
       &:hover {
         background-color: #f0f0f0;
-        color: #000000;
+        color: #000;
       }
 
       .anticon {
@@ -49,7 +50,7 @@
   }
 
   .search-wrapper {
-    padding: 0px 16px 12px 16px;
+    padding: 0px 16px 0px 16px;
 
     .search-input {
       background: #efefef;
@@ -60,7 +61,7 @@
       .ant-input {
         background: transparent;
         font-size: 14px;
-        color: #000000;
+        color: #000;
 
         &::placeholder {
           color: #8e8e8e;
@@ -72,6 +73,30 @@
         font-size: 16px;
         margin-right: 4px;
       }
+    }
+  }
+
+  .room-header {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fff;
+    z-index: 10;
+
+    .header-1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #000;
+    }
+
+    .header-2 {
+      font-size: 14px;
+      font-weight: 500;
+      color: #7c7c7c;
+      cursor: pointer;
     }
   }
 }

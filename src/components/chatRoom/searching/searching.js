@@ -38,6 +38,10 @@ export default function Searching() {
           bordered={false}
         />
       </div>
+      <div className="room-header">
+        <span className="header-1">Tin nhắn</span>
+        <span className="header-2">Tin nhắn đang chờ</span>
+      </div>
     </div>
   );
 }
