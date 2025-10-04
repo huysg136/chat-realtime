@@ -1,5 +1,6 @@
 import { db } from "./config";
 import { collection, addDoc, updateDoc, doc, serverTimestamp } from "firebase/firestore";
+import CryptoJS from "crypto-js";
 
 export const addDocument = async (collectionName, data) => {
   try {
@@ -82,4 +83,25 @@ export const generateKeywords = (displayName) => {
   }, []);
 
   return keywords;
+};
+
+// Generate a random AES key
+export const generateAESKey = () => {
+  return CryptoJS.lib.WordArray.random(16).toString();
+};
+
+// Encrypt a message with the given key
+export const encryptMessage = (message, key) => {
+  return CryptoJS.AES.encrypt(message, key).toString();
+};
+
+// Decrypt a message with the given key
+export const decryptMessage = (encryptedMessage, key) => {
+  try {
+    const bytes = CryptoJS.AES.decrypt(encryptedMessage, key);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  } catch (error) {
+    console.error("Decryption failed:", error);
+    return "[Encrypted message]";
+  }
 };

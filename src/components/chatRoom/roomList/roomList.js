@@ -4,6 +4,7 @@ import { TeamOutlined } from "@ant-design/icons";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
+import { decryptMessage } from "../../../firebase/services";
 import "./roomList.scss";
 
 export default function RoomList() {
@@ -129,7 +130,7 @@ export default function RoomList() {
 
               {room.lastMessage ? (
                 <p className="last-message">
-                  {senderName}: {lm.text || lm?.content || ""}
+                  {senderName}: {room.secretKey ? decryptMessage(lm.text || lm?.content || "", room.secretKey) : (lm.text || lm?.content || "")}
                 </p>
               ) : (
                 <p className="last-message">Chưa có tin nhắn</p>

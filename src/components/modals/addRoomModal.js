@@ -5,7 +5,7 @@ import { AuthContext } from '../../context/authProvider';
 import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import debounce from 'lodash/debounce';
-import { addDocument } from '../../firebase/services';
+import { addDocument, generateAESKey } from '../../firebase/services';
 
 export default function AddRoomModal() {
   const { isAddRoomVisible, setIsAddRoomVisible, setSelectedRoomId } = useContext(AppContext);
@@ -95,7 +95,8 @@ export default function AddRoomModal() {
           name: otherUser.displayName,
           type: 'private',
           members: [uid, otherUser.uid],
-          avatar: otherUser.photoURL
+          avatar: otherUser.photoURL,
+          secretKey: generateAESKey()
         };
         const docRef = await addDocument('rooms', newRoom);
         room = { id: docRef.id, ...newRoom };
@@ -110,7 +111,8 @@ export default function AddRoomModal() {
       const newRoom = {
         name: roomName,
         type: 'group',
-        members
+        members,
+        secretKey: generateAESKey()
       };
       const docRef = await addDocument('rooms', newRoom);
       setSelectedRoomId(docRef.id);

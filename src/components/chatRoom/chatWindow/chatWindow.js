@@ -14,7 +14,7 @@ import Message from "../message/message";
 import { AppContext } from "../../../context/appProvider";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import "./chatWindow.scss";
-import { addDocument, updateDocument } from "../../../firebase/services";
+import { addDocument, updateDocument, encryptMessage, decryptMessage } from "../../../firebase/services";
 import { AuthContext } from "../../../context/authProvider";
 import { useFirestore } from "../../../hooks/useFirestore";
 import { IoMdInformationCircleOutline } from "react-icons/io";
@@ -89,13 +89,17 @@ export default function ChatWindow() {
         }
       }
 
+      // Decrypt the message text if secretKey exists
+      const decryptedText = selectedRoom?.secretKey ? decryptMessage(msg.text || "", selectedRoom.secretKey) : msg.text || "";
+
       return {
         ...msg,
         createdAt: timestamp,
         id: msg.id || msg._id || `msg-${index}`,
+        decryptedText,
       };
     });
-  }, [messages]);
+  }, [messages, selectedRoom?.secretKey]);
 
   const sortedMessages = useMemo(() => {
     return [...normalizedMessages].sort(
@@ -127,8 +131,10 @@ export default function ChatWindow() {
     setInputValue("");
 
     try {
+      const encryptedText = selectedRoom.secretKey ? encryptMessage(messageText, selectedRoom.secretKey) : messageText;
+
       await addDocument("messages", {
-        text: messageText,
+        text: encryptedText,
         uid,
         photoURL,
         roomId: selectedRoom.id,
@@ -139,7 +145,7 @@ export default function ChatWindow() {
       await updateDocument("rooms", selectedRoom.id, {
         lastMessage: {
           displayName,
-          text: messageText,
+          text: encryptedText,
           uid,
           createdAt: new Date(),
         },
@@ -307,7 +313,7 @@ export default function ChatWindow() {
                 <React.Fragment key={msg.id}>
                   {showTime && <div className="chat-time-separator">{formatDate(msg.createdAt)}</div>}
                   <Message
-                    text={msg.text || ""}
+                    text={msg.decryptedText || ""}
                     photoURL={msg.photoURL || null}
                     displayName={msg.displayName || "Unknown"}
                     createdAt={msg.createdAt}

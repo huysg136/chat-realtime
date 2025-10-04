@@ -1,20 +1,20 @@
 import React from "react";
 import { Avatar } from "antd";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+// import { format } from "date-fns";
+// import { vi } from "date-fns/locale";
 import "./message.scss";
 
-function formatDate(timestamp) {
-  if (!timestamp) return "";
-  let date;
-  if (timestamp.seconds) {
-    date = new Date(timestamp.seconds * 1000);
-  } else {
-    date = new Date(timestamp);
-  }
-  if (isNaN(date)) return "";
-  return format(date, "HH:mm dd/MM/yy", { locale: vi });
-}
+// function formatDate(timestamp) {
+//   if (!timestamp) return "";
+//   let date;
+//   if (timestamp.seconds) {
+//     date = new Date(timestamp.seconds * 1000);
+//   } else {
+//     date = new Date(timestamp);
+//   }
+//   if (isNaN(date)) return "";
+//   return format(date, "HH:mm dd/MM/yy", { locale: vi });
+// }
 
 export default function Message({ text, displayName, createdAt, photoURL, isOwn }) {
   return (
