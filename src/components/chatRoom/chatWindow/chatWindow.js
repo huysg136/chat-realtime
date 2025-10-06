@@ -336,7 +336,7 @@ export default function ChatWindow() {
               placeholder="Nhắn tin..."
               bordered={false}
               autoComplete="off"
-              disabled={sending}
+              //disabled={sending}
             />
           </Form.Item>
 
