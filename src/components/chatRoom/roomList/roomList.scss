@@ -92,6 +92,11 @@
         margin-right: 6px;
         flex-shrink: 0;
       }
+
+      &.unread {
+        font-weight: bold;
+        color: #000;
+      }
     }
   }
 

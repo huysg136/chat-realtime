@@ -156,7 +156,7 @@ export default function ChatWindow() {
       setSending(false);
       setTimeout(() => {
         inputRef.current?.focus();
-      }, 100);
+      }, 10);
     }
   };
 
