@@ -8,7 +8,8 @@ import { doc, updateDoc } from "firebase/firestore";
 import "./leftSide.scss"; 
 import { GoHome, GoHomeFill} from "react-icons/go";
 import { HiSearch } from "react-icons/hi";
-import { RiMessengerFill, RiMessengerLine } from "react-icons/ri";
+//import { RiMessengerFill, RiMessengerLine } from "react-icons/ri";
+import { AiFillMessage, AiOutlineMessage  } from "react-icons/ai";
 import { IoNotifications } from "react-icons/io5";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { UserOutlined, SettingOutlined, SaveOutlined, MessageOutlined, LogoutOutlined } from '@ant-design/icons';
@@ -88,7 +89,7 @@ export default function LeftSide() {
           className={`icon-item ${active === "message" ? "active" : ""}`}
           onClick={() => setActive("message")}
         >
-          {active === "message" ? <RiMessengerFill /> : <RiMessengerLine />}
+          {active === "message" ? <AiFillMessage /> : <AiOutlineMessage />}
         </div>
         <div
           className={`icon-item ${active === "notification" ? "active" : ""}`}
