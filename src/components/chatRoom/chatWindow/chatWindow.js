@@ -10,6 +10,9 @@ import {
   AudioOutlined,
   DeleteOutlined,
   CrownOutlined,
+  EditOutlined,
+  CheckOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { FaKey } from "react-icons/fa6";
 import Message from "../message/message";
@@ -47,12 +50,26 @@ export default function ChatWindow() {
   const [isDetailVisible, setIsDetailVisible] = useState(false);
   const [muted, setMuted] = useState(false);
 
+  // rename group states
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newRoomName, setNewRoomName] = useState("");
+  const [isSavingName, setIsSavingName] = useState(false);
+  const [roomNameLocal, setRoomNameLocal] = useState("");
+  
+
   const toggleDetail = () => setIsDetailVisible((p) => !p);
 
   const selectedRoom = useMemo(
     () => rooms.find((room) => room.id === selectedRoomId),
     [rooms, selectedRoomId]
   );
+
+  // sync local room name when selectedRoom changes
+  useEffect(() => {
+    setRoomNameLocal(selectedRoom?.name || "");
+    setNewRoomName(selectedRoom?.name || "");
+    setIsEditingName(false);
+  }, [selectedRoomId, selectedRoom?.name]);
 
   // sync muted state when room changes
   useEffect(() => {
@@ -197,6 +214,8 @@ export default function ChatWindow() {
   const ownerUid = ownerEntry?.uid || (members[0] && String(members[0])); // fallback
 
   const currentUserRole = getRoleOf(uid);
+  const isOwner = currentUserRole === "owner";
+  const isCoOwner = currentUserRole === "co-owner";
 
   const canToggleCoOwner = (targetUid) => {
     // Only owner can promote/demote co-owner; cannot change owner
@@ -243,6 +262,38 @@ export default function ChatWindow() {
     }
   };
 
+  const transferOwnership = async (targetUid) => {
+    if (currentUserRole !== "owner") {
+      message.warning("Chỉ trưởng nhóm mới có thể chuyển quyền trưởng nhóm");
+      return;
+    }
+
+    if (String(targetUid).trim() === String(uid).trim()) {
+      message.warning("Bạn đã là trưởng nhóm rồi");
+      return;
+    }
+
+    try {
+      const newRoles = (rolesArray || []).map((r) => {
+        if (r.role === "owner") return { uid: r.uid, role: "member" };
+        if (r.uid === targetUid) return { uid: r.uid, role: "owner" };
+        return r;
+      });
+
+      // Nếu người nhận chưa có role, thêm mới
+      if (!newRoles.some(r => r.uid === targetUid)) {
+        newRoles.push({ uid: targetUid, role: "owner" });
+      }
+
+      await updateDocument("rooms", selectedRoom.id, { roles: newRoles });
+      message.success("Đã chuyển quyền trưởng nhóm thành công!");
+    } catch (err) {
+      console.error("transferOwnership error:", err);
+      message.error("Không thể chuyển quyền, thử lại sau");
+    }
+  };
+
+
   const removeMember = async (targetUid) => {
     if (!canRemoveMember(targetUid)) {
       message.warning("Bạn không có quyền xóa thành viên này.");
@@ -263,6 +314,51 @@ export default function ChatWindow() {
     } catch (err) {
       console.error("removeMember error:", err);
       message.error("Xóa thành viên thất bại, thử lại sau");
+    }
+  };
+
+  // ===== Rename group logic =====
+  const canEditRoomName = !isPrivate && (currentUserRole === "owner" || currentUserRole === "co-owner");
+
+  const startEditName = () => {
+    if (!canEditRoomName) return;
+    setNewRoomName(selectedRoom?.name || "");
+    setIsEditingName(true);
+    // slight delay to let input autofocus (see ref in JSX)
+  };
+
+  const cancelEditName = () => {
+    setIsEditingName(false);
+    setNewRoomName(selectedRoom?.name || "");
+  };
+
+  const saveRoomName = async () => {
+    const trimmed = (newRoomName || "").trim();
+    if (!trimmed) {
+      message.warning("Tên phòng không được để trống");
+      return;
+    }
+    if (trimmed.length > 100) {
+      message.warning("Tên phòng tối đa 100 ký tự");
+      return;
+    }
+
+    if (trimmed === (selectedRoom?.name || "")) {
+      setIsEditingName(false);
+      return;
+    }
+
+    setIsSavingName(true);
+    try {
+      await updateDocument("rooms", selectedRoom.id, { name: trimmed });
+      setRoomNameLocal(trimmed); // optimistic local update
+      setIsEditingName(false);
+      message.success("Đã đổi tên phòng");
+    } catch (err) {
+      console.error("saveRoomName error:", err);
+      message.error("Đổi tên thất bại, thử lại");
+    } finally {
+      setIsSavingName(false);
     }
   };
 
@@ -329,9 +425,11 @@ export default function ChatWindow() {
         </div>
 
         <div className="header__info">
-          <p className="header__title">
-            {isPrivate ? otherUser?.displayName || selectedRoom.name : selectedRoom.name}
-          </p>
+          <Tooltip title={roomNameLocal || selectedRoom.name}>
+            <p className="header__title">
+              {isPrivate ? otherUser?.displayName || selectedRoom.name : (roomNameLocal || selectedRoom.name)}
+            </p>
+          </Tooltip>
           <span className="header__description">
             {selectedRoom.description || (isPrivate ? "Đang hoạt động" : "Đang hoạt động")}
           </span>
@@ -339,7 +437,7 @@ export default function ChatWindow() {
 
         <div className="button-group-right">
           <div className="button-group-style">
-            {!isPrivate && (
+            {!isPrivate && (isOwner || isCoOwner) && (
               <Button
                 type="text"
                 icon={<UserAddOutlined />}
@@ -383,9 +481,11 @@ export default function ChatWindow() {
                   />
                 )}
               </div>
-              <p className="empty-name">
-                {isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}
-              </p>
+              <Tooltip title={isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}>
+                <p className="empty-name">
+                  {isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}
+                </p>
+              </Tooltip>
               <p className="empty-info">{selectedRoom.description || "ChitChat"}</p>
               <p className="empty-hint">Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện</p>
             </div>
@@ -477,7 +577,45 @@ export default function ChatWindow() {
               <div className="overview-avatar">
                 <Avatar size={64} src={selectedRoom.avatar} />
                 <div className="overview-info">
-                  <p className="name">{selectedRoom.name}</p>
+                  {/* room name area with edit */}
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center" }}>
+                    {isEditingName ? (
+                      <>
+                        <Input
+                          value={newRoomName}
+                          onChange={(e) => setNewRoomName(e.target.value)}
+                          onPressEnter={saveRoomName}
+                          placeholder="Tên nhóm"
+                          autoFocus
+                          style={{ minWidth: 160 }}
+                          disabled={isSavingName}
+                        />
+                        <Button
+                          type="primary"
+                          icon={<CheckOutlined />}
+                          onClick={saveRoomName}
+                          loading={isSavingName}
+                        />
+                        <Button icon={<CloseOutlined />} onClick={cancelEditName} />
+                      </>
+                    ) : (
+                      <>
+                        <Tooltip title={roomNameLocal || selectedRoom.name}>
+                          <p className="name" style={{ margin: 0 }}>{roomNameLocal || selectedRoom.name}</p>
+                        </Tooltip>
+                        {canEditRoomName && (
+                          <Tooltip title="Đổi tên nhóm">
+                            <Button
+                              type="text"
+                              icon={<EditOutlined />}
+                              onClick={startEditName}
+                            />
+                          </Tooltip>
+                        )}
+                      </>
+                    )}
+                  </div>
+
                   <p className="sub">{selectedRoom.description}</p>
                 </div>
               </div>
@@ -488,7 +626,45 @@ export default function ChatWindow() {
                   size={64}
                 />
                 <div className="overview-info">
-                  <p className="name">{selectedRoom.name}</p>
+                  {/* room name area with edit */}
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center" }}>
+                    {isEditingName ? (
+                      <>
+                        <Input
+                          value={newRoomName}
+                          onChange={(e) => setNewRoomName(e.target.value)}
+                          onPressEnter={saveRoomName}
+                          placeholder="Tên nhóm"
+                          autoFocus
+                          style={{ minWidth: 160 }}
+                          disabled={isSavingName}
+                        />
+                        <Button
+                          type="primary"
+                          icon={<CheckOutlined />}
+                          onClick={saveRoomName}
+                          loading={isSavingName}
+                        />
+                        <Button icon={<CloseOutlined />} onClick={cancelEditName} />
+                      </>
+                    ) : (
+                      <>
+                        <Tooltip title={roomNameLocal || selectedRoom.name}>
+                          <p className="name" style={{ margin: 0 }}>{roomNameLocal || selectedRoom.name}</p>
+                        </Tooltip>
+                        {canEditRoomName && (
+                          <Tooltip title="Đổi tên nhóm">
+                            <Button
+                              type="text"
+                              icon={<EditOutlined />}
+                              onClick={startEditName}
+                            />
+                          </Tooltip>
+                        )}
+                      </>
+                    )}
+                  </div>
+
                   <p className="sub">{selectedRoom.description}</p>
                 </div>
               </div>
@@ -518,7 +694,9 @@ export default function ChatWindow() {
                       {(otherUser.displayName || "?").charAt(0).toUpperCase()}
                     </Avatar>
                     <div className="member-info">
-                      <p className="member-name">{otherUser.displayName}</p>
+                      <Tooltip title={otherUser.displayName}>
+                        <p className="member-name" style={{ margin: 0 }}>{otherUser.displayName}</p>
+                      </Tooltip>
                     </div>
                   </div>
                 )
@@ -532,17 +710,14 @@ export default function ChatWindow() {
                       <Avatar src={m.photoURL} size={40}>
                         {(m.displayName || "?").charAt(0).toUpperCase()}
                       </Avatar>
-                      <div style={{ flex: 1 }}>
+                      <div className="member-info">
                         <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 0 }}>
-                          <p className="member-name" style={{ margin: 0 }}>{m.displayName}</p>
+                          <Tooltip title={m.displayName}>
+                            <p className="member-name" style={{ margin: 0 }}>{m.displayName}</p>
+                          </Tooltip>
                           {isOwner && <FaKey color="gold" />}
                           {isCoOwner && <FaKey color="gray" />}
                         </div>
-                        {/* <div>
-                          {isOwner && <Tag color="gold">Trưởng nhóm</Tag>}
-                          {!isOwner && isCoOwner && <Tag color="blue">Phó nhóm</Tag>}
-                          {!isOwner && !isCoOwner && <Tag>Thành viên</Tag>}
-                        </div> */}
                       </div>
                       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                         {/* Toggle co-owner (only owner can do) */}
@@ -552,14 +727,32 @@ export default function ChatWindow() {
                               type="text"
                               icon={<CrownOutlined />}
                               onClick={(e) => { e.stopPropagation(); toggleCoOwner(m.uid); }}
+                              style={{color: "gray"}}
                             />
                           </Tooltip>
                         )}
-
+                        {/* Transfer ownership (only current owner can do) */}
+                        {currentUserRole === "owner" && String(m.uid).trim() !== String(uid).trim() && (
+                          <Popconfirm
+                            title={`Chuyển quyền trưởng nhóm cho ${m.displayName}?`}
+                            onConfirm={() => transferOwnership(m.uid)}
+                            okText="Đồng ý"
+                            cancelText="Hủy"
+                          >
+                            <Tooltip title="Chuyển trưởng nhóm">
+                              <Button
+                                type="text"
+                                icon={<CrownOutlined />}
+                                onClick={(e) => e.stopPropagation()}
+                                style={{color: "gold"}}
+                              />
+                            </Tooltip>
+                          </Popconfirm>
+                        )}
                         {/* Delete button (owner/co-owner rules handled in canRemoveMember) */}
                         {canRemoveMember(m.uid) ? (
                           <Popconfirm
-                            title={`Xóa ${m.displayName} khỏi phòng?`}
+                            title={`Xóa ${m.displayName} khỏi nhóm?`}
                             onConfirm={() => removeMember(m.uid)}
                             okText="Xóa"
                             cancelText="Hủy"
@@ -570,7 +763,7 @@ export default function ChatWindow() {
                           // show disabled delete icon for clarity if current user cannot delete
                           <Tooltip title={
                             String(m.uid).trim() === String(ownerUid).trim() ? "Không thể xóa chủ phòng" :
-                            String(m.uid).trim() === String(uid).trim() ? "Bạn không thể tự xóa ở đây" :
+                            String(m.uid).trim() === String(uid).trim() ? "Bạn không thể xóa chính mình" :
                             "Bạn không có quyền xóa thành viên này"
                           }>
                             <Button type="text" icon={<DeleteOutlined />} disabled />
