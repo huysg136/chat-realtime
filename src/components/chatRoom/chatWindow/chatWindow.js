@@ -777,12 +777,20 @@ export default function ChatWindow() {
             </div>
           </div>
 
-
-          <div className="chat-actions" style={{ marginTop: 18 }}>
-            <button className="danger-btn" onClick={handleReport}>Báo cáo</button>
-            <button className="danger-btn" onClick={handleBlock}>Chặn</button>
-            <button className="danger-btn" onClick={handleDeleteConversation}>Xóa đoạn chat</button>
-          </div>
+          {
+            isPrivate ? (
+              <div className="chat-actions">
+                <button className="danger-btn" onClick={handleReport}>Báo cáo</button>
+                <button className="danger-btn" onClick={handleBlock}>Chặn</button>
+                <button className="danger-btn" onClick={handleDeleteConversation}>Xóa đoạn chat</button>
+              </div>
+            ) : (
+              <div className="chat-actions">
+                <button className="danger-btn" >Rời nhóm</button>
+              </div>
+            )
+          }
+          
         </div>
       </aside>
     </div>
