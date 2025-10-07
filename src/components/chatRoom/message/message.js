@@ -16,6 +16,34 @@ import "./message.scss";
 //   return format(date, "HH:mm dd/MM/yy", { locale: vi });
 // }
 
+const renderTextWithLinks = (text) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+  while ((match = urlRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    parts.push(
+      <a
+        key={match.index}
+        href={match[0]}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="message-link"
+      >
+        {match[0]}
+      </a>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+  return parts;
+};
+
 export default function Message({ text, displayName, createdAt, photoURL, isOwn }) {
   return (
     <div className={`message-row ${isOwn ? "own" : ""}`}>
@@ -33,7 +61,7 @@ export default function Message({ text, displayName, createdAt, photoURL, isOwn 
       <div className="message-content">
         <div className="message-bubble">
           {!isOwn && <span className="message-name">{displayName}</span>}
-          <span className="message-text">{text}</span>
+          <span className="message-text">{renderTextWithLinks(text)}</span>
         </div>
       </div>
     </div>

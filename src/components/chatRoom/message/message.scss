@@ -82,6 +82,24 @@
   }
 }
 
+.message-link {
+  color: #1890ff;
+  text-decoration: underline;
+
+  &:hover {
+    color: #40a9ff;
+  }
+
+  .own & {
+    color: #ffffff;
+    text-decoration: underline;
+
+    &:hover {
+      color: #e6f7ff;
+    }
+  }
+}
+
 .message-time {
   font-size: 11px;
   font-weight: 400;
