@@ -8,30 +8,42 @@ export const AuthContext = React.createContext();
 const auth = getAuth(app);
 
 export default function AuthProvider({ children }) {
-    const [user, setUser] = React.useState(null);
-    const navigate = useNavigate();
-    const [ isLoading, setIsLoading ] = React.useState(true);
+  const [user, setUser] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const navigate = useNavigate();
 
-        React.useEffect(() => {
-            const unsubscribe = auth.onAuthStateChanged((user) => {
-                if (user) {
-                    const { displayName, email, photoURL, uid } = user;
-                    setUser({ displayName, email, photoURL, uid });
-                    navigate('/');
-                    setIsLoading(false);
-                } else {
-                    navigate('/login');
-                    setUser(null);
-                    setIsLoading(false);
-                }
-            });
+  React.useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        const { displayName, email, photoURL, uid } = user;
+        setUser({ displayName, email, photoURL, uid });
+        navigate('/');
+      } else {
+        setUser(null);
+        navigate('/login');
+      }
+      setIsLoading(false);
+    });
 
-            return () => unsubscribe();
-        }, [navigate]);
+    return () => unsubscribe();
+  }, [navigate]);
 
-    return (
-        <AuthContext.Provider value={{ user }}>
-            {isLoading ? <Spin /> : children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={{ user }}>
+      {isLoading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <Spin size="large" />
+        </div>
+      ) : (
+        children
+      )}
+    </AuthContext.Provider>
+  );
 }

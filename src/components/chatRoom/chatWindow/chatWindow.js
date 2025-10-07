@@ -1,5 +1,5 @@
 import React, { useContext, useState, useMemo, useRef, useEffect } from "react";
-import { Button, Avatar, Form, Input } from "antd";
+import { Button, Avatar, Form, Input, Popconfirm, Tag, Tooltip, message } from "antd";
 import {
   PhoneOutlined,
   VideoCameraOutlined,
@@ -8,8 +8,10 @@ import {
   SmileOutlined,
   PictureOutlined,
   AudioOutlined,
+  DeleteOutlined,
+  CrownOutlined,
 } from "@ant-design/icons";
-
+import { FaKey } from "react-icons/fa6";
 import Message from "../message/message";
 import { AppContext } from "../../../context/appProvider";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
@@ -184,27 +186,116 @@ export default function ChatWindow() {
     ? membersData.find((m) => String(m.uid).trim() !== String(uid).trim())
     : null;
 
+  // ===== Role helpers =====
+  const rolesArray = selectedRoom.roles || []; // [{uid, role}]
+  const getRoleOf = (memberUid) => {
+    const r = rolesArray.find((x) => String(x.uid).trim() === String(memberUid).trim());
+    return r ? r.role : "member";
+  };
+
+  const ownerEntry = rolesArray.find((r) => r.role === "owner");
+  const ownerUid = ownerEntry?.uid || (members[0] && String(members[0])); // fallback
+
+  const currentUserRole = getRoleOf(uid);
+
+  const canToggleCoOwner = (targetUid) => {
+    // Only owner can promote/demote co-owner; cannot change owner
+    if (currentUserRole !== "owner") return false;
+    if (String(targetUid).trim() === String(ownerUid).trim()) return false;
+    return true;
+  };
+
+  const canRemoveMember = (targetUid) => {
+    if (String(targetUid).trim() === String(ownerUid).trim()) return false; // no one can remove owner
+    if (String(targetUid).trim() === String(uid).trim()) return false; // don't allow self-remove from UI (could be allowed but keep simple)
+    if (currentUserRole === "owner") return true; // owner can remove anyone except owner themself
+    if (currentUserRole === "co-owner") {
+      // co-owner can remove only 'member' (not other co-owner or owner)
+      return getRoleOf(targetUid) === "member";
+    }
+    return false;
+  };
+
+  // ===== Actions for roles/members =====
+  const toggleCoOwner = async (targetUid) => {
+    if (!canToggleCoOwner(targetUid)) return;
+    try {
+      const existing = rolesArray.find((r) => String(r.uid).trim() === String(targetUid).trim());
+      let newRoles;
+      if (existing) {
+        if (existing.role === "co-owner") {
+          // demote to member
+          newRoles = rolesArray.map(r => r.uid === existing.uid ? { uid: r.uid, role: "member" } : r);
+        } else {
+          // promote to co-owner
+          newRoles = rolesArray.map(r => r.uid === existing.uid ? { uid: r.uid, role: "co-owner" } : r);
+        }
+      } else {
+        // if no entry, add as co-owner
+        newRoles = [...rolesArray, { uid: targetUid, role: "co-owner" }];
+      }
+
+      await updateDocument("rooms", selectedRoom.id, { roles: newRoles });
+      message.success("Cập nhật quyền thành công");
+    } catch (err) {
+      console.error("toggleCoOwner error:", err);
+      message.error("Không thể cập nhật quyền, thử lại sau");
+    }
+  };
+
+  const removeMember = async (targetUid) => {
+    if (!canRemoveMember(targetUid)) {
+      message.warning("Bạn không có quyền xóa thành viên này.");
+      return;
+    }
+
+    // confirm handled via Popconfirm in UI; here proceed
+    try {
+      const newMembers = (selectedRoom.members || []).filter(m => String(m).trim() !== String(targetUid).trim());
+      const newRoles = (selectedRoom.roles || []).filter(r => String(r.uid).trim() !== String(targetUid).trim());
+
+      await updateDocument("rooms", selectedRoom.id, {
+        members: newMembers,
+        roles: newRoles
+      });
+
+      message.success("Đã xóa thành viên");
+    } catch (err) {
+      console.error("removeMember error:", err);
+      message.error("Xóa thành viên thất bại, thử lại sau");
+    }
+  };
+
   // actions (placeholders)
-  const handleToggleNotifications = () => {
-    setMuted((m) => !m);
-    // TODO: persist preference to DB, e.g.
-    // updateDocument('rooms', selectedRoom.id, { muted: !muted })
-    console.log("Toggled muted:", !muted);
+  const handleToggleNotifications = async () => {
+    const newMuted = !muted;
+    setMuted(newMuted);
+    try {
+      await updateDocument("rooms", selectedRoom.id, { muted: newMuted });
+      message.success(newMuted ? "Đã tắt thông báo" : "Đã bật thông báo");
+    } catch (err) {
+      console.error(err);
+      message.error("Lưu cài đặt thất bại");
+      setMuted(!newMuted); // revert
+    }
   };
 
   const handleReport = () => {
     // TODO: implement report logic (create a report doc or call API)
     console.log("Report room", selectedRoom.id);
+    message.info("Đã gửi báo cáo (chưa thực hiện)");
   };
 
   const handleBlock = () => {
     // TODO: implement block user logic
     console.log("Block user / room", selectedRoom.id);
+    message.info("Chặn người dùng (chưa thực hiện)");
   };
 
   const handleDeleteConversation = async () => {
     // TODO: implement delete chat (soft delete or call backend)
     console.log("Delete conversation", selectedRoom.id);
+    message.info("Xóa đoạn chat (chưa thực hiện)");
     // Example (uncomment and adjust as needed):
     // await updateDocument('rooms', selectedRoom.id, { deleted: true });
   };
@@ -287,10 +378,7 @@ export default function ChatWindow() {
                   <Avatar src={selectedRoom.avatar} size={80} />
                 ) : (
                   <CircularAvatarGroup
-                    members={membersData.map((u) => ({
-                      avatar: u.photoURL,
-                      name: u.displayName,
-                    }))}
+                    members={membersData.map((u) => ({ avatar: u.photoURL, name: u.displayName }))}
                     size={80}
                   />
                 )}
@@ -407,14 +495,14 @@ export default function ChatWindow() {
             )}
           </div>
 
-          <div className="notification-toggle">
-            <label>
+          <div className="notification-toggle" style={{ marginTop: 12 }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <input type="checkbox" checked={muted} onChange={handleToggleNotifications} />
               <span>Tắt thông báo</span>
             </label>
           </div>
 
-          <div className="members-section">
+          <div className="members-section" style={{ marginTop: 16 }}>
             <h4>
               Thành viên 
               {
@@ -435,22 +523,69 @@ export default function ChatWindow() {
                   </div>
                 )
               ) : (
-                membersData.map((m) => (
-                  <div className="member-item" key={m.uid}>
-                    <Avatar src={m.photoURL} size={40}>
-                      {(m.displayName || "?").charAt(0).toUpperCase()}
-                    </Avatar>
-                    <div className="member-info">
-                      <p className="member-name">{m.displayName}</p>
+                membersData.map((m) => {
+                  const role = getRoleOf(m.uid);
+                  const isOwner = role === "owner";
+                  const isCoOwner = role === "co-owner";
+                  return (
+                    <div className="member-item" key={m.uid} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <Avatar src={m.photoURL} size={40}>
+                        {(m.displayName || "?").charAt(0).toUpperCase()}
+                      </Avatar>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 0 }}>
+                          <p className="member-name" style={{ margin: 0 }}>{m.displayName}</p>
+                          {isOwner && <FaKey color="gold" />}
+                          {isCoOwner && <FaKey color="gray" />}
+                        </div>
+                        {/* <div>
+                          {isOwner && <Tag color="gold">Trưởng nhóm</Tag>}
+                          {!isOwner && isCoOwner && <Tag color="blue">Phó nhóm</Tag>}
+                          {!isOwner && !isCoOwner && <Tag>Thành viên</Tag>}
+                        </div> */}
+                      </div>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        {/* Toggle co-owner (only owner can do) */}
+                        {canToggleCoOwner(m.uid) && (
+                          <Tooltip title={getRoleOf(m.uid) === "co-owner" ? "Thu hồi Phó nhóm" : "Bổ nhiệm Phó nhóm"}>
+                            <Button
+                              type="text"
+                              icon={<CrownOutlined />}
+                              onClick={(e) => { e.stopPropagation(); toggleCoOwner(m.uid); }}
+                            />
+                          </Tooltip>
+                        )}
+
+                        {/* Delete button (owner/co-owner rules handled in canRemoveMember) */}
+                        {canRemoveMember(m.uid) ? (
+                          <Popconfirm
+                            title={`Xóa ${m.displayName} khỏi phòng?`}
+                            onConfirm={() => removeMember(m.uid)}
+                            okText="Xóa"
+                            cancelText="Hủy"
+                          >
+                            <Button type="text" icon={<DeleteOutlined />} danger />
+                          </Popconfirm>
+                        ) : (
+                          // show disabled delete icon for clarity if current user cannot delete
+                          <Tooltip title={
+                            String(m.uid).trim() === String(ownerUid).trim() ? "Không thể xóa chủ phòng" :
+                            String(m.uid).trim() === String(uid).trim() ? "Bạn không thể tự xóa ở đây" :
+                            "Bạn không có quyền xóa thành viên này"
+                          }>
+                            <Button type="text" icon={<DeleteOutlined />} disabled />
+                          </Tooltip>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
 
 
-          <div className="chat-actions">
+          <div className="chat-actions" style={{ marginTop: 18 }}>
             <button className="danger-btn" onClick={handleReport}>Báo cáo</button>
             <button className="danger-btn" onClick={handleBlock}>Chặn</button>
             <button className="danger-btn" onClick={handleDeleteConversation}>Xóa đoạn chat</button>
