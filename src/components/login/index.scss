@@ -142,18 +142,23 @@
 
   .login-header {
     margin-bottom: 48px;
+    text-align: center;
     
     .app-logo {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 12px;
+      width: 100%;
+      margin: 0 auto 16px auto;
+      margin-bottom: 10px;
 
       .logo-img {
-        width: 100px;  
-        height: 100px;
+        width: 90px;  
+        height: 90px;
         object-fit: contain;
         border-radius: 50%;
+        margin: 0 auto;
+        align-items: center;
       }
     }
     
