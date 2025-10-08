@@ -5,6 +5,7 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, getAdditionalUserInfo } f
 import app from "../../firebase/config";
 import { addDocument, generateKeywords } from "../../firebase/services";
 import "./index.scss";
+import logo_quik from "../../images/logo_quik.png";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -40,13 +41,13 @@ export default function Login() {
   const text = {
     en: {
       title: "Welcome Back",
-      subtitle: "Sign in to continue to ChitChat",
+      subtitle: "Sign in to continue to Quik",
       google: "Continue with Google",
       privacy: "By continuing, you agree to our Terms of Service and Privacy Policy",
     },
     vi: {
       title: "Chào Mừng Trở Lại",
-      subtitle: "Đăng nhập để tiếp tục sử dụng ChitChat",
+      subtitle: "Đăng nhập để tiếp tục sử dụng Quik",
       google: "Tiếp tục với Google",
       privacy: "Bằng cách tiếp tục, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi",
     },
@@ -71,27 +72,11 @@ export default function Login() {
         <Col xs={22} sm={20} md={16} lg={12} xl={10} xxl={8} className="login-card">
           <div className="login-header">
             <div className="app-logo">
-              <svg viewBox="0 0 80 80" className="logo-svg">
-                <defs>
-                  <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#4a5568" />
-                    <stop offset="100%" stopColor="#2d3748" />
-                  </linearGradient>
-                </defs>
-                <circle cx="40" cy="40" r="38" fill="url(#logoGradient)" />
-                <rect x="18" y="22" width="24" height="16" rx="8" fill="white" fillOpacity="0.95" />
-                <circle cx="24" cy="30" r="2" fill="#4a5568" />
-                <circle cx="30" cy="30" r="2" fill="#4a5568" />
-                <circle cx="36" cy="30" r="2" fill="#4a5568" />
-                <rect x="38" y="42" width="24" height="16" rx="8" fill="white" fillOpacity="0.95" />
-                <circle cx="44" cy="50" r="2" fill="#2d3748" />
-                <circle cx="50" cy="50" r="2" fill="#2d3748" />
-                <circle cx="56" cy="50" r="2" fill="#2d3748" />
-                <path d="M18 34 L12 38 L18 38 Z" fill="white" fillOpacity="0.95" />
-                <path d="M62 46 L68 50 L62 50 Z" fill="white" fillOpacity="0.95" />
-              </svg>
+              <div className="app-logo">
+                <img src={logo_quik} alt="Quik Logo" className="logo-img" />
+              </div>
             </div>
-            <Title level={2} className="app-title">ChitChat</Title>
+            <Title level={2} className="app-title">Quik</Title>
             <Text className="app-subtitle">{text[lang].subtitle}</Text>
           </div>
 

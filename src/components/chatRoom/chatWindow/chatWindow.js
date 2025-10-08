@@ -57,7 +57,12 @@ export default function ChatWindow() {
   const [roomNameLocal, setRoomNameLocal] = useState("");
   
 
-  const toggleDetail = () => setIsDetailVisible((p) => !p);
+  const toggleDetail = () => {
+    if (isEditingName) {
+      cancelEditName();
+    }
+    setIsDetailVisible((p) => !p);
+  }
 
   const selectedRoom = useMemo(
     () => rooms.find((room) => room.id === selectedRoomId),
@@ -486,7 +491,7 @@ export default function ChatWindow() {
                   {isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}
                 </p>
               </Tooltip>
-              <p className="empty-info">{selectedRoom.description || "ChitChat"}</p>
+              <p className="empty-info">{selectedRoom.description || "Quik"}</p>
               <p className="empty-hint">Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện</p>
             </div>
           ) : (
@@ -569,7 +574,7 @@ export default function ChatWindow() {
                   </Avatar>
                   <div className="overview-info">
                     <p className="name">{otherUser.displayName}</p>
-                    {/* <p className="sub">{otherUser.username || otherUser.uid}</p> */}
+                    {/* <p className="sub">{otherUser.role}</p> */}
                   </div>
                 </div>
               ) : null
@@ -644,6 +649,7 @@ export default function ChatWindow() {
                           icon={<CheckOutlined />}
                           onClick={saveRoomName}
                           loading={isSavingName}
+                          disabled={!newRoomName.trim()}
                         />
                         <Button icon={<CloseOutlined />} onClick={cancelEditName} />
                       </>
@@ -716,7 +722,7 @@ export default function ChatWindow() {
                             <p className="member-name" style={{ margin: 0 }}>{m.displayName}</p>
                           </Tooltip>
                           {isOwner && <FaKey color="gold" />}
-                          {isCoOwner && <FaKey color="gray" />}
+                          {isCoOwner && <FaKey color="silver" />}
                         </div>
                       </div>
                       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -727,7 +733,7 @@ export default function ChatWindow() {
                               type="text"
                               icon={<CrownOutlined />}
                               onClick={(e) => { e.stopPropagation(); toggleCoOwner(m.uid); }}
-                              style={{color: "gray"}}
+                              style={{color: "silver"}}
                             />
                           </Tooltip>
                         )}
@@ -786,7 +792,7 @@ export default function ChatWindow() {
               </div>
             ) : (
               <div className="chat-actions">
-                <button className="danger-btn" >Rời nhóm</button>
+                <button className="danger-btn" disabled>Rời nhóm</button>
               </div>
             )
           }
