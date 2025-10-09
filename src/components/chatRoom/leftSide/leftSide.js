@@ -35,17 +35,16 @@ export default function LeftSide() {
 
   const menu = (
     <Menu style={{cursor: "pointer"}}>
-      <Menu.Divider />
-      <Menu.Item key="profile" icon={<UserOutlined />}>
+      <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}>
         Trang cá nhân
       </Menu.Item>
-      <Menu.Item key="settings" icon={<SettingOutlined />}>
+      <Menu.Item key="settings" icon={<SettingOutlined />} onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}>
         Cài đặt
       </Menu.Item>
-      <Menu.Item key="saved" icon={<SaveOutlined />}>
+      <Menu.Item key="saved" icon={<SaveOutlined />} onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}>
         Đã lưu
       </Menu.Item>
-      <Menu.Item key="request" icon={<MessageOutlined />}>
+      <Menu.Item key="request" icon={<MessageOutlined />} onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}>
         Tin nhắn đang chờ
       </Menu.Item>
       <Menu.Divider />
@@ -75,13 +74,15 @@ export default function LeftSide() {
       <div className="icon-group top">
         <div
           className={`icon-item ${active === "home" ? "active" : ""}`}
-          onClick={() => setActive("home")}
+          // onClick={() => setActive("home")}
+          onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}
         >
           {active === "home" ? <GoHomeFill /> : <GoHome />}
         </div>
         <div
           className={`icon-item ${active === "search" ? "active" : ""}`}
-          onClick={() => setActive("search")}
+          // onClick={() => setActive("search")}
+          onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}
         >
           {active === "search" ? <HiSearch /> : <HiSearch />}
         </div>
@@ -93,7 +94,8 @@ export default function LeftSide() {
         </div>
         <div
           className={`icon-item ${active === "notification" ? "active" : ""}`}
-          onClick={() => setActive("notification")}
+          // onClick={() => setActive("notification")}
+          onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}
         >
           {active === "notification" ? <IoNotifications /> : <IoMdNotificationsOutline />}
         </div>

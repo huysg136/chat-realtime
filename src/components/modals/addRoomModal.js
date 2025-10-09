@@ -392,7 +392,7 @@ export default function AddRoomModal() {
             onClick={handleOk}
             style={{ marginTop: 10 }}
           >
-            {`Tạo nhóm (${selectedMembers.length} người)`}
+            {`Tạo nhóm (${selectedMembers.length + 1} người)`}
           </Button>
         )
       }
