@@ -1,5 +1,16 @@
 import React, { useContext, useState, useMemo, useRef, useEffect } from "react";
-import { Button, Avatar, Form, Input, Popconfirm, Tag, Tooltip, message } from "antd";
+import {
+  Button,
+  Avatar,
+  Form,
+  Input,
+  Popconfirm,
+  Tag,
+  Tooltip,
+  message,
+  Modal,
+  Select,
+} from "antd";
 import {
   PhoneOutlined,
   VideoCameraOutlined,
@@ -55,7 +66,11 @@ export default function ChatWindow() {
   const [newRoomName, setNewRoomName] = useState("");
   const [isSavingName, setIsSavingName] = useState(false);
   const [roomNameLocal, setRoomNameLocal] = useState("");
-  
+
+  // *** Leave group states ***
+  const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
+  const [selectedTransferUid, setSelectedTransferUid] = useState(null);
+  const [leavingLoading, setLeavingLoading] = useState(false);
 
   const toggleDetail = () => {
     if (isEditingName) {
@@ -400,6 +415,118 @@ export default function ChatWindow() {
     // Example (uncomment and adjust as needed):
     // await updateDocument('rooms', selectedRoom.id, { deleted: true });
   };
+
+  // ===== Leave group logic =====
+  const canLeave = () => {
+    // owner phải chuyển quyền trước
+    return currentUserRole !== "owner";
+  };
+
+  const openTransferModal = (e) => {
+    if (e) e.stopPropagation();
+    setSelectedTransferUid(null);
+    setIsTransferModalVisible(true);
+  };
+
+  const closeTransferModal = () => {
+    setIsTransferModalVisible(false);
+    setSelectedTransferUid(null);
+  };
+
+  const leaveGroupDirect = async () => {
+    // rời nhóm cho user không phải owner
+    if (!selectedRoom) return;
+    if (!uid) return;
+
+    try {
+      setLeavingLoading(true);
+      const newMembers = (selectedRoom.members || []).filter(
+        (m) => String(m).trim() !== String(uid).trim()
+      );
+      const newRoles = (selectedRoom.roles || []).filter(
+        (r) => String(r.uid).trim() !== String(uid).trim()
+      );
+
+      await updateDocument("rooms", selectedRoom.id, {
+        members: newMembers,
+        roles: newRoles,
+      });
+
+      message.success("Bạn đã rời nhóm");
+      // TODO: deselect room or navigate away if needed
+    } catch (err) {
+      console.error("leaveGroupDirect error:", err);
+      message.error("Rời nhóm thất bại, thử lại sau");
+    } finally {
+      setLeavingLoading(false);
+    }
+  };
+
+  const transferOwnershipAndLeave = async () => {
+    // owner phải chọn người nhận quyền trước khi rời
+    if (!selectedTransferUid) {
+      message.warning("Vui lòng chọn người nhận quyền trưởng nhóm");
+      return;
+    }
+    if (!selectedRoom) return;
+    if (!uid) return;
+
+    if (String(selectedTransferUid).trim() === String(uid).trim()) {
+      message.warning("Không thể chuyển quyền cho chính bạn");
+      return;
+    }
+
+    try {
+      setLeavingLoading(true);
+
+      // Build newRoles:
+      // - existing owner -> member
+      // - selectedTransferUid -> owner
+      // - remove current user role entry
+      const newRolesMap = {};
+      (rolesArray || []).forEach((r) => {
+        newRolesMap[String(r.uid).trim()] = r.role;
+      });
+
+      // set existing owner -> member (if exists)
+      Object.keys(newRolesMap).forEach((k) => {
+        if (newRolesMap[k] === "owner") {
+          newRolesMap[k] = "member";
+        }
+      });
+
+      // set receiver -> owner
+      newRolesMap[String(selectedTransferUid).trim()] = "owner";
+
+      // remove leaver's role entry
+      delete newRolesMap[String(uid).trim()];
+
+      // convert map back to array
+      const newRoles = Object.keys(newRolesMap).map((k) => ({ uid: k, role: newRolesMap[k] }));
+
+      // remove leaving user from members
+      const newMembers = (selectedRoom.members || []).filter(
+        (m) => String(m).trim() !== String(uid).trim()
+      );
+
+      await updateDocument("rooms", selectedRoom.id, {
+        members: newMembers,
+        roles: newRoles,
+      });
+
+      message.success("Đã chuyển quyền và rời nhóm");
+      closeTransferModal();
+      // TODO: deselect room or navigate away if needed
+    } catch (err) {
+      console.error("transferOwnershipAndLeave error:", err);
+      message.error("Chuyển quyền hoặc rời nhóm thất bại, thử lại sau");
+    } finally {
+      setLeavingLoading(false);
+    }
+  };
+
+  // Transfer modal options (exclude owner itself)
+  const transferCandidates = membersData.filter((m) => String(m.uid).trim() !== String(uid).trim() && String(m.uid).trim() !== String(ownerUid).trim());
 
   return (
     <div className="chat-window">
@@ -792,13 +919,65 @@ export default function ChatWindow() {
               </div>
             ) : (
               <div className="chat-actions">
-                <button className="danger-btn" disabled>Rời nhóm</button>
+                {/* Group: show leave group flow */}
+                {currentUserRole === "owner" ? (
+                  <>
+                    <Tooltip title="Trưởng nhóm phải chuyển quyền cho thành viên khác trước khi rời">
+                      <button className="danger-btn" onClick={openTransferModal}>Rời nhóm</button>
+                    </Tooltip>
+                  </>
+                ) : (
+                  <Popconfirm
+                    title="Bạn có chắc chắn muốn rời nhóm?"
+                    onConfirm={leaveGroupDirect}
+                    okText="Rời"
+                    cancelText="Hủy"
+                  >
+                    <button className="danger-btn">Rời nhóm</button>
+                  </Popconfirm>
+                )}
               </div>
             )
           }
           
         </div>
       </aside>
+
+      <Modal
+        title="Chuyển quyền trưởng nhóm và rời"
+        visible={isTransferModalVisible}
+        onOk={transferOwnershipAndLeave}
+        onCancel={closeTransferModal}
+        okText="Chuyển & Rời"
+        cancelText="Hủy"
+        confirmLoading={leavingLoading}
+        destroyOnClose
+      >
+        <p>Vui lòng chọn thành viên sẽ nhận quyền trưởng nhóm trước khi bạn rời.</p>
+
+        {transferCandidates.length === 0 ? (
+          <div>
+            <p>Không có thành viên nào phù hợp để chuyển quyền. Bạn không thể rời nhóm ngay bây giờ.</p>
+          </div>
+        ) : (
+          <Select
+            style={{ width: "100%" }}
+            placeholder="Chọn thành viên"
+            value={selectedTransferUid}
+            onChange={(val) => setSelectedTransferUid(val)}
+            optionLabelProp="label"
+          >
+            {transferCandidates.map((c) => (
+              <Select.Option key={c.uid} value={c.uid} label={c.displayName || c.uid}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Avatar src={c.photoURL} size={24}>{(c.displayName || "?").charAt(0).toUpperCase()}</Avatar>
+                  <span>{c.displayName || c.uid}</span>
+                </div>
+              </Select.Option>
+            ))}
+          </Select>
+        )}
+      </Modal>
     </div>
   );
 }
