@@ -74,15 +74,13 @@ export default function LeftSide() {
       <div className="icon-group top">
         <div
           className={`icon-item ${active === "home" ? "active" : ""}`}
-          // onClick={() => setActive("home")}
-          onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}
+          onClick={() => setActive("home")}
         >
           {active === "home" ? <GoHomeFill /> : <GoHome />}
         </div>
         <div
           className={`icon-item ${active === "search" ? "active" : ""}`}
-          // onClick={() => setActive("search")}
-          onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}
+          onClick={() => setActive("search")}
         >
           {active === "search" ? <HiSearch /> : <HiSearch />}
         </div>
@@ -94,8 +92,7 @@ export default function LeftSide() {
         </div>
         <div
           className={`icon-item ${active === "notification" ? "active" : ""}`}
-          // onClick={() => setActive("notification")}
-          onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}
+          onClick={() => setActive("notification")}
         >
           {active === "notification" ? <IoNotifications /> : <IoMdNotificationsOutline />}
         </div>
