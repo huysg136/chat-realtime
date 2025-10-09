@@ -449,8 +449,8 @@ export default function ChatWindow() {
                 onClick={() => setIsInviteMemberVisible(true)}
               />
             )}
-            <Button type="text" icon={<PhoneOutlined />} onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")} />
-            <Button type="text" icon={<VideoCameraOutlined />} onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")} />
+            <Button type="text" icon={<PhoneOutlined />} />
+            <Button type="text" icon={<VideoCameraOutlined />} />
             <Button
               type="text"
               icon={<IoMdInformationCircleOutline style={{ fontSize: 22 }} />}
@@ -519,7 +519,7 @@ export default function ChatWindow() {
         </div>
 
         <Form className="form-style" form={form}>
-          <Button type="text" icon={<SmileOutlined />} className="input-icon-btn" onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")} />
+          <Button type="text" icon={<SmileOutlined />} className="input-icon-btn" />
           <Form.Item name="message">
             <Input
               ref={inputRef}
@@ -539,8 +539,8 @@ export default function ChatWindow() {
             </Button>
           ) : (
             <div className="input-actions">
-              <Button type="text" icon={<AudioOutlined />} className="input-icon-btn" onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")} />
-              <Button type="text" icon={<PictureOutlined />} className="input-icon-btn" onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")} />
+              <Button type="text" icon={<AudioOutlined />} className="input-icon-btn" />
+              <Button type="text" icon={<PictureOutlined />} className="input-icon-btn" />
             </div>
           )}
         </Form>

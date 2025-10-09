@@ -35,16 +35,16 @@ export default function LeftSide() {
 
   const menu = (
     <Menu style={{cursor: "pointer"}}>
-      <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}>
+      <Menu.Item key="profile" icon={<UserOutlined />}>
         Trang cá nhân
       </Menu.Item>
-      <Menu.Item key="settings" icon={<SettingOutlined />} onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}>
+      <Menu.Item key="settings" icon={<SettingOutlined />}>
         Cài đặt
       </Menu.Item>
-      <Menu.Item key="saved" icon={<SaveOutlined />} onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}>
+      <Menu.Item key="saved" icon={<SaveOutlined />}>
         Đã lưu
       </Menu.Item>
-      <Menu.Item key="request" icon={<MessageOutlined />} onClick={() => window.open("https://s.shopee.vn/4ApRRCU8Pd", "_blank")}>
+      <Menu.Item key="request" icon={<MessageOutlined />}>
         Tin nhắn đang chờ
       </Menu.Item>
       <Menu.Divider />
