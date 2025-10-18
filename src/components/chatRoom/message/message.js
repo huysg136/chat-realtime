@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useMemo, useContext } from "react";
 import { Avatar } from "antd";
 // import { format } from "date-fns";
 // import { vi } from "date-fns/locale";
 import "./message.scss";
+import { AppContext } from "../../../context/appProvider";
 
 // function formatDate(timestamp) {
 //   if (!timestamp) return "";
@@ -44,7 +45,14 @@ const renderTextWithLinks = (text) => {
   return parts;
 };
 
+
 export default function Message({ text, displayName, createdAt, photoURL, isOwn }) {
+  const { rooms, selectedRoomId } = useContext(AppContext);
+  const selectedRoom = useMemo(
+    () => rooms.find((room) => room.id === selectedRoomId),
+    [rooms, selectedRoomId]
+  );
+  const isPrivate = selectedRoom.type === "private";
   return (
     <div className={`message-row ${isOwn ? "own" : ""}`}>
       {!isOwn && (
@@ -60,7 +68,9 @@ export default function Message({ text, displayName, createdAt, photoURL, isOwn 
 
       <div className="message-content">
         <div className="message-bubble">
-          {!isOwn && <span className="message-name">{displayName}</span>}
+          {!isPrivate && !isOwn && (
+            <span className="message-name">{displayName}</span>
+          )}
           <span className="message-text">{renderTextWithLinks(text)}</span>
         </div>
       </div>
