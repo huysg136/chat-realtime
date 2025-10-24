@@ -34,6 +34,8 @@ import { addDocument, updateDocument, encryptMessage, decryptMessage } from "../
 import { AuthContext } from "../../../context/authProvider";
 import { useFirestore } from "../../../hooks/useFirestore";
 import { IoMdInformationCircleOutline } from "react-icons/io";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -287,10 +289,10 @@ export default function ChatWindow() {
       }
 
       await updateDocument("rooms", selectedRoom.id, { roles: newRoles });
-      message.success("Cập nhật quyền thành công");
+      toast.success("Cập nhật quyền thành công");
     } catch (err) {
       console.error("toggleCoOwner error:", err);
-      message.error("Không thể cập nhật quyền, thử lại sau");
+      toast.error("Không thể cập nhật quyền, thử lại sau");
     }
   };
 
@@ -318,10 +320,10 @@ export default function ChatWindow() {
       }
 
       await updateDocument("rooms", selectedRoom.id, { roles: newRoles });
-      message.success("Đã chuyển quyền trưởng nhóm thành công!");
+      toast.success("Đã chuyển quyền trưởng nhóm thành công!");
     } catch (err) {
       console.error("transferOwnership error:", err);
-      message.error("Không thể chuyển quyền, thử lại sau");
+      toast.error("Không thể chuyển quyền, thử lại sau");
     }
   };
 
@@ -342,10 +344,10 @@ export default function ChatWindow() {
         roles: newRoles
       });
 
-      message.success("Đã xóa thành viên");
+      toast.success("Đã xóa thành viên");
     } catch (err) {
       console.error("removeMember error:", err);
-      message.error("Xóa thành viên thất bại, thử lại sau");
+      toast.error("Xóa thành viên thất bại, thử lại sau");
     }
   };
 
@@ -367,11 +369,11 @@ export default function ChatWindow() {
   const saveRoomName = async () => {
     const trimmed = (newRoomName || "").trim();
     if (!trimmed) {
-      message.warning("Tên phòng không được để trống");
+      toast.warning("Tên phòng không được để trống");
       return;
     }
     if (trimmed.length > 100) {
-      message.warning("Tên phòng tối đa 100 ký tự");
+      toast.warning("Tên phòng tối đa 100 ký tự");
       return;
     }
 
@@ -383,12 +385,11 @@ export default function ChatWindow() {
     setIsSavingName(true);
     try {
       await updateDocument("rooms", selectedRoom.id, { name: trimmed });
-      setRoomNameLocal(trimmed); // optimistic local update
+      setRoomNameLocal(trimmed);
       setIsEditingName(false);
-      message.success("Đã đổi tên phòng");
+      toast.success("Đã đổi tên nhóm");
     } catch (err) {
-      console.error("saveRoomName error:", err);
-      message.error("Đổi tên thất bại, thử lại");
+      toast.error("Đổi tên thất bại, thử lại");
     } finally {
       setIsSavingName(false);
     }
@@ -400,32 +401,24 @@ export default function ChatWindow() {
     setMuted(newMuted);
     try {
       await updateDocument("rooms", selectedRoom.id, { muted: newMuted });
-      message.success(newMuted ? "Đã tắt thông báo" : "Đã bật thông báo");
+      toast.success(newMuted ? "Đã tắt thông báo" : "Đã bật thông báo");
     } catch (err) {
       console.error(err);
-      message.error("Lưu cài đặt thất bại");
+      toast.error("Lưu cài đặt thất bại");
       setMuted(!newMuted); // revert
     }
   };
 
   const handleReport = () => {
-    // TODO: implement report logic (create a report doc or call API)
-    console.log("Report room", selectedRoom.id);
-    message.info("Đã gửi báo cáo (chưa thực hiện)");
+    toast.info("Đã gửi báo cáo (chưa thực hiện)");
   };
 
   const handleBlock = () => {
-    // TODO: implement block user logic
-    console.log("Block user / room", selectedRoom.id);
-    message.info("Chặn người dùng (chưa thực hiện)");
+    toast.info("Chặn người dùng (chưa thực hiện)");
   };
 
   const handleDeleteConversation = async () => {
-    // TODO: implement delete chat (soft delete or call backend)
-    console.log("Delete conversation", selectedRoom.id);
-    message.info("Xóa đoạn chat (chưa thực hiện)");
-    // Example (uncomment and adjust as needed):
-    // await updateDocument('rooms', selectedRoom.id, { deleted: true });
+    toast.info("Xóa đoạn chat (chưa thực hiện)");
   };
 
   
@@ -466,11 +459,11 @@ export default function ChatWindow() {
         roles: newRoles,
       });
 
-      message.success("Bạn đã rời nhóm");
+      toast.success("Bạn đã rời nhóm");
       // TODO: deselect room or navigate away if needed
     } catch (err) {
       console.error("leaveGroupDirect error:", err);
-      message.error("Rời nhóm thất bại, thử lại sau");
+      toast.error("Rời nhóm thất bại, thử lại sau");
     } finally {
       setLeavingLoading(false);
     }
@@ -528,12 +521,12 @@ export default function ChatWindow() {
         roles: newRoles,
       });
 
-      message.success("Đã chuyển quyền và rời nhóm");
+      toast.success("Đã chuyển quyền và rời nhóm");
       closeTransferModal();
       // TODO: deselect room or navigate away if needed
     } catch (err) {
       console.error("transferOwnershipAndLeave error:", err);
-      message.error("Chuyển quyền hoặc rời nhóm thất bại, thử lại sau");
+      toast.error("Chuyển quyền hoặc rời nhóm thất bại, thử lại sau");
     } finally {
       setLeavingLoading(false);
     }
@@ -822,7 +815,9 @@ export default function ChatWindow() {
                             <Button
                               type="text"
                               icon={<EditOutlined />}
-                              onClick={startEditName}
+                              onClick={() => {
+                                startEditName();
+                              }}
                             />
                           </Tooltip>
                         )}
@@ -1010,6 +1005,7 @@ export default function ChatWindow() {
           </Select>
         )}
       </Modal>
+      <ToastContainer position="top-center" autoClose={1000} />
     </div>
   );
 }
