@@ -55,6 +55,7 @@ export default function ChatWindow() {
   const [form] = Form.useForm();
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
+  const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
 
   // detail panel state
@@ -179,6 +180,7 @@ export default function ChatWindow() {
         roomId: selectedRoom.id,
         displayName,
         createdAt: new Date(),
+        replyTo: replyTo ? { id: replyTo.id, text: replyTo.decryptedText, displayName: replyTo.displayName } : null,
       });
 
       await updateDocument("rooms", selectedRoom.id, {
@@ -189,6 +191,8 @@ export default function ChatWindow() {
           createdAt: new Date(),
         },
       });
+
+      setReplyTo(null); // Clear reply after sending
     } catch (err) {
       console.error("Failed to send message:", err);
     } finally {
@@ -638,6 +642,8 @@ export default function ChatWindow() {
                     displayName={msg.displayName || "Unknown"}
                     createdAt={msg.createdAt}
                     isOwn={msg.uid === uid}
+                    replyTo={msg.replyTo}
+                    onReply={(message) => setReplyTo(message)}
                   />
                 </React.Fragment>
               );
@@ -646,6 +652,20 @@ export default function ChatWindow() {
         </div>
 
         <Form className="form-style" form={form}>
+          {replyTo && (
+            <div className="reply-preview">
+              <div className="reply-content">
+                <span className="reply-label">Trả lời {replyTo.displayName}:</span>
+                <p className="reply-text">{replyTo.decryptedText}</p>
+              </div>
+              <Button
+                type="text"
+                icon={<CloseOutlined />}
+                onClick={() => setReplyTo(null)}
+                className="cancel-reply-btn"
+              />
+            </div>
+          )}
           <Button type="text" icon={<SmileOutlined />} className="input-icon-btn" />
           <Form.Item name="message">
             <Input
@@ -653,7 +673,7 @@ export default function ChatWindow() {
               value={inputValue}
               onChange={handleInputChange}
               onPressEnter={handleOnSubmit}
-              placeholder="Nhắn tin..."
+              placeholder={replyTo ? "Trả lời..." : "Nhắn tin..."}
               bordered={false}
               autoComplete="off"
               //disabled={sending}

@@ -4,6 +4,7 @@ import { Avatar } from "antd";
 // import { vi } from "date-fns/locale";
 import "./message.scss";
 import { AppContext } from "../../../context/appProvider";
+import { FaReply, FaShare } from "react-icons/fa";
 
 // function formatDate(timestamp) {
 //   if (!timestamp) return "";
@@ -46,13 +47,20 @@ const renderTextWithLinks = (text) => {
 };
 
 
-export default function Message({ text, displayName, createdAt, photoURL, isOwn }) {
+export default function Message({ text, displayName, createdAt, photoURL, isOwn, replyTo, onReply }) {
   const { rooms, selectedRoomId } = useContext(AppContext);
   const selectedRoom = useMemo(
     () => rooms.find((room) => room.id === selectedRoomId),
     [rooms, selectedRoomId]
   );
   const isPrivate = selectedRoom.type === "private";
+
+  const handleReply = () => {
+    if (onReply) {
+      onReply({ id: Math.random().toString(), decryptedText: text, displayName });
+    }
+  };
+
   return (
     <div className={`message-row ${isOwn ? "own" : ""}`}>
       {!isOwn && (
@@ -71,7 +79,16 @@ export default function Message({ text, displayName, createdAt, photoURL, isOwn 
           {!isPrivate && !isOwn && (
             <span className="message-name">{displayName}</span>
           )}
+          {replyTo && (
+            <div className="reply-preview-in-message">
+              <span className="reply-label">Trả lời {replyTo.displayName}:</span>
+              <p className="reply-text">{replyTo.text}</p>
+            </div>
+          )}
           <span className="message-text">{renderTextWithLinks(text)}</span>
+        </div>
+        <div className="message-hover" onClick={handleReply}>
+          <FaReply />
         </div>
       </div>
     </div>

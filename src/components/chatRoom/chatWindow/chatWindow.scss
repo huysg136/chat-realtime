@@ -144,7 +144,65 @@
       }
     }
 
-    .form-style {
+      .reply-preview {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: #f0f0f0;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        border-left: 3px solid #0095f6;
+        max-width: 200px;
+
+        .reply-content {
+          flex: 1;
+          min-width: 0;
+
+          .reply-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #0095f6;
+            margin: 0 0 4px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px; 
+            display: inline; 
+          }
+
+          .reply-text {
+            font-size: 14px;
+            color: #262626;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+
+        .cancel-reply-btn {
+          flex-shrink: 0;
+          width: 24px;
+          height: 24px;
+          border: none;
+          background: transparent;
+          color: #8e8e8e;
+          cursor: pointer;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.2s;
+
+          &:hover {
+            background: #e0e0e0;
+            color: #262626;
+          }
+        }
+      }
+
+      .form-style {
       display: flex;
       align-items: center;
       padding: 12px 20px;
