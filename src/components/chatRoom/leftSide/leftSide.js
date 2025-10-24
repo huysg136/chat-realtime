@@ -10,7 +10,7 @@ import { GoHome, GoHomeFill} from "react-icons/go";
 import { HiSearch } from "react-icons/hi";
 //import { RiMessengerFill, RiMessengerLine } from "react-icons/ri";
 import { AiFillMessage, AiOutlineMessage  } from "react-icons/ai";
-import { IoNotifications } from "react-icons/io5";
+import { IoNotifications, IoMailUnreadOutline, IoMailUnread } from "react-icons/io5";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { UserOutlined, SettingOutlined, SaveOutlined, MessageOutlined, LogoutOutlined } from '@ant-design/icons';
 
@@ -36,14 +36,14 @@ export default function LeftSide() {
   const menu = (
     <Menu style={{cursor: "pointer"}}>
       <Menu.Item key="profile" icon={<UserOutlined />}>
-        Trang cá nhân
+        Hồ sơ của tôi
       </Menu.Item>
       <Menu.Item key="settings" icon={<SettingOutlined />}>
         Cài đặt
       </Menu.Item>
-      <Menu.Item key="saved" icon={<SaveOutlined />}>
+      {/* <Menu.Item key="saved" icon={<SaveOutlined />}>
         Đã lưu
-      </Menu.Item>
+      </Menu.Item> */}
       <Menu.Item key="request" icon={<MessageOutlined />}>
         Tin nhắn đang chờ
       </Menu.Item>
@@ -74,13 +74,13 @@ export default function LeftSide() {
       <div className="icon-group top">
         <div
           className={`icon-item ${active === "home" ? "active" : ""}`}
-          onClick={() => setActive("home")}
+          // onClick={() => setActive("home")}
         >
           {active === "home" ? <GoHomeFill /> : <GoHome />}
         </div>
         <div
           className={`icon-item ${active === "search" ? "active" : ""}`}
-          onClick={() => setActive("search")}
+          // onClick={() => setActive("search")}
         >
           {active === "search" ? <HiSearch /> : <HiSearch />}
         </div>
@@ -92,9 +92,15 @@ export default function LeftSide() {
         </div>
         <div
           className={`icon-item ${active === "notification" ? "active" : ""}`}
-          onClick={() => setActive("notification")}
+          // onClick={() => setActive("notification")}
         >
           {active === "notification" ? <IoNotifications /> : <IoMdNotificationsOutline />}
+        </div>
+        <div
+          className={`icon-item ${active === "invitation" ? "active" : ""}`}
+          onClick={() => setActive("invitation")}
+        >
+          {active === "invitation" ? <IoMailUnread /> : <IoMailUnreadOutline />}
         </div>
       </div>
 

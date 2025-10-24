@@ -157,6 +157,12 @@ export default function ChatWindow() {
     });
   }, [sortedMessages, selectedRoomId]);
 
+  useEffect(() => {
+    if (replyTo && inputRef.current) {
+      inputRef.current.input?.focus();
+    }
+  }, [replyTo]);
+
   const handleInputChange = (e) => setInputValue(e.target.value);
 
   const handleOnSubmit = async () => {
@@ -240,6 +246,8 @@ export default function ChatWindow() {
   const currentUserRole = getRoleOf(uid);
   const isOwner = currentUserRole === "owner";
   const isCoOwner = currentUserRole === "co-owner";
+
+  
 
   const canToggleCoOwner = (targetUid) => {
     // Only owner can promote/demote co-owner; cannot change owner
@@ -420,6 +428,8 @@ export default function ChatWindow() {
     // await updateDocument('rooms', selectedRoom.id, { deleted: true });
   };
 
+  
+
   // ===== Leave group logic =====
   const canLeave = () => {
     // owner phải chuyển quyền trước
@@ -528,6 +538,8 @@ export default function ChatWindow() {
       setLeavingLoading(false);
     }
   };
+
+  
 
   // Transfer modal options (exclude owner itself)
   const transferCandidates = membersData.filter((m) => String(m.uid).trim() !== String(uid).trim() && String(m.uid).trim() !== String(ownerUid).trim());
