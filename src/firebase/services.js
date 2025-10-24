@@ -1,5 +1,5 @@
 import { db } from "./config";
-import { collection, addDoc, updateDoc, doc, serverTimestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp, addDoc } from "firebase/firestore";
 import CryptoJS from "crypto-js";
 
 export const addDocument = async (collectionName, data) => {
@@ -19,12 +19,27 @@ export const updateDocument = async (collectionName, docId, data) => {
     const docRef = doc(db, collectionName, docId);
     await updateDoc(docRef, {
       ...data,
-      updatedAt: serverTimestamp() 
+      updatedAt: serverTimestamp()
     });
     return true;
   } catch (error) {
     console.error("Error updating document: ", error);
     return false;
+  }
+};
+
+export const getUserDocIdByUid = async (uid) => {
+  try {
+    const q = query(collection(db, "users"), where("uid", "==", uid));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      return querySnapshot.docs[0].id; // Trả về docId thật, ví dụ: "EuX9jy0qngPhfBE1w1Km"
+    }
+    console.warn("Không tìm thấy user có uid:", uid);
+    return null;
+  } catch (error) {
+    console.error("Error getting user document ID:", error);
+    return null;
   }
 };
 

@@ -29,7 +29,7 @@ export default function AuthProvider({ children }) {
   }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ user }}>
+    <AuthContext.Provider value={{ user, setUser }}>
       {isLoading ? (
         <div
           style={{

@@ -4,6 +4,7 @@
   import { getAuth, connectAuthEmulator } from "firebase/auth";
   import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 
+
   // Cấu hình Firebase
   const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -21,6 +22,7 @@
   // Export các service để dùng
   export const auth = getAuth(app);
   export const db = getFirestore(app);
+
 
   // if (window.location.hostname === "localhost") {
   //   // Dùng connectAuthEmulator thay vì auth.useEmulator
