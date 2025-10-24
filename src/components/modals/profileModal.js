@@ -1,9 +1,11 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Modal, Avatar, Input, Button, Card, message } from 'antd';
-import { EditOutlined, UserOutlined } from '@ant-design/icons';
+import { EditOutlined, UserOutlined, CameraOutlined } from '@ant-design/icons';
 import { AuthContext } from '../../context/authProvider';
 import { AppContext } from '../../context/appProvider';
 import { updateDocument, generateKeywords, getUserDocIdByUid } from '../../firebase/services';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
@@ -17,6 +19,13 @@ export default function ProfileModal() {
 
   const inputRef = useRef(null);
 
+  const fileInputRef = useRef(null); // Thêm vào đầu component
+
+  const handleFileChange = (e) => {
+    // Tạm thời chỉ thông báo
+    //toast.info('Chức năng thay đổi ảnh đại diện chưa hoàn thành');
+  };
+
   useEffect(() => {
     if (isEditingName && inputRef.current) {
       inputRef.current.focus();
@@ -29,7 +38,7 @@ export default function ProfileModal() {
 
   const handleSaveName = async () => {
     if (!displayName.trim()) {
-      message.error('Tên không được để trống');
+      toast.error('Tên không được để trống');
       return;
     }
 
@@ -40,7 +49,7 @@ export default function ProfileModal() {
 
       const docId = await getUserDocIdByUid(user.uid);
       if (!docId) {
-        message.error("Không tìm thấy người dùng trong Firestore");
+        //toast.error("Không tìm thấy người dùng trong Firestore");
         setLoading(false);
         return;
       }
@@ -53,13 +62,13 @@ export default function ProfileModal() {
       if (success) {
         setUser(prev => ({ ...prev, displayName: trimmedName }));
         setIsEditingName(false);
-        message.success('Cập nhật tên thành công');
+        toast.success('Cập nhật tên thành công');
       } else {
-        message.error('Không thể cập nhật tên');
+        toast.error('Không thể cập nhật tên');
       }
     } catch (error) {
       console.error('Error updating display name:', error);
-      message.error('Lỗi khi cập nhật tên');
+      toast.error('Lỗi khi cập nhật tên');
     } finally {
       setLoading(false);
     }
@@ -96,7 +105,7 @@ export default function ProfileModal() {
         }}
         bodyStyle={{ padding: '24px' }}
       >
-        {/* Avatar Section */}
+        {/* Avatar Section
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <Avatar
             size={100}
@@ -104,7 +113,42 @@ export default function ProfileModal() {
             icon={<UserOutlined />}
             style={{ border: '4px solid #f0f0f0' }}
           />
+        </div> */}
+        {/* Avatar Section */}
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            <Avatar
+              size={100}
+              src={user?.photoURL || defaultAvatar}
+              icon={<UserOutlined />}
+              style={{ border: '4px solid #f0f0f0' }}
+            />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<CameraOutlined />}
+              size="small"
+              // onClick={() => fileInputRef.current.click()}
+              onClick={() => toast.info('Chức năng thay đổi ảnh đại diện chưa hoàn thành')}
+              loading={loading}
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                border: 'none',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+              }}
+            />
+          </div>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            style={{ display: 'none' }}
+          />
         </div>
+
 
         {/* Display Name Section */}
         <div style={{ marginBottom: '10px' }}>
@@ -165,6 +209,7 @@ export default function ProfileModal() {
             </div>
           </div>
         </div>
+        <ToastContainer position="top-center" autoClose={2000} />
       </Card>
     </Modal>
   );
