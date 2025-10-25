@@ -9,6 +9,7 @@ export default function AppProvider({ children }) {
     const [isInviteMemberVisible, setIsInviteMemberVisible] = useState(false);
     const [isProfileVisible, setIsProfileVisible] = useState(false);
     const [selectedRoomId, setSelectedRoomId] = useState('');
+    const [searchText, setSearchText] = useState("");
 
     const { user } = React.useContext(AuthContext);
     
@@ -36,6 +37,8 @@ export default function AppProvider({ children }) {
             setIsInviteMemberVisible,
             isProfileVisible,
             setIsProfileVisible,
+            searchText, 
+            setSearchText
         }}>
             {children}
         </AppContext.Provider>

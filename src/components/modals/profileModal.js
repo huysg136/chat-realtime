@@ -73,7 +73,7 @@ export default function ProfileModal() {
         toast.error('Không thể cập nhật tên');
       }
     } catch (error) {
-      console.error('Error updating display name:', error);
+      //.error('Error updating display name:', error);
       toast.error('Lỗi khi cập nhật tên');
     } finally {
       setLoading(false);

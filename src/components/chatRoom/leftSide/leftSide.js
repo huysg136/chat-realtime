@@ -29,9 +29,7 @@ export default function LeftSide() {
   useEffect(() => {
     if (user && !photoURL) {
       const userRef = doc(db, "users", user.uid);
-      updateDoc(userRef, {
-        photoURL: defaultAvatar
-      }).catch((err) => console.error("Error updating avatar:", err));
+      void updateDoc(userRef, { photoURL: defaultAvatar });
     }
   }, [user, photoURL]);
 
@@ -46,8 +44,8 @@ export default function LeftSide() {
       {/* <Menu.Item key="saved" icon={<SaveOutlined />}>
         Đã lưu
       </Menu.Item> */}
-      <Menu.Item key="request" icon={<MessageOutlined />}>
-        Tin nhắn đang chờ
+      <Menu.Item key="request" icon={<IoMailUnreadOutline />}>
+        Lời mời đang chờ
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item
@@ -80,12 +78,12 @@ export default function LeftSide() {
         >
           {active === "home" ? <GoHomeFill /> : <GoHome />}
         </div>
-        <div
+        {/* <div
           className={`icon-item ${active === "search" ? "active" : ""}`}
           // onClick={() => setActive("search")}
         >
           {active === "search" ? <HiSearch /> : <HiSearch />}
-        </div>
+        </div> */}
         <div
           className={`icon-item ${active === "message" ? "active" : ""}`}
           onClick={() => setActive("message")}
@@ -100,7 +98,7 @@ export default function LeftSide() {
         </div>
         <div
           className={`icon-item ${active === "invitation" ? "active" : ""}`}
-          onClick={() => setActive("invitation")}
+          //onClick={() => setActive("invitation")}
         >
           {active === "invitation" ? <IoMailUnread /> : <IoMailUnreadOutline />}
         </div>

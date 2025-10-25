@@ -32,9 +32,9 @@ export default function Login() {
           keywords: generateKeywords(user.displayName)
         });
       }
-      console.log(`${provider.providerId} login success:`, user);
+      //console.log(`${provider.providerId} login success:`, user);
     } catch (err) {
-      console.error(`${provider.providerId} login error:`, err);
+      //console.error(`${provider.providerId} login error:`, err);
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import RoomItem from './roomItem';
@@ -7,7 +7,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import "./roomList.scss";
 
 export default function RoomList() {
-  const { rooms = [], users = [], selectedRoomId, setSelectedRoomId } =
+  const { rooms = [], users = [], selectedRoomId, setSelectedRoomId, searchText } =
     useContext(AppContext);
   const { user } = useContext(AuthContext);
   const [pinnedRooms, setPinnedRooms] = useState([]);
@@ -22,23 +22,31 @@ export default function RoomList() {
   }, [user?.uid]);
 
   const toMs = (ts) => {
-    if (!ts) return null;
+    if (!ts) return 0;
     if (typeof ts === "number") return ts;
     if (ts.seconds) return ts.seconds * 1000;
     if (ts instanceof Date) return ts.getTime();
     if (typeof ts === "string") return Date.parse(ts);
-    return null;
+    return 0;
   };
 
-  const sortedRooms = [...rooms].sort((a, b) => {
-    const aPinned = pinnedRooms.includes(a.id);
-    const bPinned = pinnedRooms.includes(b.id);
-    if (aPinned && !bPinned) return -1;
-    if (!aPinned && bPinned) return 1;
-    const aTime = toMs(a.lastMessage?.createdAt) || 0;
-    const bTime = toMs(b.lastMessage?.createdAt) || 0;
-    return bTime - aTime;
-  });
+  const filteredRooms = useMemo(() => {
+    if (!searchText?.trim()) return rooms;
+    const text = searchText.toLowerCase();
+    return rooms.filter((room) => room.name?.toLowerCase().includes(text));
+  }, [rooms, searchText]);
+
+  const sortedRooms = useMemo(() => {
+    return [...filteredRooms].sort((a, b) => {
+      const aPinned = pinnedRooms.includes(a.id);
+      const bPinned = pinnedRooms.includes(b.id);
+      if (aPinned && !bPinned) return -1;
+      if (!aPinned && bPinned) return 1;
+      const aTime = toMs(a.lastMessage?.createdAt);
+      const bTime = toMs(b.lastMessage?.createdAt);
+      return bTime - aTime;
+    });
+  }, [filteredRooms, pinnedRooms]);
 
   return (
     <div className="room-list-wrapper">

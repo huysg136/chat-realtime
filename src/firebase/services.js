@@ -10,7 +10,7 @@ export const addDocument = async (collectionName, data) => {
     });
     return docRef;
   } catch (error) {
-    console.error("Error adding document: ", error);
+    //console.error("Error adding document: ", error);
   }
 };
 
@@ -23,7 +23,7 @@ export const updateDocument = async (collectionName, docId, data) => {
     });
     return true;
   } catch (error) {
-    console.error("Error updating document: ", error);
+    //console.error("Error updating document: ", error);
     return false;
   }
 };
@@ -35,10 +35,10 @@ export const getUserDocIdByUid = async (uid) => {
     if (!querySnapshot.empty) {
       return querySnapshot.docs[0].id; // Trả về docId thật, ví dụ: "EuX9jy0qngPhfBE1w1Km"
     }
-    console.warn("Không tìm thấy user có uid:", uid);
+    //console.warn("Không tìm thấy user có uid:", uid);
     return null;
   } catch (error) {
-    console.error("Error getting user document ID:", error);
+    //console.error("Error getting user document ID:", error);
     return null;
   }
 };
@@ -116,7 +116,7 @@ export const decryptMessage = (encryptedMessage, key) => {
     const bytes = CryptoJS.AES.decrypt(encryptedMessage, key);
     return bytes.toString(CryptoJS.enc.Utf8);
   } catch (error) {
-    console.error("Decryption failed:", error);
+    //console.error("Decryption failed:", error);
     return "[Encrypted message]";
   }
 };

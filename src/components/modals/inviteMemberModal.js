@@ -27,7 +27,7 @@ export default function InviteMemberModal() {
         const roomData = roomSnap.data();
         setCurrentMembers(roomData?.members || []);
       } catch (error) {
-        console.error("Error fetching room members:", error);
+        //console.error("Error fetching room members:", error);
         setCurrentMembers([]);
       }
     };
@@ -98,7 +98,7 @@ export default function InviteMemberModal() {
       setOptions([]);
       setIsInviteMemberVisible(false);
     } catch (error) {
-      console.error("Error updating room members:", error);
+      //console.error("Error updating room members:", error);
     }
   };
 
