@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
-import RoomItem from "./RoomItem";
+import RoomItem from './roomItem';
 import { db } from "../../../firebase/config";
 import { doc, onSnapshot } from "firebase/firestore";
 import "./roomList.scss";
