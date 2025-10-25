@@ -242,10 +242,12 @@ export default function ChatWindow() {
             {isPrivate ? otherUser?.displayName || selectedRoom.name : selectedRoom.name}
           </p>
           <span className="header__description">
-            {selectedRoom.description || "Đang hoạt động"}
+            {!isPrivate 
+              ? `${membersData.length} thành viên`
+              : selectedRoom.description || "Đang hoạt động"
+            }
           </span>
         </div>
-
         <div className="button-group-right">
           <div className="button-group-style">
             {!isPrivate && (isOwner || isCoOwner) && (
