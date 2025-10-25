@@ -202,7 +202,6 @@ export default function ChatWindow() {
 
       setReplyTo(null); // Clear reply after sending
     } catch (err) {
-      console.error("Failed to send message:", err);
     } finally {
       setSending(false);
       setTimeout(() => {
@@ -291,7 +290,6 @@ export default function ChatWindow() {
       await updateDocument("rooms", selectedRoom.id, { roles: newRoles });
       toast.success("Cập nhật quyền thành công");
     } catch (err) {
-      console.error("toggleCoOwner error:", err);
       toast.error("Không thể cập nhật quyền, thử lại sau");
     }
   };
@@ -322,7 +320,6 @@ export default function ChatWindow() {
       await updateDocument("rooms", selectedRoom.id, { roles: newRoles });
       toast.success("Đã chuyển quyền trưởng nhóm thành công!");
     } catch (err) {
-      console.error("transferOwnership error:", err);
       toast.error("Không thể chuyển quyền, thử lại sau");
     }
   };
@@ -346,7 +343,6 @@ export default function ChatWindow() {
 
       toast.success("Đã xóa thành viên");
     } catch (err) {
-      console.error("removeMember error:", err);
       toast.error("Xóa thành viên thất bại, thử lại sau");
     }
   };
@@ -403,7 +399,6 @@ export default function ChatWindow() {
       await updateDocument("rooms", selectedRoom.id, { muted: newMuted });
       toast.success(newMuted ? "Đã tắt thông báo" : "Đã bật thông báo");
     } catch (err) {
-      console.error(err);
       toast.error("Lưu cài đặt thất bại");
       setMuted(!newMuted); // revert
     }
@@ -460,9 +455,7 @@ export default function ChatWindow() {
       });
 
       toast.success("Bạn đã rời nhóm");
-      // TODO: deselect room or navigate away if needed
     } catch (err) {
-      console.error("leaveGroupDirect error:", err);
       toast.error("Rời nhóm thất bại, thử lại sau");
     } finally {
       setLeavingLoading(false);
@@ -523,9 +516,7 @@ export default function ChatWindow() {
 
       toast.success("Đã chuyển quyền và rời nhóm");
       closeTransferModal();
-      // TODO: deselect room or navigate away if needed
     } catch (err) {
-      console.error("transferOwnershipAndLeave error:", err);
       toast.error("Chuyển quyền hoặc rời nhóm thất bại, thử lại sau");
     } finally {
       setLeavingLoading(false);

@@ -102,6 +102,9 @@ export default function Login() {
           </div>
         </Col>
       </Row>
+      <div className="footer-credit">
+        © 2025 Made by <span className="author-name">Thái Gia Huy</span> · quik.id.vn
+      </div>
     </div>
   );
 }

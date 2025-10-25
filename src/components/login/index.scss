@@ -311,3 +311,27 @@
       }
     }
   }
+
+.footer-credit {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  color: #8a94a0;
+  opacity: 0.8;
+  font-weight: 400;
+  user-select: none;
+
+  .author-name {
+    color: #4a5568;
+    font-weight: 600;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 10px;
+    bottom: 8px;
+  }
+}
+
