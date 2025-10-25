@@ -27,6 +27,12 @@ export default function ProfileModal() {
   };
 
   useEffect(() => {
+    if (user?.displayName) {
+      setDisplayName(user.displayName);
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (isEditingName && inputRef.current) {
       inputRef.current.focus();
     }

@@ -74,6 +74,7 @@ export default function ChatWindow() {
   const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
   const [selectedTransferUid, setSelectedTransferUid] = useState(null);
   const [leavingLoading, setLeavingLoading] = useState(false);
+  
 
   const toggleDetail = () => {
     if (isEditingName) {
@@ -557,14 +558,14 @@ export default function ChatWindow() {
         </div>
 
         <div className="header__info">
-          <Tooltip title={roomNameLocal || selectedRoom.name}>
+          <div className="header__info">
             <p className="header__title">
               {isPrivate ? otherUser?.displayName || selectedRoom.name : (roomNameLocal || selectedRoom.name)}
             </p>
-          </Tooltip>
-          <span className="header__description">
-            {selectedRoom.description || (isPrivate ? "Đang hoạt động" : "Đang hoạt động")}
-          </span>
+            <span className="header__description">
+              {selectedRoom.description || (isPrivate ? "Đang hoạt động" : "Đang hoạt động")}
+            </span>
+          </div>
         </div>
 
         <div className="button-group-right">
