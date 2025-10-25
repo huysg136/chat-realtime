@@ -3,7 +3,6 @@
   flex-direction: column;
   background: #fff;
   height: 100%;
-  max-height: calc(8 * 64px + 43px);
   overflow-y: auto;
 
   &::-webkit-scrollbar {
@@ -31,11 +30,11 @@
   height: 64px;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.04);
   }
 
   &.active {
-    background: rgba(0, 0, 0, 0.08);
+    background: rgba(0, 0, 0, 0.06);
   }
 
   .room-avatar {
@@ -43,24 +42,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
-    .ant-avatar {
-      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-    }
-
-    .single-avatar {
-      width: 48px;
-      height: 48px;
-      line-height: 48px;
-      font-size: 18px;
-    }
-
-    .room-circular-avatar-wrapper {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-    }
   }
 
   .room-info {
@@ -82,16 +63,9 @@
       font-size: 14px;
       color: #757575;
       margin: 0;
-      display: flex;
-      align-items: center;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-
-      .ant-avatar {
-        margin-right: 6px;
-        flex-shrink: 0;
-      }
 
       &.unread {
         font-weight: bold;
@@ -100,10 +74,46 @@
     }
   }
 
-  .room-time {
-    font-size: 12px;
-    color: #757575;
-    white-space: nowrap;
+  .room-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 7px;
     margin-left: auto;
+    position: relative;
+
+    .room-time {
+      font-size: 12px;
+      color: #757575;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+
+    .more-icon {
+      font-size: 16px;
+      color: #757575;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-radius: 50%;
+      padding: 4px;
+
+      &:hover {
+        color: #333;
+        background-color: rgba(0, 0, 0, 0.08);
+        transform: scale(1.05);
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+      }
+    }
+
+    .pin-icon {
+      font-size: 16px;
+      //color: #bfbfbf;
+      transition: color 0.2s, transform 0.2s;
+
+      &.pinned {
+        color: #73787e;
+        //transform: rotate(45deg);
+      }
+    }
   }
 }
