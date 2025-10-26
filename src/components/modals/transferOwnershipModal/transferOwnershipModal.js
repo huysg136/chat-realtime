@@ -79,13 +79,13 @@ export default function TransferOwnershipModal({
   return (
     <Modal
       title="Chuyển quyền trưởng nhóm và rời"
-      visible={visible}
+      open={visible}
       onOk={transferOwnershipAndLeave}
       onCancel={onClose}
       okText="Chuyển & Rời"
       cancelText="Hủy"
       confirmLoading={leavingLoading}
-      destroyOnClose
+      destroyOnHidden
     >
       <p>Vui lòng chọn thành viên sẽ nhận quyền trưởng nhóm trước khi bạn rời.</p>
 

@@ -116,14 +116,15 @@
   font-weight: 500;
   color: #262626;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1;
+  margin-bottom: 4px;
 }
 
 .message-text {
   font-size: 15px;
   color: #262626;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1;
   white-space: pre-wrap;
 
   .own & {
@@ -189,3 +190,179 @@
     }
   }
 }
+
+/* ===== Media Styles ===== */
+.message-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.message-text-part {
+  font-size: 15px;
+  color: #262626;
+  margin: 0;
+  line-height: 1.4;
+  white-space: pre-wrap;
+
+  .own & {
+    color: white;
+  }
+}
+
+.message-media-image {
+  width: auto;         
+  height: auto;
+  max-width: 300px;   
+  max-height: 300px;
+  min-width: 100px;    
+  min-height: 100px;   
+  border-radius: 12px;
+  object-fit: contain; 
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+.message-media-video {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+
+  .react-player {
+    border-radius: 12px;
+  }
+}
+
+.message-media-audio {
+  width: 100%;
+  max-width: 300px;
+
+  .rhap_container {
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  .rhap_main-controls-button {
+    color: #1890ff;
+  }
+
+  .rhap_progress-bar {
+    background: #d9d9d9;
+  }
+
+  .rhap_progress-filled {
+    background: #1890ff;
+  }
+
+  .rhap_time {
+    color: #666;
+  }
+
+  .own & {
+    .rhap_main-controls-button {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .rhap_progress-bar {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .rhap_progress-filled {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .rhap_time {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+}
+
+/* ===== File ===== */
+.message-media-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(24, 144, 255, 0.1);
+  border: 1px solid rgba(24, 144, 255, 0.2);
+  text-decoration: none;
+  color: #1890ff;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  max-width: 300px;
+  cursor: pointer;
+
+  .file-icon {
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .file-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    background: rgba(24, 144, 255, 0.15);
+    border-color: rgba(24, 144, 255, 0.3);
+    color: #40a9ff;
+  }
+
+  &.own {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: #e6f7ff;
+    }
+  }
+}
+
+/* ===== Link ===== */
+.message-media-link {
+  display: inline;
+  text-decoration: underline;
+  color: #1890ff;
+  font-size: 15px;
+  cursor: pointer;
+  max-width: 300px;
+
+  .link-icon {
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .link-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    color: #40a9ff;
+  }
+
+  &.own {
+    color: rgba(255,255,255,0.9);
+
+    &:hover {
+      color: #e6f7ff;
+    }
+  }
+}
+
+
+
+

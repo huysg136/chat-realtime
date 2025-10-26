@@ -1,92 +1,78 @@
 import React, { useMemo, useContext } from "react";
 import { Avatar } from "antd";
-// import { format } from "date-fns";
-// import { vi } from "date-fns/locale";
-import "./message.scss";
+import { FaReply } from "react-icons/fa";
 import { AppContext } from "../../../context/appProvider";
-import { FaReply, FaShare } from "react-icons/fa";
+import MediaRenderer from "./MediaRenderer";
+import "./message.scss";
 
-// function formatDate(timestamp) {
-//   if (!timestamp) return "";
-//   let date;
-//   if (timestamp.seconds) {
-//     date = new Date(timestamp.seconds * 1000);
-//   } else {
-//     date = new Date(timestamp);
-//   }
-//   if (isNaN(date)) return "";
-//   return format(date, "HH:mm dd/MM/yy", { locale: vi });
-// }
-
-const renderTextWithLinks = (text) => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const parts = [];
-  let lastIndex = 0;
-  let match;
-  while ((match = urlRegex.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index));
-    }
-    parts.push(
-      <a
-        key={match.index}
-        href={match[0]}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="message-link"
-      >
-        {match[0]}
-      </a>
-    );
-    lastIndex = match.index + match[0].length;
-  }
-  if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex));
-  }
-  return parts;
+// Reply preview
+const ReplyPreview = ({ replyTo, isOwn }) => {
+  if (!replyTo) return null;
+  return (
+    <div className={`reply-preview-in-message ${isOwn ? "own" : ""}`}>
+      <span className="reply-label">Trả lời {replyTo.displayName}:</span>
+      <p className="reply-text">{replyTo.text || replyTo.decryptedText}</p>
+    </div>
+  );
 };
 
-
-export default function Message({ text, displayName, createdAt, photoURL, isOwn, replyTo, onReply }) {
+// Main Message component
+export default function Message({ text, displayName, photoURL, isOwn, replyTo, onReply, kind }) {
   const { rooms, selectedRoomId } = useContext(AppContext);
   const selectedRoom = useMemo(
-    () => rooms.find((room) => room.id === selectedRoomId),
+    () => rooms.find((r) => r.id === selectedRoomId),
     [rooms, selectedRoomId]
   );
-  const isPrivate = selectedRoom.type === "private";
+  const isPrivate = selectedRoom?.type === "private";
 
   const handleReply = () => {
-    if (onReply) {
-      onReply({ id: Math.random().toString(), decryptedText: text, displayName });
-    }
+    if (onReply)
+      onReply({ id: Date.now().toString(), decryptedText: text, displayName });
   };
+
+  const defaultAvatar =
+    "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
+
+  // Kiểm tra xem có phải là media không cần bubble
+  const isMediaWithoutBubble = kind === "picture" || kind === "video";
 
   return (
     <div className={`message-row ${isOwn ? "own" : ""}`}>
       {!isOwn && (
-        <Avatar
-          className="message-avatar"
-          src={
-            photoURL ||
-            "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg"
-          }
-          size={28}
-        />
+        <Avatar src={photoURL || defaultAvatar} size={28} className="message-avatar" />
       )}
 
       <div className="message-content">
-        <div className="message-bubble">
-          {!isPrivate && !isOwn && (
-            <span className="message-name">{displayName}</span>
-          )}
-          {replyTo && (
-            <div className="reply-preview-in-message">
-              <span className="reply-label">Trả lời {replyTo.displayName}:</span>
-              <p className="reply-text">{replyTo.text}</p>
-            </div>
-          )}
-          <span className="message-text">{renderTextWithLinks(text)}</span>
-        </div>
+        {!isPrivate && !isOwn && isMediaWithoutBubble && (
+          <span className="message-name" style={{ paddingLeft: '4px' }}>
+            {displayName}
+          </span>
+        )}
+
+        {isMediaWithoutBubble && <ReplyPreview replyTo={replyTo} isOwn={isOwn} />}
+
+        {isMediaWithoutBubble ? (
+          <MediaRenderer
+            kind={kind}
+            content={text}
+            fileName={text.split("/").pop()}
+            isOwn={isOwn}
+          />
+        ) : (
+          <div className="message-bubble">
+            {!isPrivate && !isOwn && (
+              <span className="message-name">{displayName}</span>
+            )}
+            <ReplyPreview replyTo={replyTo} isOwn={isOwn} />
+            <MediaRenderer
+              kind={kind}
+              content={text}
+              fileName={text.split("/").pop()}
+              isOwn={isOwn}
+            />
+          </div>
+        )}
+
         <div className="message-hover" onClick={handleReply}>
           <FaReply />
         </div>

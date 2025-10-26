@@ -92,8 +92,8 @@ export default function ChatWindow() {
         roomId: selectedRoom.id,
         displayName,
         createdAt: new Date(),
-        type: file.type.startsWith("image/")
-          ? "image"
+        kind: file.type.startsWith("image/")
+          ? "picture"
           : file.type.startsWith("video/")
           ? "video"
           : "file",
@@ -158,6 +158,7 @@ export default function ChatWindow() {
         createdAt: timestamp,
         id: msg.id || msg._id || `msg-${index}`,
         decryptedText,
+        kind: msg.kind || msg.type || "text",
       };
     });
   }, [messages, selectedRoom?.secretKey]);
@@ -209,10 +210,11 @@ export default function ChatWindow() {
         roomId: selectedRoom.id,
         displayName,
         createdAt: new Date(),
-        replyTo: replyTo ? { 
-          id: replyTo.id, 
-          text: replyTo.decryptedText, 
-          displayName: replyTo.displayName 
+        kind: "text",
+        replyTo: replyTo ? {
+          id: replyTo.id,
+          text: replyTo.decryptedText,
+          displayName: replyTo.displayName
         } : null,
       });
 
@@ -379,6 +381,7 @@ export default function ChatWindow() {
                     createdAt={msg.createdAt}
                     isOwn={msg.uid === uid}
                     replyTo={msg.replyTo}
+                    kind={msg.kind || "text"}
                     onReply={(message) => setReplyTo(message)}
                   />
                 </React.Fragment>
