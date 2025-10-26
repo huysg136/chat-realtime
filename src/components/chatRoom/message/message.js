@@ -86,7 +86,7 @@ export default function Message({
           <MediaRenderer
             kind={kind}
             content={text}
-            fileName={text.split("/").pop()}
+            fileName={text.split("/").pop().slice(14)}
             isOwn={isOwn}
           />
         ) : (
@@ -96,7 +96,7 @@ export default function Message({
             <MediaRenderer
               kind={kind}
               content={text}
-              fileName={text.split("/").pop()}
+              fileName={text.split("/").pop().slice(14)}
               isOwn={isOwn}
             />
           </div>
