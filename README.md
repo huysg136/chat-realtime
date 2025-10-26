@@ -6,7 +6,7 @@
 
 A **real-time messaging application** built with **ReactJS** and **Firebase**, featuring private & group chat, live updates, and user authentication.
 
-🌐 **Live Demo:** [https://chat-realtime-iota.vercel.app](https://chat-realtime-iota.vercel.app)
+🌐 **Live Demo:** [https://quik.id.vn](https://quik.id.vn)
 
 ---
 

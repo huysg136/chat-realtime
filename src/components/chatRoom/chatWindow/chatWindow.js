@@ -15,7 +15,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-
+import axios from "axios";
 import Message from "../message/message";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import ChatDetailPanel from "../chatDetailPanel/chatDetailPanel";
@@ -60,6 +60,62 @@ export default function ChatWindow() {
     () => rooms.find((room) => room.id === selectedRoomId),
     [rooms, selectedRoomId]
   );
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setSending(true); // giữ loading icon
+      const res = await axios.post(
+        "https://chat-realtime-be.vercel.app/upload", // backend của bạn
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      const fileUrl = res.data.url; // backend trả về URL file
+
+      // Gửi message chứa file
+      const encryptedText = selectedRoom.secretKey
+        ? encryptMessage(fileUrl, selectedRoom.secretKey)
+        : fileUrl;
+
+      await addDocument("messages", {
+        text: encryptedText,
+        uid,
+        photoURL,
+        roomId: selectedRoom.id,
+        displayName,
+        createdAt: new Date(),
+        type: file.type.startsWith("image/")
+          ? "image"
+          : file.type.startsWith("video/")
+          ? "video"
+          : "file",
+      });
+
+      await updateDocument("rooms", selectedRoom.id, {
+        lastMessage: {
+          displayName,
+          text: encryptedText,
+          uid,
+          createdAt: new Date(),
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Upload file thất bại");
+    } finally {
+      setSending(false);
+      e.target.value = null; // reset input
+    }
+  };
+
 
   const condition = useMemo(
     () =>
@@ -366,7 +422,15 @@ export default function ChatWindow() {
           ) : (
             <div className="input-actions">
               <Button type="text" icon={<AudioOutlined />} className="input-icon-btn" />
-              <Button type="text" icon={<PictureOutlined />} className="input-icon-btn" />
+              <label htmlFor="fileUpload" className="input-icon-btn">
+                <PictureOutlined />
+              </label>
+              <input
+                id="fileUpload"
+                type="file"
+                style={{ display: "none" }}
+                onChange={handleFileUpload}
+              />
             </div>
           )}
         </Form>
