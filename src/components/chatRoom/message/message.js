@@ -1,11 +1,13 @@
-import React, { useMemo, useContext } from "react";
+import React, { useMemo, useContext, useState, useEffect } from "react";
 import { Avatar } from "antd";
 import { FaReply } from "react-icons/fa";
 import { AppContext } from "../../../context/appProvider";
 import MediaRenderer from "./MediaRenderer";
+import { db } from "../../../firebase/config";
+import { doc, onSnapshot } from "firebase/firestore";
+import { getUserDocIdByUid } from "../../../firebase/services"; 
 import "./message.scss";
 
-// Reply preview
 const ReplyPreview = ({ replyTo, isOwn }) => {
   if (!replyTo) return null;
   return (
@@ -16,14 +18,44 @@ const ReplyPreview = ({ replyTo, isOwn }) => {
   );
 };
 
-// Main Message component
-export default function Message({ text, displayName, photoURL, isOwn, replyTo, onReply, kind }) {
+export default function Message({
+  text,
+  displayName: initialDisplayName,
+  photoURL: initialPhoto,
+  isOwn,
+  replyTo,
+  onReply,
+  kind,
+  uid,
+}) {
   const { rooms, selectedRoomId } = useContext(AppContext);
   const selectedRoom = useMemo(
     () => rooms.find((r) => r.id === selectedRoomId),
     [rooms, selectedRoomId]
   );
   const isPrivate = selectedRoom?.type === "private";
+
+  const [displayName, setDisplayName] = useState(initialDisplayName || "Unknown");
+  const [photoURL, setPhotoURL] = useState(initialPhoto || null);
+
+  // realtime lắng nghe user doc
+  useEffect(() => {
+    if (!uid) return;
+    let unsubscribe = null;
+
+    getUserDocIdByUid(uid).then((docId) => {
+      if (!docId) return;
+      unsubscribe = onSnapshot(doc(db, "users", docId), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setDisplayName(data.displayName || initialDisplayName);
+          setPhotoURL(data.photoURL || initialPhoto);
+        }
+      });
+    });
+
+    return () => unsubscribe?.();
+  }, [uid, initialDisplayName, initialPhoto]);
 
   const handleReply = () => {
     if (onReply)
@@ -33,7 +65,6 @@ export default function Message({ text, displayName, photoURL, isOwn, replyTo, o
   const defaultAvatar =
     "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
-  // Kiểm tra xem có phải là media không cần bubble
   const isMediaWithoutBubble = kind === "picture" || kind === "video";
 
   return (
@@ -44,7 +75,7 @@ export default function Message({ text, displayName, photoURL, isOwn, replyTo, o
 
       <div className="message-content">
         {!isPrivate && !isOwn && isMediaWithoutBubble && (
-          <span className="message-name" style={{ paddingLeft: '4px' }}>
+          <span className="message-name" style={{ paddingLeft: "4px" }}>
             {displayName}
           </span>
         )}
@@ -60,9 +91,7 @@ export default function Message({ text, displayName, photoURL, isOwn, replyTo, o
           />
         ) : (
           <div className="message-bubble">
-            {!isPrivate && !isOwn && (
-              <span className="message-name">{displayName}</span>
-            )}
+            {!isPrivate && !isOwn && <span className="message-name">{displayName}</span>}
             <ReplyPreview replyTo={replyTo} isOwn={isOwn} />
             <MediaRenderer
               kind={kind}

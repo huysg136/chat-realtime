@@ -1,19 +1,48 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Input, Button } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { IoCreateOutline } from "react-icons/io5";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../../../firebase/config";
+import { getUserDocIdByUid } from "../../../firebase/services";
 import "./searching.scss";
 
 export default function Searching() {
   const { setIsAddRoomVisible, searchText, setSearchText } = useContext(AppContext);
   const { user } = useContext(AuthContext) || {};
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    let unsubscribe = () => {};
+    const setupRealtime = async () => {
+      const docId = await getUserDocIdByUid(user.uid);
+      if (!docId) return;
+
+      const docRef = doc(db, "users", docId);
+      unsubscribe = onSnapshot(
+        docRef,
+        (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setUsername(data.displayName || data.username || "");
+          }
+        },
+        (error) => {
+          console.error("Lỗi khi lấy dữ liệu realtime user từ Firestore:", error);
+        }
+      );
+    };
+
+    setupRealtime();
+
+    return () => unsubscribe();
+  }, [user?.uid]);
 
   const handleAddRoom = () => setIsAddRoomVisible(true);
-
-  const username = user?.displayName || user?.username || "Tôi";
-
   const handleSearchChange = (e) => setSearchText(e.target.value);
 
   return (
@@ -40,6 +69,7 @@ export default function Searching() {
           onChange={handleSearchChange}
         />
       </div>
+
       <div className="room-header">
         <span className="header-1">Tin nhắn</span>
         <span className="header-2">Lời mời đang chờ</span>

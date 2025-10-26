@@ -375,6 +375,7 @@ export default function ChatWindow() {
                 <React.Fragment key={msg.id}>
                   {showTime && <div className="chat-time-separator">{formatDate(msg.createdAt)}</div>}
                   <Message
+                    uid={msg.uid}
                     text={msg.decryptedText || ""}
                     photoURL={msg.photoURL || null}
                     displayName={msg.displayName || "Unknown"}
