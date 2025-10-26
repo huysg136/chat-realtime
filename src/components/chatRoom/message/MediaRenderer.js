@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import ReactPlayer from 'react-player';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
-import { FaFileAlt } from 'react-icons/fa';
+import { MdAttachFile } from "react-icons/md";
 import 'react-image-lightbox/style.css';
 import Lightbox from 'react-image-lightbox';
 
@@ -75,7 +75,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn }) => {
         rel="noopener noreferrer"
         className={`message-media-file ${isOwn ? 'own' : ''}`}
       >
-        <FaFileAlt className="file-icon" />
+        <MdAttachFile className="file-icon" />
         <span className="file-name">{fileName}</span>
       </a>
     );

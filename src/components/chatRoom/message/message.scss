@@ -286,21 +286,23 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 5px 12px;
   border-radius: 8px;
-  background: rgba(24, 144, 255, 0.1);
-  border: 1px solid rgba(24, 144, 255, 0.2);
+  background: rgba(24, 144, 255, 0.05);
+  border: 1px solid rgba(24, 144, 255, 0.15);
   text-decoration: none;
-  color: #1890ff;
-  font-size: 15px;
+  color: #40a9ff;
+  font-size: 14px;
   font-weight: 500;
   transition: all 0.2s ease;
   max-width: 300px;
   cursor: pointer;
+  
 
   .file-icon {
     flex-shrink: 0;
-    font-size: 16px;
+    font-size: 20px;
+    transform: rotate(45deg);
   }
 
   .file-name {
@@ -309,6 +311,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  
 
   &:hover {
     background: rgba(24, 144, 255, 0.15);
