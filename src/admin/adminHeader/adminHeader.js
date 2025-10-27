@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Layout, Avatar, Dropdown, Space } from "antd";
-import { AuthContext } from "../context/authProvider";
+import { AuthContext } from "../../context/authProvider";
+import "./adminHeader.scss";
 
 const { Header } = Layout;
 
@@ -13,7 +14,7 @@ export default function AdminHeader() {
 
   return (
     <Header className="admin-header">
-      <h2>Trang quản trị hệ thống chat</h2>
+      <h2>Trang quản trị Quik</h2>
       <Dropdown menu={{ items }}>
         <Space className="admin-user">
           <Avatar src={user?.photoURL} />

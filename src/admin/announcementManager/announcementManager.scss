@@ -1,0 +1,53 @@
+.announcement-manager {
+  padding: 20px;
+
+  h2 {
+    color: #2f3640;
+    font-weight: 600;
+    margin-bottom: 16px;
+
+    body.dark-theme & {
+      color: #e8e8f2; 
+    }
+  }
+
+  .ant-btn-primary {
+    margin-bottom: 20px;
+  }
+
+  .ant-table {
+    .ant-table-thead > tr > th {
+      background: #f5f6fa; 
+      color: #2f3640;
+      font-weight: 600;
+
+      body.dark-theme & {
+        background: #1e1e2f;
+        color: #e8e8f2;
+      }
+    }
+
+    .ant-table-tbody > tr:hover {
+      background: rgba(24, 144, 255, 0.05); 
+      body.dark-theme & {
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+
+    .ant-btn-danger {
+      background: #ff4d4f;
+      border: none;
+      color: #fff;
+
+      &:hover {
+        background: #e04448; 
+      }
+    }
+  }
+
+  .ant-modal {
+    .ant-input-textarea {
+      border-radius: 12px;
+    }
+  }
+}

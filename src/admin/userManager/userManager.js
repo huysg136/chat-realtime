@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase/config";
+import { db } from "../../firebase/config";
 import {
   collection,
   getDocs,
@@ -7,6 +7,7 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
+import "./userManager.scss";
 
 export default function UsersManager() {
   const [users, setUsers] = useState([]);

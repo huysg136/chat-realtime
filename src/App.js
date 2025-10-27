@@ -8,11 +8,11 @@ import AddRoomModal from './components/modals/addRoomModal';
 import InviteMemberModal from './components/modals/inviteMemberModal';
 import ProfileModal from './components/modals/profileModal';
 import PrivateRoute from './routes/privateRoute';
-import AdminLayout from './admin/adminLayout';
-import Dashboard from './admin/dashboard';
-import UsersManager from './admin/userManager';
-import RoomsManager from './admin/roomManager';
-import AnnouncementManager from './admin/announcementManager';
+import AdminLayout from './admin/adminLayout/adminLayout';
+import Dashboard from './admin/dashboard/dashboard';
+import UsersManager from './admin/userManager/userManager';
+import RoomsManager from './admin/roomManager/roomManager';
+import AnnouncementManager from './admin/announcementManager/announcementManager';
 
 function App() {
   return (

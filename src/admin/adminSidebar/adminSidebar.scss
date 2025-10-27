@@ -1,0 +1,36 @@
+.admin-sider {
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-right: 1px solid #e6e8eb;
+  transition: all 0.3s ease;
+
+  body.dark-theme & {
+    background: #2a2a3d; 
+    border-color: #3b3b55;
+  }
+
+  .admin-logo {
+    text-align: center;
+    padding: 20px 16px;
+    font-weight: 700;
+    font-size: 20px;
+    color: #1890ff;
+    border-bottom: 1px solid #e6e8eb;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: #1565c0;
+      transform: scale(1.02);
+    }
+
+    body.dark-theme & {
+      border-color: #3b3b55;
+      color: #1aa0ff; 
+    }
+  }
+
+  .ant-menu {
+    border-right: 0;
+  }
+}

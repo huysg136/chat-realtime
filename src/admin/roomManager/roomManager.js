@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase/config";
+import { db } from "../../firebase/config";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { decryptMessage } from "../firebase/services";
-import "./styles/roomManager.scss";
+import { decryptMessage } from "../../firebase/services";
+import "./roomManager.scss";
 
 export default function RoomManager() {
   const [rooms, setRooms] = useState([]);

@@ -7,6 +7,7 @@ import {
   DashboardOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
+import "./adminSidebar.scss";
 
 const { Sider } = Layout;
 

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Card, Row, Col, Statistic } from "antd";
 import { UserOutlined, MessageOutlined } from "@ant-design/icons";
-import { db } from "../firebase/config";
+import { db } from "../../firebase/config";
 import { collection, getCountFromServer } from "firebase/firestore";
+import "./dashboard.scss";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ users: 0, rooms: 0 });

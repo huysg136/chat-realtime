@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../firebase/config";
+import { db } from "../../firebase/config";
 import {
   collection,
   addDoc,
@@ -9,6 +9,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { Table, Button, Modal, Input, message } from "antd";
+import "./announcementManager.scss";
 
 export default function AnnouncementManager() {
   const [list, setList] = useState([]);

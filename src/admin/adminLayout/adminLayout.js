@@ -1,9 +1,9 @@
 import React from "react";
 import { Layout } from "antd";
 import { Outlet } from "react-router-dom";
-import AdminSidebar from "./adminSidebar";
-import AdminHeader from "./adminHeader";
-import "./admin.scss";
+import AdminSidebar from "../adminSidebar/adminSidebar";
+import AdminHeader from "../adminHeader/adminHeader";
+import "./adminLayout.scss";
 
 const { Content } = Layout;
 
