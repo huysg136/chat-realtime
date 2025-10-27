@@ -4,26 +4,30 @@ import { Avatar, Dropdown, Menu } from "antd";
 import { auth } from "../../../firebase/config";
 import { AuthContext } from "../../../context/authProvider";
 import { db } from "../../../firebase/config";
-import { doc, updateDoc } from "firebase/firestore";
+import { getUserDocIdByUid } from "../../../firebase/services";
+import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import "./leftSide.scss"; 
 import { GoHome, GoHomeFill} from "react-icons/go";
-import { HiSearch } from "react-icons/hi";
 //import { RiMessengerFill, RiMessengerLine } from "react-icons/ri";
 import { AiFillMessage, AiOutlineMessage  } from "react-icons/ai";
 import { IoNotifications, IoMailUnreadOutline, IoMailUnread } from "react-icons/io5";
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { UserOutlined, SettingOutlined, SaveOutlined, MessageOutlined, LogoutOutlined } from '@ant-design/icons';
+import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { AppContext } from '../../../context/appProvider';
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
 export default function LeftSide() {
   const [active, setActive] = useState("message");
+  const [role, setRole] = useState("");
   const { user } = useContext(AuthContext);
   const { setIsProfileVisible } = useContext(AppContext);
   const displayName = user?.displayName;
   const photoURL = user?.photoURL;
+  const navigate = useNavigate();
 
   // Nếu user không có avatar thì set mặc định vào Firestore
   useEffect(() => {
@@ -33,11 +37,35 @@ export default function LeftSide() {
     }
   }, [user, photoURL]);
 
+  // Real-time role listener
+  useEffect(() => {
+    if (!user) return;
+    let unsubscribe;
+    const fetchDocIdAndSubscribe = async () => {
+      const docId = await getUserDocIdByUid(user.uid);
+      if (!docId) return;
+      const userRef = doc(db, "users", docId);
+      unsubscribe = onSnapshot(userRef, (docSnap) => {
+        if (docSnap.exists()) {
+          setRole(docSnap.data().role || "user");
+        }
+      });
+    };
+    void fetchDocIdAndSubscribe();
+
+    return () => unsubscribe && unsubscribe();
+  }, [user]);
+
   const menu = (
     <Menu style={{cursor: "pointer"}}>
       <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => setIsProfileVisible(true)}>
         Hồ sơ của tôi
       </Menu.Item>
+      {role === "admin" && (
+        <Menu.Item key="admin" icon={<MdOutlineAdminPanelSettings />} onClick={() => navigate("/admin")}>
+          Trang quản trị
+        </Menu.Item>
+      )}
       <Menu.Item key="settings" icon={<SettingOutlined />}>
         Cài đặt
       </Menu.Item>
