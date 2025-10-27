@@ -44,7 +44,7 @@ export default function AnnouncementManager() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>Quản lý thông báo</h2>
+      {/* <h2>Quản lý thông báo</h2> */}
       <Button type="primary" onClick={() => setOpen(true)}>
         + Thêm thông báo
       </Button>

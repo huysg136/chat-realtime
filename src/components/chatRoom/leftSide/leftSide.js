@@ -61,7 +61,7 @@ export default function LeftSide() {
       <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => setIsProfileVisible(true)}>
         Hồ sơ của tôi
       </Menu.Item>
-      {role === "admin" && (
+      {(role === "admin" || role === "moderator") && (
         <Menu.Item key="admin" icon={<MdOutlineAdminPanelSettings />} onClick={() => navigate("/admin")}>
           Trang quản trị
         </Menu.Item>

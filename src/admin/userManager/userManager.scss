@@ -1,10 +1,13 @@
 .user-manager {
+  padding: 20px;
+
   h2 {
     color: #2f3640;
     font-weight: 600;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
+    gap: 8px;
 
     body.dark-theme & {
       color: #e8e8f2;
@@ -42,6 +45,20 @@
       }
     }
 
+    // 🌈 Hàng xen kẽ (zebra rows)
+    tbody tr:nth-child(odd) {
+      background: #fff;
+      body.dark-theme & {
+        background: #23233a;
+      }
+    }
+    // tbody tr:nth-child(even) {
+    //   background: #fafafa;
+    //   body.dark-theme & {
+    //     background: #1c1c31;
+    //   }
+    // }
+
     tbody tr:hover {
       background: rgba(24, 144, 255, 0.05);
       body.dark-theme & {
@@ -65,9 +82,45 @@
       font-size: 12px;
       transition: all 0.3s ease;
       margin-right: 6px;
+      color: #fff;
 
       &:hover {
         opacity: 0.85;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    .btn-edit {
+      background: #1890ff;
+    }
+
+    .btn-ban {
+      background: #ff4d4f; 
+    }
+
+    // 🌟 Màu tag theo role
+    .role-tag {
+      text-transform: capitalize;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+
+      &.admin {
+        color: #ff4d4f;
+        background: rgba(255, 77, 79, 0.15);
+      }
+      &.moderator {
+        color: #1677ff;
+        background: rgba(22, 119, 255, 0.15);
+      }
+      &.user {
+        color: #52c41a;
+        background: rgba(82, 196, 26, 0.15);
       }
     }
   }

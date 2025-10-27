@@ -130,7 +130,7 @@ export default function RoomManager() {
 
   return (
     <div className="room-manager">
-      <h2>Quản lý phòng chat</h2>
+      {/* <h2>Quản lý phòng chat</h2> */}
 
       <div className="filters">
         <input
