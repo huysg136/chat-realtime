@@ -16,7 +16,14 @@ export default function RoomManager() {
     createdAt: "",
   });
 
-  // Lấy danh sách user để tra UID -> displayName
+  const isSameDate = (date1, date2) => {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  };
+
   const fetchUsers = async () => {
     const snapshot = await getDocs(collection(db, "users"));
     const map = {};
@@ -95,7 +102,6 @@ export default function RoomManager() {
     fetchRooms();
   }, []);
 
-  // Lọc dữ liệu
   const filteredRooms = rooms
     .filter((room) =>
       room.name.toLowerCase().includes(filters.name.toLowerCase())
@@ -105,12 +111,17 @@ export default function RoomManager() {
     )
     .filter((room) =>
       filters.owner
-        ? (uidToName[room.ownerUid] || "").toLowerCase().includes(filters.owner.toLowerCase())
+        ? (uidToName[room.ownerUid] || "")
+            .toLowerCase()
+            .includes(filters.owner.toLowerCase())
         : true
     )
-    .filter((room) =>
-      filters.createdAt ? room.createdAt.startsWith(filters.createdAt) : true
-    )
+    .filter((room) => {
+      if (!filters.createdAt) return true;
+      const filterDate = new Date(filters.createdAt);
+      const roomDate = new Date(room.createdAt); 
+      return isSameDate(filterDate, roomDate);
+    })
     .sort((a, b) => {
       if (filters.membersSort === "asc") return a.members.length - b.members.length;
       if (filters.membersSort === "desc") return b.members.length - a.members.length;
@@ -121,7 +132,6 @@ export default function RoomManager() {
     <div className="room-manager">
       <h2>Quản lý phòng chat</h2>
 
-      {/* Filter row */}
       <div className="filters">
         <input
           type="text"
@@ -144,16 +154,24 @@ export default function RoomManager() {
           onChange={(e) => setFilters({ ...filters, owner: e.target.value })}
         />
         <div className="members-sort">
-            <button
-                onClick={() => {
-                const nextSort =
-                    filters.membersSort === "" ? "asc" :
-                    filters.membersSort === "asc" ? "desc" : "";
-                setFilters({ ...filters, membersSort: nextSort });
-                }}
-            >
-                Thành viên {filters.membersSort === "asc" ? "↑" : filters.membersSort === "desc" ? "↓" : ""}
-            </button>
+          <button
+            onClick={() => {
+              const nextSort =
+                filters.membersSort === ""
+                  ? "asc"
+                  : filters.membersSort === "asc"
+                  ? "desc"
+                  : "";
+              setFilters({ ...filters, membersSort: nextSort });
+            }}
+          >
+            Thành viên{" "}
+            {filters.membersSort === "asc"
+              ? "↑"
+              : filters.membersSort === "desc"
+              ? "↓"
+              : ""}
+          </button>
         </div>
         <input
           type="date"
@@ -200,26 +218,35 @@ export default function RoomManager() {
         </tbody>
       </table>
 
-      {/* Modal Chi Tiết */}
       {selectedRoom && (
         <div className="room-modal">
           <div className="room-modal-content">
             <h3>Chi tiết phòng: {selectedRoom.name}</h3>
-            <p><strong>Loại:</strong> {selectedRoom.kind}</p>
-            {/* <p><strong>Người tạo:</strong> {selectedRoom.createdBy}</p> */}
-            <p><strong>Chủ phòng:</strong> {uidToName[selectedRoom.ownerUid] || "Ẩn danh"}</p>
-            <p><strong>Thành viên ({selectedRoom.members.length}):</strong></p>
+            <p>
+              <strong>Loại:</strong> {selectedRoom.kind}
+            </p>
+            <p>
+              <strong>Chủ phòng:</strong> {uidToName[selectedRoom.ownerUid] || "Ẩn danh"}
+            </p>
+            <p>
+              <strong>Thành viên ({selectedRoom.members.length}):</strong>
+            </p>
             <ul>
               {selectedRoom.members.map((m, i) => (
                 <li key={i}>
-                  {uidToName[m] || m} <span className="role">({selectedRoom.roles.find(r => r.uid === m)?.role || "member"})</span>
+                  {uidToName[m] || m}{" "}
+                  <span className="role">
+                    ({selectedRoom.roles.find((r) => r.uid === m)?.role || "member"})
+                  </span>
                 </li>
               ))}
             </ul>
-            {/* <p><strong>Tin nhắn cuối:</strong> {selectedRoom.lastMessage}</p> */}
-            <p><strong>Ngày tạo:</strong> {selectedRoom.createdAt}</p>
-            <p><strong>Thời gian tin nhắn cuối:</strong> {selectedRoom.updatedAt}</p>
-            {/* <p><strong>Secret Key:</strong> {selectedRoom.secretKey}</p> */}
+            <p>
+              <strong>Ngày tạo:</strong> {selectedRoom.createdAt}
+            </p>
+            <p>
+              <strong>Thời gian tin nhắn cuối:</strong> {selectedRoom.updatedAt}
+            </p>
             <div className="modal-actions">
               <button onClick={() => setSelectedRoom(null)}>Đóng</button>
             </div>

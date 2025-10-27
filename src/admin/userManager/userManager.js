@@ -39,7 +39,7 @@ export default function UsersManager() {
 
   return (
     <div className="user-manager">
-      <h2>User Manager</h2>
+      <h2>Quản lý người dùng</h2>
       <table>
         <thead>
           <tr>
