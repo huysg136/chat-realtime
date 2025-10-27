@@ -1,13 +1,13 @@
 .sidebar {
   height: 100vh;
   width: 64px;
-  background-color: #ffffff;
+  background-color: #f0f0f0; 
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 12px 0;
-  border-right: 2px solid rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
+  border-right: 2px solid rgba(0, 0, 0, 0.1);
 
   .user-avatar {
     margin-bottom: 10px;
@@ -16,8 +16,8 @@
     transition: all 0.3s;
 
     &:hover {
-      border-color: #ffffff;
-      box-shadow: 0 0 6px rgba(42, 42, 42, 0.6);
+      border-color: #888;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
     }
   }
 
@@ -45,13 +45,13 @@
       transition: all 0.3s;
 
       &:hover {
-        background-color: rgba(220, 220, 220, 0.6);
-        //color: #fff;
+        background-color: rgba(0, 0, 0, 0.05); 
+        color: #222;
       }
 
       &.active {
-        background-color: rgba(42, 42, 42, 0.6);
-        color: #fff;
+        background-color: #ccc; 
+        color: #222;
       }
 
       svg {
