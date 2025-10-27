@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { db } from "../../firebase/config";
 import {
   collection,
-  getDocs,
+  onSnapshot,
   deleteDoc,
   doc,
   updateDoc,
@@ -13,29 +13,27 @@ export default function UsersManager() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchUsers = async () => {
+  useEffect(() => {
     setLoading(true);
-    const snapshot = await getDocs(collection(db, "users"));
-    setUsers(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    setLoading(false);
-  };
+    const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
+      const userList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setUsers(userList);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc muốn xóa người dùng này không?")) {
       await deleteDoc(doc(db, "users", id));
-      fetchUsers();
     }
   };
 
   const toggleRole = async (id, currentRole) => {
     const newRole = currentRole === "admin" ? "user" : "admin";
     await updateDoc(doc(db, "users", id), { role: newRole });
-    fetchUsers();
   };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
 
   if (loading) return <p>Đang tải danh sách người dùng...</p>;
 

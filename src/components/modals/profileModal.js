@@ -7,7 +7,7 @@ import { updateDocument, generateKeywords, getUserDocIdByUid } from '../../fireb
 import { db } from "../../firebase/config";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
@@ -71,12 +71,36 @@ export default function ProfileModal() {
       });
 
       if (success) {
+        setUser(prev => ({ ...prev, displayName: trimmedName }));
+
+        const roomsRef = collection(db, "rooms");
+        const q = query(
+          roomsRef,
+          where("type", "==", "private"),
+          where("members", "array-contains", user.uid)
+        );
+
+        const querySnapshot = await getDocs(q);
+        const batch = writeBatch(db);
+
+        querySnapshot.forEach((roomDoc) => {
+          const roomData = roomDoc.data();
+          const otherMemberUid = roomData.members.find(uid => uid !== user.uid);
+
+          if (!otherMemberUid || otherMemberUid === user.uid) return;
+
+          batch.update(doc(db, "rooms", roomDoc.id), { name: trimmedName });
+        });
+
+        await batch.commit();
+
         setIsEditingName(false);
-        toast.success('Cập nhật tên thành công');
+        toast.success('Cập nhật tên thành công và đồng bộ phòng private');
       } else {
         toast.error('Không thể cập nhật tên');
       }
     } catch (error) {
+      console.error(error);
       toast.error('Lỗi khi cập nhật tên');
     } finally {
       setLoading(false);
