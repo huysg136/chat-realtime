@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Statistic, Table, Spin, message } from "antd";
+import React, { useEffect, useState, useRef } from "react";
+import {
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Spin,
+  message,
+  Radio,
+  Select,
+} from "antd";
 import {
   UserOutlined,
   MessageOutlined,
@@ -9,15 +18,7 @@ import {
 } from "@ant-design/icons";
 import { db } from "../../firebase/config";
 import { collection, getDocs } from "firebase/firestore";
-import {
-  format,
-  startOfDay,
-  startOfWeek,
-  startOfMonth,
-  subDays,
-  subWeeks,
-  subMonths,
-} from "date-fns";
+import { format } from "date-fns";
 import {
   Chart as ChartJS,
   LineElement,
@@ -27,8 +28,10 @@ import {
   Title,
   Tooltip,
   Legend,
+  ArcElement,
+  BarElement,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+import { Line, Bar } from "react-chartjs-2";
 import "./dashboard.scss";
 
 ChartJS.register(
@@ -38,7 +41,9 @@ ChartJS.register(
   LinearScale,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ArcElement,
+  BarElement
 );
 
 export default function Dashboard() {
@@ -46,180 +51,144 @@ export default function Dashboard() {
   const [stats, setStats] = useState({
     users: 0,
     rooms: 0,
+    messages: 0,
     newUsersToday: 0,
-    newUsersWeek: 0,
-    newUsersMonth: 0,
-    growthToday: 0,
-    growthWeek: 0,
-    growthMonth: 0,
+    newUsersYesterday: 0,
   });
-  const [userData, setUserData] = useState([]);
-  const [chartData, setChartData] = useState(null);
-  const [growthChartData, setGrowthChartData] = useState(null);
+
+  const [chartData, setChartData] = useState({
+    users: null,
+    messages: null,
+    rooms: null,
+    activeHour: null,
+  });
+
+  const [ranges, setRanges] = useState({
+    users: 30,
+    messages: 30,
+    rooms: 30,
+  });
+
+  const [chartTypes, setChartTypes] = useState({
+    users: "line",
+    messages: "line",
+    rooms: "line",
+    hours: "bar",
+  });
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setLoading(true);
-
-        const usersCol = collection(db, "users");
-        const roomsCol = collection(db, "rooms");
-
-        const [usersSnap, roomsSnap] = await Promise.all([
-          getDocs(usersCol),
-          getDocs(roomsCol),
+        const [usersSnap, roomsSnap, messagesSnap] = await Promise.all([
+          getDocs(collection(db, "users")),
+          getDocs(collection(db, "rooms")),
+          getDocs(collection(db, "messages")),
         ]);
 
-        const today = startOfDay(new Date());
-        const yesterday = startOfDay(subDays(new Date(), 1));
-        const weekStart = startOfWeek(new Date());
-        const prevWeekStart = startOfWeek(subWeeks(new Date(), 1));
-        const monthStart = startOfMonth(new Date());
-        const prevMonthStart = startOfMonth(subMonths(new Date(), 1));
-
-        const users = usersSnap.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        }));
+        const users = usersSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const rooms = roomsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const messages = messagesSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
         const usersWithDate = users.filter((u) => u.createdAt);
+        const messagesWithDate = messages.filter((m) => m.createdAt);
+        const roomsWithDate = rooms.filter((r) => r.createdAt);
 
-        // === TÍNH NGƯỜI DÙNG MỚI ===
-        const newUsersToday = usersWithDate.filter(
-          (u) => u.createdAt.toDate() >= today
-        ).length;
-        const newUsersYesterday = usersWithDate.filter(
-          (u) =>
-            u.createdAt.toDate() >= yesterday &&
-            u.createdAt.toDate() < today
-        ).length;
-
-        const newUsersWeek = usersWithDate.filter(
-          (u) => u.createdAt.toDate() >= weekStart
-        ).length;
-        const newUsersPrevWeek = usersWithDate.filter(
-          (u) =>
-            u.createdAt.toDate() >= prevWeekStart &&
-            u.createdAt.toDate() < weekStart
-        ).length;
-
-        const newUsersMonth = usersWithDate.filter(
-          (u) => u.createdAt.toDate() >= monthStart
-        ).length;
-        const newUsersPrevMonth = usersWithDate.filter(
-          (u) =>
-            u.createdAt.toDate() >= prevMonthStart &&
-            u.createdAt.toDate() < monthStart
-        ).length;
-
-        // === TÍNH % TĂNG TRƯỞNG ===
-        const calcGrowth = (current, prev) => {
-          if (prev === 0 && current > 0) return 100;
-          if (prev === 0 && current === 0) return 0;
-          return (((current - prev) / prev) * 100).toFixed(1);
+        const generateChartData = (dataList, label, color, range) => {
+          const labels = [];
+          const dataPoints = [];
+          for (let i = range - 1; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dayStr = format(date, "yyyy-MM-dd");
+            const count = dataList.filter(
+              (d) =>
+                format(d.createdAt.toDate?.() || new Date(), "yyyy-MM-dd") ===
+                dayStr
+            ).length;
+            labels.push(format(date, "dd/MM"));
+            dataPoints.push(count);
+          }
+          return {
+            labels,
+            datasets: [
+              {
+                label,
+                data: dataPoints,
+                borderColor: color,
+                backgroundColor: color + "33",
+                tension: 0.3,
+                fill: true,
+              },
+            ],
+          };
         };
 
-        const growthToday = calcGrowth(newUsersToday, newUsersYesterday);
-        const growthWeek = calcGrowth(newUsersWeek, newUsersPrevWeek);
-        const growthMonth = calcGrowth(newUsersMonth, newUsersPrevMonth);
+        const userChart = generateChartData(
+          usersWithDate,
+          `Người dùng mới (${ranges.users} ngày)`,
+          "#1890ff",
+          ranges.users
+        );
+        const msgChart = generateChartData(
+          messagesWithDate,
+          `Tin nhắn mới (${ranges.messages} ngày)`,
+          "#fa8c16",
+          ranges.messages
+        );
+        const roomChart = generateChartData(
+          roomsWithDate,
+          `Phòng chat mới (${ranges.rooms} ngày)`,
+          "#52c41a",
+          ranges.rooms
+        );
 
-        // === DỮ LIỆU BẢNG ===
-        const userList = users.map((u) => ({
-          key: u.id,
-          name: u.displayName || "Unknown",
-          email: u.email || "-",
-          role: u.role || "user",
-          joined: u.createdAt
-            ? format(u.createdAt.toDate(), "yyyy-MM-dd")
-            : "-",
-        }));
-
-        // === BIỂU ĐỒ 30 NGÀY GẦN NHẤT ===
-        const labels = [];
-        const dataPoints = [];
-        for (let i = 29; i >= 0; i--) {
-          const date = new Date();
-          date.setDate(date.getDate() - i);
-          const dayStr = format(date, "yyyy-MM-dd");
-          const count = usersWithDate.filter((u) => {
-            const createdAt = u.createdAt?.toDate();
-            return createdAt && format(createdAt, "yyyy-MM-dd") === dayStr;
-          }).length;
-          labels.push(format(date, "MM/dd"));
-          dataPoints.push(count);
-        }
-
-        // === BIỂU ĐỒ TĂNG TRƯỞNG THEO TUẦN (8 TUẦN) ===
-        const weeklyLabels = [];
-        const weeklyGrowthData = [];
-        for (let i = 7; i >= 0; i--) {
-          const start = startOfWeek(subWeeks(new Date(), i));
-          const end = startOfWeek(subWeeks(new Date(), i - 1));
-          const prevStart = startOfWeek(subWeeks(new Date(), i + 1));
-
-          const currentWeekCount = usersWithDate.filter(
-            (u) =>
-              u.createdAt.toDate() >= start &&
-              (!end || u.createdAt.toDate() < end)
-          ).length;
-
-          const prevWeekCount = usersWithDate.filter(
-            (u) =>
-              u.createdAt.toDate() >= prevStart &&
-              u.createdAt.toDate() < start
-          ).length;
-
-          const weekLabel = format(start, "dd/MM");
-          weeklyLabels.push(weekLabel);
-          weeklyGrowthData.push(Number(calcGrowth(currentWeekCount, prevWeekCount)));
-        }
-
-        // === CẤU HÌNH BIỂU ĐỒ ===
-        setChartData({
-          labels,
+        // === BIỂU ĐỒ GIỜ HOẠT ĐỘNG ===
+        const hours = Array(24).fill(0);
+        messagesWithDate.forEach((m) => {
+          const hour = m.createdAt?.toDate().getHours();
+          if (hour !== undefined) hours[hour]++;
+        });
+        const activeHourChart = {
+          labels: hours.map((_, i) => `${i}:00`),
           datasets: [
             {
-              label: "Người dùng mới",
-              data: dataPoints,
-              borderColor: "#1890ff",
-              backgroundColor: "rgba(24, 144, 255, 0.2)",
-              tension: 0.3,
-              fill: true,
-              pointRadius: 4,
-              pointHoverRadius: 6,
+              label: "Tin nhắn theo giờ",
+              data: hours,
+              backgroundColor: "rgba(255,99,132,0.4)",
+              borderColor: "#ff6384",
             },
           ],
-        });
+        };
 
-        setGrowthChartData({
-          labels: weeklyLabels,
-          datasets: [
-            {
-              label: "% tăng trưởng người dùng theo tuần",
-              data: weeklyGrowthData,
-              borderColor: "#52c41a",
-              backgroundColor: "rgba(82, 196, 26, 0.3)",
-              tension: 0.3,
-              fill: true,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-            },
-          ],
-        });
+        const today = format(new Date(), "yyyy-MM-dd");
+        const yesterday = format(new Date(Date.now() - 86400000), "yyyy-MM-dd");
+        const todayUsers = usersWithDate.filter(
+          (u) =>
+            format(u.createdAt.toDate?.() || new Date(), "yyyy-MM-dd") === today
+        ).length;
+        const yesterdayUsers = usersWithDate.filter(
+          (u) =>
+            format(u.createdAt.toDate?.() || new Date(), "yyyy-MM-dd") ===
+            yesterday
+        ).length;
 
         setStats({
           users: usersSnap.size,
           rooms: roomsSnap.size,
-          newUsersToday,
-          newUsersWeek,
-          newUsersMonth,
-          growthToday,
-          growthWeek,
-          growthMonth,
+          messages: messagesSnap.size,
+          newUsersToday: todayUsers,
+          newUsersYesterday: yesterdayUsers,
         });
-        setUserData(userList);
-      } catch (error) {
-        console.error("❌ Lỗi khi fetch dữ liệu dashboard:", error);
+
+        setChartData({
+          users: userChart,
+          messages: msgChart,
+          rooms: roomChart,
+          activeHour: activeHourChart,
+        });
+      } catch (err) {
+        console.error("❌ Lỗi khi fetch dữ liệu:", err);
         message.error("Không thể tải dữ liệu dashboard.");
       } finally {
         setLoading(false);
@@ -227,54 +196,56 @@ export default function Dashboard() {
     };
 
     fetchStats();
-  }, []);
+  }, [ranges]);
 
-  const renderGrowth = (value) => {
-    const val = parseFloat(value);
-    const isPositive = val >= 0;
-    return (
-      <span style={{ color: isPositive ? "#3f8600" : "#cf1322" }}>
-        {isPositive ? <ArrowUpOutlined /> : <ArrowDownOutlined />}{" "}
-        {Math.abs(val)}%
-      </span>
-    );
+  const calcGrowth = (today, yesterday) => {
+    if (yesterday === 0) return today > 0 ? 100 : 0;
+    return (((today - yesterday) / yesterday) * 100).toFixed(1);
   };
 
-  const userColumns = [
-    { title: "Tên", dataIndex: "name", key: "name" },
-    { title: "Email", dataIndex: "email", key: "email" },
-    { title: "Role", dataIndex: "role", key: "role" },
-    { title: "Ngày tham gia", dataIndex: "joined", key: "joined" },
-  ];
-
-  if (loading) {
+  if (loading)
     return (
-      <div style={{ textAlign: "center", padding: "100px 0" }}>
+      <div className="dashboard__loading">
         <Spin size="large" />
       </div>
     );
-  }
+
+  const growth = calcGrowth(stats.newUsersToday, stats.newUsersYesterday);
+
+  const renderChart = (type, data, options) =>
+    type === "bar" ? (
+      <Bar data={data} options={options} />
+    ) : (
+      <Line data={data} options={options} />
+    );
+
+  const baseOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: { y: { beginAtZero: true } },
+    plugins: {
+      legend: { position: "bottom" },
+      tooltip: { mode: "index", intersect: false },
+    },
+  };
 
   return (
     <div className="dashboard">
-      {/* Thống kê tổng */}
-      <Row gutter={16} style={{ marginBottom: 20 }}>
+      {/* === HEADER === */}
+      <Row gutter={16} className="dashboard__stats">
         <Col xs={24} sm={12} lg={6}>
           <Card>
-            <Statistic
-              title="Tổng người dùng"
-              value={stats.users}
-              prefix={<UserOutlined />}
-            />
+            <Statistic title="Tổng người dùng" value={stats.users} prefix={<UserOutlined />} />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card>
-            <Statistic
-              title="Tổng phòng chat"
-              value={stats.rooms}
-              prefix={<MessageOutlined />}
-            />
+            <Statistic title="Tổng phòng chat" value={stats.rooms} prefix={<MessageOutlined />} />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <Card>
+            <Statistic title="Tổng tin nhắn" value={stats.messages} prefix={<MessageOutlined />} />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
@@ -283,78 +254,69 @@ export default function Dashboard() {
               title="Người dùng mới hôm nay"
               value={stats.newUsersToday}
               prefix={<TeamOutlined />}
-              suffix={renderGrowth(stats.growthToday)}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Người dùng mới tháng này"
-              value={stats.newUsersMonth}
-              prefix={<TeamOutlined />}
-              suffix={renderGrowth(stats.growthMonth)}
+              suffix={
+                <span className={growth >= 0 ? "growth-up" : "growth-down"}>
+                  {growth >= 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />} {Math.abs(growth)}%
+                </span>
+              }
             />
           </Card>
         </Col>
       </Row>
 
-      {/* Biểu đồ người dùng mới */}
-      <Row gutter={16} style={{ marginBottom: 20 }}>
-        <Col span={24}>
-          <Card
-            title="Người dùng mới (30 ngày gần nhất)"
-            style={{ height: 250 }}
-          >
-            {chartData ? (
-              <Line
-                data={chartData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: { legend: { position: "top" } },
-                  scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                  },
-                }}
+      {/* === CÁC BIỂU ĐỒ CHÍNH === */}
+      {[
+        { key: "users", title: "Người dùng mới" },
+        { key: "messages", title: "Tin nhắn mới" },
+        { key: "rooms", title: "Phòng chat mới" },
+      ].map(({ key, title }) => (
+        <Card
+          key={key}
+          title={title}
+          extra={
+            <>
+              <Radio.Group
+                value={ranges[key]}
+                onChange={(e) => setRanges({ ...ranges, [key]: e.target.value })}
+              >
+                <Radio.Button value={7}>7 ngày</Radio.Button>
+                <Radio.Button value={30}>30 ngày</Radio.Button>
+              </Radio.Group>
+              <Select
+                value={chartTypes[key]}
+                onChange={(v) => setChartTypes({ ...chartTypes, [key]: v })}
+                options={[
+                  { value: "line", label: "Line" },
+                  { value: "bar", label: "Bar" },
+                ]}
+                className="chart-select"
               />
-            ) : (
-              <p>Không có dữ liệu</p>
-            )}
-          </Card>
-        </Col>
-      </Row>
+            </>
+          }
+          className="dashboard__card"
+        >
+          {renderChart(chartTypes[key], chartData[key], baseOptions)}
+        </Card>
+      ))}
 
-      {/* Biểu đồ tăng trưởng theo tuần */}
-      <Row gutter={16} style={{ marginBottom: 20 }}>
-        <Col span={24}>
-          <Card
-            title="% Tăng trưởng người dùng theo tuần (8 tuần gần nhất)"
-            style={{ height: 250 }}
-          >
-            {growthChartData ? (
-              <Line
-                data={growthChartData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: { legend: { position: "top" } },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      ticks: {
-                        callback: (v) => `${v}%`,
-                      },
-                    },
-                  },
-                }}
-              />
-            ) : (
-              <p>Không có dữ liệu biểu đồ tăng trưởng</p>
-            )}
-          </Card>
-        </Col>
-      </Row>
+      {/* === GIỜ HOẠT ĐỘNG === */}
+      <Card
+        title="Giờ hoạt động của người dùng"
+        extra={
+          <Select
+            value={chartTypes.hours}
+            onChange={(v) => setChartTypes({ ...chartTypes, hours: v })}
+            options={[
+              { value: "bar", label: "Bar" },
+              { value: "line", label: "Line" },
+            ]}
+            className="chart-select"
+          />
+        }
+        className="dashboard__card"
+      >
+        {renderChart(chartTypes.hours, chartData.activeHour, baseOptions)}
+      </Card>
     </div>
   );
 }

@@ -1,4 +1,9 @@
 .dashboard {
+  .dashboard__loading {
+    text-align: center;
+    padding: 100px 0;
+  }
+
   .ant-card {
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -12,10 +17,6 @@
     .ant-statistic-title {
       color: #2f3640;
       font-weight: 500;
-
-      body.dark-theme & {
-        color: #e8e8f2;
-      }
     }
 
     .ant-statistic-content {
@@ -23,5 +24,33 @@
       font-weight: 700;
       font-size: 24px;
     }
+  }
+
+  .dashboard__stats {
+    margin-bottom: 20px;
+  }
+
+  .dashboard__card {
+    margin-bottom: 20px;
+    height: 280px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .chart-select {
+    width: 100px;
+    margin-left: 8px;
+  }
+
+  .growth-up {
+    color: #52c41a;
+    margin-left: 8px;
+  }
+
+  .growth-down {
+    color: #ff4d4f;
+    margin-left: 8px;
   }
 }
