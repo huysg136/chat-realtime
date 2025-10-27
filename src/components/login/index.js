@@ -29,6 +29,7 @@ export default function Login() {
           photoURL: user.photoURL || "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg",
           uid: user.uid,
           providerId: additionalUserInfo.providerId,
+          role: "user",
           keywords: generateKeywords(user.displayName)
         });
       }

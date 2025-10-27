@@ -7,6 +7,12 @@ import AppProvider from './context/appProvider';
 import AddRoomModal from './components/modals/addRoomModal';
 import InviteMemberModal from './components/modals/inviteMemberModal';
 import ProfileModal from './components/modals/profileModal';
+import PrivateRoute from './routes/privateRoute';
+import AdminLayout from './admin/adminLayout';
+import Dashboard from './admin/dashboard';
+import UsersManager from './admin/userManager';
+import RoomsManager from './admin/roomManager';
+import AnnouncementManager from './admin/announcementManager';
 
 function App() {
   return (
@@ -15,8 +21,20 @@ function App() {
         <AppProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/direct" element={<ChatRoom />} />
             <Route path="/" element={<ChatRoom />} />
+            <Route
+              path="/admin"
+              element={
+                <PrivateRoute requireAdmin>
+                  <AdminLayout />
+                </PrivateRoute>
+              }
+            >
+              <Route index element={<Dashboard />} />
+              <Route path="users" element={<UsersManager />} />
+              <Route path="rooms" element={<RoomsManager />} />
+              <Route path="announcements" element={<AnnouncementManager />} />
+            </Route>
           </Routes>
           <AddRoomModal />
           <InviteMemberModal />

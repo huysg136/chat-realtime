@@ -1,0 +1,268 @@
+@use "sass:color";
+
+$primary-color: #1890ff;
+$secondary-color: #f5f6fa;
+$text-color: #2f3640;
+$border-color: #e6e8eb;
+$shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+$transition: all 0.3s ease;
+$border-radius: 12px;
+
+$dark-bg: #1e1e2f;
+$dark-card: #2a2a3d;
+$dark-text: #e8e8f2;
+$dark-border: #3b3b55;
+
+.admin-layout {
+  min-height: 100vh;
+  background: $secondary-color;
+  transition: $transition;
+
+  body.dark-theme & {
+    background: $dark-bg;
+  }
+
+  .admin-sider {
+    background: #fff;
+    box-shadow: $shadow;
+    border-right: 1px solid $border-color;
+    transition: $transition;
+
+    body.dark-theme & {
+      background: $dark-card;
+      border-color: $dark-border;
+    }
+
+    .admin-logo {
+      text-align: center;
+      padding: 20px 16px;
+      font-weight: 700;
+      font-size: 20px;
+      color: $primary-color;
+      border-bottom: 1px solid $border-color;
+      margin-bottom: 12px;
+      transition: $transition;
+
+      &:hover {
+        color: color.adjust($primary-color, $lightness: -10%);
+        transform: scale(1.02);
+      }
+
+      body.dark-theme & {
+        border-color: $dark-border;
+        color: color.adjust($primary-color, $lightness: 10%);
+      }
+    }
+  }
+
+  .admin-header {
+    background: #fff;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: $shadow;
+    border-bottom: 1px solid $border-color;
+    transition: $transition;
+
+    body.dark-theme & {
+      background: $dark-card;
+      border-color: $dark-border;
+      color: $dark-text;
+    }
+
+    h2 {
+      margin: 0;
+      color: $text-color;
+      font-weight: 600;
+      font-size: 18px;
+
+      body.dark-theme & {
+        color: $dark-text;
+      }
+    }
+
+    .admin-user {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0px 12px;
+      border-radius: $border-radius;
+      transition: $transition;
+
+      // &:hover {
+      //   background: $secondary-color;
+      //   body.dark-theme & {
+      //     background: rgba(255, 255, 255, 0.08);
+      //   }
+      // }
+
+      .ant-avatar {
+        margin-right: 8px;
+      }
+
+      span {
+        font-weight: 500;
+        color: $text-color;
+        body.dark-theme & {
+          color: $dark-text;
+        }
+      }
+    }
+  }
+
+  .admin-content {
+    margin: 24px;
+    background: #fff;
+    border-radius: $border-radius;
+    padding: 24px;
+    box-shadow: $shadow;
+    min-height: calc(100vh - 140px);
+    transition: $transition;
+
+    body.dark-theme & {
+      background: $dark-card;
+      color: $dark-text;
+    }
+  }
+
+  .admin-main {
+    background: $secondary-color;
+    body.dark-theme & {
+      background: $dark-bg;
+    }
+  }
+}
+
+.dashboard {
+  .ant-card {
+    border-radius: $border-radius;
+    box-shadow: $shadow;
+    transition: $transition;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    }
+
+    .ant-statistic-title {
+      color: $text-color;
+      font-weight: 500;
+      body.dark-theme & {
+        color: $dark-text;
+      }
+    }
+
+    .ant-statistic-content {
+      color: $primary-color;
+      font-weight: 700;
+      font-size: 24px;
+    }
+  }
+}
+
+.manager-table {
+  h2 {
+    color: $text-color;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+
+    body.dark-theme & {
+      color: $dark-text;
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: $border-radius;
+    overflow: hidden;
+    box-shadow: $shadow;
+    transition: $transition;
+
+    th,
+    td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid $border-color;
+      transition: $transition;
+
+      body.dark-theme & {
+        border-color: $dark-border;
+      }
+    }
+
+    th {
+      background: $secondary-color;
+      font-weight: 600;
+      color: $text-color;
+
+      body.dark-theme & {
+        background: $dark-bg;
+        color: $dark-text;
+      }
+    }
+
+    tbody tr {
+      transition: $transition;
+
+      &:hover {
+        background: rgba($primary-color, 0.05);
+        body.dark-theme & {
+          background: rgba(255, 255, 255, 0.05);
+        }
+      }
+    }
+
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: $transition;
+      margin-right: 6px;
+
+      &.edit-btn {
+        background: $primary-color;
+        color: #fff;
+
+        &:hover {
+          background: color.adjust($primary-color, $lightness: -8%);
+        }
+      }
+
+      &.delete-btn {
+        background: #ff4d4f;
+        color: #fff;
+
+        &:hover {
+          background: color.adjust(#ff4d4f, $lightness: -8%);
+        }
+      }
+    }
+  }
+}
+
+// .room-manager {
+//   @extend .manager-table;
+
+//   td {
+//     font-weight: 500;
+//   }
+// }
+
+.user-manager {
+  @extend .manager-table;
+
+  img {
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    margin-right: 8px;
+  }
+}
+
