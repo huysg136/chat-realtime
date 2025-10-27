@@ -149,7 +149,7 @@ export default function RoomItem({
       key: "delete",
       label: "Xóa hội thoại",
       icon: <DeleteOutlined />,
-      onClick: handleDelete,
+      // onClick: handleDelete,
     },
   ];
 
