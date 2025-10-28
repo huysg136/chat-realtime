@@ -115,7 +115,7 @@
   color: #262626;
   margin: 0;
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .message-text {
@@ -291,10 +291,11 @@
   text-decoration: none;
   color: #40a9ff;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   transition: all 0.2s ease;
   max-width: 300px;
   cursor: pointer;
+  margin-top: 2px;
   
 
   .file-icon {
