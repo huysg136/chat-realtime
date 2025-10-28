@@ -80,21 +80,44 @@ const MediaRenderer = ({ kind, content, fileName, isOwn }) => {
       </a>
     );
   }
-
-  if (kind === 'link' || /^https?:\/\/\S+$/.test(content)) {
+  
+  const urlRegex = /((https?:\/\/)?((www\.)?[\w-]+(\.[\w-]+)+)(\/[^\s]*)?)/i;
+  if (urlRegex.test(content.trim()) && content.trim().match(urlRegex)[0] === content.trim()) {
+    const href = content.startsWith("http") ? content : `https://${content}`;
     return (
       <a
-        href={content}
+        href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className={`message-media-link ${isOwn ? 'own' : ''}`}
+        className={`message-media-link ${isOwn ? "own" : ""}`}
+        style={{ display: "inline-block", textDecoration: "underline" }}
       >
-        {fileName || content}
+        {content}
       </a>
     );
   }
-
-  return <span className="message-text-part">{content}</span>;
+  const parts = content.split(/((?:https?:\/\/)?(?:www\.)?[\w-]+(?:\.[\w-]+)+(?:[/?#][^\s]*)?)/);
+  return (
+    <span className="message-text-part">
+      {parts.map((part, i) => {
+        if (/^(?:https?:\/\/)?(?:www\.)?[\w-]+(?:\.[\w-]+)+(?:[/?#][^\s]*)?$/.test(part)) {
+          const href = part.startsWith("http") ? part : `https://${part}`;
+          return (
+            <a
+              key={i}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`message-media-link ${isOwn ? "own" : ""}`}
+            >
+              {part}
+            </a>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </span>
+  );
 };
 
 export default MediaRenderer;

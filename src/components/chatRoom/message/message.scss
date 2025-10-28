@@ -51,7 +51,7 @@
 }
 
 .message-bubble {
-  background: #f5f5f5;
+  background: #efefef;
   border-radius: 18px;
   padding: 8px 12px;
   display: inline-flex;
@@ -338,6 +338,7 @@
   font-size: 15px;
   cursor: pointer;
   max-width: 300px;
+  word-break: break-all;
 
   .link-icon {
     flex-shrink: 0;
