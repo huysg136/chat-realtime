@@ -13,11 +13,11 @@ import {
 } from "firebase/firestore";
 import { AuthContext } from "../../context/authProvider";
 import { toast, ToastContainer } from "react-toastify";
-import { FiArrowUp, FiArrowDown, FiSlash, FiUnlock } from "react-icons/fi";
+import { FiArrowUp, FiArrowDown, FiSlash, FiUnlock, FiInfo, FiCheckCircle } from "react-icons/fi";
+import { IoIosCloseCircleOutline } from "react-icons/io"; 
 import "react-toastify/dist/ReactToastify.css";
 import "./userManager.scss";
 
-// 🔍 Lấy docId từ uid
 export const getUserDocIdByUid = async (uid) => {
   try {
     const q = query(collection(db, "users"), where("uid", "==", uid));
@@ -44,6 +44,11 @@ export default function UsersManager() {
 
   const [isBanDetailModalVisible, setIsBanDetailModalVisible] = useState(false);
   const [banDetail, setBanDetail] = useState(null);
+
+  const [isBanAllModalVisible, setIsBanAllModalVisible] = useState(false);
+  const [banAllDays, setBanAllDays] = useState(1);
+  const showBanAllModal = () => setIsBanAllModalVisible(true);
+  const handleBanAllCancel = () => setIsBanAllModalVisible(false);
 
   const showBanDetailModal = (ban) => {
     setBanDetail(ban);
@@ -74,6 +79,50 @@ export default function UsersManager() {
       unsubscribeBans();
     };
   }, []);
+
+  const handleBanAllOk = async () => {
+    const now = new Date();
+    const banEnd = new Date(now.getTime() + banAllDays * 24 * 60 * 60 * 1000);
+
+    try {
+      const usersToBan = users.filter(u => u.role !== "admin"); 
+      await Promise.all(usersToBan.map(u => 
+        addDoc(collection(db, "bans"), {
+          uid: u.uid,
+          displayName: u.displayName,
+          email: u.email,
+          role: u.role,
+          banStart: now.toISOString(),
+          banEnd: banEnd.toISOString(),
+        })
+      ));
+      toast.success(`Đã cấm tất cả người dùng trong ${banAllDays} ngày`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Cấm tất cả thất bại");
+    } finally {
+      setIsBanAllModalVisible(false);
+    }
+  };
+
+  const getRemainingTime = (banEnd) => {
+    const now = new Date();
+    const diffMs = new Date(banEnd) - now;
+
+    if (diffMs <= 0) return "0 giây";
+
+    const diffSec = Math.floor(diffMs / 1000);
+    if (diffSec < 60) return `${diffSec} giây`;
+
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `${diffMin} phút`;
+
+    const diffHour = Math.floor(diffMin / 60);
+    if (diffHour < 24) return `${diffHour} giờ`;
+
+    const diffDay = Math.floor(diffHour / 24);
+    return `${diffDay} ngày`;
+  };
 
   const handleRoleChange = async (user) => {
     if (user.role === "admin") {
@@ -164,7 +213,6 @@ export default function UsersManager() {
   return (
     <div className="user-manager">
       <ToastContainer position="top-center" autoClose={2000} />
-      <h2>Quản lý người dùng</h2>
       <table>
         <thead>
           <tr>
@@ -204,13 +252,24 @@ export default function UsersManager() {
                 <td>
                   {banInfo.status === "Cấm chat" ? (
                     <span
-                      style={{ cursor: "pointer", color: "#f44336", fontWeight: "500" }}
+                      style={{ cursor: "pointer", color: "#f44336", fontWeight: "400", display: "inline-flex", alignItems: "center", gap: "4px" }}
                       onClick={() => showBanDetailModal(banData)}
                     >
-                      {banInfo.status} ({banInfo.remainingDays} ngày còn lại)
+                      {banInfo.status} <FiInfo size={16} />
                     </span>
                   ) : (
-                    "Hoạt động"
+                    <span
+                      style={{
+                        cursor: "default",
+                        color: "#52c41a",
+                        fontWeight: "400",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      Mở chat <FiCheckCircle size={16} />
+                    </span>
                   )}
                 </td>
                 <td>
@@ -225,11 +284,11 @@ export default function UsersManager() {
                   >
                     {u.role === "moderator" ? (
                       <>
-                        <FiArrowDown /> Hạ quyền
+                        <FiArrowDown /> Thu hồi quyền
                       </>
                     ) : (
                       <>
-                        <FiArrowUp /> Nâng quyền
+                        <FiArrowUp /> Trao quyền
                       </>
                     )}
                   </button>
@@ -261,7 +320,6 @@ export default function UsersManager() {
         </tbody>
       </table>
 
-      {/* Modal cấm chat */}
       {isBanModalVisible && targetUser && (
         <div className="ban-modal">
           <div className="ban-modal-content">
@@ -275,21 +333,20 @@ export default function UsersManager() {
             />
             <div className="modal-actions">
               <button className="btn-close" onClick={handleBanCancel}>
-                Đóng
+                <IoIosCloseCircleOutline /> Hủy
               </button>
               <button className="btn-ban" onClick={handleBanOk}>
-                Xác nhận
+                <FiSlash /> Cấm
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal chi tiết ban */}
       {isBanDetailModalVisible && banDetail && (
         <div className="ban-detail-modal">
           <div className="ban-detail-content">
-            <h3>Chi tiết ban: {banDetail.displayName}</h3>
+            <h3>Chi tiết cấm: <span>{banDetail.displayName}</span></h3>
             <p>
               <strong>Email:</strong> {banDetail.email}
             </p>
@@ -304,12 +361,11 @@ export default function UsersManager() {
             </p>
             <p>
               <strong>Còn lại:</strong>{" "}
-              {Math.ceil((new Date(banDetail.banEnd) - new Date()) / (1000 * 60 * 60 * 24))}{" "}
-              ngày
+              {getRemainingTime(banDetail.banEnd)}
             </p>
             <div className="modal-actions">
               <button className="btn-close" onClick={handleBanDetailCancel}>
-                Đóng
+                <IoIosCloseCircleOutline /> Đóng
               </button>
             </div>
           </div>
