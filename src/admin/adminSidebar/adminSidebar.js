@@ -9,17 +9,19 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { IoMdReturnLeft } from "react-icons/io";
 import logo from "../../images/logo_quik.png";
+import { useNavigate } from "react-router-dom";
 import "./adminSidebar.scss";
 
 const { Sider } = Layout;
 
 export default function AdminSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <Sider width={220} theme="light" className="admin-sider">
       <div className="admin-logo">
-        <img src={logo} alt="Quik Logo" className="admin-logo-img" />
+        <img src={logo} alt="Quik Logo" className="admin-logo-img"/>
         <span>Quik Admin</span>
       </div>
       <Menu
