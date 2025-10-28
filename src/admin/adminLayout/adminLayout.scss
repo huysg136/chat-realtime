@@ -16,17 +16,16 @@
   }
 
   .admin-content {
-    padding-top: calc(64px + 24px);
     margin: 24px;
     background: #fff;
     border-radius: 12px;
-    padding: 24px;
+    padding: calc(64px) 24px 24px 24px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     min-height: calc(100vh - 140px);
     transition: all 0.3s ease;
 
     body.dark-theme & {
-      background: #2a2a3d; 
+      background: #2a2a3d;
       color: #e8e8f2;
     }
   }
