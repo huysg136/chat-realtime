@@ -12,7 +12,7 @@ export default function AdminLayout() {
     <Layout className="admin-layout">
       <AdminSidebar />
       <Layout className="admin-main">
-        <AdminHeader />
+        <AdminHeader/>
         <Content className="admin-content">
           <Outlet />
         </Content>

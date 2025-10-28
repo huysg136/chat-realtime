@@ -1,4 +1,7 @@
 .admin-header {
+  position: fixed;
+  width: calc(100% - 220px);
+  z-index: 101;
   background: #fff;
   padding: 0 24px;
   display: flex;
@@ -16,8 +19,8 @@
 
   h2 {
     margin: 0;
-    color: #2f3640;
-    font-weight: 600;
+    color: #1890ff;
+    font-weight: bold;
     font-size: 18px;
 
     body.dark-theme & {

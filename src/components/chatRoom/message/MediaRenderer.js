@@ -81,7 +81,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn }) => {
     );
   }
 
-  if (kind === 'link') {
+  if (kind === 'link' || /^https?:\/\/\S+$/.test(content)) {
     return (
       <a
         href={content}

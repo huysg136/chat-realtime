@@ -8,6 +8,7 @@ import {
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import { IoMdReturnLeft } from "react-icons/io";
+import logo from "../../images/logo_quik.png";
 import "./adminSidebar.scss";
 
 const { Sider } = Layout;
@@ -17,7 +18,10 @@ export default function AdminSidebar() {
 
   return (
     <Sider width={220} theme="light" className="admin-sider">
-      <div className="admin-logo">Quik Admin</div>
+      <div className="admin-logo">
+        <img src={logo} alt="Quik Logo" className="admin-logo-img" />
+        <span>Quik Admin</span>
+      </div>
       <Menu
         mode="inline"
         selectedKeys={[location.pathname]}

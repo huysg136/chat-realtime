@@ -9,12 +9,14 @@
 
   .admin-main {
     background: #f5f6fa;
+    margin-left: 220px;
     body.dark-theme & {
       background: #1e1e2f;
     }
   }
 
   .admin-content {
+    padding-top: calc(64px + 24px);
     margin: 24px;
     background: #fff;
     border-radius: 12px;

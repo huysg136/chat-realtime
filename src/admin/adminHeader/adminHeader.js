@@ -14,7 +14,7 @@ export default function AdminHeader() {
 
   return (
     <Header className="admin-header">
-      <h2>Trang quản trị Quik</h2>
+      <h2>Trang quản trị quik.id.vn</h2>
       <Dropdown menu={{ items }}>
         <Space className="admin-user">
           <Avatar src={user?.photoURL} />
