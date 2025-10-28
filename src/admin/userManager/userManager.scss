@@ -75,11 +75,11 @@
     }
 
     button {
-      padding: 6px 12px;
+      padding: 8px 12px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 13px;
       transition: all 0.3s ease;
       margin-right: 6px;
       color: #fff;
@@ -94,15 +94,31 @@
       }
     }
 
-    .btn-edit {
-      background: #1890ff;
+    .btn-edit.promote {
+      width: 120px;
+      background-color: #53c057; 
+      color: #fff;
+    }
+
+    .btn-edit.demote {
+      width: 120px;
+      background-color: #f4a836; 
+      color: #fff;
     }
 
     .btn-ban {
-      background: #ff4d4f; 
+      width: 120px;
+      background-color: #f44336; 
+      color: #fff;
     }
 
-    // 🌟 Màu tag theo role
+    .btn-unban {
+      width: 120px;
+      background-color: #2196f3; 
+      color: #fff;
+    }
+    
+
     .role-tag {
       text-transform: capitalize;
       padding: 4px 8px;
