@@ -229,9 +229,14 @@
   border-radius: 12px;
   overflow: hidden;
   background: #000;
+  display: block;
+  height: auto;
+  width: 100%;
 
   .react-player {
     border-radius: 12px;
+    width: 100% !important;
+    height: auto !important;
   }
 }
 

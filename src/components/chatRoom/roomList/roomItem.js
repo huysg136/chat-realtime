@@ -6,6 +6,7 @@ import {
   PushpinOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
+import { CiImageOn } from "react-icons/ci";
 import { AuthContext } from "../../../context/authProvider";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import { decryptMessage } from "../../../firebase/services";
@@ -199,12 +200,59 @@ export default function RoomItem({
         {room.lastMessage ? (
           <p className={`last-message ${isUnread ? "unread" : ""}`}>
             {senderName}:{" "}
-            {room.secretKey
-              ? decryptMessage(
-                  lm.text || lm?.content || "",
-                  room.secretKey
-                )
-              : lm.text || lm?.content || ""}
+            {(() => {
+              const kind = lm.kind || "text";
+
+              const decryptedText =
+                kind === "text" && room.secretKey
+                  ? decryptMessage(lm.text || lm?.content || "", room.secretKey)
+                  : lm.text || lm?.content || "";
+
+              switch (kind) {
+                case "text":
+                  return decryptedText;
+
+                case "picture":
+                  const picFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
+                  return (
+                    <>
+                      🖼️ [Hình ảnh]
+                      {picFileName && ` (${picFileName})`}
+                    </>
+                  );
+
+                case "video":
+                  const vidFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
+                  return (
+                    <>
+                      🎬 [Video]
+                      {vidFileName && ` (${vidFileName})`}
+                    </>
+                  );
+
+                case "file":
+                  const fileFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
+                  return (
+                    <>
+                      📎 [Tệp]
+                      {fileFileName && ` (${fileFileName})`}
+                    </>
+                  );
+
+                case "voice":
+                  const voiceFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
+                  return (
+                    <>
+                      🎤 [Voice]
+                      {voiceFileName && ` (${voiceFileName})`}
+                    </>
+                  );
+
+                default:
+                  return decryptedText;
+              }
+            })()}
+
           </p>
         ) : (
           <p className="last-message">Chưa có tin nhắn</p>

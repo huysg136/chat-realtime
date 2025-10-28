@@ -100,6 +100,7 @@ export default function ChatWindow() {
           : file.type.startsWith("video/")
           ? "video"
           : "file",
+        fileName: file.name,
       });
 
       await updateDocument("rooms", selectedRoom.id, {
@@ -108,6 +109,12 @@ export default function ChatWindow() {
           text: encryptedText,
           uid,
           createdAt: new Date(),
+          kind: file.type.startsWith("image/")
+            ? "picture"
+            : file.type.startsWith("video/")
+            ? "video"
+            : "file",
+          fileName: file.name,
         },
       });
     } catch (err) {
@@ -246,6 +253,7 @@ export default function ChatWindow() {
           text: encryptedText,
           uid,
           createdAt: new Date(),
+          kind: "text",
         },
       });
 

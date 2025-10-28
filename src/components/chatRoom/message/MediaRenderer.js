@@ -35,17 +35,40 @@ const MediaRenderer = ({ kind, content, fileName, isOwn }) => {
 
   if (kind === 'video') {
     return (
-      <div className="message-media-video">
-        <ReactPlayer
-          url={content}
-          controls
-          width="100%"
-          height="auto"
-          style={{ maxWidth: '300px', maxHeight: '200px' }}
-        />
+      <div
+        className="message-media-video"
+        style={{
+          maxWidth: "320px",
+          borderRadius: "12px",
+          overflow: "hidden",
+          background: "#000",
+        }}
+      >
+        {content.endsWith(".mp4") || content.includes("firebasestorage") ? (
+          <video
+            src={content}
+            controls
+            style={{
+              width: "100%",
+              height: "auto",
+              display: "block",
+              borderRadius: "12px",
+            }}
+            preload="metadata"
+          />
+        ) : (
+          <ReactPlayer
+            url={content}
+            controls
+            width="100%"
+            height="100%"
+            className="react-player"
+          />
+        )}
       </div>
     );
   }
+
 
   if (kind === 'audio') {
     return (
@@ -80,7 +103,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn }) => {
       </a>
     );
   }
-  
+
   const urlRegex = /((https?:\/\/)?((www\.)?[\w-]+(\.[\w-]+)+)(\/[^\s]*)?)/i;
   if (urlRegex.test(content.trim()) && content.trim().match(urlRegex)[0] === content.trim()) {
     const href = content.startsWith("http") ? content : `https://${content}`;
