@@ -13,10 +13,8 @@ import {
 } from "firebase/firestore";
 import { AuthContext } from "../../context/authProvider";
 import { toast, ToastContainer } from "react-toastify";
-import { Modal, Input } from "antd";
+import { FiArrowUp, FiArrowDown, FiSlash, FiUnlock } from "react-icons/fi";
 import "react-toastify/dist/ReactToastify.css";
-import { FiArrowUp, FiArrowDown } from "react-icons/fi"; // tăng/hạ quyền
-import { FiSlash, FiUnlock } from "react-icons/fi"; // cấm / mở cấm
 import "./userManager.scss";
 
 // 🔍 Lấy docId từ uid
@@ -39,9 +37,20 @@ export default function UsersManager() {
   const [users, setUsers] = useState([]);
   const [bans, setBans] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [isBanModalVisible, setIsBanModalVisible] = useState(false);
   const [banDays, setBanDays] = useState(1);
   const [targetUser, setTargetUser] = useState(null);
+
+  const [isBanDetailModalVisible, setIsBanDetailModalVisible] = useState(false);
+  const [banDetail, setBanDetail] = useState(null);
+
+  const showBanDetailModal = (ban) => {
+    setBanDetail(ban);
+    setIsBanDetailModalVisible(true);
+  };
+
+  const handleBanDetailCancel = () => setIsBanDetailModalVisible(false);
 
   useEffect(() => {
     setLoading(true);
@@ -66,22 +75,22 @@ export default function UsersManager() {
     };
   }, []);
 
-  const handleRoleChange = async (targetUser) => {
-    if (targetUser.role === "admin") {
+  const handleRoleChange = async (user) => {
+    if (user.role === "admin") {
       toast.warning("Không thể đổi vai trò admin");
       return;
     }
 
     if (
       currentUser.role === "moderator" &&
-      (targetUser.role === "moderator" || targetUser.uid === currentUser.uid)
+      (user.role === "moderator" || user.uid === currentUser.uid)
     ) {
       toast.warning("Moderator không được đổi vai trò moderator khác hoặc chính mình");
       return;
     }
 
-    const nextRole = targetUser.role === "user" ? "moderator" : "user";
-    const docId = await getUserDocIdByUid(targetUser.uid);
+    const nextRole = user.role === "user" ? "moderator" : "user";
+    const docId = await getUserDocIdByUid(user.uid);
     if (!docId) {
       toast.error("Không tìm thấy user trong Firestore");
       return;
@@ -89,18 +98,17 @@ export default function UsersManager() {
 
     try {
       await updateDoc(doc(db, "users", docId), { role: nextRole });
-      if (nextRole === "moderator") {
-        toast.success(`Đã nâng ${targetUser.displayName} lên moderator`);
-      } else {
-        toast.success(`Đã hạ ${targetUser.displayName} xuống user`);
-      }
+      toast.success(
+        nextRole === "moderator"
+          ? `Đã nâng ${user.displayName} lên moderator`
+          : `Đã hạ ${user.displayName} xuống user`
+      );
     } catch (err) {
       console.error(err);
       toast.error("Đổi role thất bại");
     }
   };
 
-  // Modal ban
   const showBanModal = (user) => {
     setTargetUser(user);
     setBanDays(1);
@@ -121,10 +129,10 @@ export default function UsersManager() {
         banStart: banStart.toISOString(),
         banEnd: banEnd.toISOString(),
       });
-      toast.success(`Đã ban ${targetUser.displayName} trong ${banDays} ngày`);
+      toast.success(`Đã cấm chat ${targetUser.displayName} trong ${banDays} ngày`);
     } catch (err) {
       console.error(err);
-      toast.error("Ban thất bại");
+      toast.error("Cấm chat thất bại");
     } finally {
       setIsBanModalVisible(false);
     }
@@ -135,10 +143,10 @@ export default function UsersManager() {
   const unbanUser = async (banDocId) => {
     try {
       await deleteDoc(doc(db, "bans", banDocId));
-      toast.success("Đã mở ban thành công");
+      toast.success("Đã mở cấm thành công");
     } catch (err) {
       console.error(err);
-      toast.error("Mở ban thất bại");
+      toast.error("Mở cấm thất bại");
     }
   };
 
@@ -146,7 +154,7 @@ export default function UsersManager() {
     const ban = bans.find((b) => b.uid === uid && b.banEnd > new Date());
     if (ban) {
       const remainingDays = Math.ceil((ban.banEnd - new Date()) / (1000 * 60 * 60 * 24));
-      return { status: "Bị cấm", remainingDays, banId: ban.id };
+      return { status: "Cấm chat", remainingDays, banId: ban.id };
     }
     return { status: "Hoạt động", remainingDays: 0 };
   };
@@ -156,6 +164,7 @@ export default function UsersManager() {
   return (
     <div className="user-manager">
       <ToastContainer position="top-center" autoClose={2000} />
+      <h2>Quản lý người dùng</h2>
       <table>
         <thead>
           <tr>
@@ -170,6 +179,8 @@ export default function UsersManager() {
         <tbody>
           {users.map((u) => {
             const banInfo = getBanInfo(u.uid);
+            const banData = bans.find((b) => b.id === banInfo.banId);
+
             return (
               <tr key={u.id}>
                 <td>
@@ -191,8 +202,16 @@ export default function UsersManager() {
                   </strong>
                 </td>
                 <td>
-                  {banInfo.status}
-                  {banInfo.remainingDays > 0 && ` (${banInfo.remainingDays} ngày còn lại)`}
+                  {banInfo.status === "Cấm chat" ? (
+                    <span
+                      style={{ cursor: "pointer", color: "#f44336", fontWeight: "500" }}
+                      onClick={() => showBanDetailModal(banData)}
+                    >
+                      {banInfo.status} ({banInfo.remainingDays} ngày còn lại)
+                    </span>
+                  ) : (
+                    "Hoạt động"
+                  )}
                 </td>
                 <td>
                   <button
@@ -204,12 +223,23 @@ export default function UsersManager() {
                         (u.role === "moderator" || u.uid === currentUser.uid))
                     }
                   >
-                    {u.role === "moderator" ? <><FiArrowDown /> Hạ quyền</> : <><FiArrowUp /> Nâng quyền</>}
+                    {u.role === "moderator" ? (
+                      <>
+                        <FiArrowDown /> Hạ quyền
+                      </>
+                    ) : (
+                      <>
+                        <FiArrowUp /> Nâng quyền
+                      </>
+                    )}
                   </button>
 
-                  {banInfo.status === "Bị cấm" ? (
-                    <button className="btn-unban" onClick={() => unbanUser(banInfo.banId)}>
-                      <FiUnlock /> Mở ban
+                  {banInfo.status === "Cấm chat" ? (
+                    <button
+                      className="btn-unban"
+                      onClick={() => unbanUser(banInfo.banId)}
+                    >
+                      <FiUnlock /> Mở cấm
                     </button>
                   ) : (
                     <button
@@ -221,7 +251,7 @@ export default function UsersManager() {
                           (u.role === "moderator" || u.uid === currentUser.uid))
                       }
                     >
-                      <FiSlash /> Ban
+                      <FiSlash /> Cấm chat
                     </button>
                   )}
                 </td>
@@ -231,20 +261,60 @@ export default function UsersManager() {
         </tbody>
       </table>
 
-      <Modal
-        title={`Cấm ${targetUser?.displayName}`}
-        visible={isBanModalVisible}
-        onOk={handleBanOk}
-        onCancel={handleBanCancel}
-      >
-        <label>Số ngày ban:</label>
-        <Input
-          type="number"
-          min={1}
-          value={banDays}
-          onChange={(e) => setBanDays(Number(e.target.value))}
-        />
-      </Modal>
+      {/* Modal cấm chat */}
+      {isBanModalVisible && targetUser && (
+        <div className="ban-modal">
+          <div className="ban-modal-content">
+            <h3>Cấm {targetUser.displayName}</h3>
+            <label>Số ngày cấm:</label>
+            <input
+              type="number"
+              min={1}
+              value={banDays}
+              onChange={(e) => setBanDays(Number(e.target.value))}
+            />
+            <div className="modal-actions">
+              <button className="btn-close" onClick={handleBanCancel}>
+                Đóng
+              </button>
+              <button className="btn-ban" onClick={handleBanOk}>
+                Xác nhận
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal chi tiết ban */}
+      {isBanDetailModalVisible && banDetail && (
+        <div className="ban-detail-modal">
+          <div className="ban-detail-content">
+            <h3>Chi tiết ban: {banDetail.displayName}</h3>
+            <p>
+              <strong>Email:</strong> {banDetail.email}
+            </p>
+            <p>
+              <strong>Quyền:</strong> {banDetail.role}
+            </p>
+            <p>
+              <strong>Bắt đầu:</strong> {new Date(banDetail.banStart).toLocaleString()}
+            </p>
+            <p>
+              <strong>Kết thúc:</strong> {new Date(banDetail.banEnd).toLocaleString()}
+            </p>
+            <p>
+              <strong>Còn lại:</strong>{" "}
+              {Math.ceil((new Date(banDetail.banEnd) - new Date()) / (1000 * 60 * 60 * 24))}{" "}
+              ngày
+            </p>
+            <div className="modal-actions">
+              <button className="btn-close" onClick={handleBanDetailCancel}>
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
