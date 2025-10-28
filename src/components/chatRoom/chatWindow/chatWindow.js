@@ -16,6 +16,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import axios from "axios";
+import { onSnapshot, collection, query, where } from "firebase/firestore";
+import { db } from "../../../firebase/config";
 import Message from "../message/message";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import ChatDetailPanel from "../chatDetailPanel/chatDetailPanel";
@@ -51,6 +53,7 @@ export default function ChatWindow() {
   const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
   const [selectedTransferUid, setSelectedTransferUid] = useState(null);
   const [leavingLoading, setLeavingLoading] = useState(false);
+  const [banInfo, setBanInfo] = useState(null);
 
   const toggleDetail = () => {
     setIsDetailVisible((p) => !p);
@@ -184,6 +187,25 @@ export default function ChatWindow() {
       inputRef.current.input?.focus();
     }
   }, [replyTo]);
+
+  // Real-time ban check
+  useEffect(() => {
+    if (!uid) return;
+
+    const q = query(collection(db, "bans"), where("uid", "==", uid));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const bans = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        banEnd: doc.data().banEnd?.toDate ? doc.data().banEnd.toDate() : new Date(doc.data().banEnd),
+      }));
+
+      const activeBan = bans.find((ban) => ban.banEnd > new Date());
+      setBanInfo(activeBan || null);
+    });
+
+    return () => unsubscribe();
+  }, [uid]);
 
   const handleInputChange = (e) => setInputValue(e.target.value);
 
@@ -328,116 +350,121 @@ export default function ChatWindow() {
       </header>
 
       <div className="chat-window__content">
-        <div
-          className={`message-list-style ${sortedMessages.length < 7 ? "few-messages" : ""}`}
-          ref={messageListRef}
-        >
-          {sortedMessages.length === 0 ? (
-            <div className="empty-chat">
-              <div className="empty-avatar">
-                {isPrivate ? (
-                  otherUser ? (
-                    <Avatar src={otherUser.photoURL} size={80} />
-                  ) : (
-                    <Avatar size={80}>
-                      {(selectedRoom.name || "?").charAt(0).toUpperCase()}
-                    </Avatar>
-                  )
-                ) : selectedRoom.avatar ? (
-                  <Avatar src={selectedRoom.avatar} size={80} />
-                ) : (
-                  <CircularAvatarGroup
-                    members={membersData.map((u) => ({ 
-                      avatar: u.photoURL, 
-                      name: u.displayName 
-                    }))}
-                    size={80}
-                  />
-                )}
-              </div>
-              <Tooltip title={isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}>
-                <p className="empty-name">
-                  {isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}
-                </p>
-              </Tooltip>
-              <p className="empty-info">{selectedRoom.description || "Quik"}</p>
-              <p className="empty-hint">Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện</p>
+            <div
+              className={`message-list-style ${sortedMessages.length < 7 ? "few-messages" : ""}`}
+              ref={messageListRef}
+            >
+              {sortedMessages.length === 0 ? (
+                <div className="empty-chat">
+                  <div className="empty-avatar">
+                    {isPrivate ? (
+                      otherUser ? (
+                        <Avatar src={otherUser.photoURL} size={80} />
+                      ) : (
+                        <Avatar size={80}>
+                          {(selectedRoom.name || "?").charAt(0).toUpperCase()}
+                        </Avatar>
+                      )
+                    ) : selectedRoom.avatar ? (
+                      <Avatar src={selectedRoom.avatar} size={80} />
+                    ) : (
+                      <CircularAvatarGroup
+                        members={membersData.map((u) => ({
+                          avatar: u.photoURL,
+                          name: u.displayName
+                        }))}
+                        size={80}
+                      />
+                    )}
+                  </div>
+                  <Tooltip title={isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}>
+                    <p className="empty-name">
+                      {isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}
+                    </p>
+                  </Tooltip>
+                  <p className="empty-info">{selectedRoom.description || "Quik"}</p>
+                  <p className="empty-hint">Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện</p>
+                </div>
+              ) : (
+                sortedMessages.map((msg, index) => {
+                  const prevMsg = sortedMessages[index - 1];
+                  const showTime =
+                    !prevMsg ||
+                    new Date(prevMsg.createdAt).getMinutes() !== new Date(msg.createdAt).getMinutes() ||
+                    new Date(prevMsg.createdAt).getHours() !== new Date(msg.createdAt).getHours();
+
+                  return (
+                    <React.Fragment key={msg.id}>
+                      {showTime && <div className="chat-time-separator">{formatDate(msg.createdAt)}</div>}
+                      <Message
+                        uid={msg.uid}
+                        text={msg.decryptedText || ""}
+                        photoURL={msg.photoURL || null}
+                        displayName={msg.displayName || "Unknown"}
+                        createdAt={msg.createdAt}
+                        isOwn={msg.uid === uid}
+                        replyTo={msg.replyTo}
+                        kind={msg.kind || "text"}
+                        onReply={(message) => setReplyTo(message)}
+                      />
+                    </React.Fragment>
+                  );
+                })
+              )}
+            </div>
+          {banInfo ? (
+            <div className="ban-message">
+              <p>Rất tiếc! Chức năng chat của bạn tạm thời bị giới hạn đến {format(banInfo.banEnd, "HH:mm dd/MM/yyyy", { locale: vi })}.</p>
             </div>
           ) : (
-            sortedMessages.map((msg, index) => {
-              const prevMsg = sortedMessages[index - 1];
-              const showTime =
-                !prevMsg ||
-                new Date(prevMsg.createdAt).getMinutes() !== new Date(msg.createdAt).getMinutes() ||
-                new Date(prevMsg.createdAt).getHours() !== new Date(msg.createdAt).getHours();
-
-              return (
-                <React.Fragment key={msg.id}>
-                  {showTime && <div className="chat-time-separator">{formatDate(msg.createdAt)}</div>}
-                  <Message
-                    uid={msg.uid}
-                    text={msg.decryptedText || ""}
-                    photoURL={msg.photoURL || null}
-                    displayName={msg.displayName || "Unknown"}
-                    createdAt={msg.createdAt}
-                    isOwn={msg.uid === uid}
-                    replyTo={msg.replyTo}
-                    kind={msg.kind || "text"}
-                    onReply={(message) => setReplyTo(message)}
+            <Form className="form-style" form={form}>
+              {replyTo && (
+                <div className="reply-preview">
+                  <div className="reply-content">
+                    <span className="reply-label">Trả lời {replyTo.displayName}:</span>
+                    <p className="reply-text">{replyTo.decryptedText}</p>
+                  </div>
+                  <Button
+                    type="text"
+                    icon={<CloseOutlined />}
+                    onClick={() => setReplyTo(null)}
+                    className="cancel-reply-btn"
                   />
-                </React.Fragment>
-              );
-            })
-          )}
-        </div>
+                </div>
+              )}
+              <Button type="text" icon={<SmileOutlined />} className="input-icon-btn" />
+              <Form.Item name="message">
+                <Input
+                  ref={inputRef}
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  onPressEnter={handleOnSubmit}
+                  placeholder={replyTo ? "Trả lời..." : "Nhắn tin..."}
+                  bordered={false}
+                  autoComplete="off"
+                />
+              </Form.Item>
 
-        <Form className="form-style" form={form}>
-          {replyTo && (
-            <div className="reply-preview">
-              <div className="reply-content">
-                <span className="reply-label">Trả lời {replyTo.displayName}:</span>
-                <p className="reply-text">{replyTo.decryptedText}</p>
-              </div>
-              <Button
-                type="text"
-                icon={<CloseOutlined />}
-                onClick={() => setReplyTo(null)}
-                className="cancel-reply-btn"
-              />
-            </div>
+              {inputValue.trim() ? (
+                <Button type="text" onClick={handleOnSubmit} loading={sending} className="send-btn">
+                  Gửi
+                </Button>
+              ) : (
+                <div className="input-actions">
+                  <Button type="text" icon={<AudioOutlined />} className="input-icon-btn" />
+                  <label htmlFor="fileUpload" className="input-icon-btn">
+                    <PictureOutlined />
+                  </label>
+                  <input
+                    id="fileUpload"
+                    type="file"
+                    style={{ display: "none" }}
+                    onChange={handleFileUpload}
+                  />
+                </div>
+              )}
+            </Form>
           )}
-          <Button type="text" icon={<SmileOutlined />} className="input-icon-btn" />
-          <Form.Item name="message">
-            <Input
-              ref={inputRef}
-              value={inputValue}
-              onChange={handleInputChange}
-              onPressEnter={handleOnSubmit}
-              placeholder={replyTo ? "Trả lời..." : "Nhắn tin..."}
-              bordered={false}
-              autoComplete="off"
-            />
-          </Form.Item>
-
-          {inputValue.trim() ? (
-            <Button type="text" onClick={handleOnSubmit} loading={sending} className="send-btn">
-              Gửi
-            </Button>
-          ) : (
-            <div className="input-actions">
-              <Button type="text" icon={<AudioOutlined />} className="input-icon-btn" />
-              <label htmlFor="fileUpload" className="input-icon-btn">
-                <PictureOutlined />
-              </label>
-              <input
-                id="fileUpload"
-                type="file"
-                style={{ display: "none" }}
-                onChange={handleFileUpload}
-              />
-            </div>
-          )}
-        </Form>
       </div>
 
       {isDetailVisible && <div className="chat-detail-overlay" onClick={toggleDetail} />}

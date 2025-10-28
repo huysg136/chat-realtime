@@ -386,3 +386,31 @@
     opacity: 1;
   }
 }
+
+.ban-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 24px;
+  margin: 10px 20px;
+  text-align: center;
+  border: 1px solid #ff4d4f;
+  background-color: #fff1f0; 
+  border-radius: 8px;
+  gap: 10px;
+  font-weight: 500;
+  color: #a8071a; 
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+  &::before {
+    content: "⚠️"; 
+    font-size: 20px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+}
+
