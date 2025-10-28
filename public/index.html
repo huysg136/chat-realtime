@@ -1,38 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="utf-8" />
-    
-    <!-- 🔹 Favicon -->
+
     <link rel="icon" href="%PUBLIC_URL%/logo_quik.png" type="image/png" />
 
-    <!-- 🔹 Apple touch icon -->
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo_quik.png" />
 
-    <!-- 🔹 Responsive -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    
-    <!-- 🔹 Theme color cho trình duyệt -->
+
     <meta name="theme-color" content="#2d3748" />
 
-    <!-- 🔹 SEO description -->
-    <meta name="description" content="Quik — Chat Realtime App" />
+    <meta name="description" content="Quik — Ứng dụng chat realtime nhanh chóng, dễ dàng, bảo mật." />
 
-    <!-- 🔹 Manifest -->
+    <meta name="keywords" content="Quik, chat, realtime, nhắn tin, tin nhắn, trò chuyện, ứng dụng chat" />
+
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
-    <!-- 🔹 Font & Icon (optional) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
 
     <title>Quik</title>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Quik",
+      "url": "https://quik.id.vn",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://quik.id.vn/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>Bạn cần bật JavaScript để chạy ứng dụng này.</noscript>
     <div id="root"></div>
   </body>
 </html>
