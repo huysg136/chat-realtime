@@ -1,6 +1,6 @@
 import React, { useMemo, useContext, useState, useEffect } from "react";
 import { Avatar, Dropdown, Menu } from "antd";
-import { FaReply, FaRegCopy, FaShareSquare } from "react-icons/fa";
+import { FaRegCopy, FaImage, FaDownload, FaShareSquare, FaReply, FaVideo } from "react-icons/fa";
 import { MoreOutlined, UndoOutlined } from "@ant-design/icons";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
@@ -62,7 +62,6 @@ export default function Message({
   const [displayName, setDisplayName] = useState(initialDisplayName || "Unknown");
   const [photoURL, setPhotoURL] = useState(initialPhoto || null);
 
-  // forward modal state
   const [isForwardModalVisible, setIsForwardModalVisible] = useState(false);
   const [forwarding, setForwarding] = useState(false);
 
@@ -95,14 +94,29 @@ export default function Message({
 
   const handleCopy = async () => {
     try {
-      if (text) {
+      if (!text) return;
+
+      if (kind === "picture" || kind === "video" || kind === "file") {
+        const a = document.createElement("a");
+        a.href = text;
+        a.target = "_blank";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        //toast.success("Đã mở file để tải");
+      }
+      else {
         await navigator.clipboard.writeText(text);
         toast.success("Đã sao chép tin nhắn");
       }
-    } catch {
-      toast.error("Không thể sao chép tin nhắn");
+    } catch (err) {
+      console.error("Lỗi khi sao chép/tải:", err);
+      //toast.error("Không thể sao chép hoặc tải file");
     }
   };
+
+
+
 
   const handleForward = () => setIsForwardModalVisible(true);
   const handleCancelForward = () => setIsForwardModalVisible(false);
@@ -150,12 +164,28 @@ export default function Message({
 
   const menu = (
     <Menu>
-      <Menu.Item key="copy" onClick={handleCopy} icon={<FaRegCopy />}>
-        Copy tin nhắn
-      </Menu.Item>
+      {kind === "picture" ? (
+        <Menu.Item key="open-image" onClick={handleCopy} icon={<FaImage />}>
+          Mở ảnh
+        </Menu.Item>
+      ) : kind === "video" ? (
+        <Menu.Item key="open-video" onClick={handleCopy} icon={<FaVideo />}>
+          Mở video
+        </Menu.Item>
+      ) : kind === "file" ? (
+        <Menu.Item key="download" onClick={handleCopy} icon={<FaDownload />}>
+          Lưu về máy
+        </Menu.Item>
+      ) : (
+        <Menu.Item key="copy-text" onClick={handleCopy} icon={<FaRegCopy />}>
+          Copy tin nhắn
+        </Menu.Item>
+      )}
+
       <Menu.Item key="share" onClick={handleForward} icon={<FaShareSquare />}>
         Chia sẻ tin nhắn
       </Menu.Item>
+
       {isOwn && (
         <>
           <Menu.Divider />
@@ -170,6 +200,7 @@ export default function Message({
       )}
     </Menu>
   );
+
 
   return (
     <>
