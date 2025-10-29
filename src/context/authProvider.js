@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import app from "../firebase/config";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { Spin } from 'antd';
 import { getUserDocIdByUid } from "../firebase/services";
 export const AuthContext = React.createContext();
@@ -15,31 +15,41 @@ export default function AuthProvider({ children }) {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+    const unsubscribeAuth = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
         const { displayName, email, photoURL, uid } = currentUser;
 
         const userDocId = await getUserDocIdByUid(uid);
-        let userData = {};
-
         if (userDocId) {
           const userDocRef = doc(db, "users", userDocId);
-          const userSnap = await getDoc(userDocRef);
-          if (userSnap.exists()) {
-            userData = userSnap.data();
-          }
+          // Set up real-time listener for user data
+          const unsubscribeUser = onSnapshot(userDocRef, (userSnap) => {
+            if (userSnap.exists()) {
+              const userData = userSnap.data();
+              // console.log("Current UID:", uid);
+              // console.log("Role:", userData.role);
+              setUser({
+                displayName,
+                email,
+                photoURL,
+                uid,
+                role: userData.role || "user",
+              });
+            }
+          });
+
+          // Store unsubscribe function to clean up later
+          setUser((prevUser) => ({ ...prevUser, unsubscribeUser }));
+        } else {
+          setUser({
+            displayName,
+            email,
+            photoURL,
+            uid,
+            role: "user",
+          });
         }
 
-        console.log("Current UID:", uid);
-        console.log("Role:", userData.role);
-
-        setUser({
-          displayName,
-          email,
-          photoURL,
-          uid,
-          role: userData.role || "user",
-        });
         if (window.location.pathname === "/login") {
           navigate("/");
         }
@@ -53,7 +63,10 @@ export default function AuthProvider({ children }) {
       setIsLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribeAuth) unsubscribeAuth();
+      if (user?.unsubscribeUser) user.unsubscribeUser();
+    };
   }, []);
 
   return (
