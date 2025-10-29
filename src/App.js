@@ -13,6 +13,8 @@ import Dashboard from './admin/dashboard/dashboard';
 import UsersManager from './admin/userManager/userManager';
 import RoomsManager from './admin/roomManager/roomManager';
 import AnnouncementManager from './admin/announcementManager/announcementManager';
+import AdminSettings from './admin/adminSettings/adminSettings';
+import MaintenancePage from './components/maintenancePage/maintenancePage';
 
 function App() {
   return (
@@ -21,7 +23,15 @@ function App() {
         <AppProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={<ChatRoom />} />
+            <Route path="/maintenance" element={<MaintenancePage />} />
+            <Route 
+              path="/" 
+              element={
+                <PrivateRoute>
+                  <ChatRoom />
+                </PrivateRoute>
+              } 
+            />
             <Route
               path="/admin"
               element={
@@ -34,6 +44,7 @@ function App() {
               <Route path="users" element={<UsersManager />} />
               <Route path="rooms" element={<RoomsManager />} />
               <Route path="announcements" element={<AnnouncementManager />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
             </Route>
           </Routes>
           <AddRoomModal />

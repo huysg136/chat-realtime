@@ -5,6 +5,7 @@ import {
   MessageOutlined,
   BellOutlined,
   DashboardOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import { IoMdReturnLeft } from "react-icons/io";
@@ -40,6 +41,9 @@ export default function AdminSidebar() {
         </Menu.Item>
         <Menu.Item key="/admin/announcements" icon={<BellOutlined />}>
           <Link to="/admin/announcements">Tạo thông báo</Link>
+        </Menu.Item>
+        <Menu.Item key="/admin/settings" icon={<SettingOutlined />}>
+          <Link to="/admin/settings">Cấu hình hệ thống</Link>
         </Menu.Item>
         <Menu.Item key="/" icon={<IoMdReturnLeft />}>
           <Link to="/">Quay về</Link>

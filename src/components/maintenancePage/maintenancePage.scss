@@ -1,0 +1,19 @@
+.maintenance-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: radial-gradient(circle at 20% 30%, #f0f5ff, #ffffff);
+  text-align: center;
+
+  .footer-credit {
+    margin-top: 40px;
+    font-size: 14px;
+    color: #999;
+    .author-name {
+      color: #1890ff;
+      font-weight: 500;
+    }
+  }
+}
