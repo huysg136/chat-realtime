@@ -2,7 +2,7 @@
   .login-wrapper {
     position: relative;
     min-height: 100vh;
-    background: linear-gradient(135deg, #f7fafc 0%, #e2e8f0 100%);
+    background: radial-gradient(circle at 20% 30%, #f0f5ff, #ffffff);
     overflow: hidden;
   }
 
@@ -166,12 +166,9 @@
       margin: 0 0 8px 0 !important;
       font-size: 36px;
       font-weight: 700;
-      background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #333;
       letter-spacing: -1px;
-      
+
       @media (max-width: 480px) {
         font-size: 32px;
       }
@@ -198,8 +195,8 @@
         margin: 0 !important;
         font-size: 24px;
         font-weight: 600;
-        color: #2d3748;
-        
+        color: #333;
+
         @media (max-width: 480px) {
           font-size: 20px;
         }
@@ -216,8 +213,8 @@
       justify-content: center;
       gap: 12px;
       background: white;
-      color: #2d3748;
-      border: 2px solid #e2e8f0;
+      color: #333;
+      border: 1px solid #d9d9d9;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
@@ -241,20 +238,9 @@
       }
       
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-        border-color: #cbd5e0;
-        background: #f8fafc;
-        color: #ffffff !important;
-        
-        &::before {
-          left: 100%;
-        }
-        
-        .anticon {
-          color: #f8fafc;
-          transform: scale(1.1);
-        }
+        border-color: #1890ff;
+        color: #1890ff;
+        transform: translateY(-1px);
       }
       
       &:active {
@@ -319,13 +305,13 @@
   width: 100%;
   text-align: center;
   font-size: 14px;
-  color: #8a94a0;
+  color: #999;
   opacity: 0.8;
   font-weight: 400;
   user-select: none;
 
   .author-name {
-    color: #4a5568;
+    color: #1890ff;
     font-weight: 600;
   }
 
