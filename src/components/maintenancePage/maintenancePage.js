@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Result, Button, Spin, Typography, Space } from "antd";
 import { ReloadOutlined, ToolOutlined, ClockCircleOutlined, CalendarOutlined, LoginOutlined } from "@ant-design/icons";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase/config";
+import { signOut } from "firebase/auth";
+import { auth, db } from "../../firebase/config";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import "./maintenancePage.scss";
@@ -79,7 +80,15 @@ export default function MaintenancePage() {
   }, [expectedResume]);
 
   const handleReload = () => navigate("/");
-  const handleGoToLogin = () => navigate("/login");
+  const handleGoToLogin = async () => {
+    try {
+      await signOut(auth);
+      navigate("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      navigate("/login");
+    }
+  };
 
   if (loading) return <Spin size="large" style={{ display: "block", marginTop: "40vh" }} />;
 
@@ -119,7 +128,7 @@ export default function MaintenancePage() {
         }
       />
       <div className="footer-credit">
-        © 2025 Quik — Made by <span className="author-name">Thái Gia Huy</span>
+        © 2025 Made by <span className="author-name">Thái Gia Huy</span> · quik.id.vn
       </div>
     </div>
   );
