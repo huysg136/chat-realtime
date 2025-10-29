@@ -104,9 +104,7 @@ export default function RoomItem({
   const lmUid = str(lm.uid);
   const currentUid = str(user?.uid);
   const isOwnMessage = lmUid ? lmUid === currentUid : false;
-  const lastRead = member?.lastRead;
   const lastMessageId = room.lastMessage?.id;
-  const isUnread = lastMessageId && lastRead !== lastMessageId && !isOwnMessage;
   const sender = lm.uid ? usersById[lmUid] : null;
   const senderName = isOwnMessage
     ? "Tôi"
@@ -114,10 +112,6 @@ export default function RoomItem({
 
   const handleClick = async () => {
     if (setSelectedRoomId) setSelectedRoomId(room.id);
-    if (lastMessageId) {
-      const memberRef = doc(db, `rooms/${room.id}/members/${user.uid}`);
-      await setDoc(memberRef, { lastRead: lastMessageId }, { merge: true });
-    }
   };
 
   const handlePin = async () => {
@@ -198,7 +192,7 @@ export default function RoomItem({
         </p>
 
         {room.lastMessage ? (
-          <p className={`last-message ${isUnread ? "unread" : ""}`}>
+          <p className="last-message">
             {lm.isRevoked ? (
               <>
                 {senderName}: [Tin nhắn đã được thu hồi]

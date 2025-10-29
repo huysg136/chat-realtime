@@ -12,10 +12,17 @@ import { toast } from "react-toastify";
 
 const ReplyPreview = ({ replyTo, isOwn }) => {
   if (!replyTo) return null;
+
+  const isRepliedRevoked =
+    replyTo.text === "[Tin nhắn đã được thu hồi]" ||
+    replyTo.decryptedText === "[Tin nhắn đã được thu hồi]";
+
   return (
     <div className={`reply-preview-in-message ${isOwn ? "own" : ""}`}>
       <span className="reply-label">Trả lời {replyTo.displayName}:</span>
-      <p className="reply-text">{replyTo.text || replyTo.decryptedText}</p>
+      <p className="reply-text">
+        {isRepliedRevoked ? "[Tin nhắn đã được thu hồi]" : (replyTo.text || replyTo.decryptedText)}
+      </p>
     </div>
   );
 };
@@ -136,7 +143,7 @@ export default function Message({
         ) : (
           <div className={`message-bubble ${isRevoked ? "revoked" : ""}`}>
             {!isPrivate && !isOwn && <span className="message-name">{displayName}</span>}
-            <ReplyPreview replyTo={replyTo} isOwn={isOwn} />
+            {!isRevoked && <ReplyPreview replyTo={replyTo} isOwn={isOwn} />}
             <MediaRenderer
               kind={kind}
               content={text}
