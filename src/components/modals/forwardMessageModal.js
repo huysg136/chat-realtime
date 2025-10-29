@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Modal, Input, List, Avatar, Button } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, TeamOutlined } from "@ant-design/icons";
 import CircularAvatarGroup from "../common/circularAvatarGroup";
 
 export default function ForwardMessageModal({
@@ -57,7 +57,7 @@ export default function ForwardMessageModal({
           Chia sẻ ({selectedRooms.length})
         </Button>,
       ]}
-      width={500}
+      width={450}
     >
       <Input
         placeholder="Tìm kiếm phòng..."
@@ -125,17 +125,73 @@ export default function ForwardMessageModal({
               style={{
                 cursor: "pointer",
                 backgroundColor: isSelected ? "#e6f7ff" : "transparent",
-                borderRadius: 4,
+                borderRadius: 6,
                 padding: "8px 12px",
                 alignItems: "center",
+                display: "flex",
+                transition: "background 0.2s",
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = isSelected ? "#e6f7ff" : "transparent")
+              }
             >
-              <List.Item.Meta
-                avatar={avatarElement}
-                title={<span style={{ fontWeight: 500 }}>{room.name}</span>}
-              />
-              {isSelected && <div style={{ color: "#1890ff" }}>✓</div>}
+              <div style={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0 }}>
+                {avatarElement}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    marginLeft: 16,
+                    overflow: "hidden",
+                    flex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {isGroup && (
+                      <TeamOutlined style={{ color: "#8c8c8c", flexShrink: 0 }} />
+                    )}
+                    <span
+                      style={{
+                        fontWeight: 500,
+                        fontSize: 15,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        flex: 1,
+                        maxWidth: "220px",
+                      }}
+                      title={room.name}
+                    >
+                      {room.name}
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: 13,
+                      color: "#888",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {isPrivate ? "Riêng tư" : "Nhóm"}
+                  </span>
+                </div>
+              </div>
+              {isSelected && (
+                <div style={{ color: "#1890ff", fontWeight: "bold", fontSize: 18 }}>✓</div>
+              )}
             </List.Item>
+
           );
         }}
         style={{ maxHeight: 300, overflowY: "auto" }}
