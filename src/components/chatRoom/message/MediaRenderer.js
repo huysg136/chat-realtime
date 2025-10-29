@@ -7,10 +7,14 @@ import { MdAttachFile } from "react-icons/md";
 import 'react-image-lightbox/style.css';
 import Lightbox from 'react-image-lightbox';
 
-const MediaRenderer = ({ kind, content, fileName, isOwn }) => {
+const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   if (!content) return null;
+
+  if (isRevoked) {
+    return <span className="message-text-part revoked">[Tin nhắn đã được thu hồi]</span>;
+  }
 
   if (kind === 'picture' || kind === 'image') {
     return (
@@ -119,7 +123,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn }) => {
       </a>
     );
   }
-  const parts = content.split(/((?:https?:\/\/)?(?:www\.)?[\w-]+(?:\.[\w-]+)+(?:[/?#][^\s]*)?)/);
+  const parts = content.split(/((?:https?:\/\/)?(?:www\.)?[\w-]+(?:\.[\w-]+)+(?:[/?#][[^\s]*)?)/);
   return (
     <span className="message-text-part">
       {parts.map((part, i) => {

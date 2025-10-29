@@ -1,12 +1,14 @@
 import React, { useMemo, useContext, useState, useEffect } from "react";
-import { Avatar } from "antd";
-import { FaReply } from "react-icons/fa";
+import { Avatar, Dropdown, Menu } from "antd";
+import { FaReply, FaRegCopy, FaShareSquare } from "react-icons/fa";
+import { MoreOutlined, UndoOutlined } from "@ant-design/icons";
 import { AppContext } from "../../../context/appProvider";
 import MediaRenderer from "./MediaRenderer";
 import { db } from "../../../firebase/config";
 import { doc, onSnapshot } from "firebase/firestore";
-import { getUserDocIdByUid } from "../../../firebase/services"; 
+import { getUserDocIdByUid } from "../../../firebase/services";
 import "./message.scss";
+import { toast } from "react-toastify";
 
 const ReplyPreview = ({ replyTo, isOwn }) => {
   if (!replyTo) return null;
@@ -25,6 +27,7 @@ export default function Message({
   isOwn,
   replyTo,
   onReply,
+  onRevoke,
   kind,
   uid,
 }) {
@@ -38,7 +41,6 @@ export default function Message({
   const [displayName, setDisplayName] = useState(initialDisplayName || "Unknown");
   const [photoURL, setPhotoURL] = useState(initialPhoto || null);
 
-  // realtime lắng nghe user doc
   useEffect(() => {
     if (!uid) return;
     let unsubscribe = null;
@@ -61,6 +63,47 @@ export default function Message({
     if (onReply)
       onReply({ id: Date.now().toString(), decryptedText: text, displayName });
   };
+
+  const handleRevoke = () => {
+    if (onRevoke) onRevoke();
+  };
+
+  const handleCopy = async () => {
+    try {
+      if (text) {
+        await navigator.clipboard.writeText(text);
+        toast.success("Đã sao chép tin nhắn");
+      }
+    } catch (err) {
+      console.error("Copy failed:", err);
+      toast.error("Không thể sao chép tin nhắn.");
+    }
+  };
+
+  const isRevoked = text === "[Tin nhắn đã được thu hồi]";
+
+  const menu = (
+    <Menu>
+      <Menu.Item key="copy" onClick={handleCopy} icon={<FaRegCopy />}>
+        Copy tin nhắn
+      </Menu.Item>
+      <Menu.Item key="share" icon={<FaShareSquare />} >
+        Chuyển tiếp
+      </Menu.Item>
+      {isOwn && (
+        <>
+          <Menu.Divider />
+          <Menu.Item 
+            key="revoke" 
+            onClick={handleRevoke} 
+            icon={<UndoOutlined style={{ color: "#ff4d4f" }} />} 
+          >
+            <span style={{color: "#ff4d4f"}}>Thu hồi</span>
+          </Menu.Item>
+        </>
+      )}
+    </Menu>
+  );
 
   const defaultAvatar =
     "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
@@ -88,9 +131,10 @@ export default function Message({
             content={text}
             fileName={text.split("/").pop().slice(14)}
             isOwn={isOwn}
+            isRevoked={isRevoked}
           />
         ) : (
-          <div className="message-bubble">
+          <div className={`message-bubble ${isRevoked ? "revoked" : ""}`}>
             {!isPrivate && !isOwn && <span className="message-name">{displayName}</span>}
             <ReplyPreview replyTo={replyTo} isOwn={isOwn} />
             <MediaRenderer
@@ -98,12 +142,30 @@ export default function Message({
               content={text}
               fileName={text.split("/").pop().slice(14)}
               isOwn={isOwn}
+              isRevoked={isRevoked}
             />
           </div>
         )}
-
-        <div className="message-hover" onClick={handleReply}>
-          <FaReply />
+      
+        <div
+          className={`message-hover ${
+            isOwn && isRevoked
+              ? "own-revoked"
+              : !isOwn && isRevoked
+              ? "revoked-other"
+              : ""
+          }`}
+        >
+          <FaReply onClick={handleReply} />
+          {!isRevoked && (
+            <Dropdown 
+              overlay={menu} 
+              trigger={["click"]} 
+              placement={isOwn ? "leftTop" : "rightTop"} 
+            >
+              <MoreOutlined />
+            </Dropdown>
+          )}
         </div>
       </div>
     </div>

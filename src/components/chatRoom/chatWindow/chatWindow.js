@@ -214,6 +214,27 @@ export default function ChatWindow() {
     return () => unsubscribe();
   }, [uid]);
 
+  const handleRevokeMessage = async (messageId) => {
+    if (!selectedRoom) return;
+    const revokedText = selectedRoom.secretKey
+      ? encryptMessage("[Tin nhắn đã được thu hồi]", selectedRoom.secretKey)
+      : "[Tin nhắn đã được thu hồi]";
+    await updateDocument("messages", messageId, { text: revokedText, kind: "text", isRevoked: true });
+
+    // Update lastMessage in room if this is the last message
+    const lastMsg = sortedMessages[sortedMessages.length - 1];
+    if (lastMsg && lastMsg.id === messageId) {
+      await updateDocument("rooms", selectedRoom.id, {
+        lastMessage: {
+          ...lastMsg,
+          text: revokedText,
+          kind: "text",
+          isRevoked: true,
+        },
+      });
+    }
+  };
+
   const handleInputChange = (e) => setInputValue(e.target.value);
 
   const handleOnSubmit = async () => {
@@ -414,6 +435,7 @@ export default function ChatWindow() {
                         replyTo={msg.replyTo}
                         kind={msg.kind || "text"}
                         onReply={(message) => setReplyTo(message)}
+                        onRevoke={() => handleRevokeMessage(msg.id)}
                       />
                     </React.Fragment>
                   );

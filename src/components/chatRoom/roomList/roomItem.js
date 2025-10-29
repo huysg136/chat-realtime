@@ -199,60 +199,67 @@ export default function RoomItem({
 
         {room.lastMessage ? (
           <p className={`last-message ${isUnread ? "unread" : ""}`}>
-            {senderName}:{" "}
-            {(() => {
-              const kind = lm.kind || "text";
+            {lm.isRevoked ? (
+              <>
+                {senderName}: [Tin nhắn đã được thu hồi]
+              </>
+            ) : (
+              <>
+                {senderName}:{" "}
+                {(() => {
+                  const kind = lm.kind || "text";
 
-              const decryptedText =
-                kind === "text" && room.secretKey
-                  ? decryptMessage(lm.text || lm?.content || "", room.secretKey)
-                  : lm.text || lm?.content || "";
+                  const decryptedText =
+                    kind === "text" && room.secretKey
+                      ? decryptMessage(lm.text || lm?.content || "", room.secretKey)
+                      : lm.text || lm?.content || "";
 
-              switch (kind) {
-                case "text":
-                  return decryptedText;
+                  switch (kind) {
+                    case "text":
+                      return decryptedText;
 
-                case "picture":
-                  const picFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
-                  return (
-                    <>
-                      🖼️ [Hình ảnh]
-                      {picFileName && ` (${picFileName})`}
-                    </>
-                  );
+                    case "picture":
+                      const picFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
+                      return (
+                        <>
+                          🖼️ [Hình ảnh]
+                          {picFileName && ` (${picFileName})`}
+                        </>
+                      );
 
-                case "video":
-                  const vidFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
-                  return (
-                    <>
-                      🎬 [Video]
-                      {vidFileName && ` (${vidFileName})`}
-                    </>
-                  );
+                    case "video":
+                      const vidFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
+                      return (
+                        <>
+                          🎬 [Video]
+                          {vidFileName && ` (${vidFileName})`}
+                        </>
+                      );
 
-                case "file":
-                  const fileFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
-                  return (
-                    <>
-                      📎 [Tệp]
-                      {fileFileName && ` (${fileFileName})`}
-                    </>
-                  );
+                    case "file":
+                      const fileFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
+                      return (
+                        <>
+                          📎 [Tệp]
+                          {fileFileName && ` (${fileFileName})`}
+                        </>
+                      );
 
-                case "voice":
-                  const voiceFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
-                  return (
-                    <>
-                      🎤 [Voice]
-                      {voiceFileName && ` (${voiceFileName})`}
-                    </>
-                  );
+                    case "voice":
+                      const voiceFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
+                      return (
+                        <>
+                          🎤 [Voice]
+                          {voiceFileName && ` (${voiceFileName})`}
+                        </>
+                      );
 
-                default:
-                  return decryptedText;
-              }
-            })()}
-
+                    default:
+                      return decryptedText;
+                  }
+                })()}
+              </>
+            )}
           </p>
         ) : (
           <p className="last-message">Chưa có tin nhắn</p>
