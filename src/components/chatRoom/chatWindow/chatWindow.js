@@ -21,7 +21,7 @@ import { db } from "../../../firebase/config";
 import Message from "../message/message";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import ChatDetailPanel from "../chatDetailPanel/chatDetailPanel";
-import TransferOwnershipModal from "../../modals/transferOwnershipModal/transferOwnershipModal";
+import TransferOwnershipModal from "../../modals/transferOwnershipModal";
 
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";

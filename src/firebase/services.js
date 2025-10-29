@@ -120,3 +120,25 @@ export const decryptMessage = (encryptedMessage, key) => {
     return "[Encrypted message]";
   }
 };
+
+export const sendMessageToRoom = async (roomId, messageData) => {
+  try {
+    await addDocument("messages", {
+      ...messageData,
+      roomId,
+      createdAt: new Date(),
+    });
+
+    await updateDocument("rooms", roomId, {
+      lastMessage: {
+        ...messageData,
+        createdAt: new Date(),
+      },
+    });
+
+    return true;
+  } catch (error) {
+    console.error("Error sending message to room:", error);
+    return false;
+  }
+};

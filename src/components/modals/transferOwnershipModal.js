@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, Select, Avatar, message } from "antd";
 import { toast } from 'react-toastify';
-import { updateDocument } from "../../../firebase/services";
+import { updateDocument } from "../../firebase/services";
 
 export default function TransferOwnershipModal({
   visible,
