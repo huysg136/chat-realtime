@@ -241,6 +241,10 @@
         border-color: #1890ff;
         color: #1890ff;
         transform: translateY(-1px);
+
+        .anticon {
+          color: #ffffff;
+        }
       }
       
       &:active {
@@ -320,4 +324,78 @@
     bottom: 8px;
   }
 }
+
+body.theme-dark {
+  background: radial-gradient(circle at 20% 30%, #0f172a, #1e293b);
+  color: #e2e8f0;
+
+  .login-wrapper {
+    position: relative;
+    min-height: 100vh;
+    background: radial-gradient(circle at 20% 30%, #1e293b, #0d1117);
+    overflow: hidden;
+  }
+
+  .login-card {
+    background: #1e293b;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    .app-title {
+      color: #f1f5f9;
+    }
+
+    .app-subtitle {
+      color: #94a3b8;
+    }
+
+    .google-btn {
+      background: #334155;
+      border-color: #475569;
+      color: #f8fafc;
+
+      &:hover {
+        background: #2563eb;
+        color: #fff;
+        border-color: #3b82f6;
+      }
+
+      .anticon {
+        color: #f1f5f9;
+      }
+    }
+  }
+
+  .lang-select .ant-select-selector {
+    background: #334155 !important;
+    border: 1px solid #475569 !important;
+    color: #e2e8f0 !important;
+
+    .ant-select-arrow {
+      color: #e2e8f0;
+    }
+  }
+
+  .privacy-text {
+    color: #94a3b8;
+  }
+
+  .footer-credit {
+    color: #94a3b8;
+
+    .author-name {
+      color: #3b82f6;
+    }
+  }
+
+  .background-pattern .circle {
+    background: rgba(148, 163, 184, 0.08);
+  }
+
+  .logo-img {
+    border: 2px solid #3f3f3f;
+    box-shadow: 0 4px 12px rgba(56, 56, 56, 0.3);
+  }
+}
+
 

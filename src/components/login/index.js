@@ -23,6 +23,24 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    document.body.classList.add("theme-light");
+  }, []);
+
+  useEffect(() => {
+    const root = document.body;
+    root.classList.remove("theme-light", "theme-dark");
+
+    if (theme === "light") {
+      root.classList.add("theme-light");
+    } else if (theme === "dark") {
+      root.classList.add("theme-dark");
+    } else {
+      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      root.classList.add(systemDark ? "theme-dark" : "theme-light");
+    }
+  }, [theme]);
+
   const handleLogin = async (provider) => {
     try {
       setLoading(true);
