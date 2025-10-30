@@ -3,8 +3,10 @@ import { Modal, Card, Select, Button, Space } from "antd";
 import { AppContext } from "../../context/appProvider";
 import { AuthContext } from "../../context/authProvider";
 import { updateDocument, getUserDocIdByUid } from "../../firebase/services";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ReactCountryFlag from "react-country-flag";
+import { BsSunFill, BsMoonStarsFill, BsLaptop } from "react-icons/bs";
 
 const { Option } = Select;
 
@@ -15,6 +17,69 @@ export default function SettingsModal() {
   const [theme, setTheme] = useState(user?.theme || "system");
   const [language, setLanguage] = useState(user?.language || "vi");
   const [saving, setSaving] = useState(false);
+
+  const text = {
+    vi: {
+      title: "Cài đặt",
+      themeLabel: "Chủ đề giao diện",
+      light: "Sáng",
+      dark: "Tối",
+      system: "Theo hệ thống",
+      languageLabel: "Ngôn ngữ",
+      cancel: "Hủy",
+      save: "Lưu",
+    },
+    en: {
+      title: "Settings",
+      themeLabel: "Theme",
+      light: "Light",
+      dark: "Dark",
+      system: "System",
+      languageLabel: "Language",
+      cancel: "Cancel",
+      save: "Save",
+    },
+    zh: {
+      title: "设置",
+      themeLabel: "主题",
+      light: "浅色",
+      dark: "深色",
+      system: "系统",
+      languageLabel: "语言",
+      cancel: "取消",
+      save: "保存",
+    },
+    es: {
+      title: "Configuración",
+      themeLabel: "Tema",
+      light: "Claro",
+      dark: "Oscuro",
+      system: "Sistema",
+      languageLabel: "Idioma",
+      cancel: "Cancelar",
+      save: "Guardar",
+    },
+    fr: {
+      title: "Paramètres",
+      themeLabel: "Thème",
+      light: "Clair",
+      dark: "Sombre",
+      system: "Système",
+      languageLabel: "Langue",
+      cancel: "Annuler",
+      save: "Enregistrer",
+    },
+    ar: {
+      title: "الإعدادات",
+      themeLabel: "السمة",
+      light: "فاتح",
+      dark: "داكن",
+      system: "النظام",
+      languageLabel: "اللغة",
+      cancel: "إلغاء",
+      save: "حفظ",
+    },
+  };
 
   useEffect(() => {
     if (user?.theme) setTheme(user.theme);
@@ -40,7 +105,7 @@ export default function SettingsModal() {
 
       await updateDocument("users", docId, { theme, language });
       setUser((prev) => ({ ...prev, theme, language }));
-      toast.success("Đã lưu cài đặt!");
+      toast.success("Đã lưu cài đặt");
       setIsSettingsVisible(false);
     } catch (error) {
       console.error(error);
@@ -52,7 +117,7 @@ export default function SettingsModal() {
 
   return (
     <Modal
-      title="Cài đặt"
+      title={text[language].title}
       open={isSettingsVisible}
       onCancel={handleCancel}
       footer={null}
@@ -68,46 +133,99 @@ export default function SettingsModal() {
         }}
         bodyStyle={{ padding: "24px" }}
       >
-        {/* CHỌN GIAO DIỆN */}
         <div style={{ marginBottom: "20px" }}>
-          <div style={{ fontWeight: 600, marginBottom: 8 }}>Chủ đề giao diện</div>
-          <Select
-            value={theme}
-            onChange={setTheme}
-            style={{ width: "100%" }}
-          >
-            <Option value="light">🌞 Sáng (Light)</Option>
-            <Option value="dark">🌙 Tối (Dark)</Option>
-            <Option value="system">💻 Theo hệ thống</Option>
-          </Select>
+          <div style={{ fontWeight: 600, marginBottom: 8 }}>{text[language].themeLabel}</div>
+          <div className="modal-select">
+            <Select
+              value={theme}
+              onChange={setTheme}
+              style={{ width: "100%" }}
+            >
+              <Option value="light">
+                <BsSunFill style={{ color: "#facc15", marginRight: 6 }} />
+                {text[language].light}
+              </Option>
+              <Option value="dark">
+                <BsMoonStarsFill style={{ color: "#3b82f6", marginRight: 6 }} />
+                {text[language].dark}
+              </Option>
+              <Option value="system">
+                <BsLaptop style={{ color: "#6b7280", marginRight: 6 }} />
+                {text[language].system}
+              </Option>
+            </Select>
+          </div>
         </div>
 
-        {/* CHỌN NGÔN NGỮ */}
         <div style={{ marginBottom: "20px" }}>
-          <div style={{ fontWeight: 600, marginBottom: 8 }}>Ngôn ngữ</div>
-          <Select
-            value={language}
-            onChange={setLanguage}
-            style={{ width: "100%" }}
-          >
-            <Option value="vi">🇻🇳 Tiếng Việt</Option>
-            <Option value="en">🇺🇸 English</Option>
-            <Option value="zh">🇨🇳 中文</Option>
-            <Option value="es">🇪🇸 Español</Option>
-            <Option value="fr">🇫🇷 Français</Option>
-            <Option value="ar">🇸🇦 العربية</Option>
-          </Select>
+          <div style={{ fontWeight: 600, marginBottom: 8 }}>{text[language].languageLabel}</div>
+          <div className="modal-select">
+            <Select
+              value={language}
+              onChange={setLanguage}
+              style={{ width: "100%" }}
+            >
+              <Option value="vi">
+                <ReactCountryFlag
+                  countryCode="VN"
+                  svg
+                  style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+                />
+                Tiếng Việt
+              </Option>
+              <Option value="en">
+                <ReactCountryFlag
+                  countryCode="US"
+                  svg
+                  style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+                />
+                English
+              </Option>
+              <Option value="zh">
+                <ReactCountryFlag
+                  countryCode="CN"
+                  svg
+                  style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+                />
+                中文
+              </Option>
+              <Option value="es">
+                <ReactCountryFlag
+                  countryCode="ES"
+                  svg
+                  style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+                />
+                Español
+              </Option>
+              <Option value="fr">
+                <ReactCountryFlag
+                  countryCode="FR"
+                  svg
+                  style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+                />
+                Français
+              </Option>
+              <Option value="ar">
+                <ReactCountryFlag
+                  countryCode="SA"
+                  svg
+                  style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+                />
+                العربية
+              </Option>
+            </Select>
+          </div>
         </div>
 
         <Space style={{ width: "100%", justifyContent: "flex-end" }}>
-          <Button onClick={handleCancel}>Hủy</Button>
+          <Button onClick={handleCancel}>{text[language].cancel}</Button>
           <Button
             type="primary"
             onClick={handleSave}
             loading={saving}
             disabled={saving}
           >
-            Lưu
+            {text[language].save}
           </Button>
         </Space>
       </Card>

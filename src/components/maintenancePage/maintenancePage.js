@@ -15,11 +15,13 @@ import {
   LoginOutlined,
 } from "@ant-design/icons";
 import { BsSunFill, BsMoonStarsFill, BsLaptop } from "react-icons/bs";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { auth, db } from "../../firebase/config";
 import { AuthContext } from "../../context/authProvider";
 import { getUserDocIdByUid, updateDocument } from "../../firebase/services";
+import { useRef } from "react";
+import { Navigate } from "react-router-dom";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -222,7 +224,7 @@ export default function MaintenancePage() {
   useEffect(() => {
     if (!expectedResume) return;
 
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       const now = dayjs().tz(tz);
       const resumeInTz = expectedResume.tz(tz);
       const diff = resumeInTz.diff(now);
@@ -235,6 +237,18 @@ export default function MaintenancePage() {
               : "System is back online!"}
           </span>
         );
+        // Automatically disable maintenance when time is up
+        if (maintenance) {
+          try {
+            await updateDoc(doc(db, "config", "appStatus"), {
+              maintenance: false,
+              expectedResume: null
+            });
+            setMaintenance(false);
+          } catch (error) {
+            console.error("Failed to disable maintenance:", error);
+          }
+        }
         clearInterval(interval);
       } else {
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -262,7 +276,7 @@ export default function MaintenancePage() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [expectedResume, lang]);
+  }, [expectedResume, lang, maintenance]);
 
   const handleChangeLang = async (value) => {
     setLang(value);
@@ -302,7 +316,9 @@ export default function MaintenancePage() {
     return (
       <Spin size="large" style={{ display: "block", marginTop: "40vh" }} />
     );
-  if (!maintenance) return null;
+  if (!maintenance) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="maintenance-wrapper" style={wrapperStyle}>

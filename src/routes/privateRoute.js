@@ -8,7 +8,7 @@ import { db } from "../firebase/config";
 export default function PrivateRoute({ children, requireAdmin = false }) {
   const { user, isLoading } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
-  const [allowed, setAllowed] = useState(false);
+  const [allowed, setAllowed] = useState(true);
 
   useEffect(() => {
     if (!user) {
