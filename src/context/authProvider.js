@@ -41,6 +41,7 @@ export default function AuthProvider({ children }) {
                 photoURL,
                 uid,
                 role: userData.role || "user",
+                theme: userData.theme || "light",
               });
               setIsLoading(false);
               if (window.location.pathname === "/login") {
@@ -53,6 +54,7 @@ export default function AuthProvider({ children }) {
                 photoURL,
                 uid,
                 role: "user",
+                theme: "light",
               });
               setIsLoading(false);
               if (window.location.pathname === "/login") {
@@ -70,6 +72,7 @@ export default function AuthProvider({ children }) {
             photoURL,
             uid,
             role: "user",
+            theme: "light",
           });
           setIsLoading(false);
           if (window.location.pathname === "/login") {

@@ -38,24 +38,56 @@
 
     .icon-item {
       font-size: 26px;
-      color: #555; 
+      color: #555;
       cursor: pointer;
       padding: 8px;
       border-radius: 8px;
       transition: all 0.3s;
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.05); 
+        background-color: rgba(0, 0, 0, 0.05);
         color: #222;
       }
 
       &.active {
-        background-color: #ccc; 
+        background-color: #ccc;
         color: #222;
       }
 
       svg {
         display: block;
+      }
+    }
+  }
+}
+
+body.theme-dark {
+  .sidebar {
+    background: rgba(17, 24, 39, 0.95);
+    border-right: 2px solid rgba(255, 255, 255, 0.1);
+
+    .user-avatar {
+      border: 2px solid rgba(148, 163, 184, 0.3);
+
+      &:hover {
+        border-color: #60a5fa;
+        box-shadow: 0 0 6px rgba(96, 165, 250, 0.3);
+      }
+    }
+
+    .icon-group {
+      .icon-item {
+        color: #94a3b8;
+
+        &:hover {
+          background-color: rgba(148, 163, 184, 0.1);
+          color: #e2e8f0;
+        }
+
+        &.active {
+          background-color: #475569;
+          color: #f1f5f9;
+        }
       }
     }
   }

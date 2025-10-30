@@ -8,6 +8,7 @@ import { db } from "../../firebase/config";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { doc, onSnapshot, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
+import "./profileModal.scss";
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
@@ -130,10 +131,11 @@ export default function ProfileModal() {
       footer={null}
       centered
       width={400}
+      className="profile-modal"
     >
       <Card
+        className="profile-card"
         style={{
-          backgroundColor: '#ffffff',
           borderRadius: '12px',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
           border: 'none'
@@ -154,6 +156,7 @@ export default function ProfileModal() {
               icon={<CameraOutlined />}
               size="small"
               onClick={() => fileInputRef.current.click()}
+              className="camera-button"
               style={{
                 position: 'absolute',
                 bottom: 0,
@@ -201,10 +204,11 @@ export default function ProfileModal() {
                 loading={loading}
                 size="small"
                 disabled={displayName.trim() === (user?.displayName || '').trim()}
+                className="save-button"
               >
                 Lưu
               </Button>
-              <Button onClick={handleCancelEdit} size="small">
+              <Button onClick={handleCancelEdit} size="small" className="cancel-button">
                 Hủy
               </Button>
             </div>

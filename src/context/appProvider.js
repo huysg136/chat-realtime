@@ -15,9 +15,10 @@ export default function AppProvider({ children }) {
   const [searchText, setSearchText] = useState("");
   const [theme, setTheme] = useState("light");
   const [isMaintenance, setIsMaintenance] = useState(false);
+  
 
   const { user } = useContext(AuthContext);
-
+  
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "config", "appStatus"), (snap) => {
       const maintenance = snap.exists() ? snap.data().maintenance : false;

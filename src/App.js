@@ -16,49 +16,60 @@ import AnnouncementManager from './admin/announcementManager/announcementManager
 import AdminSettings from './admin/adminSettings/adminSettings';
 import MaintenancePage from './components/maintenancePage/maintenancePage';
 import SettingsModal from './components/modals/settingsModal';
+import useApplyTheme from './hooks/useApplyTheme';
+import { AuthContext } from './context/authProvider';
+import { useContext } from 'react';
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+function ThemeWrapper({ children }) {
+  const { user } = useContext(AuthContext);
+  useApplyTheme(user?.theme);
+  return children;
+}
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <AppProvider>
-          <ToastContainer position="top-center" autoClose={1000} />
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/maintenance" element={<MaintenancePage />} />
-            <Route 
-              path="/" 
-              element={
-                <PrivateRoute>
-                  <ChatRoom />
-                </PrivateRoute>
-              } 
-            />
-            <Route
-              path="/admin"
-              element={
-                <PrivateRoute requireAdmin>
-                  <AdminLayout />
-                </PrivateRoute>
-              }
-            >
-              <Route index element={<Dashboard />} />
-              <Route path="users" element={<UsersManager />} />
-              <Route path="rooms" element={<RoomsManager />} />
-              <Route path="announcements" element={<AnnouncementManager />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
-            </Route>
-          </Routes>
-          <AddRoomModal />
-          <InviteMemberModal />
-          <ProfileModal />
-          <SettingsModal />
+          <ThemeWrapper>
+            <ToastContainer position="top-center" autoClose={1000} />
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/maintenance" element={<MaintenancePage />} />
+              <Route
+                path="/"
+                element={
+                  <PrivateRoute>
+                    <ChatRoom />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <PrivateRoute requireAdmin>
+                    <AdminLayout />
+                  </PrivateRoute>
+                }
+              >
+                <Route index element={<Dashboard />} />
+                <Route path="users" element={<UsersManager />} />
+                <Route path="rooms" element={<RoomsManager />} />
+                <Route path="announcements" element={<AnnouncementManager />} />
+                <Route path="/admin/settings" element={<AdminSettings />} />
+              </Route>
+            </Routes>
+            <AddRoomModal />
+            <InviteMemberModal />
+            <ProfileModal />
+            <SettingsModal />
+          </ThemeWrapper>
         </AppProvider>
       </AuthProvider>
-    </BrowserRouter> 
+    </BrowserRouter>
   );
 }
 

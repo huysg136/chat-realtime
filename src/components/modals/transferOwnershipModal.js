@@ -2,6 +2,7 @@ import React from "react";
 import { Modal, Select, Avatar, message } from "antd";
 import { toast } from 'react-toastify';
 import { updateDocument } from "../../firebase/services";
+import "./transferOwnershipModal.scss";
 
 export default function TransferOwnershipModal({
   visible,
@@ -86,6 +87,7 @@ export default function TransferOwnershipModal({
       cancelText="Hủy"
       confirmLoading={leavingLoading}
       destroyOnHidden
+      className="transfer-ownership-modal"
     >
       <p>Vui lòng chọn thành viên sẽ nhận quyền trưởng nhóm trước khi bạn rời.</p>
 

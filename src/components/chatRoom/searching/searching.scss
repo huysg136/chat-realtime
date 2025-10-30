@@ -1,7 +1,8 @@
 .searching-panel {
-  background: #ffffff;
+  background: #ffffff; // light theme
   display: flex;
   flex-direction: column;
+  transition: background 0.3s, color 0.3s;
 
   .user-header {
     display: flex;
@@ -19,9 +20,10 @@
       .username {
         font-size: 18px;
         font-weight: 700;
-        color: #000;
+        color: #000; // light theme
         line-height: 1.2;
         cursor: default;
+        transition: color 0.3s;
       }
     }
 
@@ -32,9 +34,10 @@
       align-items: center;
       justify-content: center;
       padding: 0;
-      color: #000;
+      color: #000; // light theme
       font-size: 24px;
       border-radius: 50%;
+      transition: background 0.3s, color 0.3s;
 
       &:hover {
         background-color: #f0f0f0;
@@ -53,15 +56,17 @@
     padding: 0px 16px 0px 16px;
 
     .search-input {
-      background: #efefef;
+      background: #efefef; // light theme
       border-radius: 8px;
       padding: 6px 12px;
       height: 36px;
+      transition: background 0.3s, color 0.3s;
 
       .ant-input {
         background: transparent;
         font-size: 14px;
-        color: #000;
+        color: #000; // light theme
+        transition: color 0.3s;
 
         &::placeholder {
           color: #8e8e8e;
@@ -72,6 +77,7 @@
         color: #8e8e8e;
         font-size: 16px;
         margin-right: 4px;
+        transition: color 0.3s;
       }
     }
   }
@@ -83,13 +89,15 @@
     align-items: center;
     padding: 12px 16px;
     border-bottom: 1px solid #f0f0f0;
-    background: #fff;
+    background: #fff; // light theme
     z-index: 10;
+    transition: background 0.3s, color 0.3s;
 
     .header-1 {
       font-size: 16px;
       font-weight: 600;
       color: #000;
+      transition: color 0.3s;
     }
 
     .header-2 {
@@ -97,6 +105,53 @@
       font-weight: 500;
       color: #7c7c7c;
       cursor: pointer;
+      transition: color 0.3s;
+    }
+  }
+
+  // Dark theme overrides
+  body.theme-dark & {
+    background: rgba(17, 24, 39, 0.95);
+
+    .user-header {
+      .username-wrapper .username {
+        color: #f9fafb;
+      }
+      .create-btn {
+        color: #f9fafb;
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+          color: #fff;
+        }
+      }
+    }
+
+    .search-wrapper .search-input {
+      background: rgba(255, 255, 255, 0.1);
+
+      .ant-input {
+        color: #f9fafb;
+        &::placeholder {
+          color: #d1d5db;
+        }
+      }
+
+      .search-icon {
+        color: #d1d5db;
+      }
+    }
+
+    .room-header {
+      background: rgba(17, 24, 39, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      .header-1 {
+        color: #f9fafb;
+      }
+
+      .header-2 {
+        color: #d1d5db;
+      }
     }
   }
 }

@@ -1,5 +1,12 @@
 .sidebar-wrapper {
   background-color: #ffffff;
-  color: white;
+  color: #1f2937; 
   height: 100vh;
+  transition: all 0.3s;
+
+  body.theme-dark & {
+    background-color: rgba(17, 24, 39, 0.95);
+    color: #e5e7eb;
+    border-right: 2px solid rgba(255, 255, 255, 0.1);
+  }
 }

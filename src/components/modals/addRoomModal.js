@@ -6,6 +6,7 @@ import { collection, query, where, orderBy, limit, getDocs } from "firebase/fire
 import { db } from "../../firebase/config";
 import debounce from 'lodash/debounce';
 import { addDocument, generateAESKey } from '../../firebase/services';
+import './addRoomModal.scss';
 
 export default function AddRoomModal() {
   const { isAddRoomVisible, setIsAddRoomVisible, setSelectedRoomId } = useContext(AppContext);
@@ -256,6 +257,7 @@ export default function AddRoomModal() {
       open={isAddRoomVisible}
       onCancel={handleCancel}
       footer={null}
+      className="add-room-modal"
     >
       {/* Room name input */}
       {

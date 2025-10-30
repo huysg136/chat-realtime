@@ -9,6 +9,7 @@ import ReactCountryFlag from "react-country-flag";
 import { BsSunFill, BsMoonStarsFill, BsLaptop } from "react-icons/bs";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
+import "./settingsModal.scss";
 
 const { Option } = Select;
 
@@ -142,10 +143,11 @@ export default function SettingsModal() {
       footer={null}
       centered
       width={400}
+      className="settings-modal"
     >
       <Card
+        className="settings-card"
         style={{
-          backgroundColor: "#ffffff",
           borderRadius: "12px",
           boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
           border: "none",
