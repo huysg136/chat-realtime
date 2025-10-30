@@ -140,7 +140,7 @@
   }
 }
 
-body[data-theme="dark"] {
+body.theme-dark {
   background-color: #0d1117 !important;
   color: #e5e7eb !important;
 
@@ -206,45 +206,6 @@ body[data-theme="dark"] {
 
   .login-button {
     color: #ffffff !important;
-  }
-}
-
-body[data-theme="light"] {
-  background-color: #f9fafb !important;
-  color: #1f2937 !important;
-
-  .maintenance-wrapper {
-    background: radial-gradient(circle at 20% 30%, #f0f5ff, #ffffff);
-  }
-
-  .ant-result {
-    background: rgba(255, 255, 255, 0.95);
-    color: #333;
-
-    .ant-result-title {
-      color: #333;
-    }
-
-    .ant-result-subtitle {
-      color: #555;
-    }
-
-    .ant-result-icon > span {
-      color: #1890ff !important;
-    }
-  }
-
-  .ant-btn-primary {
-    background: #1890ff;
-    border: none;
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
-  }
-
-  .footer-credit {
-    color: #999;
-    .author-name {
-      color: #1890ff;
-    }
   }
 }
 

@@ -208,7 +208,15 @@ export default function MaintenancePage() {
         };
 
   useEffect(() => {
-    document.body.setAttribute("data-theme", currentTheme);
+    const root = document.body;
+    root.classList.remove("theme-light", "theme-dark");
+    root.removeAttribute("data-theme");
+
+    if (currentTheme === "light") {
+      root.classList.add("theme-light");
+    } else if (currentTheme === "dark") {
+      root.classList.add("theme-dark");
+    }
   }, [currentTheme]);
 
   useEffect(() => {
@@ -298,6 +306,11 @@ export default function MaintenancePage() {
 
   return (
     <div className="maintenance-wrapper" style={wrapperStyle}>
+      <div className="background-pattern">
+        <div className="circle circle-1"></div>
+        <div className="circle circle-2"></div>
+        <div className="circle circle-3"></div>
+      </div>
       <div className="setting-select">
         <Select value={lang} onChange={handleChangeLang} style={{ width: 160 }}>
           <Option value="vi">
