@@ -79,7 +79,7 @@ export default function AdminSettings() {
     try {
       await updateDoc(doc(db, "config", "appStatus"), {
         maintenance,
-        expectedResume: expectedResume ? expectedResume.toDate() : null,
+        expectedResume: expectedResume ? expectedResume.utc().toDate() : null,
         updatedAt: new Date(),
       });
       toast.success("Cập nhật cấu hình thành công!");

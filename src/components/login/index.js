@@ -27,7 +27,6 @@ export default function Login() {
       const user = result.user;
       const additionalUserInfo = getAdditionalUserInfo(result);
 
-      // Nếu là người dùng mới → thêm vào Firestore
       if (additionalUserInfo?.isNewUser) {
         await addDocument("users", {
           displayName: user.displayName,

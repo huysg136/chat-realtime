@@ -90,6 +90,29 @@
   }
 }
 
+.countdown-space .ant-tag {
+  margin: 0; 
+}
+
+
+.button-space.ant-space {
+  gap: 8px; 
+}
+
+
+.maintenance-wrapper .ant-tag {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 1px 5px;
+}
+
+.countdown-success {
+  font-weight: 500 !important;
+  font-size: 15px !important; 
+}
+
+
+
 @media (max-width: 768px) {
   .maintenance-wrapper {
     padding: 16px;
