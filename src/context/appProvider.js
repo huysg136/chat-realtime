@@ -8,6 +8,7 @@ export default function AppProvider({ children }) {
     const [isAddRoomVisible, setIsAddRoomVisible] = useState(false);
     const [isInviteMemberVisible, setIsInviteMemberVisible] = useState(false);
     const [isProfileVisible, setIsProfileVisible] = useState(false);
+    const [isSettingsVisible, setIsSettingsVisible] = useState(false);
     const [selectedRoomId, setSelectedRoomId] = useState('');
     const [searchText, setSearchText] = useState("");
 
@@ -29,16 +30,12 @@ export default function AppProvider({ children }) {
         <AppContext.Provider value={{
             rooms,
             users,
-            isAddRoomVisible,
-            setIsAddRoomVisible,
-            selectedRoomId,
-            setSelectedRoomId,
-            isInviteMemberVisible,
-            setIsInviteMemberVisible,
-            isProfileVisible,
-            setIsProfileVisible,
-            searchText, 
-            setSearchText
+            isAddRoomVisible, setIsAddRoomVisible,
+            selectedRoomId, setSelectedRoomId,
+            isInviteMemberVisible, setIsInviteMemberVisible,
+            isProfileVisible, setIsProfileVisible,
+            isSettingsVisible, setIsSettingsVisible,
+            searchText, setSearchText
         }}>
             {children}
         </AppContext.Provider>

@@ -524,8 +524,6 @@ export default function ChatWindow() {
         setLeavingLoading={setLeavingLoading}
         onClose={() => setIsTransferModalVisible(false)}
       />
-
-      <ToastContainer position="top-center" autoClose={1000} />
     </div>
   );
 }

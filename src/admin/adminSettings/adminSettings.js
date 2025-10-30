@@ -94,7 +94,6 @@ export default function AdminSettings() {
 
   return (
     <div className="admin-settings-wrapper">
-      <ToastContainer position="top-center" autoClose={2000} /> 
       <Card className="admin-settings-card">
         <div className="settings-header">
           <Title level={3} className="settings-title">

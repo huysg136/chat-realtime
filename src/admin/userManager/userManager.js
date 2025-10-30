@@ -212,7 +212,6 @@ export default function UsersManager() {
 
   return (
     <div className="user-manager">
-      <ToastContainer position="top-center" autoClose={2000} />
       <table>
         <thead>
           <tr>

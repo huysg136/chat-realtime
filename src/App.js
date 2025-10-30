@@ -15,12 +15,17 @@ import RoomsManager from './admin/roomManager/roomManager';
 import AnnouncementManager from './admin/announcementManager/announcementManager';
 import AdminSettings from './admin/adminSettings/adminSettings';
 import MaintenancePage from './components/maintenancePage/maintenancePage';
+import SettingsModal from './components/modals/settingsModal';
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <AppProvider>
+          <ToastContainer position="top-center" autoClose={1000} />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/maintenance" element={<MaintenancePage />} />
@@ -50,6 +55,7 @@ function App() {
           <AddRoomModal />
           <InviteMemberModal />
           <ProfileModal />
+          <SettingsModal />
         </AppProvider>
       </AuthProvider>
     </BrowserRouter> 

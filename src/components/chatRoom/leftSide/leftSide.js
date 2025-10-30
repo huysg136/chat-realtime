@@ -24,7 +24,7 @@ export default function LeftSide() {
   const [active, setActive] = useState("message");
   const [role, setRole] = useState("");
   const { user } = useContext(AuthContext);
-  const { setIsProfileVisible } = useContext(AppContext);
+  const { setIsProfileVisible, setIsSettingsVisible } = useContext(AppContext);
   const displayName = user?.displayName;
   const photoURL = user?.photoURL;
   const navigate = useNavigate();
@@ -66,7 +66,11 @@ export default function LeftSide() {
           Trang quản trị
         </Menu.Item>
       )}
-      <Menu.Item key="settings" icon={<SettingOutlined />}>
+      <Menu.Item 
+        key="settings" 
+        icon={<SettingOutlined />}
+        onClick={() => setIsSettingsVisible(true)}
+      >
         Cài đặt
       </Menu.Item>
       {/* <Menu.Item key="saved" icon={<SaveOutlined />}>
