@@ -13,9 +13,16 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const navigate = useNavigate();
+  const unsubscribeUserRef = React.useRef(null);
 
   React.useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged(async (currentUser) => {
+      // Unsubscribe previous user listener if exists
+      if (unsubscribeUserRef.current) {
+        unsubscribeUserRef.current();
+        unsubscribeUserRef.current = null;
+      }
+
       if (currentUser) {
         const { displayName, email, photoURL, uid } = currentUser;
 
@@ -38,8 +45,8 @@ export default function AuthProvider({ children }) {
             }
           });
 
-          // Store unsubscribe function to clean up later
-          setUser((prevUser) => ({ ...prevUser, unsubscribeUser }));
+          // Store unsubscribe function in ref
+          unsubscribeUserRef.current = unsubscribeUser;
         } else {
           setUser({
             displayName,
@@ -65,7 +72,9 @@ export default function AuthProvider({ children }) {
 
     return () => {
       if (unsubscribeAuth) unsubscribeAuth();
-      if (user?.unsubscribeUser) user.unsubscribeUser();
+      if (unsubscribeUserRef.current) {
+        unsubscribeUserRef.current();
+      }
     };
   }, []);
 
