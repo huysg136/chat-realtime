@@ -42,6 +42,22 @@ export default function AuthProvider({ children }) {
                 uid,
                 role: userData.role || "user",
               });
+              setIsLoading(false);
+              if (window.location.pathname === "/login") {
+                navigate("/");
+              }
+            } else {
+              setUser({
+                displayName,
+                email,
+                photoURL,
+                uid,
+                role: "user",
+              });
+              setIsLoading(false);
+              if (window.location.pathname === "/login") {
+                navigate("/");
+              }
             }
           });
 
@@ -55,19 +71,18 @@ export default function AuthProvider({ children }) {
             uid,
             role: "user",
           });
-        }
-
-        if (window.location.pathname === "/login") {
-          navigate("/");
+          setIsLoading(false);
+          if (window.location.pathname === "/login") {
+            navigate("/");
+          }
         }
       } else {
         setUser(null);
+        setIsLoading(false);
         if (window.location.pathname !== "/login") {
           navigate("/login");
         }
       }
-
-      setIsLoading(false);
     });
 
     return () => {
