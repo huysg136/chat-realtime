@@ -30,6 +30,7 @@ export default function Login() {
   useEffect(() => {
     const root = document.body;
     root.classList.remove("theme-light", "theme-dark");
+    root.removeAttribute("data-theme");
 
     if (theme === "light") {
       root.classList.add("theme-light");
