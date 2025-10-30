@@ -34,6 +34,10 @@ export default function MaintenancePage() {
       timeLeft: "Thời gian còn lại",
       retry: "Thử lại",
       login: "Quay về đăng nhập",
+      days: "ngày",
+      hours: "giờ",
+      minutes: "phút",
+      seconds: "giây",
     },
     en: {
       title: "System Maintenance",
@@ -42,6 +46,58 @@ export default function MaintenancePage() {
       timeLeft: "Time remaining",
       retry: "Retry",
       login: "Back to Login",
+      days: "days",
+      hours: "hours",
+      minutes: "minutes",
+      seconds: "seconds",
+    },
+    zh: {
+      title: "系统维护中",
+      subtitle: "我们正在进行一些升级以改善您的体验。请稍后再回来。",
+      expectedResume: "预计恢复时间",
+      timeLeft: "剩余时间",
+      retry: "重试",
+      login: "返回登录",
+      days: "天",
+      hours: "小时",
+      minutes: "分钟",
+      seconds: "秒",
+    },
+    es: {
+      title: "Mantenimiento del sistema",
+      subtitle: "Estamos realizando algunas actualizaciones para mejorar su experiencia. Por favor, vuelva más tarde.",
+      expectedResume: "Se espera reanudar",
+      timeLeft: "Tiempo restante",
+      retry: "Reintentar",
+      login: "Volver al inicio de sesión",
+      days: "días",
+      hours: "horas",
+      minutes: "minutos",
+      seconds: "segundos",
+    },
+    fr: {
+      title: "Maintenance du système",
+      subtitle: "Nous effectuons des mises à jour pour améliorer votre expérience. Veuillez revenir plus tard.",
+      expectedResume: "Reprise prévue",
+      timeLeft: "Temps restant",
+      retry: "Réessayer",
+      login: "Retour à la connexion",
+      days: "jours",
+      hours: "heures",
+      minutes: "minutes",
+      seconds: "secondes",
+    },
+    ar: {
+      title: "صيانة النظام",
+      subtitle: "نحن نقوم بإجراء بعض التحديثات لتحسين تجربتك. يرجى العودة لاحقًا.",
+      expectedResume: "من المتوقع الاستئناف",
+      timeLeft: "الوقت المتبقي",
+      retry: "أعد المحاولة",
+      login: "العودة لتسجيل الدخول",
+      days: "أيام",
+      hours: "ساعات",
+      minutes: "دقائق",
+      seconds: "ثواني",
     },
   };
 
@@ -93,10 +149,10 @@ export default function MaintenancePage() {
 
         setCountdown(
           <Space className="countdown-space">
-            <Tag color="blue">{days} {lang === "vi" ? "ngày" : "days"}</Tag>
-            <Tag color="green">{hours} {lang === "vi" ? "giờ" : "hours"}</Tag>
-            <Tag color="orange">{minutes} {lang === "vi" ? "phút" : "minutes"}</Tag>
-            <Tag color="red">{seconds} {lang === "vi" ? "giây" : "seconds"}</Tag>
+            <Tag color="blue">{days} {text[lang].days}</Tag>
+            <Tag color="green">{hours} {text[lang].hours}</Tag>
+            <Tag color="orange">{minutes} {text[lang].minutes}</Tag>
+            <Tag color="red">{seconds} {text[lang].seconds}</Tag>
           </Space>
         );
       }
@@ -124,6 +180,10 @@ export default function MaintenancePage() {
         <Select value={lang} onChange={setLang} style={{ width: 120 }}>
           <Option value="vi">Tiếng Việt</Option>
           <Option value="en">English</Option>
+          <Option value="zh">中文</Option>
+          <Option value="es">Español</Option>
+          <Option value="fr">Français</Option>
+          <Option value="ar">العربية</Option>
         </Select>
       </div>
 
