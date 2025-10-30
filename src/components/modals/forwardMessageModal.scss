@@ -1,0 +1,168 @@
+.forward-message-modal {
+  .ant-modal-content {
+    background-color: #ffffff;
+    color: #000000;
+  }
+
+  .ant-modal-header {
+    background-color: #ffffff;
+  }
+
+  .ant-modal-title {
+    color: #000000;
+  }
+
+  .ant-modal-body {
+    background-color: #ffffff;
+    color: #000000;
+  }
+
+  .ant-modal-close {
+    color: #000000;
+  }
+
+  .ant-modal-close:hover {
+    color: #000000;
+  }
+
+  .ant-btn {
+    color: #000000;
+    border-color: #d9d9d9;
+  }
+
+  .ant-btn-primary {
+    background-color: #1890ff;
+    border-color: #1890ff;
+    color: #ffffff;
+  }
+
+  .ant-input {
+    background-color: #ffffff !important;
+    border-color: #d9d9d9 !important;
+    color: #000000 !important;
+  }
+
+  .ant-input::placeholder {
+    color: #bfbfbf !important;
+  }
+
+  .ant-input-affix-wrapper {
+    background-color: #ffffff !important;
+    border-color: #d9d9d9 !important;
+  }
+
+  .ant-input-affix-wrapper .ant-input {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .ant-input-affix-wrapper .ant-input::placeholder {
+    color: #bfbfbf !important;
+  }
+
+  .ant-input-affix-wrapper .ant-input-prefix {
+    color: #000000 !important;
+  }
+
+  .room-item {
+    &:hover {
+      background-color: #f5f5f5 !important;
+    }
+  }
+
+  .selected-room {
+    background-color: #e6f7ff !important;
+  }
+
+  body.theme-dark & {
+    .ant-modal-content {
+      background-color: #1e293b;
+      color: #f9fafb;
+    }
+
+    .ant-modal-header {
+      background-color: #1e293b;
+      border-bottom: 0px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .ant-modal-title {
+      color: #f9fafb;
+    }
+
+    .ant-modal-body {
+      background-color: #1e293b;
+      color: #f9fafb;
+    }
+
+    .ant-modal-close {
+      color: #f9fafb;
+    }
+
+    .ant-modal-close:hover {
+      color: #f9fafb;
+    }
+
+    .ant-btn {
+      color: #f9fafb;
+      border-color: rgba(255, 255, 255, 0.2);
+      background-color: transparent;
+    }
+
+    .ant-btn-primary {
+      background-color: #3b82f6;
+      border-color: #3b82f6;
+      color: #ffffff;
+    }
+
+    .ant-btn-primary:hover {
+      background-color: #2563eb;
+      border-color: #2563eb;
+    }
+
+    .ant-input {
+      background-color: #334155 !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      color: #f9fafb !important;
+    }
+
+    .ant-input::placeholder {
+      color: #94a3b8 !important;
+    }
+
+    .ant-input-affix-wrapper {
+      background-color: #334155 !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .ant-input-affix-wrapper .ant-input {
+      background-color: #334155 !important;
+      color: #f9fafb !important;
+    }
+
+    .ant-input-affix-wrapper .ant-input::placeholder {
+      color: #94a3b8 !important;
+    }
+
+    .ant-input-affix-wrapper .ant-input-prefix {
+      color: #f9fafb !important;
+    }
+
+    .room-item {
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+      }
+    }
+
+  .selected-room {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+
+  .room-name {
+    color: #000000;
+  }
+
+  .room-name {
+    color: #f9fafb;
+  }
+  }
+}

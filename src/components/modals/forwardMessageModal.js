@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Modal, Input, List, Avatar, Button } from "antd";
 import { SearchOutlined, TeamOutlined } from "@ant-design/icons";
 import CircularAvatarGroup from "../common/circularAvatarGroup";
+import "./forwardMessageModal.scss";
 
 export default function ForwardMessageModal({
   visible,
@@ -58,6 +59,7 @@ export default function ForwardMessageModal({
         </Button>,
       ]}
       width={450}
+      className="forward-message-modal"
     >
       <Input
         placeholder="Tìm kiếm phòng..."
@@ -122,6 +124,7 @@ export default function ForwardMessageModal({
           return (
             <List.Item
               onClick={() => toggleRoomSelect(room)}
+              className={`room-item ${isSelected ? 'selected-room' : ''}`}
               style={{
                 cursor: "pointer",
                 backgroundColor: isSelected ? "#e6f7ff" : "transparent",
@@ -161,6 +164,7 @@ export default function ForwardMessageModal({
                       <TeamOutlined style={{ color: "#8c8c8c", flexShrink: 0 }} />
                     )}
                     <span
+                      className="room-name"
                       style={{
                         fontWeight: 500,
                         fontSize: 15,

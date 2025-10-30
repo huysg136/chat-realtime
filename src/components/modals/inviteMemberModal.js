@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/authProvider';
 import { collection, query, where, orderBy, limit, getDocs, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import debounce from 'lodash/debounce';
+import './inviteMemberModal.scss';
 
 export default function InviteMemberModal() {
   const { isInviteMemberVisible, setIsInviteMemberVisible, selectedRoomId } = useContext(AppContext);
@@ -117,6 +118,7 @@ export default function InviteMemberModal() {
       open={isInviteMemberVisible}
       onCancel={handleCancel}
       footer={null}
+      className="invite-member-modal"
     >
       <div style={{ marginBottom: 10 }}>
         <Input
@@ -131,6 +133,7 @@ export default function InviteMemberModal() {
         {filteredOptions.map(user => (
           <div
             key={user.uid}
+            className="user-item"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -150,7 +153,7 @@ export default function InviteMemberModal() {
 
       {selectedMembers.length > 0 && (
         <>
-          <div style={{ marginTop: 15, fontWeight: 500 }}>Đã chọn:</div>
+          <div className="selected-label" style={{ marginTop: 15, fontWeight: 500 }}>Đã chọn:</div>
           <div style={{ maxHeight: 150, overflowY: 'auto' }}>
             {selectedMembers.map(user => (
               <div
