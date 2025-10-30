@@ -3,7 +3,6 @@ import {
   Result,
   Button,
   Spin,
-  Typography,
   Space,
   Tag,
   Select,
@@ -25,9 +24,9 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { useNavigate } from "react-router-dom";
+import ReactCountryFlag from "react-country-flag";
 import "./maintenancePage.scss";
 
-const { Text } = Typography;
 const { Option } = Select;
 
 dayjs.extend(utc);
@@ -49,8 +48,7 @@ export default function MaintenancePage() {
   const text = {
     vi: {
       title: "Hệ thống đang bảo trì",
-      subtitle:
-        "Chúng tôi đang thực hiện một số nâng cấp để cải thiện trải nghiệm của bạn. Vui lòng quay lại sau.",
+      subtitle: "Chúng tôi đang thực hiện một số nâng cấp để cải thiện trải nghiệm của bạn. Vui lòng quay lại sau.",
       expectedResume: "Dự kiến mở lại",
       timeLeft: "Thời gian còn lại",
       retry: "Thử lại",
@@ -66,8 +64,7 @@ export default function MaintenancePage() {
     },
     en: {
       title: "System Maintenance",
-      subtitle:
-        "We are performing some upgrades to improve your experience. Please come back later.",
+      subtitle: "We are performing some upgrades to improve your experience. Please come back later.",
       expectedResume: "Expected to resume",
       timeLeft: "Time remaining",
       retry: "Retry",
@@ -99,8 +96,7 @@ export default function MaintenancePage() {
     },
     es: {
       title: "Mantenimiento del sistema",
-      subtitle:
-        "Estamos realizando algunas actualizaciones para mejorar su experiencia. Por favor, vuelva más tarde.",
+      subtitle: "Estamos realizando algunas actualizaciones para mejorar su experiencia. Por favor, vuelva más tarde.",
       expectedResume: "Se espera reanudar",
       timeLeft: "Tiempo restante",
       retry: "Reintentar",
@@ -133,8 +129,7 @@ export default function MaintenancePage() {
     },
     ar: {
       title: "صيانة النظام",
-      subtitle:
-        "نحن نقوم بإجراء بعض التحديثات لتحسين تجربتك. يرجى العودة لاحقًا.",
+      subtitle: "نحن نقوم بإجراء بعض التحديثات لتحسين تجربتك. يرجى العودة لاحقًا.",
       expectedResume: "من المتوقع الاستئناف",
       timeLeft: "الوقت المتبقي",
       retry: "أعد المحاولة",
@@ -150,7 +145,6 @@ export default function MaintenancePage() {
     },
   };
 
-  // 🔹 Lấy cài đặt người dùng từ Firestore
   useEffect(() => {
     const fetchUserSettings = async () => {
       if (!user?.uid) return;
@@ -172,7 +166,6 @@ export default function MaintenancePage() {
     fetchUserSettings();
   }, [user]);
 
-  // 🔧 Lắng nghe trạng thái bảo trì
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "config", "appStatus"), (snap) => {
       if (snap.exists()) {
@@ -194,7 +187,30 @@ export default function MaintenancePage() {
     return () => unsub();
   }, []);
 
-  // ⏳ Đếm ngược
+  const systemPrefersDark =
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  const currentTheme =
+    theme === "system" ? (systemPrefersDark ? "dark" : "light") : theme;
+
+  const wrapperStyle =
+    currentTheme === "dark"
+      ? {
+          backgroundColor: "#0d1117",
+          color: "#e5e7eb",
+          transition: "all 0.3s ease",
+        }
+      : {
+          backgroundColor: "#f9fafb",
+          color: "#1f2937",
+          transition: "all 0.3s ease",
+        };
+
+  useEffect(() => {
+    document.body.setAttribute("data-theme", currentTheme);
+  }, [currentTheme]);
+
   useEffect(() => {
     if (!expectedResume) return;
 
@@ -205,11 +221,11 @@ export default function MaintenancePage() {
 
       if (diff <= 0) {
         setCountdown(
-          <Text type="success" className="countdown-success">
+          <span className="countdown-success">
             {lang === "vi"
               ? "Hệ thống đã hoạt động lại!"
               : "System is back online!"}
-          </Text>
+          </span>
         );
         clearInterval(interval);
       } else {
@@ -240,7 +256,6 @@ export default function MaintenancePage() {
     return () => clearInterval(interval);
   }, [expectedResume, lang]);
 
-  // 🟢 Đổi ngôn ngữ — tự lưu Firestore
   const handleChangeLang = async (value) => {
     setLang(value);
     if (!user?.uid) return;
@@ -253,7 +268,6 @@ export default function MaintenancePage() {
     }
   };
 
-  // 🎨 Đổi theme — tự lưu Firestore
   const handleChangeTheme = async (value) => {
     setTheme(value);
     if (!user?.uid) return;
@@ -266,7 +280,6 @@ export default function MaintenancePage() {
     }
   };
 
-  // ⚙️ Điều hướng
   const handleReload = () => navigate("/");
   const handleGoToLogin = async () => {
     try {
@@ -283,25 +296,62 @@ export default function MaintenancePage() {
     );
   if (!maintenance) return null;
 
-  const wrapperStyle =
-    theme === "dark"
-      ? { backgroundColor: "#0d1117", color: "white" }
-      : { backgroundColor: "#f5f5f5", color: "black" };
-
   return (
     <div className="maintenance-wrapper" style={wrapperStyle}>
-      <div className="lang-select">
-        <Select value={lang} onChange={handleChangeLang} style={{ width: 140 }}>
-          <Option value="vi">🇻🇳 Tiếng Việt</Option>
-          <Option value="en">🇺🇸 English</Option>
-          <Option value="zh">🇨🇳 中文</Option>
-          <Option value="es">🇪🇸 Español</Option>
-          <Option value="fr">🇫🇷 Français</Option>
-          <Option value="ar">🇸🇦 العربية</Option>
+      <div className="setting-select">
+        <Select value={lang} onChange={handleChangeLang} style={{ width: 160 }}>
+          <Option value="vi">
+            <ReactCountryFlag
+              countryCode="VN"
+              svg
+              style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+            />
+            Tiếng Việt
+          </Option>
+          <Option value="en">
+            <ReactCountryFlag
+              countryCode="US"
+              svg
+              style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+            />
+            English
+          </Option>
+          <Option value="zh">
+            <ReactCountryFlag
+              countryCode="CN"
+              svg
+              style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+            />
+            中文
+          </Option>
+          <Option value="es">
+            <ReactCountryFlag
+              countryCode="ES"
+              svg
+              style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+            />
+            Español
+          </Option>
+          <Option value="fr">
+            <ReactCountryFlag
+              countryCode="FR"
+              svg
+              style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+            />
+            Français
+          </Option>
+          <Option value="ar">
+            <ReactCountryFlag
+              countryCode="SA"
+              svg
+              style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
+            />
+            العربية
+          </Option>
         </Select>
 
         <div style={{ marginTop: 5 }}>
-          <Select value={theme} onChange={handleChangeTheme} style={{ width: 140 }}>
+          <Select value={theme} onChange={handleChangeTheme} style={{ width: 160 }}>
             <Option value="light">
               <BsSunFill style={{ color: "#facc15", marginRight: 6 }} />
               {text[lang].light}
@@ -327,9 +377,9 @@ export default function MaintenancePage() {
             {expectedResume && (
               <p>
                 <CalendarOutlined /> {text[lang].expectedResume}:{" "}
-                <Text strong>
+                <strong className="expected-resume-time">
                   {expectedResume.tz(tz).format("DD/MM/YYYY HH:mm")} (GMT+7)
-                </Text>
+                </strong>
               </p>
             )}
             {countdown && (
@@ -348,7 +398,7 @@ export default function MaintenancePage() {
             >
               {text[lang].retry}
             </Button>
-            <Button icon={<LoginOutlined />} onClick={handleGoToLogin}>
+            <Button icon={<LoginOutlined />} onClick={handleGoToLogin} className="login-button">
               {text[lang].login}
             </Button>
           </Space>
