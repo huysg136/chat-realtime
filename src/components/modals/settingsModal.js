@@ -7,6 +7,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReactCountryFlag from "react-country-flag";
 import { BsSunFill, BsMoonStarsFill, BsLaptop } from "react-icons/bs";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase/config";
 
 const { Option } = Select;
 
@@ -82,9 +84,26 @@ export default function SettingsModal() {
   };
 
   useEffect(() => {
-    if (user?.theme) setTheme(user.theme);
-    if (user?.language) setLanguage(user.language);
-  }, [user]);
+    if (!isSettingsVisible || !user?.uid) return;
+
+    const fetchUserSettings = async () => {
+      try {
+        const docId = await getUserDocIdByUid(user.uid);
+        if (!docId) return;
+        const docSnap = await getDoc(doc(db, "users", docId));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setTheme(data.theme || "system");
+          setLanguage(data.language || "vi");
+        }
+      } catch (err) {
+        console.error("Không thể tải cài đặt người dùng:", err);
+      }
+    };
+
+    fetchUserSettings();
+  }, [isSettingsVisible, user]);
+
 
   const handleCancel = () => {
     setIsSettingsVisible(false);

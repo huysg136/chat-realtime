@@ -20,6 +20,7 @@ import { signOut } from "firebase/auth";
 import { auth, db } from "../../firebase/config";
 import { AuthContext } from "../../context/authProvider";
 import { getUserDocIdByUid, updateDocument } from "../../firebase/services";
+import { AppContext } from "../../context/appProvider";
 import { useRef } from "react";
 import { Navigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -43,7 +44,7 @@ export default function MaintenancePage() {
   const [expectedResume, setExpectedResume] = useState(null);
   const [countdown, setCountdown] = useState(null);
   const [lang, setLang] = useState("en");
-  const [theme, setTheme] = useState("light");
+  const { theme, setTheme } = useContext(AppContext);
 
   const tz = "Asia/Bangkok"; // GMT+7
 
@@ -219,6 +220,11 @@ export default function MaintenancePage() {
     } else if (currentTheme === "dark") {
       root.classList.add("theme-dark");
     }
+
+    return () => {
+      root.classList.remove("theme-light", "theme-dark");
+      root.removeAttribute("data-theme");
+    };
   }, [currentTheme]);
 
   useEffect(() => {
