@@ -9,8 +9,8 @@ import {
   PictureOutlined,
   AudioOutlined,
   CloseOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
-import { IoMdInformationCircleOutline } from "react-icons/io";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { format } from "date-fns";
@@ -370,7 +370,7 @@ export default function ChatWindow() {
             <Button type="text" icon={<VideoCameraOutlined />} />
             <Button
               type="text"
-              icon={<IoMdInformationCircleOutline style={{ fontSize: 22 }} />}
+              icon={<InfoCircleOutlined />}
               onClick={toggleDetail}
               aria-label="Xem chi tiết cuộc trò chuyện"
             />
