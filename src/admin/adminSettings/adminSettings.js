@@ -115,7 +115,7 @@ export default function AdminSettings() {
                   <ClockCircleOutlined style={{ marginRight: 8, color: "#1677ff" }} />
                   Chế độ bảo trì
                 </Text>
-                <Paragraph type="secondary" style={{ marginTop: 4 }}>
+                <Paragraph type="secondary" style={{ marginTop: 4 }} className="maintenance-title">
                   Khi bật, người dùng (trừ admin) sẽ được chuyển đến trang thông báo bảo trì.
                 </Paragraph>
               </div>
@@ -139,9 +139,9 @@ export default function AdminSettings() {
                 <>
                 <div className="form-row">
                     <Text strong className="form-label">
-                    <CalendarOutlined style={{ marginRight: 6, color: "#1677ff" }} />
-                    Dự kiến mở lại:
-                    </Text>
+                      <CalendarOutlined style={{ marginRight: 6, color: "#1677ff" }} />
+                      Dự kiến mở lại:
+                      </Text>
                     <DatePicker
                     showTime
                     format="DD/MM/YYYY HH:mm"
@@ -157,7 +157,7 @@ export default function AdminSettings() {
             
 
             <div className="status-row">
-              <Text strong>Trạng thái hiện tại:</Text>
+              <Text className="status-now" strong>Trạng thái hiện tại:</Text>
               {actualMaintenance ? (
                 <Tag color="red">Đang bảo trì</Tag>
               ) : (

@@ -1,3 +1,6 @@
+@use "sass:map";
+@import "../../style/theme";
+
 .admin-header {
   position: fixed;
   width: calc(100% - 220px);
@@ -10,12 +13,6 @@
   //box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-bottom: 1px solid #e6e8eb;
   transition: all 0.3s ease;
-
-  body.dark-theme & {
-    background: #2a2a3d;
-    border-color: #3b3b55;
-    color: #e8e8f2;
-  }
 
   h2 {
     margin: 0;
@@ -43,9 +40,27 @@
     span {
       font-weight: 500;
       color: #2f3640;
+    }
+  }
+}
 
-      body.dark-theme & {
-        color: #e8e8f2;
+body.theme-dark {
+  .admin-header {
+    background: map.get($theme-colors, "bg-dark-blue");
+    border-bottom: 1px solid #36465d;
+
+    h2 {
+      color: #ffffff;
+    }
+
+    .admin-user {
+      .ant-avatar {
+        border: none;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      }
+
+      span {
+        color: #ffffff;
       }
     }
   }

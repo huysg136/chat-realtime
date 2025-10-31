@@ -53,4 +53,13 @@
     color: #ff4d4f;
     margin-left: 8px;
   }
+
+  body.theme-dark & {
+    .ant-select-selector {
+      color: #000000 !important;
+      background-color: #ffffff !important;
+      border-color: #767676 !important;
+    }
+  }
+
 }

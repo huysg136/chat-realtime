@@ -8,10 +8,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-
-    body.dark-theme & {
-      color: #e8e8f2;
-    }
   }
 
   table {
@@ -38,25 +34,14 @@
       background: #f5f6fa;
       font-weight: 600;
       color: #2f3640;
-
-      body.dark-theme & {
-        background: #1e1e2f;
-        color: #e8e8f2;
-      }
     }
 
     tbody tr:nth-child(odd) {
       background: #fff;
-      body.dark-theme & {
-        background: #23233a;
-      }
     }
 
     tbody tr:hover {
       background: rgba(24, 144, 255, 0.05);
-      body.dark-theme & {
-        background: rgba(255, 255, 255, 0.05);
-      }
     }
 
     img {

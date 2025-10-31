@@ -20,7 +20,7 @@ export default function AdminSidebar() {
   const navigate = useNavigate();
 
   return (
-    <Sider width={220} theme="light" className="admin-sider">
+    <Sider width={220} className="admin-sider">
       <div className="admin-logo">
         <img src={logo} alt="Quik Logo" className="admin-logo-img"/>
         <span>Quik Admin</span>

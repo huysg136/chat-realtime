@@ -69,7 +69,7 @@
 
   body.theme-dark & {
     .ant-modal-content {
-      background-color: map.get($theme-colors, "bg-dark");
+      background-color: map.get($theme-colors, "bg-dark") ;
       color: #f9fafb;
     }
 

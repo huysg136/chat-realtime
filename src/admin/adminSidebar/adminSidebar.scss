@@ -1,3 +1,6 @@
+@use "sass:map";
+@import "../../style/theme";
+
 .admin-sider {
   position: fixed;     
   top: 0;
@@ -40,14 +43,44 @@
     //   // transform: scale(1.02);
     //   // cursor: pointer;
     // } 
-
-    body.dark-theme & {
-      border-color: #3b3b55;
-      color: #1aa0ff;
-    }
   }
 
   .ant-menu {
     border-right: 0;
+  }
+}
+
+body.theme-dark {
+  .admin-sider {
+    background: map.get($theme-colors, "bg-dark-blue");
+    border-right: 1px solid #36465d;
+
+    .admin-logo {
+      color: #47a5fc;
+      border-bottom: 1px solid #36465d;
+
+      img.admin-logo-img {
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    .ant-menu {
+      background: transparent;
+
+      .ant-menu-item {
+        color: #cbd5e1; 
+        transition: all 0.3s ease;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.05);
+          color: #fff;
+        }
+
+        &.ant-menu-item-selected {
+          background-color: rgba(71, 165, 252, 0.15);
+          color: #47a5fc;
+        }
+      }
+    }
   }
 }

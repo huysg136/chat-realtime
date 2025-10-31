@@ -43,7 +43,7 @@ export default function AnnouncementManager() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
+    <div className="announcement-manager">
       {/* <h2>Quản lý thông báo</h2> */}
       <Button type="primary" onClick={() => setOpen(true)}>
         + Thêm thông báo
@@ -69,12 +69,15 @@ export default function AnnouncementManager() {
         open={open}
         onCancel={() => setOpen(false)}
         onOk={add}
-      >
-        <Input.TextArea
-          rows={4}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
+        getContainer={false}
+      > 
+        <div class="ant-input-textarea">
+          <Input.TextArea
+            rows={4}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+        </div>
       </Modal>
     </div>
   );

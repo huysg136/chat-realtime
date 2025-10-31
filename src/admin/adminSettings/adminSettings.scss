@@ -1,3 +1,6 @@
+@use "sass:map";
+@import "../../style/theme";
+
 .admin-settings-wrapper {
   display: flex;
   justify-content: center;
@@ -51,11 +54,6 @@
       align-items: center;
       gap: 12px;
       margin: 8px 0;
-
-      @media (max-width: 600px) {
-        flex-direction: column;
-        align-items: flex-start;
-      }
     }
 
     .form-label {
@@ -109,6 +107,69 @@
 
     .ant-divider {
       margin: 14px 0;
+    }
+  }
+}
+
+body.theme-dark {
+  .admin-settings-wrapper {
+    background: map.get($theme-colors, "bg-dark-blue");
+
+    .admin-settings-card {
+      background: transparent;
+    }
+
+    .settings-title {
+      color: #ffffff;
+    }
+
+    .settings-description {
+      color: #ffffff;
+    }
+
+    .maintenance-section {
+      .maintenance-header {
+        .maintenance-title {
+          color: #ffffff;
+        }
+      }
+
+      .ant-switch {
+        background-color: #334155; 
+      }
+
+      .ant-switch-checked {
+        background-color: #3b82f6;
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.6); 
+      }
+
+      .ant-switch-inner {
+        color: #f1f5f9; 
+      }
+
+      .ant-switch:hover {
+        background-color: #475569;
+      }
+
+      .form-label {
+        color: #ffffff;
+      }
+
+      .status-row {
+        .status-now {
+          color: #ffffff ;
+        }
+
+        .ant-tag-red {
+          background-color: rgba(255, 143, 145, 0.25); 
+          color: #ff7578;
+        }
+
+        .ant-tag-green {
+          background-color: rgba(82, 196, 26, 0.25); 
+          color: #7bfa55;
+        }
+      }
     }
   }
 }
