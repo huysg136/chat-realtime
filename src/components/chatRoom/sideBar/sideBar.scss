@@ -6,6 +6,8 @@
   color: #1f2937; 
   height: 100vh;
   transition: all 0.3s;
+  border-right: 2px solid rgba(0, 0, 0, 0.1);
+  
 
   body.theme-dark & {
     background-color: map.get($theme-colors, "bg-dark");

@@ -41,7 +41,7 @@
 
     .icon-item {
       font-size: 26px;
-      color: #555;
+      color: #606060;
       cursor: pointer;
       padding: 8px;
       border-radius: 8px;
@@ -53,8 +53,8 @@
       }
 
       &.active {
-        background-color: #d8d8d8;
-        color: #656565;
+        background-color: #e7e7e7;
+        color: #707070;
       }
 
       svg {
