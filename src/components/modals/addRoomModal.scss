@@ -77,12 +77,12 @@
 
   body.theme-dark & {
     .ant-modal-content {
-      background-color: #1e293b;
+      background-color: rgba(30, 30, 30, 0.95);
       color: #f9fafb;
     }
 
     .ant-modal-header {
-      background-color: #1e293b;
+      background-color: rgba(30, 30, 30, 0.95);
       border-bottom: 0px solid rgba(255, 255, 255, 0.1);
     }
 
@@ -91,7 +91,7 @@
     }
 
     .ant-modal-body {
-      background-color: #1e293b;
+      background-color: rgba(30, 30, 30, 0.95);
       color: #f9fafb;
     }
 
@@ -121,27 +121,27 @@
     }
 
     .ant-input {
-      background-color: #334155 !important;
+      background-color: rgba(51, 51, 51, 0.95) !important;
       border-color: rgba(255, 255, 255, 0.2) !important;
       color: #f9fafb !important;
     }
 
     .ant-input::placeholder {
-      color: #94a3b8 !important;
+      color: #cecece !important;
     }
 
     .ant-input-affix-wrapper {
-      background-color: #334155 !important;
+      background-color: rgba(51, 51, 51, 0.95) !important;
       border-color: rgba(255, 255, 255, 0.2) !important;
     }
 
     .ant-input-affix-wrapper .ant-input {
-      background-color: #334155 !important;
+      background-color: rgba(51, 51, 51, 0.95) !important;
       color: #f9fafb !important;
     }
 
     .ant-input-affix-wrapper .ant-input::placeholder {
-      color: #94a3b8 !important;
+      color: #cecece !important;
     }
 
     .ant-input-affix-wrapper .ant-input-suffix {
@@ -157,7 +157,7 @@
     }
 
     .ant-checkbox-inner {
-      background-color: #334155;
+      background-color: rgba(51, 51, 51, 0.95);
       border-color: rgba(255, 255, 255, 0.2);
     }
 

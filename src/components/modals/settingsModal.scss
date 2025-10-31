@@ -69,12 +69,12 @@
 
   body.theme-dark & {
     .ant-modal-content {
-      background-color: #1e293b;
+      background-color: map.get($theme-colors, "bg-dark");
       color: #f9fafb;
     }
 
     .ant-modal-header {
-      background-color: #1e293b;
+      background-color: map.get($theme-colors, "bg-dark");
       border-bottom: 0px solid rgba(255, 255, 255, 0.1);
     }
 
@@ -83,7 +83,7 @@
     }
 
     .ant-modal-body {
-      background-color: #1e293b;
+      background-color: map.get($theme-colors, "bg-dark");
       color: #f9fafb;
     }
 
@@ -113,17 +113,17 @@
     }
 
     .settings-card {
-      background-color: #1e293b;
+      background-color: map.get($theme-colors, "bg-dark");
     }
 
     .ant-select-selector {
-      background-color: #334155 !important;
+      background-color: map.get($theme-colors, "bg-dark-light") !important;
       border-color: rgba(255, 255, 255, 0.2) !important;
       color: #f9fafb !important;
     }
 
     .ant-select-selection-placeholder {
-      color: #f9fafb !important;
+      color: #cecece !important;
     }
 
     .ant-select-dropdown {

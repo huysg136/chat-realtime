@@ -24,7 +24,7 @@
 
   .ant-modal-close:hover {
     color: #000000;
-  } 
+  }
 
   .ant-btn {
     color: #000000;
@@ -80,12 +80,12 @@
 
   body.theme-dark & {
     .ant-modal-content {
-      background-color: #1e293b;
+      background-color: rgba(30, 30, 30, 0.95);
       color: #f9fafb;
     }
 
     .ant-modal-header {
-      background-color: #1e293b;
+      background-color: rgba(30, 30, 30, 0.95);
       border-bottom: 0px solid rgba(255, 255, 255, 0.1);
     }
 
@@ -94,7 +94,7 @@
     }
 
     .ant-modal-body {
-      background-color: #1e293b;
+      background-color: rgba(30, 30, 30, 0.95);
       color: #f9fafb;
     }
 
@@ -134,11 +134,11 @@
     }
 
     .profile-card {
-      background-color: #1e293b;
+      background-color: rgba(30, 30, 30, 0.95);
     }
 
     .ant-input {
-      background-color: #334155;
+      background-color: rgba(51, 51, 51, 0.95);
       border-color: rgba(255, 255, 255, 0.2);
       color: #f9fafb;
     }
@@ -150,7 +150,7 @@
     }
 
     .ant-input::placeholder {
-      color: #94a3b8;
+      color: #cecece;
     }
 
     div {

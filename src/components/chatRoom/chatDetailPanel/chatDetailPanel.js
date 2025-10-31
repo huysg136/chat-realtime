@@ -281,12 +281,13 @@ export default function ChatDetailPanel({
                           disabled={isSavingName}
                         />
                         <Button
+                          className="save-name-btn"
                           type="primary"
                           icon={<CheckOutlined />}
                           onClick={saveRoomName}
                           loading={isSavingName}
                         />
-                        <Button icon={<CloseOutlined />} onClick={cancelEditName} />
+                        <Button className="cancel-edit-btn" icon={<CloseOutlined />} onClick={cancelEditName} />
                       </>
                     ) : (
                       <>
@@ -295,7 +296,7 @@ export default function ChatDetailPanel({
                         </Tooltip>
                         {canEditRoomName && (
                           <Tooltip title="Đổi tên nhóm">
-                            <Button type="text" icon={<EditOutlined />} onClick={startEditName} />
+                            <Button className="edit-name-btn" type="text" icon={<EditOutlined />} onClick={startEditName} />
                           </Tooltip>
                         )}
                       </>
@@ -324,13 +325,14 @@ export default function ChatDetailPanel({
                           disabled={isSavingName}
                         />
                         <Button
+                          className="save-name-btn"
                           type="primary"
                           icon={<CheckOutlined />}
                           onClick={saveRoomName}
                           loading={isSavingName}
                           disabled={!newRoomName.trim()}
                         />
-                        <Button icon={<CloseOutlined />} onClick={cancelEditName} />
+                        <Button className="cancel-edit-btn" icon={<CloseOutlined />} onClick={cancelEditName} />
                       </>
                     ) : (
                       <>
@@ -339,7 +341,7 @@ export default function ChatDetailPanel({
                         </Tooltip>
                         {canEditRoomName && (
                           <Tooltip title="Đổi tên nhóm">
-                            <Button type="text" icon={<EditOutlined />} onClick={startEditName} />
+                            <Button className="edit-name-btn" type="text" icon={<EditOutlined />} onClick={startEditName} />
                           </Tooltip>
                         )}
                       </>
@@ -352,7 +354,7 @@ export default function ChatDetailPanel({
           </div>
 
           <div className="notification-toggle" style={{ marginTop: 12 }}>
-            <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <label className="notification-toggle-label" style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <input type="checkbox" checked={muted} onChange={handleToggleNotifications} />
               <span>Tắt thông báo</span>
             </label>
@@ -400,6 +402,7 @@ export default function ChatDetailPanel({
                         {canToggleCoOwner(m.uid) && (
                           <Tooltip title={getRoleOf(m.uid) === "co-owner" ? "Thu hồi Phó nhóm" : "Bổ nhiệm Phó nhóm"}>
                             <Button
+                              className="toggle-coowner-btn"
                               type="text"
                               icon={<CrownOutlined />}
                               onClick={(e) => { e.stopPropagation(); toggleCoOwner(m.uid); }}
@@ -416,6 +419,7 @@ export default function ChatDetailPanel({
                           >
                             <Tooltip title="Chuyển trưởng nhóm">
                               <Button
+                                className="transfer-ownership-btn"
                                 type="text"
                                 icon={<CrownOutlined />}
                                 onClick={(e) => e.stopPropagation()}
@@ -431,7 +435,7 @@ export default function ChatDetailPanel({
                             okText="Xóa"
                             cancelText="Hủy"
                           >
-                            <Button type="text" icon={<DeleteOutlined />} danger />
+                            <Button className="remove-member-btn" type="text" icon={<DeleteOutlined />} danger />
                           </Popconfirm>
                         ) : (
                           <Tooltip title={
@@ -439,7 +443,7 @@ export default function ChatDetailPanel({
                             String(m.uid).trim() === String(uid).trim() ? "Bạn không thể xóa chính mình" :
                             "Bạn không có quyền xóa thành viên này"
                           }>
-                            <Button type="text" icon={<DeleteOutlined />} disabled />
+                            <Button className="remove-member-btn" type="text" icon={<DeleteOutlined />} disabled />
                           </Tooltip>
                         )}
                       </div>
