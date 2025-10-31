@@ -17,7 +17,7 @@ export default function SettingsModal() {
   const { isSettingsVisible, setIsSettingsVisible } = useContext(AppContext);
   const { user, setUser } = useContext(AuthContext);
 
-  const [theme, setTheme] = useState(user?.theme || "system");
+  const [theme, setTheme] = useState(user?.theme || "light");
   const [language, setLanguage] = useState(user?.language || "vi");
   const [saving, setSaving] = useState(false);
 
