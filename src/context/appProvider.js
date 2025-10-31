@@ -13,7 +13,7 @@ export default function AppProvider({ children }) {
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState("");
   const [searchText, setSearchText] = useState("");
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("system");
   const [isMaintenance, setIsMaintenance] = useState(false);
   
 

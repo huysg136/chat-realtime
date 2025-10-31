@@ -17,7 +17,7 @@ export default function SettingsModal() {
   const { isSettingsVisible, setIsSettingsVisible } = useContext(AppContext);
   const { user, setUser } = useContext(AuthContext);
 
-  const [theme, setTheme] = useState(user?.theme || "light");
+  const [theme, setTheme] = useState(user?.theme || "system");
   const [language, setLanguage] = useState(user?.language || "vi");
   const [saving, setSaving] = useState(false);
 
@@ -94,7 +94,7 @@ export default function SettingsModal() {
         const docSnap = await getDoc(doc(db, "users", docId));
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setTheme(data.theme || "light");
+          setTheme(data.theme || "system");
           setLanguage(data.language || "vi");
         }
       } catch (err) {

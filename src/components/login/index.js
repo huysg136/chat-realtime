@@ -19,7 +19,7 @@ const googleProvider = new GoogleAuthProvider();
 
 export default function Login() {
   const [lang, setLang] = useState("vi");
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("system");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -60,7 +60,7 @@ export default function Login() {
           providerId: additionalUserInfo.providerId,
           role: "user",
           keywords: generateKeywords(user.displayName),
-          theme: "light",   
+          theme: "system",
           language: "vi",
         });
       }
