@@ -94,7 +94,7 @@ export default function SettingsModal() {
         const docSnap = await getDoc(doc(db, "users", docId));
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setTheme(data.theme || "system");
+          setTheme(data.theme || "light");
           setLanguage(data.language || "vi");
         }
       } catch (err) {
