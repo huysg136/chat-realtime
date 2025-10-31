@@ -1,3 +1,6 @@
+@use "sass:map";
+@import "../../../style/theme";
+
 .chat-detail-panel {
   position: fixed;
   top: 0;
@@ -288,7 +291,7 @@ body.theme-dark {
     height: 100vh;
     width: 380px;
     max-width: 95%;
-    background: rgba(17, 24, 39, 0.95);
+    background: map.get($theme-colors, "bg-dark");
     box-shadow: -2px 0 20px rgba(164, 164, 164, 0.1);
     z-index: 100;
     transform: translateX(100%);
@@ -309,7 +312,7 @@ body.theme-dark {
       justify-content: space-between;
       padding: 16px 20px;
       border-bottom: 1px solid #787878;
-      background: rgba(17, 24, 39, 0.95);
+      background: map.get($theme-colors, "bg-dark");
       position: sticky;
       top: 0;
       z-index: 10;

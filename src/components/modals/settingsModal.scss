@@ -1,3 +1,6 @@
+@use "sass:map";
+@import "../../style/theme";
+
 .settings-modal {
   .ant-modal-content {
     background-color: #ffffff;
@@ -124,7 +127,7 @@
     }
 
     .ant-select-dropdown {
-      background-color: rgba(17, 24, 39, 0.95);
+      background-color: map.get($theme-colors, "bg-dark");
       border-color: rgba(255, 255, 255, 0.2);
     }
 

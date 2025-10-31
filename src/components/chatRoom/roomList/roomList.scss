@@ -1,3 +1,6 @@
+@use "sass:map";
+@import "../../../style/theme";
+
 .room-list-wrapper {
   display: flex;
   flex-direction: column;
@@ -21,7 +24,7 @@
 
   // Dark theme
   body.theme-dark & {
-    background: rgba(17, 24, 39, 0.95);
+    background: map.get($theme-colors, "bg-dark");
   }
 }
 
