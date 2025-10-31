@@ -60,6 +60,8 @@ export default function Login() {
           providerId: additionalUserInfo.providerId,
           role: "user",
           keywords: generateKeywords(user.displayName),
+          theme: "light",   
+          language: "vi",
         });
       }
 
