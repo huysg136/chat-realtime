@@ -210,22 +210,7 @@ export default function MaintenancePage() {
           transition: "all 0.3s ease",
         };
 
-  useEffect(() => {
-    const root = document.body;
-    root.classList.remove("theme-light", "theme-dark");
-    root.removeAttribute("data-theme");
 
-    if (currentTheme === "light") {
-      root.classList.add("theme-light");
-    } else if (currentTheme === "dark") {
-      root.classList.add("theme-dark");
-    }
-
-    return () => {
-      root.classList.remove("theme-light", "theme-dark");
-      root.removeAttribute("data-theme");
-    };
-  }, [currentTheme]);
 
   useEffect(() => {
     if (!expectedResume) return;
