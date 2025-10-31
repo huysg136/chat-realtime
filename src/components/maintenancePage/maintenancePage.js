@@ -43,7 +43,7 @@ export default function MaintenancePage() {
   const [maintenance, setMaintenance] = useState(false);
   const [expectedResume, setExpectedResume] = useState(null);
   const [countdown, setCountdown] = useState(null);
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useState("vi");
   const { theme, setTheme } = useContext(AppContext);
 
   const tz = "Asia/Bangkok"; // GMT+7

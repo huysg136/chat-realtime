@@ -18,7 +18,7 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 export default function Login() {
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useState("vi");
   const [theme, setTheme] = useState("light");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
