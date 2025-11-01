@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../firebase/config";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, deleteDoc, doc, onSnapshot, query, orderBy } from "firebase/firestore";
 import { decryptMessage } from "../../firebase/services";
 import "./roomManager.scss";
 
@@ -12,7 +12,7 @@ export default function RoomManager() {
     name: "",
     kind: "",
     owner: "",
-    membersSort: "", // 'asc' | 'desc'
+    membersSort: "",
     createdAt: "",
   });
 
@@ -24,91 +24,85 @@ export default function RoomManager() {
     );
   };
 
-  const fetchUsers = async () => {
-    const snapshot = await getDocs(collection(db, "users"));
-    const map = {};
-    snapshot.docs.forEach((u) => {
-      const data = u.data();
-      map[data.uid] = data.displayName || "Ẩn danh";
-    });
-    setUidToName(map);
-  };
-
-  const fetchRooms = async () => {
-    const snapshot = await getDocs(collection(db, "rooms"));
-    const roomList = snapshot.docs.map((docSnap) => {
-      const data = docSnap.data();
-
-      const formatTime = (t) =>
-        t?.toDate
-          ? t.toDate().toLocaleString("vi-VN", {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            })
-          : "N/A";
-
-      const ownerUid =
-        data.roles?.find((r) => r.role === "owner")?.uid || "Không rõ";
-
-      const lastMsg = data.lastMessage
-        ? (() => {
-            let text = data.lastMessage.text || "";
-            try {
-              text = decryptMessage(text, data.secretKey || "");
-              if (!text) text = "[Không thể giải mã]";
-            } catch (e) {
-              text = "[Lỗi giải mã]";
-            }
-            return `${data.lastMessage.displayName || "Ẩn danh"}: ${text}`;
-          })()
-        : "Chưa có tin nhắn";
-
-      return {
-        id: docSnap.id,
-        name: data.name || "Không tên",
-        kind:
-          data.kind === "group" || data.type === "group"
-            ? "Nhóm"
-            : data.kind === "private" || data.type === "private"
-            ? "Riêng tư"
-            : "N/A",
-        createdBy: data.displayName || data.createdBy || "Ẩn danh",
-        ownerUid,
-        members: data.members || [],
-        roles: data.roles || [],
-        createdAt: formatTime(data.createdAt),
-        updatedAt: formatTime(data.updatedAt),
-        lastMessage: lastMsg,
-        secretKey: data.secretKey || "",
-      };
-    });
-
-    setRooms(roomList);
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc muốn xoá phòng này không?")) {
-      await deleteDoc(doc(db, "rooms", id));
-      fetchRooms();
-    }
-  };
-
   useEffect(() => {
-    fetchUsers();
-    fetchRooms();
+    const unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
+      const map = {};
+      snap.docs.forEach((u) => {
+        const data = u.data();
+        map[data.uid] = data.displayName || "Ẩn danh";
+      });
+      setUidToName(map);
+    });
+
+    const q = query(collection(db, "rooms"), orderBy("createdAt", "desc"));
+    const unsubscribeRooms = onSnapshot(q, (snap) => {
+      const roomList = snap.docs.map((docSnap) => {
+        const data = docSnap.data();
+
+        const formatTime = (t) =>
+          t?.toDate
+            ? t.toDate().toLocaleString("vi-VN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })
+            : "N/A";
+
+        const ownerUid =
+          data.roles?.find((r) => r.role === "owner")?.uid || "Không rõ";
+
+        const lastMsg = data.lastMessage
+          ? (() => {
+              let text = data.lastMessage.text || "";
+              try {
+                text = decryptMessage(text, data.secretKey || "");
+                if (!text) text = "[Không thể giải mã]";
+              } catch (e) {
+                text = "[Lỗi giải mã]";
+              }
+              return `${data.lastMessage.displayName || "Ẩn danh"}: ${text}`;
+            })()
+          : "Chưa có tin nhắn";
+
+        return {
+          id: docSnap.id,
+          name: data.name || "Không tên",
+          kind:
+            data.kind === "group" || data.type === "group"
+              ? "Nhóm"
+              : data.kind === "private" || data.type === "private"
+              ? "Riêng tư"
+              : "N/A",
+          createdBy: data.displayName || data.createdBy || "Ẩn danh",
+          ownerUid,
+          members: data.members || [],
+          roles: data.roles || [],
+          createdAt: formatTime(data.createdAt),
+          updatedAt: formatTime(data.updatedAt),
+          lastMessage: lastMsg,
+          secretKey: data.secretKey || "",
+        };
+      });
+      setRooms(roomList);
+    });
+
+    return () => {
+      unsubscribeUsers();
+      unsubscribeRooms();
+    };
   }, []);
+
+  const handleBan = async (id) => {
+  };
 
   const filteredRooms = rooms
     .filter((room) =>
       room.name.toLowerCase().includes(filters.name.toLowerCase())
     )
-    .filter((room) =>
-      filters.kind ? room.kind === filters.kind : true
-    )
+    .filter((room) => (filters.kind ? room.kind === filters.kind : true))
     .filter((room) =>
       filters.owner
         ? (uidToName[room.ownerUid] || "")
@@ -119,7 +113,7 @@ export default function RoomManager() {
     .filter((room) => {
       if (!filters.createdAt) return true;
       const filterDate = new Date(filters.createdAt);
-      const roomDate = new Date(room.createdAt); 
+      const roomDate = new Date(room.createdAt);
       return isSameDate(filterDate, roomDate);
     })
     .sort((a, b) => {
@@ -130,8 +124,6 @@ export default function RoomManager() {
 
   return (
     <div className="room-manager">
-      {/* <h2>Quản lý phòng chat</h2> */}
-
       <div className="filters">
         <input
           type="text"
@@ -200,17 +192,11 @@ export default function RoomManager() {
               <td>{room.members.length}</td>
               <td>{room.createdAt}</td>
               <td className="actions">
-                <button
-                  className="view-btn"
-                  onClick={() => setSelectedRoom(room)}
-                >
+                <button className="view-btn" onClick={() => setSelectedRoom(room)}>
                   👁 Xem
                 </button>
-                <button
-                  className="delete-btn"
-                  onClick={() => handleDelete(room.id)}
-                >
-                  🗑 Xóa
+                <button className="ban-btn" onClick={() => handleBan(room.id)}>
+                  🚫 Ban
                 </button>
               </td>
             </tr>
@@ -222,15 +208,9 @@ export default function RoomManager() {
         <div className="room-modal">
           <div className="room-modal-content">
             <h3>Chi tiết phòng: {selectedRoom.name}</h3>
-            <p>
-              <strong>Loại:</strong> {selectedRoom.kind}
-            </p>
-            <p>
-              <strong>Chủ phòng:</strong> {uidToName[selectedRoom.ownerUid] || "Ẩn danh"}
-            </p>
-            <p>
-              <strong>Thành viên ({selectedRoom.members.length}):</strong>
-            </p>
+            <p><strong>Loại:</strong> {selectedRoom.kind}</p>
+            <p><strong>Chủ phòng:</strong> {uidToName[selectedRoom.ownerUid] || "Ẩn danh"}</p>
+            <p><strong>Thành viên ({selectedRoom.members.length}):</strong></p>
             <ul>
               {selectedRoom.members.map((m, i) => (
                 <li key={i}>
@@ -241,12 +221,8 @@ export default function RoomManager() {
                 </li>
               ))}
             </ul>
-            <p>
-              <strong>Ngày tạo:</strong> {selectedRoom.createdAt}
-            </p>
-            <p>
-              <strong>Thời gian tin nhắn cuối:</strong> {selectedRoom.updatedAt}
-            </p>
+            <p><strong>Ngày tạo:</strong> {selectedRoom.createdAt}</p>
+            <p><strong>Thời gian tin nhắn cuối:</strong> {selectedRoom.updatedAt}</p>
             <div className="modal-actions">
               <button onClick={() => setSelectedRoom(null)}>Đóng</button>
             </div>

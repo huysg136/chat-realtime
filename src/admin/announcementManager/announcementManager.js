@@ -3,13 +3,15 @@ import { db } from "../../firebase/config";
 import {
   collection,
   addDoc,
-  getDocs,
   deleteDoc,
   doc,
   updateDoc,
   serverTimestamp,
+  onSnapshot,
+  query,
+  orderBy,
 } from "firebase/firestore";
-import { Table, Button, Modal, Input, Switch, message, Space } from "antd";
+import { Table, Button, Modal, Input, Switch, Space } from "antd";
 import "./announcementManager.scss";
 import { toast } from "react-toastify";
 
@@ -20,18 +22,14 @@ export default function AnnouncementManager() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const load = async () => {
-    const snap = await getDocs(collection(db, "announcements"));
-    const items = snap.docs.map((d) => ({
-      id: d.id,
-      ...d.data(),
-    }));
-    items.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-    setList(items);
-  };
-
   useEffect(() => {
-    load();
+    const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snap) => {
+      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setList(items);
+    });
+
+    return () => unsubscribe(); // cleanup khi component unmount
   }, []);
 
   const resetModal = () => {
@@ -64,7 +62,6 @@ export default function AnnouncementManager() {
         toast.success("Đã thêm thông báo");
       }
       resetModal();
-      load();
     } catch (e) {
       toast.error("Lỗi khi lưu thông báo");
     }
@@ -72,7 +69,6 @@ export default function AnnouncementManager() {
 
   const remove = async (id) => {
     await deleteDoc(doc(db, "announcements", id));
-    load();
     toast.success("Đã xoá thông báo");
   };
 
@@ -87,7 +83,6 @@ export default function AnnouncementManager() {
 
       await updateDoc(doc(db, "announcements", id), { isShow: value });
       toast.success(value ? "Đã bật hiển thị" : "Đã tắt hiển thị");
-      load();
     } catch (e) {
       toast.error("Không thể thay đổi trạng thái hiển thị");
     }
@@ -114,10 +109,7 @@ export default function AnnouncementManager() {
             title: "Hiển thị",
             dataIndex: "isShow",
             render: (value, record) => (
-              <Switch
-                checked={value}
-                onChange={(checked) => toggleShow(record.id, checked)}
-              />
+              <Switch checked={value} onChange={(checked) => toggleShow(record.id, checked)} />
             ),
           },
           { title: "Tiêu đề", dataIndex: "title" },
@@ -125,19 +117,14 @@ export default function AnnouncementManager() {
           {
             title: "Ngày tạo",
             dataIndex: "createdAt",
-            render: (v) =>
-              v?.seconds
-                ? new Date(v.seconds * 1000).toLocaleString("vi-VN")
-                : "-",
+            render: (v) => (v?.seconds ? new Date(v.seconds * 1000).toLocaleString("vi-VN") : "-"),
           },
           {
             title: "Hành động",
             render: (_, r) => (
               <Space>
                 <Button className="btn-edit" onClick={() => startEdit(r)}>Sửa</Button>
-                <Button className="btn-delete" danger onClick={() => remove(r.id)}>
-                  Xoá
-                </Button>
+                <Button className="btn-delete" danger onClick={() => remove(r.id)}>Xoá</Button>
               </Space>
             ),
           },
