@@ -22,11 +22,11 @@ import Message from "../message/message";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import ChatDetailPanel from "../chatDetailPanel/chatDetailPanel";
 import TransferOwnershipModal from "../../modals/transferOwnershipModal";
-
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import { useFirestore } from "../../../hooks/useFirestore";
 import { addDocument, updateDocument, encryptMessage, decryptMessage } from "../../../firebase/services";
+import EmojiPicker from "emoji-picker-react";
 
 import "./chatWindow.scss";
 
@@ -54,6 +54,7 @@ export default function ChatWindow() {
   const [selectedTransferUid, setSelectedTransferUid] = useState(null);
   const [leavingLoading, setLeavingLoading] = useState(false);
   const [banInfo, setBanInfo] = useState(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const toggleDetail = () => {
     setIsDetailVisible((p) => !p);
@@ -247,6 +248,7 @@ export default function ChatWindow() {
 
     form.resetFields(["message"]);
     setInputValue("");
+    setShowEmojiPicker(false);
 
     try {
       const encryptedText = selectedRoom.secretKey 
@@ -462,19 +464,33 @@ export default function ChatWindow() {
                   />
                 </div>
               )}
-              <Button type="text" icon={<SmileOutlined />} className="input-icon-btn" />
-              <Form.Item name="message">
-                <Input
-                  ref={inputRef}
-                  value={inputValue}
-                  onChange={handleInputChange}
-                  onPressEnter={handleOnSubmit}
-                  placeholder={replyTo ? "Trả lời..." : "Nhắn tin..."}
-                  bordered={false}
-                  autoComplete="off"
+              <div style={{ position: "relative" }}>
+                <Button
+                  type="text"
+                  icon={<SmileOutlined />}
+                  className="input-icon-btn"
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 />
-              </Form.Item>
 
+                {showEmojiPicker && (
+                  <div style={{ position: "absolute", bottom: "50px", left: "0", zIndex: 1000 }}>
+                    <EmojiPicker
+                      onEmojiClick={(emojiData) => {
+                        setInputValue((prev) => prev + emojiData.emoji);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <Input
+                ref={inputRef}
+                value={inputValue}
+                onChange={handleInputChange}
+                onPressEnter={handleOnSubmit}
+                placeholder={replyTo ? "Trả lời..." : "Nhắn tin..."}
+                bordered={false}
+                autoComplete="off"
+              />
               {inputValue.trim() ? (
                 <Button type="text" onClick={handleOnSubmit} loading={sending} className="send-btn">
                   Gửi
