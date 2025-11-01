@@ -1,14 +1,42 @@
 * {
-  transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-              color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: 
+    background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-body, body * {
+body, 
+body * {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 body.theme-dark {
-  color-scheme: dark;
-}
+  .ant-dropdown-menu {
+    background-color: #303030;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
+    .ant-dropdown-menu-item {
+      color: #ffffff;
+
+      &:hover {
+        background-color: rgba(148, 163, 184, 0.1);
+        color: #e2e8f0;
+      }
+
+      &.ant-dropdown-menu-item-danger {
+        color: #ff4d4f;
+
+        &:hover {
+          background-color: rgba(255, 77, 79, 0.1);
+          color: #ff7875;
+        }
+      }
+    }
+
+    .ant-dropdown-menu-item-divider {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 0;
+    }
+  }
+}

@@ -79,12 +79,12 @@ export default function LeftSide() {
       <Menu.Item key="request" icon={<IoMailUnreadOutline />}>
         Lời mời đang chờ
       </Menu.Item>
-      <Menu.Divider />
+      <Menu.Divider style={{margin: "0"}}/>
       <Menu.Item
         key="logout"
         onClick={() => auth.signOut()}
         icon={<LogoutOutlined />}
-        style={{ color: "red", fontWeight: "500" }}
+        style={{ color: "#ff4d4f", fontWeight: "500" }}
       >
         Đăng xuất
       </Menu.Item>

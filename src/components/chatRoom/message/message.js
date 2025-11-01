@@ -188,13 +188,13 @@ export default function Message({
 
       {isOwn && (
         <>
-          <Menu.Divider />
+          <Menu.Divider style={{margin: "0"}}/>
           <Menu.Item
             key="revoke"
             onClick={handleRevoke}
-            icon={<UndoOutlined style={{ color: "#ff4d4f" }} />}
+            icon={<UndoOutlined style={{ color: "#ff4d4f"}} />}
           >
-            <span style={{ color: "#ff4d4f" }}>Thu hồi</span>
+            <span style={{ color: "#ff4d4f", fontWeight: "500" }}>Thu hồi</span>
           </Menu.Item>
         </>
       )}
@@ -269,7 +269,6 @@ export default function Message({
         </div>
       </div>
 
-      {/* Modal chia sẻ tin nhắn */}
       <ForwardMessageModal
         visible={isForwardModalVisible}
         onCancel={handleCancelForward}
