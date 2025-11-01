@@ -1,17 +1,19 @@
 @use "sass:map";
 @import "../../../style/theme";
-@import "../../../style/global";
 
 .sidebar {
   height: 100vh;
   width: 64px;
-  background: rgba(255, 255, 255, 0.95);
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 12px 0;
   box-sizing: border-box;
   border-right: 2px solid rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   .user-avatar {
     margin-bottom: 10px;
@@ -67,7 +69,7 @@
 
 body.theme-dark {
   .sidebar {
-    background: map.get($theme-colors, "bg-dark");
+    background-color: map.get($theme-colors, "bg-dark");
     border-right: 2px solid rgba(255, 255, 255, 0.1);
 
     .user-avatar {

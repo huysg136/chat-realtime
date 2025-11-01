@@ -94,6 +94,14 @@ export default function Dashboard() {
         const messagesWithDate = messages.filter((m) => m.createdAt);
         const roomsWithDate = rooms.filter((r) => r.createdAt);
 
+        const isDarkTheme = document.body.classList.contains('theme-dark');
+        const brightenHex = (hex, amount) => {
+          const num = parseInt(hex.slice(1), 16);
+          const r = Math.min(255, (num >> 16) + amount);
+          const g = Math.min(255, ((num >> 8) & 0x00FF) + amount);
+          const b = Math.min(255, (num & 0x0000FF) + amount);
+          return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+        };
         const generateChartData = (dataList, label, color, range) => {
           const labels = [];
           const dataPoints = [];
@@ -109,14 +117,15 @@ export default function Dashboard() {
             labels.push(format(date, "dd/MM"));
             dataPoints.push(count);
           }
+          const brighterColor = isDarkTheme ? brightenHex(color, 80) : color;
           return {
             labels,
             datasets: [
               {
                 label,
                 data: dataPoints,
-                borderColor: color,
-                backgroundColor: color + "33",
+                borderColor: brighterColor,
+                backgroundColor: brighterColor + "CC",
                 tension: 0.3,
                 fill: true,
               },
@@ -155,8 +164,8 @@ export default function Dashboard() {
             {
               label: "Tin nhắn theo giờ",
               data: hours,
-              backgroundColor: "rgba(255,99,132,0.4)",
-              borderColor: "#ff6384",
+              backgroundColor: isDarkTheme ? "rgba(255,149,182,0.6)" : "rgba(255,99,132,0.4)",
+              borderColor: isDarkTheme ? "#ffb3c7" : "#ff6384",
             },
           ],
         };
