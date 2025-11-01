@@ -16,6 +16,7 @@ import { EyeOutlined } from "@ant-design/icons";
 import "./announcementManager.scss";
 import { toast } from "react-toastify";
 import { AppContext } from "../../context/appProvider";
+import { AuthContext } from "../../context/authProvider";
 
 export default function AnnouncementManager() {
   const [list, setList] = useState([]);
@@ -26,8 +27,10 @@ export default function AnnouncementManager() {
   const [targetUids, setTargetUids] = useState("");
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+  const { user: currentUser } = useContext(AuthContext);
 
   const { users } = useContext(AppContext);
+  
 
   useEffect(() => {
     const q = query(collection(db, "announcements"), orderBy("lastUpdate", "desc"));
@@ -63,8 +66,6 @@ export default function AnnouncementManager() {
       clearTimeout(window._sortTimer);
     };
   }, []);
-
-
 
   const resetModal = () => {
     setOpen(false);
@@ -153,7 +154,7 @@ export default function AnnouncementManager() {
 
   return (
     <div className="announcement-manager">
-      <Button type="primary" onClick={() => setOpen(true)}>
+      <Button type="primary" onClick={() => setOpen(true)} disabled={currentUser.role !== "admin"}>
         + Thêm thông báo
       </Button>
 
@@ -168,6 +169,7 @@ export default function AnnouncementManager() {
               <Switch
                 checked={value}
                 onChange={(checked) => toggleShow(record.id, checked)}
+                disabled={currentUser.role !== "admin"}
               />
             ),
           },
@@ -203,13 +205,14 @@ export default function AnnouncementManager() {
             title: "Hành động",
             render: (_, r) => (
               <Space>
-                <Button className="btn-edit" onClick={() => startEdit(r)}>
+                <Button className="btn-edit" onClick={() => startEdit(r)} disabled={currentUser.role !== "admin"}>
                   Sửa
                 </Button>
                 <Button
                   className="btn-delete"
                   danger
                   onClick={() => remove(r.id)}
+                  disabled={currentUser.role !== "admin"}
                 >
                   Xoá
                 </Button>

@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   Card,
   Switch,
   Typography,
-  message,
   Spin,
   Divider,
   Tag,
@@ -18,8 +17,9 @@ import {
 import dayjs from "dayjs";
 import { db } from "../../firebase/config";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import "./adminSettings.scss";
+import { AuthContext } from "../../context/authProvider";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -33,6 +33,7 @@ export default function AdminSettings() {
   const [actualExpectedResume, setActualExpectedResume] = useState(null);
 
   const [loading, setLoading] = useState(true);
+  const { user: currentUser } = useContext(AuthContext);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "config", "appStatus"), (snap) => {
@@ -130,6 +131,7 @@ export default function AdminSettings() {
                 checkedChildren="Bật"
                 unCheckedChildren="Tắt"
                 className="maintenance-switch"
+                disabled={currentUser.role !== "admin"}
               />
             </div>
 
@@ -166,7 +168,7 @@ export default function AdminSettings() {
             </div>
 
             <div className="save-btn-container" style={{ marginTop: 16 }}>
-              <Button type="primary" onClick={handleSaveConfig}>
+              <Button type="primary" onClick={handleSaveConfig} disabled={currentUser.role !== "admin"}>
                 Lưu cấu hình
               </Button>
             </div>

@@ -284,9 +284,7 @@ export default function UsersManager() {
                     className={`btn-edit ${u.role === "moderator" ? "demote" : "promote"}`}
                     onClick={() => handleRoleChange(u)}
                     disabled={
-                      u.role === "admin" ||
-                      (currentUser.role === "moderator" &&
-                        (u.role === "moderator" || u.uid === currentUser.uid))
+                      currentUser.role !== "admin" || u.role === "admin"
                     }
                   >
                     {u.role === "moderator" ? (
@@ -304,6 +302,7 @@ export default function UsersManager() {
                     <button
                       className="btn-unban"
                       onClick={() => unbanUser(banInfo.banId)}
+                      disabled={currentUser.role !== "admin"}
                     >
                       <FiUnlock /> Mở cấm
                     </button>
@@ -312,9 +311,7 @@ export default function UsersManager() {
                       className="btn-ban"
                       onClick={() => showBanModal(u)}
                       disabled={
-                        u.role === "admin" ||
-                        (currentUser.role === "moderator" &&
-                          (u.role === "moderator" || u.uid === currentUser.uid))
+                        currentUser.role !== "admin" || u.role === "admin"
                       }
                     >
                       <FiSlash /> Cấm chat
