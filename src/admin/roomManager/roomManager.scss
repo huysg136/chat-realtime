@@ -156,3 +156,100 @@
   }
 }
 
+body.theme-dark {
+  .room-manager {
+    h2 {
+      color: #e2e8f0;
+    }
+
+    .room-table {
+      background: #1e293b;
+      color: #e2e8f0;
+
+      th {
+        background: #27354a;
+        color: #f1f5f9;
+        border-bottom: 1px solid #334155;
+      }
+
+      td {
+        border-bottom: 1px solid #334155;
+      }
+
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .actions button {
+        color: #fff;
+
+        &.view-btn {
+          background: #22c55e;
+
+          &:hover {
+            background: #16a34a;
+          }
+        }
+
+        &.delete-btn {
+          background: #ef4444;
+
+          &:hover {
+            background: #dc2626;
+          }
+        }
+      }
+    }
+
+    .room-modal {
+      background: rgba(0, 0, 0, 0.65);
+
+      .room-modal-content {
+        background: #1e293b;
+        color: #f1f5f9;
+        border: 1px solid #334155;
+
+        h3 {
+          color: #60a5fa;
+        }
+
+        .role {
+          color: #94a3b8;
+        }
+
+        .modal-actions button {
+          background: #2563eb;
+
+          &:hover {
+            background: #3b82f6;
+          }
+        }
+      }
+    }
+  }
+
+  .filters {
+    input,
+    select {
+      background: #27354a;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+
+      &:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      }
+    }
+
+    .members-sort button {
+      background: #334155;
+      color: #f1f5f9;
+      border: 1px solid #475569;
+
+      &:hover {
+        background: #475569;
+      }
+    }
+  }
+}
+

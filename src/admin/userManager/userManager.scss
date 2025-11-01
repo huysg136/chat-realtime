@@ -214,3 +214,128 @@
     to { opacity: 1; transform: translateY(0); }
   }
 }
+
+body.theme-dark {
+  .user-manager {
+    table {
+      background: #1e293b;
+      color: #e2e8f0;
+
+      th {
+        background: #27354a;
+        color: #f1f5f9;
+        border-bottom: 1px solid #334155;
+      }
+
+      td {
+        border-bottom: 1px solid #334155;
+      }
+
+      tbody tr:nth-child(odd) {
+        background: #1e293b;
+      }
+
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      img {
+        border: 2px solid #334155;
+      }
+
+      .role-tag {
+        font-weight: 500;
+
+        &.admin {
+          color: #f87171;
+          background: rgba(248, 113, 113, 0.15);
+        }
+        &.moderator {
+          color: #60a5fa;
+          background: rgba(96, 165, 250, 0.15);
+        }
+        &.user {
+          color: #4ade80;
+          background: rgba(74, 222, 128, 0.15);
+        }
+      }
+
+      button {
+        color: #fff;
+
+        &:disabled {
+          opacity: 0.4;
+        }
+
+        &:hover:not(:disabled) {
+          opacity: 0.9;
+        }
+
+        &.btn-edit.promote {
+          background-color: #22c55e;
+        }
+
+        &.btn-edit.demote {
+          background-color: #f59e0b;
+        }
+
+        &.btn-ban {
+          background-color: #ef4444;
+        }
+
+        &.btn-unban {
+          background-color: #3b82f6;
+        }
+      }
+    }
+  }
+
+  .ban-modal,
+  .ban-detail-modal {
+    background: rgba(0, 0, 0, 0.65);
+
+    .ban-modal-content,
+    .ban-detail-content {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+
+      h3 {
+        color: #f1f5f9;
+      }
+
+      label {
+        color: #cbd5e1;
+      }
+
+      input[type="number"] {
+        background: #27354a;
+        color: #f1f5f9;
+        border: 1px solid #334155;
+
+        &:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+      }
+
+      .modal-actions {
+        .btn-close {
+          background-color: #3b82f6;
+
+          &:hover {
+            background-color: #60a5fa;
+          }
+        }
+
+        .btn-ban {
+          background-color: #ef4444;
+
+          &:hover {
+            background-color: #f87171;
+          }
+        }
+      }
+    }
+  }
+}
