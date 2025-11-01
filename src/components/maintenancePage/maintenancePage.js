@@ -162,7 +162,6 @@ export default function MaintenancePage() {
           if (data.theme) setTheme(data.theme);
         }
       } catch (err) {
-        console.error("Lỗi khi lấy cài đặt người dùng:", err);
       }
     };
 
@@ -237,7 +236,6 @@ export default function MaintenancePage() {
             });
             setMaintenance(false);
           } catch (error) {
-            console.error("Failed to disable maintenance:", error);
           }
         }
         clearInterval(interval);
@@ -277,7 +275,6 @@ export default function MaintenancePage() {
       if (!docId) return;
       await updateDocument("users", docId, { language: value });
     } catch (err) {
-      console.error("Không thể cập nhật ngôn ngữ:", err);
     }
   };
 
@@ -289,7 +286,6 @@ export default function MaintenancePage() {
       if (!docId) return;
       await updateDocument("users", docId, { theme: value });
     } catch (err) {
-      console.error("Không thể cập nhật theme:", err);
     }
   };
 

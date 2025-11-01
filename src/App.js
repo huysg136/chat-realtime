@@ -16,6 +16,8 @@ import AnnouncementManager from './admin/announcementManager/announcementManager
 import AdminSettings from './admin/adminSettings/adminSettings';
 import MaintenancePage from './components/maintenancePage/maintenancePage';
 import SettingsModal from './components/modals/settingsModal';
+import AnnouncementModal from './components/modals/announcementModal';
+
 import useApplyTheme from './hooks/useApplyTheme';
 import { AuthContext } from './context/authProvider';
 import { useContext } from 'react';
@@ -66,6 +68,8 @@ function App() {
             <InviteMemberModal />
             <ProfileModal />
             <SettingsModal />
+            <AnnouncementModal />
+
           </ThemeWrapper>
         </AppProvider>
       </AuthProvider>

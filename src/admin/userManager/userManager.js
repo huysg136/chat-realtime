@@ -27,7 +27,6 @@ export const getUserDocIdByUid = async (uid) => {
     }
     return null;
   } catch (err) {
-    console.error("Error getUserDocIdByUid:", err);
     return null;
   }
 };
@@ -98,7 +97,6 @@ export default function UsersManager() {
       ));
       toast.success(`Đã cấm tất cả người dùng trong ${banAllDays} ngày`);
     } catch (err) {
-      console.error(err);
       toast.error("Cấm tất cả thất bại");
     } finally {
       setIsBanAllModalVisible(false);
@@ -153,7 +151,6 @@ export default function UsersManager() {
           : `Đã hạ ${user.displayName} xuống user`
       );
     } catch (err) {
-      console.error(err);
       toast.error("Đổi role thất bại");
     }
   };
@@ -180,7 +177,6 @@ export default function UsersManager() {
       });
       toast.success(`Đã cấm chat ${targetUser.displayName} trong ${banDays} ngày`);
     } catch (err) {
-      console.error(err);
       toast.error("Cấm chat thất bại");
     } finally {
       setIsBanModalVisible(false);
@@ -194,7 +190,6 @@ export default function UsersManager() {
       await deleteDoc(doc(db, "bans", banDocId));
       toast.success("Đã mở cấm thành công");
     } catch (err) {
-      console.error(err);
       toast.error("Mở cấm thất bại");
     }
   };
@@ -216,6 +211,7 @@ export default function UsersManager() {
         <thead>
           <tr>
             <th>Avatar</th>
+            <th>UID</th>
             <th>Tên hiển thị</th>
             <th>Email</th>
             <th>Quyền</th>
@@ -232,6 +228,18 @@ export default function UsersManager() {
               <tr key={u.id}>
                 <td>
                   <img src={u.photoURL} alt={u.displayName} width="40" height="40" />
+                </td>
+                <td
+                  title={u.uid} 
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(u.uid);
+                    toast.info("Đã sao chép UID");
+                  }}
+                >
+                  {u.uid.length > 12
+                    ? `${u.uid.slice(0, 6)}...${u.uid.slice(-4)}`
+                    : u.uid}
                 </td>
                 <td>{u.displayName}</td>
                 <td>{u.email}</td>

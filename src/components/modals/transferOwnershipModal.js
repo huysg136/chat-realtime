@@ -26,14 +26,14 @@ export default function TransferOwnershipModal({
 
   const transferOwnershipAndLeave = async () => {
     if (!selectedTransferUid) {
-      message.warning("Vui lòng chọn người nhận quyền trưởng nhóm");
+      toast.warning("Vui lòng chọn người nhận quyền trưởng nhóm");
       return;
     }
     if (!selectedRoom) return;
     if (!currentUid) return;
 
     if (String(selectedTransferUid).trim() === String(currentUid).trim()) {
-      message.warning("Không thể chuyển quyền cho chính bạn");
+      toast.warning("Không thể chuyển quyền cho chính bạn");
       return;
     }
 

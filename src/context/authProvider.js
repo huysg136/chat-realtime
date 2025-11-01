@@ -33,8 +33,6 @@ export default function AuthProvider({ children }) {
           const unsubscribeUser = onSnapshot(userDocRef, (userSnap) => {
             if (userSnap.exists()) {
               const userData = userSnap.data();
-              // console.log("Current UID:", uid);
-              // console.log("Role:", userData.role);
               setUser({
                 displayName,
                 email,

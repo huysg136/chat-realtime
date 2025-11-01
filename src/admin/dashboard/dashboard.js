@@ -33,6 +33,7 @@ import {
 } from "chart.js";
 import { Line, Bar } from "react-chartjs-2";
 import "./dashboard.scss";
+import { toast } from "react-toastify";
 
 ChartJS.register(
   LineElement,
@@ -197,8 +198,7 @@ export default function Dashboard() {
           activeHour: activeHourChart,
         });
       } catch (err) {
-        console.error("❌ Lỗi khi fetch dữ liệu:", err);
-        message.error("Không thể tải dữ liệu dashboard.");
+        toast.error("Không thể tải dữ liệu dashboard.");
       } finally {
         setLoading(false);
       }

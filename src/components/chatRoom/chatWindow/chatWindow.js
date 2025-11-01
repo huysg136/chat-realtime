@@ -119,7 +119,6 @@ export default function ChatWindow() {
         },
       });
     } catch (err) {
-      console.error(err);
       toast.error("Upload file thất bại");
     } finally {
       setSending(false);

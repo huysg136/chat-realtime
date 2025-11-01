@@ -81,7 +81,6 @@ export default function Login() {
         navigate("/"); 
       }
     } catch (err) {
-      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }

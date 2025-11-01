@@ -98,7 +98,6 @@ export default function SettingsModal() {
           setLanguage(data.language || "vi");
         }
       } catch (err) {
-        console.error("Không thể tải cài đặt người dùng:", err);
       }
     };
 
@@ -128,7 +127,6 @@ export default function SettingsModal() {
       toast.success("Đã lưu cài đặt");
       setIsSettingsVisible(false);
     } catch (error) {
-      console.error(error);
       toast.error("Lưu cài đặt thất bại");
     } finally {
       setSaving(false);

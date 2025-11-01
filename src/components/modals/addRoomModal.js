@@ -80,7 +80,6 @@ export default function AddRoomModal() {
         .filter(u => u.uid !== uid);
       setSuggestedUsers(users);
     } catch (err) {
-      //console.error("fetchSuggestedUsers error:", err);
       setSuggestedUsers([]);
     } finally {
       setLoadingSuggested(false);
@@ -109,7 +108,6 @@ export default function AddRoomModal() {
         .filter(u => u.uid !== uid);
       setOptions(users);
     } catch (err) {
-      //console.error("fetchUserList error:", err);
       setOptions([]);
     } finally {
       setFetching(false);

@@ -32,7 +32,6 @@ export default function Searching() {
           }
         },
         (error) => {
-          console.error("Lỗi khi lấy dữ liệu realtime user từ Firestore:", error);
         }
       );
     };

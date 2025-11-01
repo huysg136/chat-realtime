@@ -101,7 +101,6 @@ export default function ProfileModal() {
         toast.error('Không thể cập nhật tên');
       }
     } catch (error) {
-      console.error(error);
       toast.error('Lỗi khi cập nhật tên');
     } finally {
       setLoading(false);

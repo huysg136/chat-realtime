@@ -94,12 +94,12 @@ export default function ChatDetailPanel({
 
   const transferOwnership = async (targetUid) => {
     if (currentUserRole !== "owner") {
-      message.warning("Chỉ trưởng nhóm mới có thể chuyển quyền trưởng nhóm");
+      toast.warning("Chỉ trưởng nhóm mới có thể chuyển quyền trưởng nhóm");
       return;
     }
 
     if (String(targetUid).trim() === String(uid).trim()) {
-      message.warning("Bạn đã là trưởng nhóm rồi");
+      toast.warning("Bạn đã là trưởng nhóm rồi");
       return;
     }
 
@@ -123,7 +123,7 @@ export default function ChatDetailPanel({
 
   const removeMember = async (targetUid) => {
     if (!canRemoveMember(targetUid)) {
-      message.warning("Bạn không có quyền xóa thành viên này.");
+      toast.warning("Bạn không có quyền xóa thành viên này.");
       return;
     }
 

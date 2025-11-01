@@ -110,8 +110,6 @@ export default function Message({
         toast.success("Đã sao chép tin nhắn");
       }
     } catch (err) {
-      console.error("Lỗi khi sao chép/tải:", err);
-      //toast.error("Không thể sao chép hoặc tải file");
     }
   };
 

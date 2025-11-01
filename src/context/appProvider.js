@@ -2,7 +2,8 @@ import React, { useState, useContext, useMemo, useEffect } from "react";
 import { AuthContext } from "./authProvider";
 import { useFirestore } from "../hooks/useFirestore";
 import { db } from "../firebase/config";
-import { doc, onSnapshot } from "firebase/firestore";
+import { useLocation } from "react-router-dom";
+import { doc, onSnapshot, collection, query, where, arrayUnion, updateDoc } from "firebase/firestore";
 
 export const AppContext = React.createContext();
 
@@ -15,7 +16,9 @@ export default function AppProvider({ children }) {
   const [searchText, setSearchText] = useState("");
   const [theme, setTheme] = useState("system");
   const [isMaintenance, setIsMaintenance] = useState(false);
-  
+  const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(false);
+  const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
+  const location = useLocation();
 
   const { user } = useContext(AuthContext);
   
@@ -40,6 +43,56 @@ export default function AppProvider({ children }) {
   const rooms = useFirestore("rooms", roomsCondition);
   const users = useFirestore("users");
 
+  useEffect(() => {
+    if (location.pathname.startsWith("/admin")) {
+      setIsAnnouncementVisible(false);
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (
+      !user?.uid ||
+      !["user", "moderator"].includes(user.role) ||
+      location.pathname.startsWith("/admin")
+    ) {
+      return;
+    }
+
+    const q = query(collection(db, "announcements"), where("isShow", "==", true));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const announcements = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      const unseenAnnouncement = announcements.find(ann => {
+        const hasSeen = ann.hasSeenBy?.includes(user.uid) || false;
+        const isTargeted = ann.targetUids ? ann.targetUids.includes(user.uid) : true; 
+        console.log(`Announcement ${ann.id}: hasSeen=${hasSeen}, isTargeted=${isTargeted}, isShow=${ann.isShow}`);
+        return !hasSeen && isTargeted;
+      });
+
+
+      if (unseenAnnouncement) {
+        setCurrentAnnouncement(unseenAnnouncement);
+        setIsAnnouncementVisible(true);
+      } else {
+        setIsAnnouncementVisible(false);
+        setCurrentAnnouncement(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user?.uid, user?.role, location.pathname]);
+
+  const markAnnouncementAsSeen = async (announcementId) => {
+    if (!user?.uid) return;
+
+    try {
+      await updateDoc(doc(db, "announcements", announcementId), {
+        hasSeenBy: arrayUnion(user.uid)
+      });
+    } catch (error) {
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -60,6 +113,10 @@ export default function AppProvider({ children }) {
         theme,
         setTheme,
         isMaintenance,
+        isAnnouncementVisible,
+        setIsAnnouncementVisible,
+        currentAnnouncement,
+        markAnnouncementAsSeen,
       }}
     >
       {children}
