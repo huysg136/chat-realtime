@@ -139,7 +139,7 @@ export default function AdminSettings() {
                 <>
                 <div className="form-row">
                     <Text strong className="form-label">
-                      <CalendarOutlined style={{ marginRight: 6, color: "#1677ff" }} />
+                      <CalendarOutlined style={{ marginRight: 6, color: "#1677ff" }}/>
                       Dự kiến mở lại:
                       </Text>
                     <DatePicker

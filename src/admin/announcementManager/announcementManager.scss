@@ -28,13 +28,26 @@
       }
     }
 
-    .ant-btn-danger {
-      background: #ff4d4f;
-      border: none;
+    .btn-edit {
+      background: #1890ff;
       color: #fff;
+      border: none;
+      border-radius: 6px;
 
       &:hover {
-        background: #e04448; 
+        background: #0f6fd1;
+        color: #fff;
+      }
+    }
+
+    .btn-delete {
+      background: #ff0004;
+      border: none;
+      color: #ffffff;
+
+      &:hover {
+        background: #dc2626;
+        color: #ffffff !important;
       }
     }
   }
@@ -90,16 +103,28 @@ body.theme-dark {
         color: #ffffff;
       }
 
-      .ant-btn-danger {
-        background: #ff5c5c;
+      .btn-edit {
+        background: #2563eb;
+        color: #fff;
+
+        &:hover {
+          background: #1d4ed8;
+          color: #fff;
+        }
+      }
+
+      .btn-delete {
+        background: #ff0000;
         border: none;
         color: #fff;
 
         &:hover {
-          background: #ff7875;
+          background: #dc2626;
+          color: #fff;
         }
       }
     }
+
     .ant-modal {
       .ant-modal-content {
         background: map.get($theme-colors, "bg-dark-blue");
@@ -115,17 +140,19 @@ body.theme-dark {
         font-weight: 600;
       }
 
-      .ant-input-textarea {
-        .ant-input {
-          background: #27354a;
-          color: #f1f5f9;
-          border: 1px solid #334155;
-          border-radius: 8px;
+      .ant-input {
+        background: #1e293b !important;
+        color: #f1f5f9;
+        border: 1px solid #334155;
+        border-radius: 8px;
 
-          &:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-          }
+        &::placeholder {
+          color: #94a3b8;
+        }
+
+        &:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
         }
       }
 
@@ -146,6 +173,13 @@ body.theme-dark {
         &:hover {
           background: #475569;
           color: #ffffff;
+        }
+      }
+
+      .modal-input {
+        .modal-label {
+          font-weight: 500;
+          line-height: 2;
         }
       }
     }
