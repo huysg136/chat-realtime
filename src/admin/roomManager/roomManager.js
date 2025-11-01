@@ -9,9 +9,8 @@ export default function RoomManager() {
   const [uidToName, setUidToName] = useState({});
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [filters, setFilters] = useState({
-    name: "",
+    id: "",
     kind: "",
-    owner: "",
     membersSort: "",
     createdAt: "",
   });
@@ -95,21 +94,14 @@ export default function RoomManager() {
     };
   }, []);
 
-  const handleBan = async (id) => {
-  };
+  // const handleBan = async (id) => {
+  // };
 
   const filteredRooms = rooms
     .filter((room) =>
-      room.name.toLowerCase().includes(filters.name.toLowerCase())
+      room.id.toLowerCase().includes(filters.id.toLowerCase())
     )
     .filter((room) => (filters.kind ? room.kind === filters.kind : true))
-    .filter((room) =>
-      filters.owner
-        ? (uidToName[room.ownerUid] || "")
-            .toLowerCase()
-            .includes(filters.owner.toLowerCase())
-        : true
-    )
     .filter((room) => {
       if (!filters.createdAt) return true;
       const filterDate = new Date(filters.createdAt);
@@ -127,9 +119,9 @@ export default function RoomManager() {
       <div className="filters">
         <input
           type="text"
-          placeholder="Tên phòng..."
-          value={filters.name}
-          onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+          placeholder="ID phòng..."
+          value={filters.id}
+          onChange={(e) => setFilters({ ...filters, id: e.target.value })}
         />
         <select
           value={filters.kind}
@@ -139,12 +131,6 @@ export default function RoomManager() {
           <option value="Nhóm">Nhóm</option>
           <option value="Riêng tư">Riêng tư</option>
         </select>
-        <input
-          type="text"
-          placeholder="Chủ sở hữu..."
-          value={filters.owner}
-          onChange={(e) => setFilters({ ...filters, owner: e.target.value })}
-        />
         <div className="members-sort">
           <button
             onClick={() => {
@@ -175,9 +161,10 @@ export default function RoomManager() {
       <table className="room-table">
         <thead>
           <tr>
-            <th>Tên phòng</th>
+            <th>ID phòng</th>
+            {/* <th>Tên phòng</th> */}
             <th>Loại phòng</th>
-            <th>Chủ phòng</th>
+            {/* <th>Chủ phòng</th> */}
             <th>Thành viên</th>
             <th>Ngày tạo</th>
             <th>Hành động</th>
@@ -186,18 +173,19 @@ export default function RoomManager() {
         <tbody>
           {filteredRooms.map((room) => (
             <tr key={room.id}>
-              <td>{room.name}</td>
+              <td>{room.id}</td>
+              {/* <td>{room.name}</td> */}
               <td>{room.kind}</td>
-              <td>{uidToName[room.ownerUid] || "Ẩn danh"}</td>
+              {/* <td>{uidToName[room.ownerUid] || "Ẩn danh"}</td> */}
               <td>{room.members.length}</td>
               <td>{room.createdAt}</td>
               <td className="actions">
                 <button className="view-btn" onClick={() => setSelectedRoom(room)}>
                   👁 Xem
                 </button>
-                <button className="ban-btn" onClick={() => handleBan(room.id)}>
+                {/* <button className="ban-btn" onClick={() => handleBan(room.id)}>
                   🚫 Ban
-                </button>
+                </button> */}
               </td>
             </tr>
           ))}
@@ -207,20 +195,33 @@ export default function RoomManager() {
       {selectedRoom && (
         <div className="room-modal">
           <div className="room-modal-content">
-            <h3>Chi tiết phòng: {selectedRoom.name}</h3>
+            <h3>
+              {selectedRoom.kind === "Riêng tư"
+                ? "Chi tiết cuộc trò chuyện riêng tư"
+                : `Chi tiết phòng: ${selectedRoom.name}`}
+            </h3>
+            <p><strong>ID phòng:</strong> {selectedRoom.id}</p>
             <p><strong>Loại:</strong> {selectedRoom.kind}</p>
-            <p><strong>Chủ phòng:</strong> {uidToName[selectedRoom.ownerUid] || "Ẩn danh"}</p>
-            <p><strong>Thành viên ({selectedRoom.members.length}):</strong></p>
-            <ul>
-              {selectedRoom.members.map((m, i) => (
-                <li key={i}>
-                  {uidToName[m] || m}{" "}
-                  <span className="role">
-                    ({selectedRoom.roles.find((r) => r.uid === m)?.role || "member"})
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {selectedRoom.kind !== "Riêng tư" && (
+              <p><strong>Chủ phòng:</strong> {uidToName[selectedRoom.ownerUid] || "Ẩn danh"}</p>
+            )}
+            {selectedRoom.kind === "Riêng tư" ? (
+              <p><strong>Người tham gia:</strong> {selectedRoom.members.map(m => uidToName[m] || m).join(" và ")}</p>
+            ) : (
+              <>
+                <p><strong>Thành viên ({selectedRoom.members.length}):</strong></p>
+                <ul>
+                  {selectedRoom.members.map((m, i) => (
+                    <li key={i}>
+                      {uidToName[m] || m}{" "}
+                      <span className="role">
+                        ({selectedRoom.roles.find((r) => r.uid === m)?.role || "member"})
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
             <p><strong>Ngày tạo:</strong> {selectedRoom.createdAt}</p>
             <p><strong>Thời gian tin nhắn cuối:</strong> {selectedRoom.updatedAt}</p>
             <div className="modal-actions">

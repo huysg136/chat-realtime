@@ -1,2 +1,0 @@
-- [x] Update dashboard.scss to make card titles and statistic titles brighter in dark theme (e.g., white #ffffff)
-- [x] Update dashboard.js to use brighter chart colors when dark theme is active (detect via document.body.classList.contains('theme-dark'))
