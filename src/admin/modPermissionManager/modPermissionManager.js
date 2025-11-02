@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Table, Switch, Space, Tag } from "antd";
+import { Table, Switch, Space, Tag, Tooltip, Avatar } from "antd";
 import { db } from "../../firebase/config";
 import { collection, query, where, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
@@ -9,7 +9,6 @@ import NoAccess from "../noAccess/noAccess";
 import "./modPermissionManager.scss";
 
 export default function ModPermissionManager() {
-  const { users } = useContext(AppContext);
   const { user: currentUser } = useContext(AuthContext);
   const [mods, setMods] = useState([]);
 
@@ -38,13 +37,20 @@ export default function ModPermissionManager() {
     { key: "canToggleMaintenance", label: "Bật/Tắt bảo trì" },
   ];
 
+  const permissionDescriptions = {
+    canAccessAdminPage: "Cho phép moderator truy cập trang Admin",
+    canManageUsers: "Cho phép quản lý người dùng",
+    canManageRooms: "Cho phép quản lý phòng chat",
+    canManageAnnouncements: "Cho phép quản lý thông báo",
+    canToggleMaintenance: "Cho phép bật/tắt chế độ bảo trì"
+  };
+
   // Cập nhật quyền
   const handleTogglePermission = async (mod, permissionKey, value) => {
     try {
       await updateDoc(doc(db, "users", mod.id), {
         [`permissions.${permissionKey}`]: value,
       });
-      toast.success(`Đã ${value ? "bật" : "tắt"} quyền ${permissionKeys.find(p => p.key === permissionKey).label}`);
     } catch (err) {
       toast.error("Không thể cập nhật quyền");
     }
@@ -52,28 +58,55 @@ export default function ModPermissionManager() {
 
   const columns = [
     {
+      title: "STT",
+      key: "index",
+      render: (_, __, index) => index + 1,
+      width: 60,
+      fixed: "left",
+    },
+    {
+      title: "Avatar",
+      dataIndex: "photoURL",
+      key: "avatar",
+      width: 70,
+      fixed: "left",
+      render: (photoURL, record) => (
+        <Avatar src={photoURL} size="large">{!photoURL && record.displayName?.charAt(0)?.toUpperCase()}</Avatar>
+      )
+    },
+    {
       title: "Tên hiển thị",
       dataIndex: "displayName",
+      key: "displayName",
+      fixed: "left",
       render: (name, record) => (
-        <Space>
+        <Space direction="vertical" size={2}>
           <strong>{name}</strong>
-          <Tag color="blue">{record.email}</Tag>
+          <Tooltip title={record.email}>
+            <Tag color="blue" style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }}>
+              {record.email}
+            </Tag>
+          </Tooltip>
         </Space>
       ),
+      width: 220,
     },
     ...permissionKeys.map((perm) => ({
       title: perm.label,
       dataIndex: ["permissions", perm.key],
       align: "center",
+      width: 140,
       render: (_, record) => (
-        <Switch
-          checked={!!record.permissions?.[perm.key]}
-          onChange={(checked) => handleTogglePermission(record, perm.key, checked)}
-          checkedChildren="Bật"
-          unCheckedChildren="Tắt"
-        />
-      ),
-    })),
+        <Tooltip title={permissionDescriptions[perm.key]}>
+          <Switch
+            checked={!!record.permissions?.[perm.key]}
+            onChange={(checked) => handleTogglePermission(record, perm.key, checked)}
+            checkedChildren="Bật"
+            unCheckedChildren="Tắt"
+          />
+        </Tooltip>
+      )
+    }))
   ];
 
   return (
@@ -83,8 +116,9 @@ export default function ModPermissionManager() {
         rowKey="id"
         dataSource={mods}
         columns={columns}
-        pagination={false}
+        pagination={{ pageSize: 10 }}
         bordered
+        scroll={{ x: 900 }}
         style={{ marginTop: 20 }}
       />
     </div>
