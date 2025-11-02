@@ -69,6 +69,8 @@ export default function ModPermissionManager() {
         <Switch
           checked={!!record.permissions?.[perm.key]}
           onChange={(checked) => handleTogglePermission(record, perm.key, checked)}
+          checkedChildren="Bật"
+          unCheckedChildren="Tắt"
         />
       ),
     })),
@@ -76,7 +78,7 @@ export default function ModPermissionManager() {
 
   return (
     <div className="mod-permission-manager">
-      <h4>Admin có thể bật/tắt quyền thao tác cho từng moderator tại đây.</h4>
+      <strong>Admin có thể bật/tắt quyền thao tác cho từng moderator tại đây.</strong>
       <Table
         rowKey="id"
         dataSource={mods}

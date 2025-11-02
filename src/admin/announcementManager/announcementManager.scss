@@ -2,16 +2,10 @@
 @import "../../style/theme";
 
 .announcement-manager {
-  padding: 20px;
-
-  h2 {
-    color: #2f3640;
-    font-weight: 600;
-    margin-bottom: 16px;
-  }
+  padding: 0 20px 20px 20px;
 
   .ant-btn-primary {
-    margin-bottom: 20px;
+    margin-bottom: 0;
   }
 
   .ant-table {
