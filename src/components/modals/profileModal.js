@@ -194,7 +194,7 @@ export default function ProfileModal() {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 onPressEnter={handleSaveName}
-                maxLength={50}
+                maxLength={20}
                 style={{ flex: 1 }}
               />
               <Button

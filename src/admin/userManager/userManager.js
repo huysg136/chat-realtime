@@ -16,7 +16,8 @@ import { AuthContext } from "../../context/authProvider";
 import { toast } from "react-toastify";
 import { FiArrowUp, FiArrowDown, FiSlash, FiUnlock, FiInfo, FiCheckCircle } from "react-icons/fi";
 import NoAccess from "../noAccess/noAccess";
-import { IoIosCloseCircleOutline } from "react-icons/io"; 
+import { IoIosCloseCircleOutline } from "react-icons/io";
+import { Table, Tooltip } from "antd";
 import "react-toastify/dist/ReactToastify.css";
 import "./userManager.scss";
 
@@ -224,134 +225,251 @@ export default function UsersManager() {
     return { status: "Hoạt động", remainingDays: 0 };
   };
 
+  const columns = [
+    {
+      title: "Avatar",
+      dataIndex: "photoURL",
+      key: "photoURL",
+      render: (photoURL, record) => (
+        <img src={photoURL} alt={record.displayName} width="40" height="40" />
+      ),
+    },
+    {
+      title: "UID",
+      dataIndex: "uid",
+      key: "uid",
+      render: (uid) => (
+        <Tooltip 
+          title={
+            <>
+              <span style={{ fontWeight: "bold", whiteSpace: "pre-line" }}>
+                Nhấn để sao chép{'\n'}
+              </span>
+              <span>
+                {uid}
+              </span>
+            </>
+          }
+          placement="top" 
+        >
+          <span
+            style={{
+              cursor: "pointer",
+              display: "inline-block",
+              maxWidth: 140,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+            onClick={() => {
+              navigator.clipboard.writeText(uid);
+              toast.info("Đã sao chép", { autoClose: 1200 });
+            }}
+          >
+            {uid.length > 12 ? `${uid.slice(0, 6)}...${uid.slice(-4)}` : uid}
+          </span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Tên hiển thị",
+      dataIndex: "displayName",
+      key: "displayName",
+      render: (name) => (
+        <Tooltip 
+          title={
+            <>
+              <span style={{ fontWeight: "bold", whiteSpace: "pre-line" }}>
+                Nhấn để sao chép{'\n'}
+              </span>
+              <span>
+                {name}
+              </span>
+            </>
+          }
+        >
+          <span
+            style={{
+              maxWidth: 150,
+              display: "inline-block",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              cursor: "default",
+            }}
+            onClick={() => {
+              navigator.clipboard.writeText(name);
+              toast.info("Đã sao chép", { autoClose: 1200 });
+            }}
+          >
+            {name}
+          </span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      render: (email) => {
+        if (!email) return "";
+        const [localPart, domainPart] = email.split("@");
+        const displayedLocal =
+          localPart.length > 15 ? `${localPart.slice(0, 12)}...` : localPart;
+        const displayEmail = `${displayedLocal}@${domainPart}`;
+        return (
+          <Tooltip
+            title={
+              <>
+                <span style={{ fontWeight: "bold", whiteSpace: "pre-line" }}>
+                  Nhấn để sao chép{'\n'}
+                </span>
+                <span>
+                  {email}
+                </span>
+              </>
+            }
+            placement="top"
+            overlayStyle={{ whiteSpace: "pre-line" }}
+          >
+            <span
+              style={{
+                cursor: "default",
+                display: "inline-block",
+                maxWidth: 220,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                verticalAlign: "middle",
+              }}
+              onClick={() => {
+                navigator.clipboard.writeText(email);
+                toast.info("Đã sao chép", { autoClose: 1200 });
+              }}
+            >
+              {displayEmail}
+            </span>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: "Quyền",
+      dataIndex: "role",
+      key: "role",
+      width: 120,
+      render: (role) => (
+        <strong
+          className={`role-tag ${
+            role === "admin"
+              ? "admin"
+              : role === "moderator"
+              ? "moderator"
+              : "user"
+          }`}
+        >
+          {role || "user"}
+        </strong>
+      ),
+    },
+    {
+      title: "Trạng thái",
+      key: "status",
+      width: 120,
+      render: (_, record) => {
+        const banInfo = getBanInfo(record.uid);
+        const banData = bans.find((b) => b.id === banInfo.banId);
+        return banInfo.status === "Cấm chat" ? (
+          <span
+            style={{ cursor: "pointer", color: "#f44336", fontWeight: "400", display: "inline-flex", alignItems: "center", gap: "4px" }}
+            onClick={() => showBanDetailModal(banData)}
+          >
+            {banInfo.status} <FiInfo size={16} />
+          </span>
+        ) : (
+          <span
+            style={{
+              cursor: "default",
+              color: "#52c41a",
+              fontWeight: "400",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            Mở chat <FiCheckCircle size={16} />
+          </span>
+        );
+      },
+    },
+    {
+      title: "Hành động",
+      key: "actions",
+      render: (_, record) => {
+        const banInfo = getBanInfo(record.uid);
+        return (
+          <>
+            <button
+              className={`btn-edit ${record.role === "moderator" ? "demote" : "promote"}`}
+              onClick={() => handleRoleChange(record)}
+              disabled={
+                (currentUser.role === "admin" && record.role !== "admin") ? false :
+                (currentUser.role === "moderator" && record.role === "user") ? false :
+                true
+              }
+            >
+              {record.role === "moderator" ? (
+                <>
+                  <FiArrowDown /> Thu hồi quyền
+                </>
+              ) : (
+                <>
+                  <FiArrowUp /> Trao quyền
+                </>
+              )}
+            </button>
+
+            {banInfo.status === "Cấm chat" ? (
+              <button
+                className="btn-unban"
+                onClick={() => unbanUser(banInfo.banId)}
+                disabled={
+                  (currentUser.role === "admin" && record.role !== "admin") ? false :
+                  (currentUser.role === "moderator" && record.role === "user") ? false :
+                  true
+                }
+              >
+                <FiUnlock /> Mở cấm
+              </button>
+            ) : (
+              <button
+                className="btn-ban"
+                onClick={() => showBanModal(record)}
+                disabled={
+                  (currentUser.role === "admin" && record.role !== "admin") ? false :
+                  (currentUser.role === "moderator" && record.role === "user") ? false :
+                  true
+                }
+              >
+                <FiSlash /> Cấm chat
+              </button>
+            )}
+          </>
+        );
+      },
+    },
+  ];
+
   if (loading) return <p>Đang tải danh sách người dùng...</p>;
 
   return (
     <div className="user-manager">
-      <table>
-        <thead>
-          <tr>
-            <th>Avatar</th>
-            <th>UID</th>
-            <th>Tên hiển thị</th>
-            <th>Email</th>
-            <th>Quyền</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => {
-            const banInfo = getBanInfo(u.uid);
-            const banData = bans.find((b) => b.id === banInfo.banId);
-
-            return (
-              <tr key={u.id}>
-                <td>
-                  <img src={u.photoURL} alt={u.displayName} width="40" height="40" />
-                </td>
-                <td
-                  title={u.uid} 
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    navigator.clipboard.writeText(u.uid);
-                    toast.info("Đã sao chép UID");
-                  }}
-                >
-                  {u.uid.length > 12
-                    ? `${u.uid.slice(0, 6)}...${u.uid.slice(-4)}`
-                    : u.uid}
-                </td>
-                <td>{u.displayName}</td>
-                <td>{u.email}</td>
-                <td>
-                  <strong
-                    className={`role-tag ${
-                      u.role === "admin"
-                        ? "admin"
-                        : u.role === "moderator"
-                        ? "moderator"
-                        : "user"
-                    }`}
-                  >
-                    {u.role || "user"}
-                  </strong>
-                </td>
-                <td>
-                  {banInfo.status === "Cấm chat" ? (
-                    <span
-                      style={{ cursor: "pointer", color: "#f44336", fontWeight: "400", display: "inline-flex", alignItems: "center", gap: "4px" }}
-                      onClick={() => showBanDetailModal(banData)}
-                    >
-                      {banInfo.status} <FiInfo size={16} />
-                    </span>
-                  ) : (
-                    <span
-                      style={{
-                        cursor: "default",
-                        color: "#52c41a",
-                        fontWeight: "400",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "4px",
-                      }}
-                    >
-                      Mở chat <FiCheckCircle size={16} />
-                    </span>
-                  )}
-                </td>
-                <td>
-                  <button
-                    className={`btn-edit ${u.role === "moderator" ? "demote" : "promote"}`}
-                    onClick={() => handleRoleChange(u)}
-                    disabled={
-                      (currentUser.role === "admin" && u.role !== "admin") ? false :
-                      (currentUser.role === "moderator" && u.role === "user") ? false :
-                      true
-                    }
-                  >
-                    {u.role === "moderator" ? (
-                      <>
-                        <FiArrowDown /> Thu hồi quyền
-                      </>
-                    ) : (
-                      <>
-                        <FiArrowUp /> Trao quyền
-                      </>
-                    )}
-                  </button>
-
-                  {banInfo.status === "Cấm chat" ? (
-                    <button
-                      className="btn-unban"
-                      onClick={() => unbanUser(banInfo.banId)}
-                      disabled={
-                        (currentUser.role === "admin" && u.role !== "admin") ? false :
-                        (currentUser.role === "moderator" && u.role === "user") ? false :
-                        true
-                      }
-                    >
-                      <FiUnlock /> Mở cấm
-                    </button>
-                  ) : (
-                    <button
-                      className="btn-ban"
-                      onClick={() => showBanModal(u)}
-                      disabled={
-                        (currentUser.role === "admin" && u.role !== "admin") ? false :
-                        (currentUser.role === "moderator" && u.role === "user") ? false :
-                        true
-                      }
-                    >
-                      <FiSlash /> Cấm chat
-                    </button>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <Table
+        columns={columns}
+        dataSource={users}
+        rowKey="id"
+        pagination={{ pageSize: 10 }}
+      />
 
       {isBanModalVisible && targetUser && (
         <div className="ban-modal">

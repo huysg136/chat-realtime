@@ -4,6 +4,7 @@ import { collection, deleteDoc, doc, onSnapshot, query, orderBy } from "firebase
 import { decryptMessage } from "../../firebase/services";
 import NoAccess from "../noAccess/noAccess";
 import { AuthContext } from "../../context/authProvider";
+import { Table } from "antd";
 import "./roomManager.scss";
 
 export default function RoomManager() {
@@ -118,6 +119,44 @@ export default function RoomManager() {
       return 0;
     });
 
+  const columns = [
+    {
+      title: "ID phòng",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Loại phòng",
+      dataIndex: "kind",
+      key: "kind",
+    },
+    {
+      title: "Thành viên",
+      dataIndex: "members",
+      key: "members",
+      render: (members) => members.length,
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+    },
+    {
+      title: "Hành động",
+      key: "actions",
+      render: (_, record) => (
+        <div className="actions">
+          <button className="view-btn" onClick={() => setSelectedRoom(record)}>
+            👁 Xem chi tiết
+          </button>
+          {/* <button className="ban-btn" onClick={() => handleBan(record.id)}>
+            🚫 Ban
+          </button> */}
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="room-manager">
       <div className="filters">
@@ -162,39 +201,12 @@ export default function RoomManager() {
         />
       </div>
 
-      <table className="room-table">
-        <thead>
-          <tr>
-            <th>ID phòng</th>
-            {/* <th>Tên phòng</th> */}
-            <th>Loại phòng</th>
-            {/* <th>Chủ phòng</th> */}
-            <th>Thành viên</th>
-            <th>Ngày tạo</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredRooms.map((room) => (
-            <tr key={room.id}>
-              <td>{room.id}</td>
-              {/* <td>{room.name}</td> */}
-              <td>{room.kind}</td>
-              {/* <td>{uidToName[room.ownerUid] || "Ẩn danh"}</td> */}
-              <td>{room.members.length}</td>
-              <td>{room.createdAt}</td>
-              <td className="actions">
-                <button className="view-btn" onClick={() => setSelectedRoom(room)}>
-                  👁 Xem
-                </button>
-                {/* <button className="ban-btn" onClick={() => handleBan(room.id)}>
-                  🚫 Ban
-                </button> */}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <Table
+        columns={columns}
+        dataSource={filteredRooms}
+        rowKey="id"
+        pagination={{ pageSize: 10 }}
+      />
 
       {selectedRoom && (
         <div className="room-modal">

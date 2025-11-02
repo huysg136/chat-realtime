@@ -39,4 +39,51 @@ body.theme-dark {
       margin: 0;
     }
   }
+
+  .ant-pagination {
+    .ant-pagination-item {
+      background: #27354a;
+      border: 1px solid #475569;
+      color: #ffffff;
+
+      a {
+        color: #ffffff;
+      }
+
+      &:hover {
+        border-color: #60a5fa;
+        color: #93c5fd;
+      }
+
+      &.ant-pagination-item-active {
+        background: #27354a;
+        border: 2px solid #1d4ed8;
+      }
+    }
+
+    .ant-pagination-prev,
+    .ant-pagination-next {
+      background: #27354a;
+      border: 1px solid #475569;
+      color: #cbd5e1;
+
+      &:hover {
+        border-color: #60a5fa;
+        color: #93c5fd;
+      }
+
+      .ant-pagination-item-link {
+        color: #cbd5e1;
+
+        &:hover {
+          color: #93c5fd;
+        }
+      }
+    }
+
+    .ant-pagination-jump-prev,
+    .ant-pagination-jump-next {
+      color: #cbd5e1;
+    }
+  }
 }

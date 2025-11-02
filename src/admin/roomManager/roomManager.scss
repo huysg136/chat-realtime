@@ -5,27 +5,27 @@
     margin-bottom: 20px;
   }
 
-  .room-table {
-    width: 100%;
-    border-collapse: collapse;
+  .ant-table {
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
-    th,
-    td {
-      padding: 12px 16px;
+    .ant-table-thead > tr > th {
+      background: #f5f6fa;
+      font-weight: 600;
       border-bottom: 1px solid #e6e8eb;
+      padding: 12px 16px;
+      text-align: left;
+    }
+
+    .ant-table-tbody > tr > td {
+      border-bottom: 1px solid #e6e8eb;
+      padding: 12px 16px;
       text-align: left;
       font-weight: 400;
     }
 
-    th {
-      background: #f5f6fa;
-      font-weight: 600;
-    }
-
-    tbody tr:hover {
+    .ant-table-tbody > tr:hover > td {
       background: rgba(24, 144, 255, 0.05);
     }
 
@@ -59,6 +59,11 @@
         }
       }
     }
+  }
+
+  .ant-pagination {
+    margin-top: 20px;
+    text-align: center;
   }
 
   // Modal
@@ -162,21 +167,21 @@ body.theme-dark {
       color: #e2e8f0;
     }
 
-    .room-table {
+    .ant-table {
       background: #1e293b;
       color: #e2e8f0;
 
-      th {
+      .ant-table-thead > tr > th {
         background: #27354a;
         color: #f1f5f9;
         border-bottom: 1px solid #334155;
       }
 
-      td {
+      .ant-table-tbody > tr > td {
         border-bottom: 1px solid #334155;
       }
 
-      tbody tr:hover {
+      .ant-table-tbody > tr:hover > td {
         background: rgba(255, 255, 255, 0.05);
       }
 

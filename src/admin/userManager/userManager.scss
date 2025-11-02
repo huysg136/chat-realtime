@@ -10,37 +10,33 @@
     gap: 8px;
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
+  .ant-table {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
 
-    th,
-    td {
-      padding: 12px 16px;
-      text-align: left;
-      border-bottom: 1px solid #e6e8eb;
-      transition: all 0.3s ease;
-
-      body.dark-theme & {
-        border-color: #3b3b55;
-      }
-    }
-
-    th {
+    .ant-table-thead > tr > th {
       background: #f5f6fa;
       font-weight: 600;
       color: #2f3640;
+      border-bottom: 1px solid #e6e8eb;
+      padding: 12px 16px;
+      text-align: left;
     }
 
-    tbody tr:nth-child(odd) {
+    .ant-table-tbody > tr > td {
+      border-bottom: 1px solid #e6e8eb;
+      padding: 12px 16px;
+      text-align: left;
+      transition: all 0.3s ease;
+    }
+
+    .ant-table-tbody > tr:nth-child(odd) {
       background: #fff;
     }
 
-    tbody tr:hover {
+    .ant-table-tbody > tr:hover > td {
       background: rgba(24, 144, 255, 0.05);
     }
 
@@ -217,25 +213,25 @@
 
 body.theme-dark {
   .user-manager {
-    table {
+    .ant-table {
       background: #1e293b;
       color: #e2e8f0;
 
-      th {
+      .ant-table-thead > tr > th {
         background: #27354a;
         color: #f1f5f9;
         border-bottom: 1px solid #334155;
       }
 
-      td {
+      .ant-table-tbody > tr > td {
         border-bottom: 1px solid #334155;
       }
 
-      tbody tr:nth-child(odd) {
+      .ant-table-tbody > tr:nth-child(odd) {
         background: #1e293b;
       }
 
-      tbody tr:hover {
+      .ant-table-tbody > tr:hover > td {
         background: rgba(255, 255, 255, 0.05);
       }
 
