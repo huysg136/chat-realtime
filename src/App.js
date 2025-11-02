@@ -17,6 +17,7 @@ import AdminSettings from './admin/adminSettings/adminSettings';
 import MaintenancePage from './components/maintenancePage/maintenancePage';
 import SettingsModal from './components/modals/settingsModal';
 import AnnouncementModal from './components/modals/announcementModal';
+import ModPermissionManager from './admin/modPermissionManager/modPermissionManager';
 
 import useApplyTheme from './hooks/useApplyTheme';
 import { AuthContext } from './context/authProvider';
@@ -52,7 +53,7 @@ function App() {
               <Route
                 path="/admin"
                 element={
-                  <PrivateRoute requireAdmin>
+                  <PrivateRoute requireAdmin requirePermission="canAccessAdminPage">
                     <AdminLayout />
                   </PrivateRoute>
                 }
@@ -61,7 +62,8 @@ function App() {
                 <Route path="users" element={<UsersManager />} />
                 <Route path="rooms" element={<RoomsManager />} />
                 <Route path="announcements" element={<AnnouncementManager />} />
-                <Route path="/admin/settings" element={<AdminSettings />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="mod-permissions" element={<ModPermissionManager />}/>
               </Route>
             </Routes>
             <AddRoomModal />
@@ -69,7 +71,6 @@ function App() {
             <ProfileModal />
             <SettingsModal />
             <AnnouncementModal />
-
           </ThemeWrapper>
         </AppProvider>
       </AuthProvider>

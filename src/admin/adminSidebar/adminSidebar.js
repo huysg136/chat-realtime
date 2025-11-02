@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Layout, Menu } from "antd";
 import {
   UserOutlined,
@@ -6,18 +6,21 @@ import {
   BellOutlined,
   DashboardOutlined,
   SettingOutlined,
+  SafetyCertificateOutlined
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import { IoMdReturnLeft } from "react-icons/io";
 import logo from "../../images/logo_quik.png";
 import { useNavigate } from "react-router-dom";
 import "./adminSidebar.scss";
+import { AuthContext } from "../../context/authProvider";
 
 const { Sider } = Layout;
 
 export default function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user:currentUser } = useContext(AuthContext);
 
   return (
     <Sider width={220} className="admin-sider">
@@ -42,6 +45,11 @@ export default function AdminSidebar() {
         <Menu.Item key="/admin/announcements" icon={<BellOutlined />}>
           <Link to="/admin/announcements">Tạo thông báo</Link>
         </Menu.Item>
+        {currentUser?.role === "admin" && (
+          <Menu.Item key="/admin/mod-permissions" icon={<SafetyCertificateOutlined />}>
+            <Link to="/admin/mod-permissions">Quản lý quyền mod</Link>
+          </Menu.Item>
+        )}
         <Menu.Item key="/admin/settings" icon={<SettingOutlined />}>
           <Link to="/admin/settings">Cấu hình hệ thống</Link>
         </Menu.Item>

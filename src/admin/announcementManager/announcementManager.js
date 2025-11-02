@@ -17,6 +17,7 @@ import "./announcementManager.scss";
 import { toast } from "react-toastify";
 import { AppContext } from "../../context/appProvider";
 import { AuthContext } from "../../context/authProvider";
+import NoAccess from "../noAccess/noAccess";
 
 export default function AnnouncementManager() {
   const [list, setList] = useState([]);
@@ -66,6 +67,10 @@ export default function AnnouncementManager() {
       clearTimeout(window._sortTimer);
     };
   }, []);
+
+  if (!currentUser?.permissions?.canManageAnnouncements && currentUser.role !== "admin") {
+    return <NoAccess />;
+  }
 
   const resetModal = () => {
     setOpen(false);
@@ -154,7 +159,7 @@ export default function AnnouncementManager() {
 
   return (
     <div className="announcement-manager">
-      <Button type="primary" onClick={() => setOpen(true)} disabled={currentUser.role !== "admin"}>
+      <Button type="primary" onClick={() => setOpen(true)}>
         + Thêm thông báo
       </Button>
 
@@ -169,7 +174,6 @@ export default function AnnouncementManager() {
               <Switch
                 checked={value}
                 onChange={(checked) => toggleShow(record.id, checked)}
-                disabled={currentUser.role !== "admin"}
               />
             ),
           },
@@ -205,14 +209,13 @@ export default function AnnouncementManager() {
             title: "Hành động",
             render: (_, r) => (
               <Space>
-                <Button className="btn-edit" onClick={() => startEdit(r)} disabled={currentUser.role !== "admin"}>
+                <Button className="btn-edit" onClick={() => startEdit(r)}>
                   Sửa
                 </Button>
                 <Button
                   className="btn-delete"
                   danger
                   onClick={() => remove(r.id)}
-                  disabled={currentUser.role !== "admin"}
                 >
                   Xoá
                 </Button>

@@ -10,10 +10,12 @@ import {
   query,
   where,
   addDoc,
+  deleteField
 } from "firebase/firestore";
 import { AuthContext } from "../../context/authProvider";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { FiArrowUp, FiArrowDown, FiSlash, FiUnlock, FiInfo, FiCheckCircle } from "react-icons/fi";
+import NoAccess from "../noAccess/noAccess";
 import { IoIosCloseCircleOutline } from "react-icons/io"; 
 import "react-toastify/dist/ReactToastify.css";
 import "./userManager.scss";
@@ -36,6 +38,7 @@ export default function UsersManager() {
   const [users, setUsers] = useState([]);
   const [bans, setBans] = useState([]);
   const [loading, setLoading] = useState(true);
+  
 
   const [isBanModalVisible, setIsBanModalVisible] = useState(false);
   const [banDays, setBanDays] = useState(1);
@@ -78,6 +81,10 @@ export default function UsersManager() {
       unsubscribeBans();
     };
   }, []);
+
+  if (!currentUser?.permissions?.canManageUsers && currentUser.role !== "admin") {
+    return <NoAccess />;
+  }
 
   const handleBanAllOk = async () => {
     const now = new Date();
@@ -144,16 +151,30 @@ export default function UsersManager() {
     }
 
     try {
-      await updateDoc(doc(db, "users", docId), { role: nextRole });
-      toast.success(
-        nextRole === "moderator"
-          ? `Đã nâng ${user.displayName} lên moderator`
-          : `Đã hạ ${user.displayName} xuống user`
-      );
+      if (nextRole === "moderator") {
+        await updateDoc(doc(db, "users", docId), {
+          role: nextRole,
+          permissions: {
+            canAccessAdminPage: true,
+            canManageUsers: false,
+            canManageRooms: false,
+            canManageAnnouncements: false,
+            canToggleMaintenance: false,
+          },
+        });
+        toast.success(`Đã nâng ${user.displayName} lên moderator`);
+      } else {
+        await updateDoc(doc(db, "users", docId), {
+          role: nextRole,
+          permissions: deleteField(),
+        });
+        toast.success(`Đã hạ ${user.displayName} xuống user`);
+      }
     } catch (err) {
       toast.error("Đổi role thất bại");
     }
   };
+
 
   const showBanModal = (user) => {
     setTargetUser(user);
@@ -284,7 +305,9 @@ export default function UsersManager() {
                     className={`btn-edit ${u.role === "moderator" ? "demote" : "promote"}`}
                     onClick={() => handleRoleChange(u)}
                     disabled={
-                      currentUser.role !== "admin" || u.role === "admin"
+                      (currentUser.role === "admin" && u.role !== "admin") ? false :
+                      (currentUser.role === "moderator" && u.role === "user") ? false :
+                      true
                     }
                   >
                     {u.role === "moderator" ? (
@@ -302,7 +325,11 @@ export default function UsersManager() {
                     <button
                       className="btn-unban"
                       onClick={() => unbanUser(banInfo.banId)}
-                      disabled={currentUser.role !== "admin"}
+                      disabled={
+                        (currentUser.role === "admin" && u.role !== "admin") ? false :
+                        (currentUser.role === "moderator" && u.role === "user") ? false :
+                        true
+                      }
                     >
                       <FiUnlock /> Mở cấm
                     </button>
@@ -311,7 +338,9 @@ export default function UsersManager() {
                       className="btn-ban"
                       onClick={() => showBanModal(u)}
                       disabled={
-                        currentUser.role !== "admin" || u.role === "admin"
+                        (currentUser.role === "admin" && u.role !== "admin") ? false :
+                        (currentUser.role === "moderator" && u.role === "user") ? false :
+                        true
                       }
                     >
                       <FiSlash /> Cấm chat

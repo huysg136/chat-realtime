@@ -40,6 +40,7 @@ export default function AuthProvider({ children }) {
                 uid,
                 role: userData.role || "user",
                 theme: userData.theme || "system",
+                permissions: userData.permissions || {},
               });
               setIsLoading(false);
               if (window.location.pathname === "/login") {
@@ -53,6 +54,7 @@ export default function AuthProvider({ children }) {
                 uid,
                 role: "user",
                 theme: "system",
+                permissions: {},
               });
               setIsLoading(false);
               if (window.location.pathname === "/login") {
@@ -71,6 +73,7 @@ export default function AuthProvider({ children }) {
             uid,
             role: "user",
             theme: "system",
+            permissions: {},
           });
           setIsLoading(false);
           if (window.location.pathname === "/login") {

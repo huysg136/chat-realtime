@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { db } from "../../firebase/config";
 import { collection, deleteDoc, doc, onSnapshot, query, orderBy } from "firebase/firestore";
 import { decryptMessage } from "../../firebase/services";
+import NoAccess from "../noAccess/noAccess";
+import { AuthContext } from "../../context/authProvider";
 import "./roomManager.scss";
 
 export default function RoomManager() {
+  const { user: currentUser } = useContext(AuthContext);
   const [rooms, setRooms] = useState([]);
   const [uidToName, setUidToName] = useState({});
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -94,8 +97,9 @@ export default function RoomManager() {
     };
   }, []);
 
-  // const handleBan = async (id) => {
-  // };
+  if (!currentUser?.permissions?.canManageRooms && currentUser.role !== "admin") {
+    return <NoAccess />;
+  }
 
   const filteredRooms = rooms
     .filter((room) =>

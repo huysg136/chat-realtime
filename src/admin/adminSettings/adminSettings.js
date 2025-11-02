@@ -20,6 +20,7 @@ import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import { toast } from 'react-toastify';
 import "./adminSettings.scss";
 import { AuthContext } from "../../context/authProvider";
+import NoAccess from "../noAccess/noAccess";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -52,7 +53,6 @@ export default function AdminSettings() {
             : null
         );
 
-        // Cập nhật trạng thái thực từ Firebase
         setActualMaintenance(data.maintenance || false);
         setActualExpectedResume(
           data.expectedResume
@@ -70,8 +70,11 @@ export default function AdminSettings() {
     return () => unsub();
   }, []);
 
+  if (!currentUser?.permissions?.canToggleMaintenance && currentUser.role !== "admin") {
+    return <NoAccess />;
+  }
+
   const handleSaveConfig = async () => {
-    // Validate expectedResume
     if (expectedResume && dayjs(expectedResume).isBefore(dayjs())) {
       toast.error("Thời gian dự kiến mở lại không được là quá khứ!");
       return;
@@ -85,7 +88,6 @@ export default function AdminSettings() {
       });
       toast.success("Cập nhật cấu hình thành công!");
 
-      // Cập nhật trạng thái thực sau khi lưu
       setActualMaintenance(maintenance);
       setActualExpectedResume(expectedResume);
     } catch (err) {
@@ -131,7 +133,6 @@ export default function AdminSettings() {
                 checkedChildren="Bật"
                 unCheckedChildren="Tắt"
                 className="maintenance-switch"
-                disabled={currentUser.role !== "admin"}
               />
             </div>
 
@@ -168,7 +169,7 @@ export default function AdminSettings() {
             </div>
 
             <div className="save-btn-container" style={{ marginTop: 16 }}>
-              <Button type="primary" onClick={handleSaveConfig} disabled={currentUser.role !== "admin"}>
+              <Button type="primary" onClick={handleSaveConfig}>
                 Lưu cấu hình
               </Button>
             </div>

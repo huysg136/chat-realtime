@@ -4,7 +4,7 @@ import { AuthContext } from "../context/authProvider";
 import { AppContext } from "../context/appProvider";
 import { Spin } from "antd";
 
-export default function PrivateRoute({ children, requireAdmin = false }) {
+export default function PrivateRoute({ children, requireAdmin = false, requirePermission = null}) {
   const { user, isLoading: isAuthLoading } = useContext(AuthContext);
   const { isMaintenance } = useContext(AppContext);
 
@@ -28,6 +28,11 @@ export default function PrivateRoute({ children, requireAdmin = false }) {
   if (requireAdmin && !["admin", "moderator"].includes(user.role)) {
     return <Navigate to="/maintenance" replace />;
   }
+
+  if (requirePermission && user.role !== "admin" && !user.permissions?.[requirePermission]) {
+    return <Navigate to="/" />;
+  }
+
 
   if (isMaintenance && !["admin", "moderator"].includes(user.role)) {
     return <Navigate to="/maintenance" replace />;
