@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 import { AuthContext } from "../../context/authProvider";
 import { toast } from "react-toastify";
-import { FiArrowUp, FiArrowDown, FiSlash, FiUnlock, FiInfo, FiCheckCircle } from "react-icons/fi";
+import { FiArrowUp, FiArrowDown, FiSlash, FiUnlock, FiInfo, FiCheckCircle, FiCopy } from "react-icons/fi";
 import NoAccess from "../noAccess/noAccess";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { Table, Tooltip } from "antd";
@@ -39,6 +39,13 @@ export default function UsersManager() {
   const [users, setUsers] = useState([]);
   const [bans, setBans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    uid: "",
+    displayName: "",
+    email: "",
+    role: "",
+    status: "",
+  });
   
 
   const [isBanModalVisible, setIsBanModalVisible] = useState(false);
@@ -225,6 +232,23 @@ export default function UsersManager() {
     return { status: "Hoạt động", remainingDays: 0 };
   };
 
+  const filteredUsers = users
+    .filter((user) =>
+      user.uid.toLowerCase().includes(filters.uid.toLowerCase())
+    )
+    .filter((user) =>
+      user.displayName.toLowerCase().includes(filters.displayName.toLowerCase())
+    )
+    .filter((user) =>
+      user.email.toLowerCase().includes(filters.email.toLowerCase())
+    )
+    .filter((user) => (filters.role ? user.role === filters.role : true))
+    .filter((user) => {
+      if (!filters.status) return true;
+      const banInfo = getBanInfo(user.uid);
+      return banInfo.status === filters.status;
+    });
+
   const columns = [
     {
       title: "Avatar",
@@ -239,36 +263,18 @@ export default function UsersManager() {
       dataIndex: "uid",
       key: "uid",
       render: (uid) => (
-        <Tooltip 
-          title={
-            <>
-              <span style={{ fontWeight: "bold", whiteSpace: "pre-line" }}>
-                Nhấn để sao chép{'\n'}
-              </span>
-              <span>
-                {uid}
-              </span>
-            </>
-          }
-          placement="top" 
+        <span
+          className="copyable"
+          onClick={() => {
+            navigator.clipboard.writeText(uid);
+            toast.info("Đã sao chép UID", { autoClose: 1200 });
+          }}
         >
-          <span
-            style={{
-              cursor: "pointer",
-              display: "inline-block",
-              maxWidth: 140,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-            onClick={() => {
-              navigator.clipboard.writeText(uid);
-              toast.info("Đã sao chép", { autoClose: 1200 });
-            }}
-          >
+          <span className="text">
             {uid.length > 12 ? `${uid.slice(0, 6)}...${uid.slice(-4)}` : uid}
           </span>
-        </Tooltip>
+          <FiCopy className="copy-icon" size={15} />
+        </span>
       ),
     },
     {
@@ -276,35 +282,18 @@ export default function UsersManager() {
       dataIndex: "displayName",
       key: "displayName",
       render: (name) => (
-        <Tooltip 
-          title={
-            <>
-              <span style={{ fontWeight: "bold", whiteSpace: "pre-line" }}>
-                Nhấn để sao chép{'\n'}
-              </span>
-              <span>
-                {name}
-              </span>
-            </>
-          }
+        <span
+          className="copyable"
+          onClick={() => {
+            navigator.clipboard.writeText(name);
+            toast.info("Đã sao chép tên hiển thị", { autoClose: 1200 });
+          }}
         >
-          <span
-            style={{
-              maxWidth: 150,
-              display: "inline-block",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              cursor: "default",
-            }}
-            onClick={() => {
-              navigator.clipboard.writeText(name);
-              toast.info("Đã sao chép", { autoClose: 1200 });
-            }}
-          >
-            {name}
+          <span className="text">
+            {name.length > 18 ? `${name.slice(0, 15)}...` : name}
           </span>
-        </Tooltip>
+          <FiCopy className="copy-icon" size={15} />
+        </span>
       ),
     },
     {
@@ -317,39 +306,18 @@ export default function UsersManager() {
         const displayedLocal =
           localPart.length > 15 ? `${localPart.slice(0, 12)}...` : localPart;
         const displayEmail = `${displayedLocal}@${domainPart}`;
+
         return (
-          <Tooltip
-            title={
-              <>
-                <span style={{ fontWeight: "bold", whiteSpace: "pre-line" }}>
-                  Nhấn để sao chép{'\n'}
-                </span>
-                <span>
-                  {email}
-                </span>
-              </>
-            }
-            placement="top"
-            overlayStyle={{ whiteSpace: "pre-line" }}
+          <span
+            className="copyable"
+            onClick={() => {
+              navigator.clipboard.writeText(email);
+              toast.info("Đã sao chép email", { autoClose: 1200 });
+            }}
           >
-            <span
-              style={{
-                cursor: "default",
-                display: "inline-block",
-                maxWidth: 220,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                verticalAlign: "middle",
-              }}
-              onClick={() => {
-                navigator.clipboard.writeText(email);
-                toast.info("Đã sao chép", { autoClose: 1200 });
-              }}
-            >
-              {displayEmail}
-            </span>
-          </Tooltip>
+            <span className="text">{displayEmail}</span>
+            <FiCopy className="copy-icon" size={15} />
+          </span>
         );
       },
     },
@@ -381,7 +349,14 @@ export default function UsersManager() {
         const banData = bans.find((b) => b.id === banInfo.banId);
         return banInfo.status === "Cấm chat" ? (
           <span
-            style={{ cursor: "pointer", color: "#f44336", fontWeight: "400", display: "inline-flex", alignItems: "center", gap: "4px" }}
+            style={{
+              cursor: "pointer",
+              color: "#f44336",
+              fontWeight: "400",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
             onClick={() => showBanDetailModal(banData)}
           >
             {banInfo.status} <FiInfo size={16} />
@@ -410,12 +385,16 @@ export default function UsersManager() {
         return (
           <>
             <button
-              className={`btn-edit ${record.role === "moderator" ? "demote" : "promote"}`}
+              className={`btn-edit ${
+                record.role === "moderator" ? "demote" : "promote"
+              }`}
               onClick={() => handleRoleChange(record)}
               disabled={
-                (currentUser.role === "admin" && record.role !== "admin") ? false :
-                (currentUser.role === "moderator" && record.role === "user") ? false :
-                true
+                (currentUser.role === "admin" && record.role !== "admin")
+                  ? false
+                  : (currentUser.role === "moderator" && record.role === "user")
+                  ? false
+                  : true
               }
             >
               {record.role === "moderator" ? (
@@ -434,9 +413,11 @@ export default function UsersManager() {
                 className="btn-unban"
                 onClick={() => unbanUser(banInfo.banId)}
                 disabled={
-                  (currentUser.role === "admin" && record.role !== "admin") ? false :
-                  (currentUser.role === "moderator" && record.role === "user") ? false :
-                  true
+                  (currentUser.role === "admin" && record.role !== "admin")
+                    ? false
+                    : (currentUser.role === "moderator" && record.role === "user")
+                    ? false
+                    : true
                 }
               >
                 <FiUnlock /> Mở cấm
@@ -446,9 +427,11 @@ export default function UsersManager() {
                 className="btn-ban"
                 onClick={() => showBanModal(record)}
                 disabled={
-                  (currentUser.role === "admin" && record.role !== "admin") ? false :
-                  (currentUser.role === "moderator" && record.role === "user") ? false :
-                  true
+                  (currentUser.role === "admin" && record.role !== "admin")
+                    ? false
+                    : (currentUser.role === "moderator" && record.role === "user")
+                    ? false
+                    : true
                 }
               >
                 <FiSlash /> Cấm chat
@@ -460,13 +443,52 @@ export default function UsersManager() {
     },
   ];
 
+
   if (loading) return <p>Đang tải danh sách người dùng...</p>;
 
   return (
     <div className="user-manager">
+      <div className="filters">
+        <input
+          type="text"
+          placeholder="UID..."
+          value={filters.uid}
+          onChange={(e) => setFilters({ ...filters, uid: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Tên hiển thị..."
+          value={filters.displayName}
+          onChange={(e) => setFilters({ ...filters, displayName: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Email..."
+          value={filters.email}
+          onChange={(e) => setFilters({ ...filters, email: e.target.value })}
+        />
+        <select
+          value={filters.role}
+          onChange={(e) => setFilters({ ...filters, role: e.target.value })}
+        >
+          <option value="">Tất cả quyền</option>
+          <option value="admin">Admin</option>
+          <option value="moderator">Moderator</option>
+          <option value="user">User</option>
+        </select>
+        <select
+          value={filters.status}
+          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+        >
+          <option value="">Tất cả trạng thái</option>
+          <option value="Hoạt động">Hoạt động</option>
+          <option value="Cấm chat">Cấm chat</option>
+        </select>
+      </div>
+
       <Table
         columns={columns}
-        dataSource={users}
+        dataSource={filteredUsers}
         rowKey="id"
         pagination={{ pageSize: 10 }}
       />

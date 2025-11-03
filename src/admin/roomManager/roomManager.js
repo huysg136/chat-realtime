@@ -4,7 +4,9 @@ import { collection, deleteDoc, doc, onSnapshot, query, orderBy } from "firebase
 import { decryptMessage } from "../../firebase/services";
 import NoAccess from "../noAccess/noAccess";
 import { AuthContext } from "../../context/authProvider";
+import { FiCopy } from "react-icons/fi";
 import { Table } from "antd";
+import { toast } from "react-toastify";
 import "./roomManager.scss";
 
 export default function RoomManager() {
@@ -124,6 +126,20 @@ export default function RoomManager() {
       title: "ID phòng",
       dataIndex: "id",
       key: "id",
+      render: (uid) => (
+        <span
+          className="copyable"
+          onClick={() => {
+            navigator.clipboard.writeText(uid);
+            toast.info("Đã sao chép UID", { autoClose: 1200 });
+          }}
+        >
+          <span className="text">
+            {uid}
+          </span>
+          <FiCopy className="copy-icon" size={15} />
+        </span>
+      ),
     },
     {
       title: "Loại phòng",

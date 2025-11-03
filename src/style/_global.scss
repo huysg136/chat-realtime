@@ -10,7 +10,44 @@ body * {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
+.copyable {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  max-width: 220px;
+
+  .text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .copy-icon {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    color: #94a3b8;
+  }
+
+  &:hover .copy-icon {
+    opacity: 1;
+  }
+
+  &:active .copy-icon {
+    color: #3b82f6;
+  }
+}
+
 body.theme-dark {
+  .copyable .copy-icon {
+    color: #cbd5e1;
+
+    &:active {
+      color: #60a5fa;
+    }
+  }
+  
   .ant-dropdown-menu {
     background-color: #303030;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -84,6 +121,17 @@ body.theme-dark {
     .ant-pagination-jump-prev,
     .ant-pagination-jump-next {
       color: #cbd5e1;
+    }
+  }
+
+  .ant-tooltip {
+    .ant-tooltip-inner {
+      background-color: #ffffff;
+      color: #000000;
+    }
+
+    .ant-tooltip-arrow::before {
+      background-color: #ffffff;
     }
   }
 }

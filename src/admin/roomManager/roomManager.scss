@@ -240,6 +240,10 @@ body.theme-dark {
       color: #f1f5f9;
       border: 1px solid #334155;
 
+      &::placeholder {
+        color: #94a3b8;
+      }
+
       &:focus {
         border-color: #3b82f6;
         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);

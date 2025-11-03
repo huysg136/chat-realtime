@@ -1,5 +1,5 @@
 .user-manager {
-  padding: 0 20px 20px 20px;
+  //padding: 0 20px 20px 20px;
 
   h2 {
     color: #2f3640;
@@ -8,6 +8,21 @@
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+
+  .filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+
+    input, select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 13px;
+      min-width: 120px;
+    }
   }
 
   .ant-table {
@@ -211,8 +226,27 @@
   }
 }
 
+
 body.theme-dark {
   .user-manager {
+  .filters {
+    input,
+    select {
+      background: #27354a;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+
+      &::placeholder {
+        color: #94a3b8;
+      }
+
+      &:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      }
+    }
+  }
+
     .ant-table {
       background: #1e293b;
       color: #e2e8f0;
