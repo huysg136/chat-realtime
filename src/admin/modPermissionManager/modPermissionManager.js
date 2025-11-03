@@ -17,7 +17,7 @@ export default function ModPermissionManager() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
-        permissions: {}, // đảm bảo có object permissions
+        permissions: {}, 
         ...doc.data()
       }));
       setMods(data);
@@ -50,6 +50,7 @@ export default function ModPermissionManager() {
     try {
       await updateDoc(doc(db, "users", mod.id), {
         [`permissions.${permissionKey}`]: value,
+        
       });
     } catch (err) {
       toast.error("Không thể cập nhật quyền");
@@ -80,10 +81,10 @@ export default function ModPermissionManager() {
       key: "displayName",
       fixed: "left",
       render: (name, record) => (
-        <Space direction="vertical" size={2}>
+        <Space direction="vertical" size={0}>
           <strong>{name}</strong>
           <Tooltip title={record.email}>
-            <Tag color="blue" style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }}>
+            <Tag color="blue" style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", padding: "0 6px"}}>
               {record.email}
             </Tag>
           </Tooltip>
@@ -117,7 +118,6 @@ export default function ModPermissionManager() {
         dataSource={mods}
         columns={columns}
         pagination={{ pageSize: 10 }}
-        bordered
         scroll={{ x: 900 }}
         style={{ marginTop: 20 }}
       />
