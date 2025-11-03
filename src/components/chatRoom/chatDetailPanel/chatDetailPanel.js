@@ -246,7 +246,7 @@ export default function ChatDetailPanel({
         <div className="chat-detail-header">
           <div className="title-area">
             <h3>Chi tiết</h3>
-            <span className="room-type">{isPrivate ? "Cuộc chuyện riêng tư" : "Nhóm"}</span>
+            <span className="room-type">{isPrivate ? "Riêng tư" : "Nhóm"}</span>
           </div>
           <button className="close-btn" onClick={onClose} aria-label="Đóng">✕</button>
         </div>
@@ -261,6 +261,7 @@ export default function ChatDetailPanel({
                   </Avatar>
                   <div className="overview-info">
                     <p className="name">{otherUser.displayName}</p>
+                    <p className="room-uid">ID phòng chat: {selectedRoom.id}</p>
                   </div>
                 </div>
               ) : null
@@ -302,6 +303,7 @@ export default function ChatDetailPanel({
                       </>
                     )}
                   </div>
+                  <p className="room-uid">ID phòng chat: {selectedRoom.id}</p>
                   <p className="sub">{selectedRoom.description}</p>
                 </div>
               </div>
@@ -347,6 +349,7 @@ export default function ChatDetailPanel({
                       </>
                     )}
                   </div>
+                  <p className="room-uid">ID phòng chat: {selectedRoom.id}</p>
                   <p className="sub">{selectedRoom.description}</p>
                 </div>
               </div>
@@ -397,6 +400,7 @@ export default function ChatDetailPanel({
                           {isMemberOwner && <FaKey color="gold" />}
                           {isMemberCoOwner && <FaKey color="silver" />}
                         </div>
+                        <p style={{ fontSize: 12, color: "gray", margin: 0 }}>@{m.username}</p>
                       </div>
                       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                         {canToggleCoOwner(m.uid) && (

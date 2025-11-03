@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, Select, Avatar, message } from "antd";
 import { toast } from 'react-toastify';
-import { updateDocument } from "../../firebase/services";
+import { updateDocument, deleteDocument } from "../../firebase/services";
 import "./transferOwnershipModal.scss";
 
 export default function TransferOwnershipModal({
@@ -25,21 +25,32 @@ export default function TransferOwnershipModal({
   );
 
   const transferOwnershipAndLeave = async () => {
-    if (!selectedTransferUid) {
-      toast.warning("Vui lòng chọn người nhận quyền trưởng nhóm");
-      return;
-    }
-    if (!selectedRoom) return;
-    if (!currentUid) return;
+    if (!selectedRoom || !currentUid) return;
 
-    if (String(selectedTransferUid).trim() === String(currentUid).trim()) {
-      toast.warning("Không thể chuyển quyền cho chính bạn");
-      return;
-    }
+    setLeavingLoading(true);
 
     try {
-      setLeavingLoading(true);
+      if (selectedRoom.members.length === 1) {
+        // Nếu là người duy nhất => xóa nhóm
+        await deleteDocument("rooms", selectedRoom.id);
+        toast.success("Bạn đã giải tán nhóm");
+        onClose();
+        return;
+      }
 
+      if (!selectedTransferUid) {
+        toast.warning("Vui lòng chọn người nhận quyền trưởng nhóm");
+        setLeavingLoading(false);
+        return;
+      }
+
+      if (String(selectedTransferUid).trim() === String(currentUid).trim()) {
+        toast.warning("Không thể chuyển quyền cho chính bạn");
+        setLeavingLoading(false);
+        return;
+      }
+
+      // Cập nhật roles
       const newRolesMap = {};
       (rolesArray || []).forEach((r) => {
         newRolesMap[String(r.uid).trim()] = r.role;
@@ -71,6 +82,7 @@ export default function TransferOwnershipModal({
       toast.success("Đã chuyển quyền và rời nhóm");
       onClose();
     } catch (err) {
+      console.error(err);
       toast.error("Chuyển quyền hoặc rời nhóm thất bại, thử lại sau");
     } finally {
       setLeavingLoading(false);
@@ -83,37 +95,43 @@ export default function TransferOwnershipModal({
       open={visible}
       onOk={transferOwnershipAndLeave}
       onCancel={onClose}
-      okText="Chuyển & Rời"
+      okText={selectedRoom?.members?.length === 1 ? "Giải tán nhóm" : "Chuyển & Rời"}
       cancelText="Hủy"
       confirmLoading={leavingLoading}
       destroyOnHidden
       className="transfer-ownership-modal"
     >
-      <p>Vui lòng chọn thành viên sẽ nhận quyền trưởng nhóm trước khi bạn rời.</p>
-
-      {transferCandidates.length === 0 ? (
-        <div>
-          <p>Không có thành viên nào phù hợp để chuyển quyền. Bạn không thể rời nhóm ngay bây giờ.</p>
-        </div>
+      {selectedRoom?.members?.length === 1 ? (
+        <p>Bạn là thành viên duy nhất. Rời nhóm sẽ giải tán nhóm này.</p>
       ) : (
-        <Select
-          style={{ width: "100%" }}
-          placeholder="Chọn thành viên"
-          value={selectedTransferUid}
-          onChange={(val) => setSelectedTransferUid(val)}
-          optionLabelProp="label"
-        >
-          {transferCandidates.map((c) => (
-            <Select.Option key={c.uid} value={c.uid} label={c.displayName || c.uid}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar src={c.photoURL} size={24}>
-                  {(c.displayName || "?").charAt(0).toUpperCase()}
-                </Avatar>
-                <span>{c.displayName || c.uid}</span>
-              </div>
-            </Select.Option>
-          ))}
-        </Select>
+        <>
+          <p>Vui lòng chọn thành viên sẽ nhận quyền trưởng nhóm trước khi bạn rời.</p>
+
+          {transferCandidates.length === 0 ? (
+            <div>
+              <p>Không có thành viên nào phù hợp để chuyển quyền. Bạn không thể rời nhóm ngay bây giờ.</p>
+            </div>
+          ) : (
+            <Select
+              style={{ width: "100%" }}
+              placeholder="Chọn thành viên"
+              value={selectedTransferUid}
+              onChange={(val) => setSelectedTransferUid(val)}
+              optionLabelProp="label"
+            >
+              {transferCandidates.map((c) => (
+                <Select.Option key={c.uid} value={c.uid} label={c.displayName || c.uid}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Avatar src={c.photoURL} size={24}>
+                      {(c.displayName || "?").charAt(0).toUpperCase()}
+                    </Avatar>
+                    <span>{c.displayName || c.uid}</span>
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+          )}
+        </>
       )}
     </Modal>
   );

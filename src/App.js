@@ -38,7 +38,7 @@ function App() {
       <AuthProvider>
         <AppProvider>
           <ThemeWrapper>
-            <ToastContainer position="top-center" autoClose={1000} />
+            <ToastContainer position="top-right" autoClose={1500} toastClassName="small-toast"/>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/maintenance" element={<MaintenancePage />} />

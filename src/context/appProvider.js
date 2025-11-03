@@ -21,6 +21,14 @@ export default function AppProvider({ children }) {
   const location = useLocation();
 
   const { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setSearchText("");
+      setSelectedRoomId("");
+    }
+  }, [user?.uid]);
+
   
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "config", "appStatus"), (snap) => {

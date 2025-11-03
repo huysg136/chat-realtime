@@ -128,6 +128,17 @@
             display: inline-block;
           }
 
+          .room-uid {
+            margin: 2px 0 4px 0;
+            font-size: 12px;
+            color: #8e8e8e;
+            line-height: 1.3;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
           .sub {
             margin: 0;
             font-size: 14px;
@@ -445,6 +456,17 @@ body.theme-dark {
               text-overflow: ellipsis;    
               max-width: 220px;           
               display: inline-block;   
+            }
+
+            .room-uid {
+              margin: 2px 0 4px 0;
+              font-size: 12px;
+              color: #a0a0a0;
+              line-height: 1.3;
+              text-align: center;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
             }
 
             .sub {

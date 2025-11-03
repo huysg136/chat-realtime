@@ -3,26 +3,40 @@ import { Modal, Avatar, Input, Button, Card } from 'antd';
 import { EditOutlined, UserOutlined, CameraOutlined } from '@ant-design/icons';
 import { AuthContext } from '../../context/authProvider';
 import { AppContext } from '../../context/appProvider';
-import { updateDocument, generateKeywords, getUserDocIdByUid } from '../../firebase/services';
+import { updateDocument, getUserDocIdByUid } from '../../firebase/services';
 import { db } from "../../firebase/config";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { doc, onSnapshot, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import "./profileModal.scss";
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
+const MAX_USERNAME_LENGTH = 20;
 
 export default function ProfileModal() {
   const { user, setUser } = useContext(AuthContext);
   const { isProfileVisible, setIsProfileVisible } = useContext(AppContext);
 
   const [displayName, setDisplayName] = useState(user?.displayName || '');
-  const [photoURL, setPhotoURL] = useState(user?.photoURL || '');
+  const [username, setUsername] = useState(user?.username || '');
+  const [photoURL, setPhotoURL] = useState(user?.photoURL || defaultAvatar);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const inputRef = useRef(null);
+  const nameInputRef = useRef(null);
+  const usernameInputRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  // Chuẩn hóa username: liền, không dấu, chỉ a-z0-9, tối đa 20 ký tự
+  const formatUsername = (name) => {
+    return name
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // bỏ dấu
+      .replace(/[^a-z0-9]/g, "")       // bỏ khoảng trắng & ký tự đặc biệt
+      .slice(0, MAX_USERNAME_LENGTH);
+  };
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -34,8 +48,14 @@ export default function ProfileModal() {
         if (docSnap.exists()) {
           const data = docSnap.data();
           setDisplayName(data.displayName || '');
+          setUsername(data.username || '');
           setPhotoURL(data.photoURL || defaultAvatar);
-          setUser(prev => ({ ...prev, displayName: data.displayName, photoURL: data.photoURL }));
+          setUser(prev => ({
+            ...prev,
+            displayName: data.displayName,
+            username: data.username,
+            photoURL: data.photoURL
+          }));
         }
       });
     });
@@ -44,82 +64,80 @@ export default function ProfileModal() {
   }, [user?.uid, setUser]);
 
   useEffect(() => {
-    if (isEditingName && inputRef.current) inputRef.current.focus();
-  }, [isEditingName]);
-
-  const handleEditName = () => setIsEditingName(true);
+    if (isEditingName && nameInputRef.current) nameInputRef.current.focus();
+    if (isEditingUsername && usernameInputRef.current) usernameInputRef.current.focus();
+  }, [isEditingName, isEditingUsername]);
 
   const handleSaveName = async () => {
     if (!displayName.trim()) {
-      toast.error('Tên không được để trống');
+      toast.error('Tên hiển thị không được để trống');
       return;
     }
-
     setLoading(true);
     try {
       const trimmedName = displayName.trim();
-      const keywords = generateKeywords(trimmedName);
-
       const docId = await getUserDocIdByUid(user.uid);
-      if (!docId) {
-        setLoading(false);
-        return;
-      }
+      if (!docId) return;
 
-      const success = await updateDocument("users", docId, {
-        displayName: trimmedName,
-        keywords,
-      });
-
-      if (success) {
-        setUser(prev => ({ ...prev, displayName: trimmedName }));
-
-        const roomsRef = collection(db, "rooms");
-        const q = query(
-          roomsRef,
-          where("type", "==", "private"),
-          where("members", "array-contains", user.uid)
-        );
-
-        const querySnapshot = await getDocs(q);
-        const batch = writeBatch(db);
-
-        querySnapshot.forEach((roomDoc) => {
-          const roomData = roomDoc.data();
-          const otherMemberUid = roomData.members.find(uid => uid !== user.uid);
-
-          if (!otherMemberUid || otherMemberUid === user.uid) return;
-
-          batch.update(doc(db, "rooms", roomDoc.id), { name: trimmedName });
-        });
-
-        await batch.commit();
-
-        setIsEditingName(false);
-        toast.success('Cập nhật tên thành công và đồng bộ phòng private');
-      } else {
-        toast.error('Không thể cập nhật tên');
-      }
+      await updateDocument("users", docId, { displayName: trimmedName });
+      setUser(prev => ({ ...prev, displayName: trimmedName }));
+      setIsEditingName(false);
+      toast.success('Cập nhật tên hiển thị thành công');
     } catch (error) {
-      toast.error('Lỗi khi cập nhật tên');
+      toast.error('Lỗi khi cập nhật tên hiển thị');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCancelEdit = () => setIsEditingName(false);
+  const handleSaveUsername = async () => {
+    const formatted = formatUsername(username);
+    if (!formatted) {
+      toast.error('Username không được để trống');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const q = query(
+        collection(db, "users"),
+        where("username", "==", formatted)
+      );
+      const querySnapshot = await getDocs(q);
+      
+      const isDuplicate = querySnapshot.docs.some(doc => doc.data().uid !== user.uid);
+      if (isDuplicate) {
+        toast.error('Username đã tồn tại, vui lòng chọn tên khác');
+        setLoading(false);
+        return;
+      }
+
+      const docId = await getUserDocIdByUid(user.uid);
+      if (!docId) return;
+
+      await updateDocument("users", docId, { username: formatted });
+      setUsername(formatted);
+      setUser(prev => ({ ...prev, username: formatted }));
+      setIsEditingUsername(false);
+      toast.success('Cập nhật username thành công');
+    } catch (error) {
+      toast.error('Lỗi khi cập nhật username');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCancel = () => {
     setIsProfileVisible(false);
     setDisplayName(user?.displayName || '');
+    setUsername(user?.username || '');
   };
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     toast.info('Chức năng thay đổi ảnh đại diện chưa hoàn thành');
-    // Bạn có thể upload lên storage và update Firestore ở đây
+    // Upload lên Storage và update Firestore nếu muốn
   };
 
   return (
@@ -132,15 +150,7 @@ export default function ProfileModal() {
       width={400}
       className="profile-modal"
     >
-      <Card
-        className="profile-card"
-        style={{
-          borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-          border: 'none'
-        }}
-        bodyStyle={{ padding: '24px' }}
-      >
+      <Card className="profile-card" bodyStyle={{ padding: '24px' }}>
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{ position: 'relative', display: 'inline-block' }}>
             <Avatar
@@ -160,8 +170,7 @@ export default function ProfileModal() {
                 position: 'absolute',
                 bottom: 0,
                 right: 0,
-                border: 'none',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                border: 'none'
               }}
             />
           </div>
@@ -174,58 +183,94 @@ export default function ProfileModal() {
           />
         </div>
 
+        {/* Display Name */}
         <div style={{ marginBottom: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
             <span style={{ fontWeight: '600', marginRight: '8px' }}>Tên hiển thị</span>
             {!isEditingName && (
-              <Button
-                type="text"
-                icon={<EditOutlined />}
-                size="small"
-                onClick={handleEditName}
-                style={{ color: '#1890ff' }}
+              <Button 
+                type="text" 
+                icon={<EditOutlined />} 
+                size="small" 
+                onClick={() => {
+                  setIsEditingName(true);
+                  setIsEditingUsername(false);
+                }}
               />
             )}
           </div>
           {isEditingName ? (
             <div style={{ display: 'flex', gap: '8px' }}>
               <Input
-                ref={inputRef}
+                ref={nameInputRef}
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 onPressEnter={handleSaveName}
-                maxLength={20}
+                maxLength={50}
                 style={{ flex: 1 }}
               />
-              <Button
-                type="primary"
-                onClick={handleSaveName}
+              <Button 
+                type="primary" 
+                onClick={handleSaveName} 
                 loading={loading}
-                size="small"
                 disabled={displayName.trim() === (user?.displayName || '').trim()}
-                className="save-button"
               >
                 Lưu
               </Button>
-              <Button onClick={handleCancelEdit} size="small" className="cancel-button">
-                Hủy
-              </Button>
+              <Button onClick={() => setIsEditingName(false)}>Hủy</Button>
             </div>
           ) : (
-            <div style={{ fontSize: '16px', padding: '0px 0' }}>
-              {displayName || 'Chưa có tên'}
-            </div>
+            <div style={{ fontSize: '16px' }}>{displayName || 'Chưa có tên'}</div>
           )}
         </div>
 
+        {/* Username */}
+        <div style={{ marginBottom: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+            <span style={{ fontWeight: '600', marginRight: '8px' }}>Username</span>
+            {!isEditingUsername && (
+              <Button 
+                type="text" 
+                icon={<EditOutlined />} 
+                size="small" 
+                onClick={() => {
+                  setIsEditingUsername(true);
+                  setIsEditingName(false);
+                }} 
+              />
+            )}
+          </div>
+          {isEditingUsername ? (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Input
+                ref={usernameInputRef}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                onPressEnter={handleSaveUsername}
+                maxLength={MAX_USERNAME_LENGTH}
+                style={{ flex: 1 }}
+              />
+              <Button 
+                type="primary" 
+                onClick={handleSaveUsername} 
+                loading={loading}
+                disabled={formatUsername(username) === (user?.username || '')}
+                >
+                  Lưu
+              </Button>
+              <Button onClick={() => setIsEditingUsername(false)}>Hủy</Button>
+            </div>
+          ) : (
+            <div style={{ fontSize: '14px', color: '#555' }}>@{username || 'chưa có username'}</div>
+          )}
+        </div>
+
+        {/* Email */}
         <div>
-          <div style={{ fontWeight: '600', marginBottom: '8px' }}>Thông tin cá nhân</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ fontWeight: '600', marginBottom: '8px' }}>Email</div>
             <div>
-              <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '4px' }}>Email</div>
               <div style={{ fontSize: '14px' }}>{user?.email}</div>
             </div>
-          </div>
         </div>
       </Card>
     </Modal>

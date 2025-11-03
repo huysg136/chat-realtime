@@ -1,5 +1,5 @@
 import { db } from "./config";
-import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp, addDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc, serverTimestamp, addDoc, deleteDoc } from "firebase/firestore";
 import CryptoJS from "crypto-js";
 
 export const addDocument = async (collectionName, data) => {
@@ -22,6 +22,17 @@ export const updateDocument = async (collectionName, docId, data) => {
     });
     return true;
   } catch (error) {
+    return false;
+  }
+};
+
+export const deleteDocument = async (collectionName, docId) => {
+  try {
+    const docRef = doc(db, collectionName, docId);
+    await deleteDoc(docRef);
+    return true;
+  } catch (error) {
+    console.error("Delete document failed:", error);
     return false;
   }
 };

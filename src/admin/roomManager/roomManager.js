@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useContext } from "react";
 import { db } from "../../firebase/config";
-import { collection, deleteDoc, doc, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { decryptMessage } from "../../firebase/services";
 import NoAccess from "../noAccess/noAccess";
 import { AuthContext } from "../../context/authProvider";
 import { FiCopy } from "react-icons/fi";
-import { Table } from "antd";
+import { Table, Spin } from "antd";
 import { toast } from "react-toastify";
 import "./roomManager.scss";
 
 export default function RoomManager() {
   const { user: currentUser } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
   const [rooms, setRooms] = useState([]);
   const [uidToName, setUidToName] = useState({});
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -30,6 +31,9 @@ export default function RoomManager() {
   };
 
   useEffect(() => {
+    setLoading(true);
+    let usersLoaded = false; 
+    let roomsLoaded = false;
     const unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
       const map = {};
       snap.docs.forEach((u) => {
@@ -37,6 +41,8 @@ export default function RoomManager() {
         map[data.uid] = data.displayName || "Ẩn danh";
       });
       setUidToName(map);
+      usersLoaded = true;
+      if (usersLoaded && roomsLoaded) setLoading(false);
     });
 
     const q = query(collection(db, "rooms"), orderBy("createdAt", "desc"));
@@ -92,6 +98,8 @@ export default function RoomManager() {
         };
       });
       setRooms(roomList);
+        roomsLoaded = true;
+      if (usersLoaded && roomsLoaded) setLoading(false);
     });
 
     return () => {
@@ -103,6 +111,18 @@ export default function RoomManager() {
   if (!currentUser?.permissions?.canManageRooms && currentUser.role !== "admin") {
     return <NoAccess />;
   }
+
+  if (loading)
+  return (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '400px' 
+    }}>
+      <Spin size="large" />
+    </div>
+  );
 
   const filteredRooms = rooms
     .filter((room) =>

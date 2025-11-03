@@ -64,14 +64,20 @@
     }
 
     button {
-      padding: 8px 12px;
+      display: 1 1 auto;
+      padding: 6px 12px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font-size: 13px;
       transition: all 0.3s ease;
-      margin-right: 6px;
       color: #fff;
+      margin-bottom: 2px;
+
+      &:last-child {
+        margin-bottom: 0;
+        margin-top: 2px;
+      }
 
       &:hover {
         opacity: 0.85;
@@ -96,13 +102,13 @@
     }
 
     .btn-ban {
-      width: 100px;
+      width: 130px;
       background-color: #f44336;
       color: #fff;
     }
 
     .btn-unban {
-      width: 100px;
+      width: 130px;
       background-color: #2196f3;
       color: #fff;
     }

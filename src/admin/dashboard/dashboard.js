@@ -213,11 +213,16 @@ export default function Dashboard() {
   };
 
   if (loading)
-    return (
-      <div className="dashboard__loading">
-        <Spin size="large" />
-      </div>
-    );
+  return (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '400px' 
+    }}>
+      <Spin size="large" />
+    </div>
+  );
 
   const growth = calcGrowth(stats.newUsersToday, stats.newUsersYesterday);
 

@@ -11,7 +11,7 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { Table, Button, Modal, Input, Switch, Space } from "antd";
+import { Table, Button, Modal, Input, Switch, Space, Spin } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import "./announcementManager.scss";
 import { toast } from "react-toastify";
@@ -20,6 +20,7 @@ import { AuthContext } from "../../context/authProvider";
 import NoAccess from "../noAccess/noAccess";
 
 export default function AnnouncementManager() {
+  const [loading, setLoading] = useState(true);
   const [list, setList] = useState([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -34,10 +35,12 @@ export default function AnnouncementManager() {
   
 
   useEffect(() => {
+    setLoading(true);
     const q = query(collection(db, "announcements"), orderBy("lastUpdate", "desc"));
     const unsubscribe = onSnapshot(q, (snap) => {
       const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       setList(items);
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -79,6 +82,18 @@ export default function AnnouncementManager() {
     setContent("");
     setTargetUids("");
   };
+
+  if (loading)
+  return (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '400px' 
+    }}>
+      <Spin size="large" />
+    </div>
+  );
 
   const addOrUpdate = async () => {
     if (!title.trim() || !content.trim()) {
@@ -124,19 +139,8 @@ export default function AnnouncementManager() {
 
   const toggleShow = async (id, value) => {
     try {
-      if (value) {
-        const allDocs = list.filter((x) => x.isShow && x.id !== id);
-        for (const docItem of allDocs) {
-          await updateDoc(doc(db, "announcements", docItem.id), {
-            isShow: false,
-            hasSeenBy: [],
-          });
-        }
-      }
-
       const updateData = {
         isShow: value,
-        //lastUpdate: serverTimestamp(),
       };
       if (!value) {
         updateData.hasSeenBy = [];
@@ -148,6 +152,7 @@ export default function AnnouncementManager() {
       toast.error("Không thể thay đổi trạng thái thông báo");
     }
   };
+
 
   const startEdit = (record) => {
     setEditing(record);

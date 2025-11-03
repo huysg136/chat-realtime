@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import { FiArrowUp, FiArrowDown, FiSlash, FiUnlock, FiInfo, FiCheckCircle, FiCopy } from "react-icons/fi";
 import NoAccess from "../noAccess/noAccess";
 import { IoIosCloseCircleOutline } from "react-icons/io";
-import { Table, Tooltip } from "antd";
+import { Table, Spin } from "antd";
 import "react-toastify/dist/ReactToastify.css";
 import "./userManager.scss";
 
@@ -41,6 +41,7 @@ export default function UsersManager() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     uid: "",
+    username: "",
     displayName: "",
     email: "",
     role: "",
@@ -93,30 +94,6 @@ export default function UsersManager() {
   if (!currentUser?.permissions?.canManageUsers && currentUser.role !== "admin") {
     return <NoAccess />;
   }
-
-  const handleBanAllOk = async () => {
-    const now = new Date();
-    const banEnd = new Date(now.getTime() + banAllDays * 24 * 60 * 60 * 1000);
-
-    try {
-      const usersToBan = users.filter(u => u.role !== "admin"); 
-      await Promise.all(usersToBan.map(u => 
-        addDoc(collection(db, "bans"), {
-          uid: u.uid,
-          displayName: u.displayName,
-          email: u.email,
-          role: u.role,
-          banStart: now.toISOString(),
-          banEnd: banEnd.toISOString(),
-        })
-      ));
-      toast.success(`Đã cấm tất cả người dùng trong ${banAllDays} ngày`);
-    } catch (err) {
-      toast.error("Cấm tất cả thất bại");
-    } finally {
-      setIsBanAllModalVisible(false);
-    }
-  };
 
   const getRemainingTime = (banEnd) => {
     const now = new Date();
@@ -237,6 +214,9 @@ export default function UsersManager() {
       user.uid.toLowerCase().includes(filters.uid.toLowerCase())
     )
     .filter((user) =>
+      user.username?.toLowerCase().includes(filters.username?.toLowerCase())
+    )
+    .filter((user) =>
       user.displayName.toLowerCase().includes(filters.displayName.toLowerCase())
     )
     .filter((user) =>
@@ -254,6 +234,7 @@ export default function UsersManager() {
       title: "Avatar",
       dataIndex: "photoURL",
       key: "photoURL",
+      width: 50,
       render: (photoURL, record) => (
         <img src={photoURL} alt={record.displayName} width="40" height="40" />
       ),
@@ -262,12 +243,14 @@ export default function UsersManager() {
       title: "UID",
       dataIndex: "uid",
       key: "uid",
+      width: 150,
       render: (uid) => (
         <span
           className="copyable"
+          title={uid}
           onClick={() => {
             navigator.clipboard.writeText(uid);
-            toast.info("Đã sao chép UID", { autoClose: 1200 });
+            toast.info("Đã sao chép", { autoClose: 1200 });
           }}
         >
           <span className="text">
@@ -278,19 +261,43 @@ export default function UsersManager() {
       ),
     },
     {
-      title: "Tên hiển thị",
-      dataIndex: "displayName",
-      key: "displayName",
-      render: (name) => (
+      title: "Username",
+      dataIndex: "username",
+      key: "username",
+      width: 150,
+      render: (username) => (
         <span
           className="copyable"
+          title={username}
           onClick={() => {
-            navigator.clipboard.writeText(name);
-            toast.info("Đã sao chép tên hiển thị", { autoClose: 1200 });
+            navigator.clipboard.writeText(username);
+            toast.info("Đã sao chép", { autoClose: 1200 });
           }}
         >
           <span className="text">
-            {name.length > 18 ? `${name.slice(0, 15)}...` : name}
+            {username.length > 12 ? `${username.slice(0, 12)}...` : username}
+          </span>
+          <FiCopy className="copy-icon" size={15} />
+        </span>
+      ),
+    },
+
+    {
+      title: "Tên hiển thị",
+      dataIndex: "displayName",
+      key: "displayName",
+      width: 180,
+      render: (name) => (
+        <span
+          className="copyable"
+          title={name}
+          onClick={() => {
+            navigator.clipboard.writeText(name);
+            toast.info("Đã sao chép", { autoClose: 1200 });
+          }}
+        >
+          <span className="text">
+            {name.length > 15 ? `${name.slice(0, 15)}...` : name}
           </span>
           <FiCopy className="copy-icon" size={15} />
         </span>
@@ -300,19 +307,23 @@ export default function UsersManager() {
       title: "Email",
       dataIndex: "email",
       key: "email",
+      width: 200,
       render: (email) => {
         if (!email) return "";
         const [localPart, domainPart] = email.split("@");
-        const displayedLocal =
-          localPart.length > 15 ? `${localPart.slice(0, 12)}...` : localPart;
-        const displayEmail = `${displayedLocal}@${domainPart}`;
-
+        const maxLength = 18;
+        let displayEmail = email;
+        if (email.length > maxLength) {
+          const localDisplay = localPart.length > 12 ? `${localPart.slice(0, 12)}...` : localPart;
+          displayEmail = `${localDisplay}@${domainPart}`;
+        }
         return (
           <span
             className="copyable"
+            title={email}
             onClick={() => {
               navigator.clipboard.writeText(email);
-              toast.info("Đã sao chép email", { autoClose: 1200 });
+              toast.info("Đã sao chép", { autoClose: 1200 });
             }}
           >
             <span className="text">{displayEmail}</span>
@@ -325,7 +336,7 @@ export default function UsersManager() {
       title: "Quyền",
       dataIndex: "role",
       key: "role",
-      width: 120,
+      width: 100,
       render: (role) => (
         <strong
           className={`role-tag ${
@@ -343,7 +354,7 @@ export default function UsersManager() {
     {
       title: "Trạng thái",
       key: "status",
-      width: 120,
+      width: 110,
       render: (_, record) => {
         const banInfo = getBanInfo(record.uid);
         const banData = bans.find((b) => b.id === banInfo.banId);
@@ -365,7 +376,7 @@ export default function UsersManager() {
           <span
             style={{
               cursor: "default",
-              color: "#52c41a",
+              color: "#73d13d",
               fontWeight: "400",
               display: "inline-flex",
               alignItems: "center",
@@ -380,6 +391,7 @@ export default function UsersManager() {
     {
       title: "Hành động",
       key: "actions",
+      width: 150,
       render: (_, record) => {
         const banInfo = getBanInfo(record.uid);
         return (
@@ -444,7 +456,17 @@ export default function UsersManager() {
   ];
 
 
-  if (loading) return <p>Đang tải danh sách người dùng...</p>;
+  if (loading)
+  return (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '400px' 
+    }}>
+      <Spin size="large" />
+    </div>
+  );
 
   return (
     <div className="user-manager">
@@ -454,6 +476,12 @@ export default function UsersManager() {
           placeholder="UID..."
           value={filters.uid}
           onChange={(e) => setFilters({ ...filters, uid: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Username..."
+          value={filters.username}
+          onChange={(e) => setFilters({ ...filters, username: e.target.value })} 
         />
         <input
           type="text"

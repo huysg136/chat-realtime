@@ -17,6 +17,41 @@ const { Option } = Select;
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
+function generateUsername(displayName) {
+  if (!displayName || typeof displayName !== "string") {
+    return "user" + Math.floor(Math.random() * 10000);
+  }
+
+  let base = displayName
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") 
+    .replace(/đ/g, "d")             
+    .replace(/[^a-z0-9]/g, "");     
+
+  if (!base || base.length < 3) {
+    base = "user" + Math.floor(Math.random() * 1000);
+  }
+
+  return base;
+}
+
+async function getUniqueUsername(baseUsername) {
+  let username = baseUsername;
+  let counter = 1;
+
+  while (true) {
+    const snapshot = await getDoc(doc(db, "usernames", username));
+    if (!snapshot.exists()) {
+      await addDocument("usernames", { id: username });
+      return username;
+    }
+    username = `${baseUsername}${counter++}`;
+  }
+}
+
+
+
 export default function Login() {
   const [lang, setLang] = useState("vi");
   const [theme, setTheme] = useState("system");
@@ -50,8 +85,12 @@ export default function Login() {
       const additionalUserInfo = getAdditionalUserInfo(result);
 
       if (additionalUserInfo?.isNewUser) {
+        const baseUsername = generateUsername(user.displayName);
+        const uniqueUsername = await getUniqueUsername(baseUsername);
+        
         await addDocument("users", {
           displayName: user.displayName,
+          username: uniqueUsername,
           email: user.email,
           photoURL:
             user.photoURL ||

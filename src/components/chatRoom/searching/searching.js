@@ -12,7 +12,8 @@ import "./searching.scss";
 export default function Searching() {
   const { setIsAddRoomVisible, searchText, setSearchText } = useContext(AppContext);
   const { user } = useContext(AuthContext) || {};
-  const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [usernameHandle, setUsernameHandle] = useState("");
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -28,11 +29,11 @@ export default function Searching() {
         (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
-            setUsername(data.displayName || data.username || "");
+            setDisplayName(data.displayName || "");
+            setUsernameHandle(data.username ? `@${data.username}` : "");
           }
         },
-        (error) => {
-        }
+        (error) => {}
       );
     };
 
@@ -48,7 +49,8 @@ export default function Searching() {
     <div className="searching-panel">
       <div className="user-header">
         <div className="username-wrapper">
-          <span className="username">{username}</span>
+          <span className="display-name">{displayName}</span>
+          {usernameHandle && <span className="username">@{usernameHandle.replace(/^@/, "")}</span>}
         </div>
         <Button
           type="text"

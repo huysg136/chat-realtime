@@ -15,18 +15,25 @@
 
     .username-wrapper {
       display: flex;
-      align-items: center;
+      flex-direction: column; // hiển thị displayName trên, username dưới
       padding: 4px 8px 4px 4px;
       border-radius: 6px;
       transition: background-color 0.2s;
 
+      .display-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #000;
+        line-height: 1.2;
+      }
+
       .username {
-        font-size: 18px;
-        font-weight: 700;
-        color: #000; // light theme
+        font-size: 12px;
+        font-weight: 400;
+        color: #7c7c7c;
         line-height: 1.2;
         cursor: default;
-        transition: color 0.3s;
+        margin-top: 2px;
       }
     }
 
@@ -117,13 +124,18 @@
     background: map.get($theme-colors, "bg-dark");
 
     .user-header {
-      .username-wrapper .username {
+      .username-wrapper .display-name {
         color: #f9fafb;
       }
+      .username-wrapper .username {
+        color: #d1d5db;
+      }
+
       .create-btn {
         color: #f9fafb;
         background-color: map.get($theme-colors, "bg-dark");
         border: none;
+
         &:hover {
           background-color: rgba(255, 255, 255, 0.1);
           color: #fff;

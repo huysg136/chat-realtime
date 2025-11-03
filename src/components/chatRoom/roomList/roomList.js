@@ -33,8 +33,32 @@ export default function RoomList() {
   const filteredRooms = useMemo(() => {
     if (!searchText?.trim()) return rooms;
     const text = searchText.toLowerCase();
-    return rooms.filter((room) => room.name?.toLowerCase().includes(text));
-  }, [rooms, searchText]);
+
+    return rooms.filter((room) => {
+      const memberUids = Array.isArray(room.members)
+        ? room.members.map((m) => (typeof m === "string" ? m : m?.uid)).filter(Boolean)
+        : [];
+
+      const membersData = memberUids
+        .map((uid) => users.find((u) => String(u.uid).trim() === String(uid).trim()))
+        .filter(Boolean);
+
+      const isPrivate = room.type === "private" && membersData.length === 2;
+
+      if (isPrivate) {
+        const otherUser = membersData.find((u) => u.uid !== user?.uid);
+        return (otherUser?.displayName || "")
+          .toLowerCase()
+          .includes(text);
+      } else {
+        // group or normal room
+        return (room.name || "")
+          .toLowerCase()
+          .includes(text);
+      }
+    });
+  }, [rooms, searchText, users, user?.uid]);
+
 
   const sortedRooms = useMemo(() => {
     return [...filteredRooms].sort((a, b) => {
