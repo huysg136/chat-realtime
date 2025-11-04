@@ -717,4 +717,54 @@
   }
 }
 
+.input-icon-btn.recording {
+  position: relative;
+
+  .anticon {
+    color: #ff4444 !important;
+    transition: color 0.25s ease;
+  }
+
+  animation: micPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.12); opacity: 0.75; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.input-icon-btn.recording::after,
+.input-icon-btn.recording::before {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 68, 68, 0.55);
+  opacity: 0;
+}
+
+.input-icon-btn.recording::after {
+  inset: 0px; 
+  animation: micWave 1.4s ease-out infinite;
+}
+
+.input-icon-btn.recording::before {
+  inset: -1px;
+  animation: micWave 1.4s ease-out infinite;
+  animation-delay: 0.7s; 
+}
+
+@keyframes micWave {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+body.theme-dark .input-icon-btn.recording .anticon {
+  color: #ff7b7b !important;
+}
+
+
+
+
+
 

@@ -42,6 +42,7 @@ export default function ChatWindow() {
   const uid = user.uid || "";
   const photoURL = user.photoURL || null;
   const displayName = user.displayName || "Unknown";
+  const [audioStream, setAudioStream] = useState(null);
 
   const [form] = Form.useForm();
   const [inputValue, setInputValue] = useState("");
@@ -242,38 +243,38 @@ export default function ChatWindow() {
 
   const handleVoiceButtonClick = async () => {
     if (isRecording) {
-      // Stop recording
-      if (mediaRecorder) {
-        mediaRecorder.stop();
-      }
+      mediaRecorder?.stop();
+      audioStream?.getTracks().forEach(track => track.stop()); // dừng mic
+      setIsRecording(false); // tắt hiệu ứng sóng ngay
+      setMediaRecorder(null);
+      setAudioStream(null);
+      setAudioChunks([]);
     } else {
-      // Start recording
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const recorder = new MediaRecorder(stream);
         const chunks = [];
 
         recorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            chunks.push(event.data);
-          }
+          if (event.data.size > 0) chunks.push(event.data);
         };
 
         recorder.onstop = async () => {
           const audioBlob = new Blob(chunks, { type: 'audio/wav' });
-          await handleAudioUpload(audioBlob);
-          stream.getTracks().forEach(track => track.stop());
+          await handleAudioUpload(audioBlob); 
         };
 
         setMediaRecorder(recorder);
+        setAudioStream(stream); 
         setAudioChunks(chunks);
         recorder.start();
-        setIsRecording(true);
+        setIsRecording(true); 
       } catch (err) {
         toast.error("Không thể truy cập microphone");
       }
     }
   };
+
 
   const handleAudioUpload = async (audioBlob) => {
     const formData = new FormData();
