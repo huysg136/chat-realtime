@@ -249,6 +249,132 @@
   }
 }
 
+.voice-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0px 4px;
+  min-width: 200px;
+  max-width: 280px;
+  
+  .voice-play-btn {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: #0084ff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 132, 255, 0.3);
+
+    &:hover {
+      background: #0077e6;
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    svg {
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    }
+  }
+
+  .voice-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .voice-waveform {
+    flex: 1;
+    height: 32px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+
+  .voice-progress {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: rgba(0, 132, 255, 0.15);
+    border-radius: 4px;
+    transition: width 0.1s linear;
+    pointer-events: none;
+  }
+
+  .voice-bars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .voice-bar {
+    flex: 1;
+    background: #bcc4cc;
+    border-radius: 2px;
+    min-height: 3px;
+    transition: all 0.2s ease;
+  }
+
+  .voice-time {
+    font-size: 14px;
+    color: #65676b;
+    font-weight: 400;
+    white-space: nowrap;
+    min-width: 35px;
+    text-align: right;
+  }
+
+  /* Own message style */
+  &.own {
+    .voice-play-btn {
+      background: white;
+      color: #0084ff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      &:hover {
+        background: #f0f0f0;
+      }
+    }
+
+    .voice-progress {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .voice-bar {
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .voice-time {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .voice-waveform:hover .voice-bar {
+      background: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  /* Hover effect for waveform */
+  .voice-waveform:hover .voice-bar {
+    background: #95a5a6;
+  }
+}
+
 .message-media-audio {
   width: 100%;
   max-width: 300px;

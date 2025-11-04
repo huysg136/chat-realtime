@@ -239,15 +239,16 @@ export default function RoomItem({
                         </>
                       );
 
-                    case "voice":
-                      const voiceFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
+                    case "audio": {
+                      const raw = room.secretKey
+                        ? decryptMessage(lm.text || lm?.content || "", room.secretKey)
+                        : lm.text || lm?.content || "";
                       return (
                         <>
-                          🎤 [Voice]
-                          {voiceFileName && ` (${voiceFileName})`}
+                          🎤 [Tin nhắn thoại]
                         </>
                       );
-
+                    }
                     default:
                       return decryptedText;
                   }

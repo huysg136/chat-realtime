@@ -1,4 +1,3 @@
-// MediaRenderer.jsx
 import React, { useState } from 'react';
 import ReactPlayer from 'react-player';
 import AudioPlayer from 'react-h5-audio-player';
@@ -9,6 +8,10 @@ import Lightbox from 'react-image-lightbox';
 
 const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const audioRef = React.useRef(null);
 
   if (!content) return null;
 
@@ -75,21 +78,96 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked }) => {
 
 
   if (kind === 'audio') {
+    const formatTime = (time) => {
+      if (isNaN(time)) return '0:00';
+      const minutes = Math.floor(time / 60);
+      const seconds = Math.floor(time % 60);
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+    const togglePlay = () => {
+      if (audioRef.current) {
+        if (isPlaying) {
+          audioRef.current.pause();
+        } else {
+          audioRef.current.play();
+        }
+        setIsPlaying(!isPlaying);
+      }
+    };
+
+    const handleTimeUpdate = () => {
+      if (audioRef.current) {
+        setCurrentTime(audioRef.current.currentTime);
+      }
+    };
+
+    const handleLoadedMetadata = () => {
+      if (audioRef.current) {
+        setDuration(audioRef.current.duration);
+      }
+    };
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+    };
+
+    const handleSeek = (e) => {
+      const progressBar = e.currentTarget;
+      const clickPosition = e.nativeEvent.offsetX;
+      const progressBarWidth = progressBar.offsetWidth;
+      const newTime = (clickPosition / progressBarWidth) * duration;
+      
+      if (audioRef.current) {
+        audioRef.current.currentTime = newTime;
+        setCurrentTime(newTime);
+      }
+    };
+
+    const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
     return (
-      <div className="message-media-audio">
-        <AudioPlayer
+      <div className={`voice-message ${isOwn ? 'own' : ''}`}>
+        <audio
+          ref={audioRef}
           src={content}
-          showJumpControls={false}
-          showDownloadProgress={false}
-          customAdditionalControls={[]}
-          customVolumeControls={[]}
-          layout="horizontal-reverse"
-          style={{
-            backgroundColor: isOwn ? 'rgba(255,255,255,0.1)' : '#f5f5f5',
-            borderRadius: '8px',
-            boxShadow: 'none'
-          }}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onEnded={handleEnded}
         />
+        
+        <button className="voice-play-btn" onClick={togglePlay}>
+          {isPlaying ? (
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <rect x="6" y="5" width="4" height="14" rx="1"/>
+              <rect x="14" y="5" width="4" height="14" rx="1"/>
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          )}
+        </button>
+
+        <div className="voice-content">
+          <div className="voice-waveform" onClick={handleSeek}>
+            <div className="voice-progress" style={{ width: `${progress}%` }} />
+            <div className="voice-bars">
+              {[3, 5, 4, 6, 3, 5, 7, 4, 5, 3, 6, 4, 5, 3, 7, 5, 4, 6, 3, 5].map((height, i) => (
+                <div
+                  key={i}
+                  className="voice-bar"
+                  style={{ height: `${height * 3}px` }}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <div className="voice-time">
+            {formatTime(isPlaying ? currentTime : duration)}
+          </div>
+        </div>
       </div>
     );
   }

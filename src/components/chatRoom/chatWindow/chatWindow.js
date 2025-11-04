@@ -6,7 +6,7 @@ import {
   UserAddOutlined,
   MessageOutlined,
   SmileOutlined,
-  PictureOutlined,
+  PaperClipOutlined,
   AudioOutlined,
   CloseOutlined,
   InfoCircleOutlined,
@@ -55,6 +55,9 @@ export default function ChatWindow() {
   const [leavingLoading, setLeavingLoading] = useState(false);
   const [banInfo, setBanInfo] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [audioChunks, setAudioChunks] = useState([]);
 
   const toggleDetail = () => {
     setIsDetailVisible((p) => !p);
@@ -236,6 +239,93 @@ export default function ChatWindow() {
   };
 
   const handleInputChange = (e) => setInputValue(e.target.value);
+
+  const handleVoiceButtonClick = async () => {
+    if (isRecording) {
+      // Stop recording
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+      }
+    } else {
+      // Start recording
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream);
+        const chunks = [];
+
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            chunks.push(event.data);
+          }
+        };
+
+        recorder.onstop = async () => {
+          const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+          await handleAudioUpload(audioBlob);
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        setMediaRecorder(recorder);
+        setAudioChunks(chunks);
+        recorder.start();
+        setIsRecording(true);
+      } catch (err) {
+        toast.error("Không thể truy cập microphone");
+      }
+    }
+  };
+
+  const handleAudioUpload = async (audioBlob) => {
+    const formData = new FormData();
+    formData.append("file", audioBlob, "voice-message.wav");
+
+    try {
+      setSending(true);
+      const res = await axios.post(
+        "https://chat-realtime-be.vercel.app/upload",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      const audioUrl = res.data.url;
+
+      const encryptedText = selectedRoom.secretKey
+        ? encryptMessage(audioUrl, selectedRoom.secretKey)
+        : audioUrl;
+
+      await addDocument("messages", {
+        text: encryptedText,
+        uid,
+        photoURL,
+        roomId: selectedRoom.id,
+        displayName,
+        createdAt: new Date(),
+        kind: "audio",
+        fileName: "voice-message.wav",
+      });
+
+      await updateDocument("rooms", selectedRoom.id, {
+        lastMessage: {
+          displayName,
+          text: selectedRoom.secretKey 
+            ? encryptMessage("[Voice Message]", selectedRoom.secretKey) 
+            : "[Voice Message]",
+          uid,
+          createdAt: new Date(),
+          kind: "audio",
+        },
+      });
+    } catch (err) {
+      toast.error("Upload audio thất bại");
+    } finally {
+      setSending(false);
+      setIsRecording(false);
+      setMediaRecorder(null);
+      setAudioChunks([]);
+    }
+  };
 
   const handleOnSubmit = async () => {
     if (!inputValue.trim() || !selectedRoom) return;
@@ -486,7 +576,7 @@ export default function ChatWindow() {
                 value={inputValue}
                 onChange={handleInputChange}
                 onPressEnter={handleOnSubmit}
-                placeholder={replyTo ? "Trả lời..." : "Nhắn tin..."}
+                placeholder={replyTo ? "Trả lời tin nhắn..." : "Nhập tin nhắn..."}
                 bordered={false}
                 autoComplete="off"
               />
@@ -496,9 +586,15 @@ export default function ChatWindow() {
                 </Button>
               ) : (
                 <div className="input-actions">
-                  <Button type="text" icon={<AudioOutlined />} className="input-icon-btn" />
+                  <Button
+                    type="text"
+                    icon={<AudioOutlined />}
+                    className={`input-icon-btn ${isRecording ? 'recording' : ''}`}
+                    onClick={handleVoiceButtonClick}
+                    disabled={sending}
+                  />
                   <label htmlFor="fileUpload" className="input-icon-btn">
-                    <PictureOutlined />
+                    <PaperClipOutlined />
                   </label>
                   <input
                     id="fileUpload"

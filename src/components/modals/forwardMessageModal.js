@@ -91,11 +91,12 @@ export default function ForwardMessageModal({
           const isGroup =
             !isPrivate && (room.type === "group" || membersData.length > 1);
 
+          let displayNameToShow = room.name;  
+
           let avatarElement = null;
           if (isPrivate) {
-            const otherUser = membersData.find(
-              (u) => u.uid !== currentUser?.uid
-            );
+            const otherUser = membersData.find((u) => u.uid !== currentUser?.uid);
+            displayNameToShow = otherUser?.displayName || room.name;
             avatarElement = (
               <Avatar src={otherUser?.photoURL} size={40}>
                 {otherUser?.displayName?.charAt(0)?.toUpperCase() || "?"}
@@ -173,9 +174,9 @@ export default function ForwardMessageModal({
                         flex: 1,
                         maxWidth: "220px",
                       }}
-                      title={room.name}
+                      title={displayNameToShow}
                     >
-                      {room.name}
+                      {displayNameToShow}
                     </span>
                   </div>
                   <span
