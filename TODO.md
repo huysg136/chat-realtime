@@ -1,1 +1,0 @@
-- [x] Add recording status animation to microphone button: red blinking icon with sound waves when recording
