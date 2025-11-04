@@ -192,9 +192,9 @@ export default function AddRoomModal() {
       )}
 
       <div style={{ marginBottom: 10 }}>
-        <div style={{ marginBottom: 6, fontWeight: 600 }}>Tìm kiếm theo username</div>
+        <div style={{ marginBottom: 6, fontWeight: 600 }}>Tìm kiếm theo Quik ID</div>
         <Input
-          placeholder="Nhập username..."
+          placeholder="Nhập Quik ID..."
           value={searchText}
           onChange={handleSearchChange}
         />

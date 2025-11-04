@@ -261,7 +261,7 @@ export default function UsersManager() {
       ),
     },
     {
-      title: "Username",
+      title: "Quik ID",
       dataIndex: "username",
       key: "username",
       width: 150,

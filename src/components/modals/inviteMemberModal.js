@@ -129,7 +129,7 @@ export default function InviteMemberModal() {
     >
       <div style={{ marginBottom: 10 }}>
         <Input
-          placeholder="Tìm kiếm người dùng theo username..."
+          placeholder="Tìm kiếm người dùng theo Quik ID..."
           value={searchText}
           onChange={handleSearchChange}
         />

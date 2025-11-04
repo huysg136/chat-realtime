@@ -93,7 +93,7 @@ export default function ProfileModal() {
   const handleSaveUsername = async () => {
     const formatted = formatUsername(username);
     if (!formatted) {
-      toast.error('Username không được để trống');
+      toast.error('Quik ID không được để trống');
       return;
     }
 
@@ -107,7 +107,7 @@ export default function ProfileModal() {
       
       const isDuplicate = querySnapshot.docs.some(doc => doc.data().uid !== user.uid);
       if (isDuplicate) {
-        toast.error('Username đã tồn tại, vui lòng chọn tên khác');
+        toast.error('Quik ID đã tồn tại, vui lòng chọn ID khác');
         setLoading(false);
         return;
       }
@@ -119,9 +119,9 @@ export default function ProfileModal() {
       setUsername(formatted);
       setUser(prev => ({ ...prev, username: formatted }));
       setIsEditingUsername(false);
-      toast.success('Cập nhật username thành công');
+      toast.success('Cập nhật Quik ID thành công');
     } catch (error) {
-      toast.error('Lỗi khi cập nhật username');
+      toast.error('Lỗi khi cập nhật Quik ID');
     } finally {
       setLoading(false);
     }
@@ -183,9 +183,50 @@ export default function ProfileModal() {
           />
         </div>
 
+        {/* Username */}
+        <div style={{ marginBottom: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
+            <span style={{ fontWeight: '600', marginRight: '8px' }}>Quik ID</span>
+            {!isEditingUsername && (
+              <Button 
+                type="text" 
+                icon={<EditOutlined />} 
+                size="small" 
+                onClick={() => {
+                  setIsEditingUsername(true);
+                  setIsEditingName(false);
+                }} 
+              />
+            )}
+          </div>
+          {isEditingUsername ? (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Input
+                ref={usernameInputRef}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                onPressEnter={handleSaveUsername}
+                maxLength={MAX_USERNAME_LENGTH}
+                style={{ flex: 1 }}
+              />
+              <Button 
+                type="primary" 
+                onClick={handleSaveUsername} 
+                loading={loading}
+                disabled={formatUsername(username) === (user?.username || '')}
+                >
+                  Lưu
+              </Button>
+              <Button onClick={() => setIsEditingUsername(false)}>Hủy</Button>
+            </div>
+          ) : (
+            <div style={{ fontSize: '14px'}}>@{username || 'chưa có username'}</div>
+          )}
+        </div>
+
         {/* Display Name */}
         <div style={{ marginBottom: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
             <span style={{ fontWeight: '600', marginRight: '8px' }}>Tên hiển thị</span>
             {!isEditingName && (
               <Button 
@@ -220,54 +261,13 @@ export default function ProfileModal() {
               <Button onClick={() => setIsEditingName(false)}>Hủy</Button>
             </div>
           ) : (
-            <div style={{ fontSize: '16px' }}>{displayName || 'Chưa có tên'}</div>
-          )}
-        </div>
-
-        {/* Username */}
-        <div style={{ marginBottom: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-            <span style={{ fontWeight: '600', marginRight: '8px' }}>Username</span>
-            {!isEditingUsername && (
-              <Button 
-                type="text" 
-                icon={<EditOutlined />} 
-                size="small" 
-                onClick={() => {
-                  setIsEditingUsername(true);
-                  setIsEditingName(false);
-                }} 
-              />
-            )}
-          </div>
-          {isEditingUsername ? (
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <Input
-                ref={usernameInputRef}
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                onPressEnter={handleSaveUsername}
-                maxLength={MAX_USERNAME_LENGTH}
-                style={{ flex: 1 }}
-              />
-              <Button 
-                type="primary" 
-                onClick={handleSaveUsername} 
-                loading={loading}
-                disabled={formatUsername(username) === (user?.username || '')}
-                >
-                  Lưu
-              </Button>
-              <Button onClick={() => setIsEditingUsername(false)}>Hủy</Button>
-            </div>
-          ) : (
-            <div style={{ fontSize: '14px', color: '#555' }}>@{username || 'chưa có username'}</div>
+            <div style={{ fontSize: '14px' }}>{displayName || 'Chưa có tên'}</div>
           )}
         </div>
 
         {/* Email */}
         <div>
-          <div style={{ fontWeight: '600', marginBottom: '8px' }}>Email</div>
+          <div style={{ fontWeight: '600', marginBottom: '2px' }}>Email</div>
             <div>
               <div style={{ fontSize: '14px' }}>{user?.email}</div>
             </div>
