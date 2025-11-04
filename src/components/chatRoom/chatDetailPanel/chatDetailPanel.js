@@ -432,7 +432,7 @@ export default function ChatDetailPanel({
                             </Tooltip>
                           </Popconfirm>
                         )}
-                        {canRemoveMember(m.uid) ? (
+                        {canRemoveMember(m.uid) && (
                           <Popconfirm
                             title={`Xóa ${m.displayName} khỏi nhóm?`}
                             onConfirm={() => removeMember(m.uid)}
@@ -441,14 +441,6 @@ export default function ChatDetailPanel({
                           >
                             <Button className="remove-member-btn" type="text" icon={<DeleteOutlined />} danger />
                           </Popconfirm>
-                        ) : (
-                          <Tooltip title={
-                            String(m.uid).trim() === String(ownerUid).trim() ? "Không thể xóa chủ phòng" :
-                            String(m.uid).trim() === String(uid).trim() ? "Bạn không thể xóa chính mình" :
-                            "Bạn không có quyền xóa thành viên này"
-                          }>
-                            <Button className="remove-member-btn" type="text" icon={<DeleteOutlined />} disabled />
-                          </Tooltip>
                         )}
                       </div>
                     </div>

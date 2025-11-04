@@ -58,6 +58,7 @@ export default function ChatWindow() {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
+  const isBanned = !!banInfo;
 
   const toggleDetail = () => {
     setIsDetailVisible((p) => !p);
@@ -76,18 +77,17 @@ export default function ChatWindow() {
     formData.append("file", file);
 
     try {
-      setSending(true); // giữ loading icon
+      setSending(true);
       const res = await axios.post(
-        "https://chat-realtime-be.vercel.app/upload", // backend của bạn
+        "https://chat-realtime-be.vercel.app/upload", // backend
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
-      const fileUrl = res.data.url; // backend trả về URL file
+      const fileUrl = res.data.url; 
 
-      // Gửi message chứa file
       const encryptedText = selectedRoom.secretKey
         ? encryptMessage(fileUrl, selectedRoom.secretKey)
         : fileUrl;
@@ -457,8 +457,12 @@ export default function ChatWindow() {
                 onClick={() => setIsInviteMemberVisible(true)}
               />
             )}
-            <Button type="text" icon={<PhoneOutlined />} />
-            <Button type="text" icon={<VideoCameraOutlined />} />
+            {!banInfo && (
+              <>
+                <Button type="text" icon={<PhoneOutlined />} />
+                <Button type="text" icon={<VideoCameraOutlined />} />
+              </>
+            )}
             <Button
               type="text"
               icon={<InfoCircleOutlined />}
@@ -527,6 +531,7 @@ export default function ChatWindow() {
                         kind={msg.kind || "text"}
                         onReply={(message) => setReplyTo(message)}
                         onRevoke={() => handleRevokeMessage(msg.id)}
+                        isBanned={isBanned} 
                       />
                     </React.Fragment>
                   );
@@ -535,7 +540,7 @@ export default function ChatWindow() {
             </div>
           {banInfo ? (
             <div className="ban-message">
-              <p>Rất tiếc! Chức năng chat của bạn tạm thời bị giới hạn đến {format(banInfo.banEnd, "HH:mm dd/MM/yyyy", { locale: vi })}.</p>
+              <p>Rất tiếc! Bạn tạm thời bị giới hạn nhắn tin cho đến {format(banInfo.banEnd, "HH:mm dd/MM/yyyy", { locale: vi })}.</p>
             </div>
           ) : (
             <Form className="form-style" form={form}>

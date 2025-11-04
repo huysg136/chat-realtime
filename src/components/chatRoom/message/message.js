@@ -6,7 +6,7 @@ import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import MediaRenderer from "./MediaRenderer";
 import { db } from "../../../firebase/config";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, where  } from "firebase/firestore";
 import {
   getUserDocIdByUid,
   sendMessageToRoom,
@@ -45,6 +45,7 @@ export default function Message({
   onRevoke,
   kind,
   uid,
+  isBanned,
 }) {
   const { rooms, selectedRoomId, users } = useContext(AppContext);
   const authContext = useContext(AuthContext) || {};
@@ -61,9 +62,28 @@ export default function Message({
 
   const [displayName, setDisplayName] = useState(initialDisplayName || "Unknown");
   const [photoURL, setPhotoURL] = useState(initialPhoto || null);
-
+  const [banInfo, setBanInfo] = useState(null);
   const [isForwardModalVisible, setIsForwardModalVisible] = useState(false);
   const [forwarding, setForwarding] = useState(false);
+
+  // Real-time ban check
+  useEffect(() => {
+    if (!uid) return;
+
+    const q = query(collection(db, "bans"), where("uid", "==", uid));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const bans = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        banEnd: doc.data().banEnd?.toDate ? doc.data().banEnd.toDate() : new Date(doc.data().banEnd),
+      }));
+
+      const activeBan = bans.find((ban) => ban.banEnd > new Date());
+      setBanInfo(activeBan || null);
+    });
+
+    return () => unsubscribe();
+  }, [uid]);
 
   useEffect(() => {
     if (!uid) return;
@@ -179,12 +199,12 @@ export default function Message({
           Copy tin nhắn
         </Menu.Item>
       )}
-
       <Menu.Item key="share" onClick={handleForward} icon={<FaShareSquare />}>
         Chia sẻ tin nhắn
       </Menu.Item>
+      
 
-      {isOwn && (
+      {isOwn ? (
         <>
           <Menu.Divider style={{margin: "0"}}/>
           <Menu.Item
@@ -195,6 +215,8 @@ export default function Message({
             <span style={{ color: "#ff4d4f", fontWeight: "500" }}>Thu hồi</span>
           </Menu.Item>
         </>
+      ) : (
+        null
       )}
     </Menu>
   );
@@ -252,17 +274,25 @@ export default function Message({
                 ? "revoked-other"
                 : ""
             }`}
-          >
-            <FaReply onClick={handleReply} />
-            {!isRevoked && (
-              <Dropdown
-                overlay={menu}
-                trigger={["click"]}
-                placement={isOwn ? "leftTop" : "rightTop"}
-              >
-                <MoreOutlined />
-              </Dropdown>
-            )}
+          > 
+            {
+              !isBanned ? (
+                <>
+                <FaReply onClick={handleReply} />
+                {!isRevoked && (
+                  <Dropdown
+                    overlay={menu}
+                    trigger={["click"]}
+                    placement={isOwn ? "leftTop" : "rightTop"}
+                  >
+                    <MoreOutlined />
+                  </Dropdown>
+                )}
+                </>
+              ) : (
+                null
+              )
+            }
           </div>
         </div>
       </div>
