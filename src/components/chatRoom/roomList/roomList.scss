@@ -2,11 +2,11 @@
 @import "../../../style/theme";
 
 .room-list-wrapper {
+  flex: 1;      
+  min-height: 0;   
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  background: #fff; // light theme
-  height: 100%;
-  overflow-y: auto;
   transition: background 0.3s;
 
   &::-webkit-scrollbar {
@@ -31,12 +31,12 @@
 .room-item {
   display: flex;
   align-items: center;
-  padding: 2px 16px;
+  padding: 2px 16px 2px 20px;
   gap: 12px;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  height: 64px;
+  height: 60px;
 
   &:hover {
     background: rgba(0, 0, 0, 0.04);
