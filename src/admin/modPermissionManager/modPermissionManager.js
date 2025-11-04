@@ -45,13 +45,23 @@ export default function ModPermissionManager() {
     canToggleMaintenance: "Cho phép bật/tắt chế độ bảo trì"
   };
 
-  // Cập nhật quyền
   const handleTogglePermission = async (mod, permissionKey, value) => {
     try {
-      await updateDoc(doc(db, "users", mod.id), {
-        [`permissions.${permissionKey}`]: value,
-        
-      });
+      const ref = doc(db, "users", mod.id);
+      if (permissionKey === "canAccessAdminPage" && value === false) {
+        await updateDoc(ref, {
+          "permissions.canAccessAdminPage": false,
+          "permissions.canManageUsers": false,
+          "permissions.canManageRooms": false,
+          "permissions.canManageAnnouncements": false,
+          "permissions.canToggleMaintenance": false,
+        });
+      } else {
+        await updateDoc(ref, {
+          [`permissions.${permissionKey}`]: value,
+        });
+      }
+
     } catch (err) {
       toast.error("Không thể cập nhật quyền");
     }
