@@ -4,7 +4,7 @@ import { GoogleOutlined } from "@ant-design/icons";
 import { BsSunFill, BsMoonStarsFill, BsLaptop } from "react-icons/bs";
 import { getAuth, signInWithPopup, GoogleAuthProvider, getAdditionalUserInfo } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { doc, onSnapshot, getDoc } from "firebase/firestore";
+import { collection, query, where, getDoc, doc, getDocs } from "firebase/firestore";
 import app, { db } from "../../firebase/config";
 import { addDocument, generateKeywords, getUserDocIdByUid } from "../../firebase/services";
 import ReactCountryFlag from "react-country-flag";
@@ -37,20 +37,23 @@ function generateUsername(displayName) {
   return base;
 }
 
+async function isUsernameTaken(username) {
+  const q = query(collection(db, "users"), where("username", "==", username));
+  const snapshot = await getDocs(q);
+  return !snapshot.empty;
+}
+
+
 async function getUniqueUsername(baseUsername) {
   let username = baseUsername;
   let counter = 1;
 
-  while (true) {
-    const snapshot = await getDoc(doc(db, "usernames", username));
-    if (!snapshot.exists()) {
-      await addDocument("usernames", { id: username });
-      return username;
-    }
+  while (await isUsernameTaken(username)) {
     username = `${baseUsername}${counter++}`;
   }
-}
 
+  return username;
+}
 
 
 export default function Login() {
@@ -99,7 +102,7 @@ export default function Login() {
           uid: user.uid,
           providerId: additionalUserInfo.providerId,
           role: "user",
-          keywords: generateKeywords(user.displayName),
+          //keywords: generateKeywords(user.displayName),
           theme: "system",
           language: "vi",
         });

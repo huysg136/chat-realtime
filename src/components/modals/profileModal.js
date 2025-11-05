@@ -165,6 +165,9 @@ export default function ProfileModal() {
     setIsProfileVisible(false);
     setDisplayName(user?.displayName || '');
     setUsername(user?.username || '');
+    setIsEditingName(false);
+    setIsEditingUsername(false);
+    setLoading(false);
   };
 
   const handleAvatarChange = async (e) => {
@@ -252,8 +255,11 @@ export default function ProfileModal() {
                 icon={<EditOutlined />}
                 size="small"
                 onClick={() => {
+                  if (isEditingName) {
+                    setDisplayName(user?.displayName || '');
+                    setIsEditingName(false);
+                  }
                   setIsEditingUsername(true);
-                  setIsEditingName(false);
                 }}
               />
             )}
@@ -348,8 +354,11 @@ export default function ProfileModal() {
                 icon={<EditOutlined />}
                 size="small"
                 onClick={() => {
+                  if (isEditingUsername) {
+                    setUsername(user?.username || '');
+                    setIsEditingUsername(false);
+                  }
                   setIsEditingName(true);
-                  setIsEditingUsername(false);
                 }}
               />
             )}
