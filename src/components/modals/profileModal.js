@@ -6,8 +6,10 @@ import { AppContext } from '../../context/appProvider';
 import { updateDocument, getUserDocIdByUid } from '../../firebase/services';
 import { db } from "../../firebase/config";
 import { toast } from 'react-toastify';
+import axios from "axios";
 import 'react-toastify/dist/ReactToastify.css';
-import { doc, onSnapshot, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
+import { doc, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
+import { FiAlertTriangle, FiCheckCircle, FiXCircle, FiRefreshCcw } from "react-icons/fi";
 import "./profileModal.scss";
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
@@ -24,6 +26,10 @@ export default function ProfileModal() {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // 🆕 Trạng thái cho giới hạn username
+  const [lastChangeUTC, setLastChangeUTC] = useState(null);
+  const [changeCount, setChangeCount] = useState(0);
+
   const nameInputRef = useRef(null);
   const usernameInputRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -33,8 +39,8 @@ export default function ProfileModal() {
     return name
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // bỏ dấu
-      .replace(/[^a-z0-9]/g, "")       // bỏ khoảng trắng & ký tự đặc biệt
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "")
       .slice(0, MAX_USERNAME_LENGTH);
   };
 
@@ -50,6 +56,9 @@ export default function ProfileModal() {
           setDisplayName(data.displayName || '');
           setUsername(data.username || '');
           setPhotoURL(data.photoURL || defaultAvatar);
+          setLastChangeUTC(data.lastUsernameChangeUTC || null);
+          setChangeCount(data.usernameChangeCount || 0);
+
           setUser(prev => ({
             ...prev,
             displayName: data.displayName,
@@ -90,6 +99,7 @@ export default function ProfileModal() {
     }
   };
 
+  // 🆕 Giới hạn đổi username: 1 lần / 30 ngày, tối đa 5 lần
   const handleSaveUsername = async () => {
     const formatted = formatUsername(username);
     if (!formatted) {
@@ -99,12 +109,9 @@ export default function ProfileModal() {
 
     setLoading(true);
     try {
-      const q = query(
-        collection(db, "users"),
-        where("username", "==", formatted)
-      );
+      // Kiểm tra username trùng
+      const q = query(collection(db, "users"), where("username", "==", formatted));
       const querySnapshot = await getDocs(q);
-      
       const isDuplicate = querySnapshot.docs.some(doc => doc.data().uid !== user.uid);
       if (isDuplicate) {
         toast.error('Quik ID đã tồn tại, vui lòng chọn ID khác');
@@ -112,15 +119,42 @@ export default function ProfileModal() {
         return;
       }
 
+      // Kiểm tra giới hạn đổi
+      const nowUTC = new Date().toISOString();
+      if (lastChangeUTC) {
+        const lastChange = new Date(lastChangeUTC);
+        const diffDays = Math.floor((new Date(nowUTC) - lastChange) / (1000 * 60 * 60 * 24));
+        if (diffDays < 30) {
+          toast.warning(`Bạn chỉ có thể đổi lại sau ${30 - diffDays} ngày nữa.`);
+          setLoading(false);
+          return;
+        }
+      }
+      if (changeCount >= 5) {
+        toast.error('Bạn đã đạt giới hạn 5 lần đổi Quik ID.');
+        setLoading(false);
+        return;
+      }
+
+      // Cập nhật Firestore
       const docId = await getUserDocIdByUid(user.uid);
       if (!docId) return;
 
-      await updateDocument("users", docId, { username: formatted });
+      await updateDocument("users", docId, {
+        username: formatted,
+        lastUsernameChangeUTC: nowUTC,
+        usernameChangeCount: (changeCount || 0) + 1
+      });
+
       setUsername(formatted);
+      setLastChangeUTC(nowUTC);
+      setChangeCount((prev) => (prev || 0) + 1);
       setUser(prev => ({ ...prev, username: formatted }));
+
       setIsEditingUsername(false);
-      toast.success('Cập nhật Quik ID thành công');
+      toast.success('Cập nhật Quik ID thành công!');
     } catch (error) {
+      console.error(error);
       toast.error('Lỗi khi cập nhật Quik ID');
     } finally {
       setLoading(false);
@@ -133,11 +167,41 @@ export default function ProfileModal() {
     setUsername(user?.username || '');
   };
 
-  const handleFileChange = async (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    toast.info('Chức năng thay đổi ảnh đại diện chưa hoàn thành');
-    // Upload lên Storage và update Firestore nếu muốn
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await axios.post(
+        "https://chat-realtime-be.vercel.app/upload",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      const avatarUrl = res.data.url;
+
+      // cập nhật Firestore
+      const docId = await getUserDocIdByUid(user.uid);
+      await updateDocument("users", docId, { photoURL: avatarUrl });
+      setUser((prev) => ({ ...prev, photoURL: avatarUrl }));
+
+      toast.success("Đổi ảnh đại diện thành công!");
+    } catch (err) {
+      toast.error("Upload ảnh thất bại");
+    }
+  };
+
+
+  // 🧮 Tính số ngày còn lại
+  const getDaysLeft = () => {
+    if (!lastChangeUTC) return 0;
+    const diffDays = Math.floor((new Date() - new Date(lastChangeUTC)) / (1000 * 60 * 60 * 24));
+    return diffDays >= 30 ? 0 : 30 - diffDays;
   };
 
   return (
@@ -166,18 +230,13 @@ export default function ProfileModal() {
               size="small"
               onClick={() => fileInputRef.current.click()}
               className="camera-button"
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                border: 'none'
-              }}
+              style={{ position: 'absolute', bottom: 0, right: 0, border: 'none' }}
             />
           </div>
           <input
             type="file"
             ref={fileInputRef}
-            onChange={handleFileChange}
+            onChange={handleAvatarChange}
             accept="image/*"
             style={{ display: 'none' }}
           />
@@ -187,15 +246,15 @@ export default function ProfileModal() {
         <div style={{ marginBottom: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
             <span style={{ fontWeight: '600', marginRight: '8px' }}>Quik ID</span>
-            {!isEditingUsername && (
-              <Button 
-                type="text" 
-                icon={<EditOutlined />} 
-                size="small" 
+            {!isEditingUsername && getDaysLeft() === 0 && changeCount < 5 && (
+              <Button
+                type="text"
+                icon={<EditOutlined />}
+                size="small"
                 onClick={() => {
                   setIsEditingUsername(true);
                   setIsEditingName(false);
-                }} 
+                }}
               />
             )}
           </div>
@@ -209,19 +268,74 @@ export default function ProfileModal() {
                 maxLength={MAX_USERNAME_LENGTH}
                 style={{ flex: 1 }}
               />
-              <Button 
-                type="primary" 
-                onClick={handleSaveUsername} 
+              <Button
+                type="primary"
+                onClick={handleSaveUsername}
                 loading={loading}
                 disabled={formatUsername(username) === (user?.username || '')}
-                >
-                  Lưu
+              >
+                Lưu
               </Button>
               <Button onClick={() => setIsEditingUsername(false)}>Hủy</Button>
             </div>
           ) : (
-            <div style={{ fontSize: '14px'}}>@{username || 'chưa có username'}</div>
+            <div style={{ fontSize: '14px' }}>
+              @{username || 'chưa có username'}
+            </div>
           )}
+          {/* 🆕 Hiển thị thông tin giới hạn */}
+          <div style={{ fontSize: 13, marginTop: 8 }}>
+            {changeCount >= 5 ? (
+              <div
+                style={{
+                  background: '#fff1f0',
+                  color: '#cf1322',
+                  padding: '6px 10px',
+                  borderRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontWeight: 500,
+                }}
+              >
+                <FiXCircle size={16} />
+                <span>Bạn đã đạt giới hạn <b>5 lần đổi Quik ID</b></span>
+              </div>
+            ) : (
+              <>
+                {lastChangeUTC ? (
+                  <div
+                    style={{
+                      color: '#d48806',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    <FiAlertTriangle size={14} />
+                    <span>Có thể đổi lại sau <b>{getDaysLeft()} ngày</b></span>
+                  </div>
+                ) : (
+                  null
+                )}
+                <div
+                  style={{
+                    color: '#555',
+                    fontSize: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    marginLeft: 2,
+                  }}
+                >
+                  <FiRefreshCcw size={14} />
+                  <span>
+                    Số lần đổi còn lại: <b>{5 - changeCount}</b> / 5
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Display Name */}
@@ -229,10 +343,10 @@ export default function ProfileModal() {
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
             <span style={{ fontWeight: '600', marginRight: '8px' }}>Tên hiển thị</span>
             {!isEditingName && (
-              <Button 
-                type="text" 
-                icon={<EditOutlined />} 
-                size="small" 
+              <Button
+                type="text"
+                icon={<EditOutlined />}
+                size="small"
                 onClick={() => {
                   setIsEditingName(true);
                   setIsEditingUsername(false);
@@ -250,9 +364,9 @@ export default function ProfileModal() {
                 maxLength={50}
                 style={{ flex: 1 }}
               />
-              <Button 
-                type="primary" 
-                onClick={handleSaveName} 
+              <Button
+                type="primary"
+                onClick={handleSaveName}
                 loading={loading}
                 disabled={displayName.trim() === (user?.displayName || '').trim()}
               >
@@ -268,9 +382,7 @@ export default function ProfileModal() {
         {/* Email */}
         <div>
           <div style={{ fontWeight: '600', marginBottom: '2px' }}>Email</div>
-            <div>
-              <div style={{ fontSize: '14px' }}>{user?.email}</div>
-            </div>
+          <div style={{ fontSize: '14px' }}>{user?.email}</div>
         </div>
       </Card>
     </Modal>

@@ -10,6 +10,7 @@ import { addDocument, generateKeywords, getUserDocIdByUid } from "../../firebase
 import ReactCountryFlag from "react-country-flag";
 import "./index.scss";
 import logo_quik from "../../images/logo_quik.png";
+import { toast } from "react-toastify";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -120,6 +121,10 @@ export default function Login() {
         navigate("/"); 
       }
     } catch (err) {
+      console.error("❌ Login Error:", err);
+      console.error("Error code:", err.code);
+      console.error("Error message:", err.message);
+      toast(`Lỗi đăng nhập: ${err.message}`);
     } finally {
       setLoading(false);
     }
