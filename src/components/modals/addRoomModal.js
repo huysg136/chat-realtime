@@ -1,15 +1,15 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { Modal, Input, Avatar, Spin, Checkbox, Button } from 'antd';
 import { AppContext } from '../../context/appProvider';
 import { AuthContext } from '../../context/authProvider';
-import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+import { collection, query, where, orderBy, limit, getDocs, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import debounce from 'lodash/debounce';
 import { addDocument, generateAESKey } from '../../firebase/services';
 import './addRoomModal.scss';
 
 export default function AddRoomModal() {
-  const { isAddRoomVisible, setIsAddRoomVisible, setSelectedRoomId } = useContext(AppContext);
+  const { isAddRoomVisible, setIsAddRoomVisible, setSelectedRoomId, rooms, users } = useContext(AppContext);
   const { user } = useContext(AuthContext);
   const uid = user?.uid;
 
@@ -19,20 +19,24 @@ export default function AddRoomModal() {
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [roomName, setRoomName] = useState('');
   const [isRoomNameEdited, setIsRoomNameEdited] = useState(false);
-
   const ROOM_NAME_MAX = 100;
 
   useEffect(() => {
     if (!isAddRoomVisible) {
-      setSearchText('');
-      setSelectedMembers([]);
-      setOptions([]);
-      setFetching(false);
-      setRoomName('');
-      setIsRoomNameEdited(false);
+      resetModal();
     }
   }, [isAddRoomVisible]);
 
+  const resetModal = () => {
+    setSearchText('');
+    setSelectedMembers([]);
+    setOptions([]);
+    setFetching(false);
+    setRoomName('');
+    setIsRoomNameEdited(false);
+  };
+
+  // Auto-generate room name
   useEffect(() => {
     if (isRoomNameEdited) return;
     if (selectedMembers.length === 0) {
@@ -47,15 +51,11 @@ export default function AddRoomModal() {
       const participantNames = [user?.displayName, ...selectedMembers.map(m => m.displayName)].filter(Boolean);
       defaultName = participantNames.join(', ');
     }
-
-    if (defaultName.length > ROOM_NAME_MAX) {
-      defaultName = defaultName.slice(0, ROOM_NAME_MAX);
-    }
-
+    if (defaultName.length > ROOM_NAME_MAX) defaultName = defaultName.slice(0, ROOM_NAME_MAX);
     setRoomName(defaultName);
   }, [selectedMembers, isRoomNameEdited, user]);
 
-  // SEARCH USERS BY USERNAME
+  // SEARCH USERS BY QUIC ID
   const fetchUserList = async (text) => {
     if (!text) return setOptions([]);
     setFetching(true);
@@ -68,7 +68,7 @@ export default function AddRoomModal() {
         limit(20)
       );
       const snapshot = await getDocs(q);
-      const users = snapshot.docs
+      const usersList = snapshot.docs
         .map(doc => ({
           uid: doc.data().uid,
           displayName: doc.data().displayName,
@@ -76,8 +76,8 @@ export default function AddRoomModal() {
           username: doc.data().username || ''
         }))
         .filter(u => u.uid !== uid);
-      setOptions(users);
-    } catch (err) {
+      setOptions(usersList);
+    } catch {
       setOptions([]);
     } finally {
       setFetching(false);
@@ -85,7 +85,6 @@ export default function AddRoomModal() {
   };
 
   const debounceFetcher = debounce(fetchUserList, 300);
-
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchText(value);
@@ -101,20 +100,29 @@ export default function AddRoomModal() {
   };
 
   const handleRoomNameChange = (e) => {
-    setRoomName(e.target.value.slice(0, ROOM_NAME_MAX)); 
+    setRoomName(e.target.value.slice(0, ROOM_NAME_MAX));
     setIsRoomNameEdited(true);
   };
 
+  useEffect(() => {
+    if (isRoomNameEdited) return;
+    // luôn để trống input
+    setRoomName('');
+  }, [selectedMembers, isRoomNameEdited]);
+
+  // Handle create chat / group
   const handleOk = async () => {
     if (!uid || selectedMembers.length === 0) return;
 
-    const finalRoomName = (roomName && roomName.trim())
-      ? roomName.trim().slice(0, ROOM_NAME_MAX)
-      : (() => {
-          if (selectedMembers.length === 1) return selectedMembers[0].displayName.slice(0, ROOM_NAME_MAX);
-          const names = [user?.displayName, ...selectedMembers.map(m => m.displayName)].filter(Boolean).join(', ');
-          return names.slice(0, ROOM_NAME_MAX);
-        })();
+    const finalRoomName = roomName?.trim()
+    ? roomName.trim().slice(0, ROOM_NAME_MAX)
+    : (() => {
+        if (selectedMembers.length === 1) return selectedMembers[0].displayName.slice(0, ROOM_NAME_MAX);
+        return [user?.displayName, ...selectedMembers.map(m => m.displayName)]
+          .filter(Boolean)
+          .join(', ')
+          .slice(0, ROOM_NAME_MAX);
+      })();
 
     if (selectedMembers.length === 1) {
       const otherUser = selectedMembers[0];
@@ -147,27 +155,48 @@ export default function AddRoomModal() {
       setSelectedRoomId(docRef.id);
     }
 
-    setSearchText('');
-    setSelectedMembers([]);
-    setOptions([]);
-    setFetching(false);
-    setRoomName('');
-    setIsRoomNameEdited(false);
+    resetModal();
     setIsAddRoomVisible(false);
   };
 
   const handleCancel = () => {
-    setSearchText('');
-    setSelectedMembers([]);
-    setOptions([]);
-    setFetching(false);
-    setRoomName('');
-    setIsRoomNameEdited(false);
+    resetModal();
     setIsAddRoomVisible(false);
   };
 
+  const suggestedUsers = useMemo(() => {
+    if (uid && !searchText) {
+      return users
+        .filter(u => u.uid !== uid)
+        .slice(0, 20);
+    }
+    return [];
+  }, [users, uid, searchText]);
+
   const filteredOptions = options.filter(u => !selectedMembers.find(s => s.uid === u.uid));
   const isPrivateSelection = selectedMembers.length === 1;
+
+  // --- RECENT CHATS ---
+  const recentChats = useMemo(() => {
+    if (!uid || searchText) return [];
+    return rooms
+      .filter(r => r.members.includes(uid) && r.type === "private")
+      .sort((a, b) => {
+        const aTime = a.updatedAt?.toDate?.() || 0;
+        const bTime = b.updatedAt?.toDate?.() || 0;
+        return bTime - aTime;
+      })
+      .map(r => {
+        const otherUid = r.members.find(m => m !== uid);
+        const otherUser = users.find(u => u.uid === otherUid);
+        return {
+          uid: otherUid,
+          displayName: otherUser?.displayName || r.name,
+          photoURL: otherUser?.photoURL || r.avatar,
+          username: otherUser?.username || ''
+        };
+      });
+  }, [rooms, uid, users, searchText]);
 
   return (
     <Modal
@@ -176,21 +205,25 @@ export default function AddRoomModal() {
       onCancel={handleCancel}
       footer={null}
       className="add-room-modal"
+      centered
+      bodyStyle={{ maxHeight: '80vh', padding: '5px', display: 'flex', flexDirection: 'column' }}
     >
+      {/* Header + Room name */}
       {selectedMembers.length > 1 && (
         <div style={{ marginBottom: 10 }}>
           <div style={{ marginBottom: 6, fontWeight: 600 }}>Tên nhóm</div>
           <Input
-            // placeholder="Nhập tên nhóm (bỏ trống để lấy tên mặc định)"
             value={roomName}
             onChange={handleRoomNameChange}
             disabled={isPrivateSelection}
+            placeholder="Tên nhóm (mặc định là các thành viên được chọn)"
             showCount
             maxLength={ROOM_NAME_MAX}
           />
         </div>
       )}
 
+      {/* Search */}
       <div style={{ marginBottom: 10 }}>
         <div style={{ marginBottom: 6, fontWeight: 600 }}>Tìm kiếm theo Quik ID</div>
         <Input
@@ -200,55 +233,71 @@ export default function AddRoomModal() {
         />
       </div>
 
-      <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-        {fetching && <Spin size="small" />}
-        {filteredOptions.map(userOpt => (
-          <div
-            key={userOpt.uid}
-            style={{ display: 'flex', alignItems: 'center', padding: '5px 0', cursor: 'pointer' }}
-            onClick={() => handleToggleMember(userOpt)}
-          >
-            <Avatar src={userOpt.photoURL} size={32} style={{ marginRight: 10 }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 500 }}>{userOpt.displayName}</div>
-              <div style={{ fontSize: 12, color: 'gray' }}>@{userOpt.username}</div>
-            </div>
-            <Checkbox checked={!!selectedMembers.find(u => u.uid === userOpt.uid)} />
+      {/* User List */}
+      <div style={{ flex: 1, overflowY: 'auto', paddingRight: '10px' }}>
+        {!searchText && (
+          <div style={{ marginBottom: 6, fontWeight: 600 }}>
+            {recentChats.length > 0 ? 'Trò chuyện gần đây' : 'Gợi ý'}
           </div>
+        )}
+
+        {fetching && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: 20 }}>
+            <Spin size="small" />
+          </div>
+        )}
+
+        {(searchText ? filteredOptions : (recentChats.length > 0 ? recentChats : suggestedUsers)).map(user => (
+          <UserItem
+            key={user.uid}
+            userObj={user}
+            selectedMembers={selectedMembers}
+            handleToggleMember={handleToggleMember}
+          />
         ))}
       </div>
 
+      {/* Selected Members */}
       {selectedMembers.length > 0 && (
-        <>
-          <div style={{ marginTop: 15, fontWeight: 500 }}>Đã chọn:</div>
-          <div style={{ maxHeight: 150, overflowY: 'auto' }}>
-            {selectedMembers.map(member => (
-              <div
-                key={member.uid}
-                style={{ display: 'flex', alignItems: 'center', padding: '5px 0', cursor: 'pointer' }}
-                onClick={() => handleToggleMember(member)}
-              >
-                <Avatar src={member.photoURL} size={32} style={{ marginRight: 10 }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 500 }}>{member.displayName}</div>
-                  <div style={{ fontSize: 12, color: 'gray' }}>@{member.username}</div>
-                </div>
-                <Checkbox checked={true} />
-              </div>
-            ))}
-          </div>
-        </>
+        <div style={{ flexShrink: 0, maxHeight: 150, overflowY: 'auto', marginTop: 10, paddingRight: '10px' }}>
+          <div style={{ fontWeight: 500 }}>Đã chọn:</div>
+          {selectedMembers.map(member => (
+            <UserItem
+              key={member.uid}
+              userObj={member}
+              selectedMembers={selectedMembers}
+              handleToggleMember={handleToggleMember}
+              isSelected
+            />
+          ))}
+        </div>
       )}
 
+      {/* Button */}
       <Button
         type="primary"
         block
         disabled={selectedMembers.length === 0}
         onClick={handleOk}
-        style={{ marginTop: 10 }}
+        style={{ marginTop: 10, flexShrink: 0 }}
       >
         {selectedMembers.length <= 1 ? 'Chat' : `Tạo nhóm (${selectedMembers.length + 1} người)`}
       </Button>
     </Modal>
+
   );
 }
+
+const UserItem = ({ userObj, selectedMembers, handleToggleMember }) => (
+  <div
+    style={{ display: 'flex', alignItems: 'center', padding: '5px 0', cursor: 'pointer' }}
+    onClick={() => handleToggleMember(userObj)}
+  >
+    <Avatar src={userObj.photoURL} size={32} style={{ marginRight: 10 }} />
+    <div style={{ flex: 1 }}>
+      <div style={{ fontWeight: 500 }}>{userObj.displayName}</div>
+      <div style={{ fontSize: 12, color: 'gray' }}>@{userObj.username}</div>
+    </div>
+    <Checkbox checked={!!selectedMembers.find(u => u.uid === userObj.uid)} />
+  </div>
+);

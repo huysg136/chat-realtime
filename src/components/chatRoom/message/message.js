@@ -182,22 +182,26 @@ export default function Message({
 
   const menu = (
     <Menu>
-      {kind === "picture" ? (
-        <Menu.Item key="open-image" onClick={handleCopy} icon={<FaImage />}>
-          Mở ảnh
-        </Menu.Item>
-      ) : kind === "video" ? (
-        <Menu.Item key="open-video" onClick={handleCopy} icon={<FaVideo />}>
-          Mở video
-        </Menu.Item>
-      ) : kind === "file" ? (
-        <Menu.Item key="download" onClick={handleCopy} icon={<FaDownload />}>
-          Lưu về máy
-        </Menu.Item>
-      ) : (
-        <Menu.Item key="copy-text" onClick={handleCopy} icon={<FaRegCopy />}>
-          Copy tin nhắn
-        </Menu.Item>
+      {kind !== "audio" && (
+        <>
+          {kind === "picture" ? (
+            <Menu.Item key="open-image" onClick={handleCopy} icon={<FaImage />}>
+              Mở ảnh
+            </Menu.Item>
+          ) : kind === "video" ? (
+            <Menu.Item key="open-video" onClick={handleCopy} icon={<FaVideo />}>
+              Mở video
+            </Menu.Item>
+          ) : kind === "file" ? (
+            <Menu.Item key="download" onClick={handleCopy} icon={<FaDownload />}>
+              Lưu về máy
+            </Menu.Item>
+          ) : (
+            <Menu.Item key="copy-text" onClick={handleCopy} icon={<FaRegCopy />}>
+              Copy tin nhắn
+            </Menu.Item>
+          )}
+        </>
       )}
       <Menu.Item key="share" onClick={handleForward} icon={<FaShareSquare />}>
         Chia sẻ tin nhắn

@@ -10,7 +10,7 @@ import "./leftSide.scss";
 import { GoHome, GoHomeFill} from "react-icons/go";
 //import { RiMessengerFill, RiMessengerLine } from "react-icons/ri";
 import { AiFillMessage, AiOutlineMessage  } from "react-icons/ai";
-import { IoNotifications, IoMailUnreadOutline, IoMailUnread } from "react-icons/io5";
+import { IoNotifications, IoMailUnreadOutline, IoMailUnread, IoPeople, IoPeopleOutline } from "react-icons/io5";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { AppContext } from '../../../context/appProvider';
@@ -104,12 +104,12 @@ export default function LeftSide() {
       </Dropdown>
 
       <div className="icon-group top">
-        <div
+        {/* <div
           className={`icon-item ${active === "home" ? "active" : ""}`}
           // onClick={() => setActive("home")}
         >
           {active === "home" ? <GoHomeFill /> : <GoHome />}
-        </div>
+        </div> */}
         {/* <div
           className={`icon-item ${active === "search" ? "active" : ""}`}
           // onClick={() => setActive("search")}
@@ -123,17 +123,23 @@ export default function LeftSide() {
           {active === "message" ? <AiFillMessage /> : <AiOutlineMessage />}
         </div>
         <div
+          className={`icon-item ${active === "contacts" ? "active" : ""}`}
+          onClick={() => setActive("contacts")}
+        >
+          {active === "contacts" ? <IoPeople /> : <IoPeopleOutline />}
+        </div>
+        {/* <div
           className={`icon-item ${active === "notification" ? "active" : ""}`}
           // onClick={() => setActive("notification")}
         >
           {active === "notification" ? <IoNotifications /> : <IoMdNotificationsOutline />}
-        </div>
-        <div
+        </div> */}
+        {/* <div
           className={`icon-item ${active === "invitation" ? "active" : ""}`}
           //onClick={() => setActive("invitation")}
         >
           {active === "invitation" ? <IoMailUnread /> : <IoMailUnreadOutline />}
-        </div>
+        </div> */}
       </div>
 
       <div className="icon-group bottom">

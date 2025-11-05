@@ -1,14 +1,14 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { Modal, Input, Avatar, Spin, Checkbox, Button } from 'antd';
 import { AppContext } from '../../context/appProvider';
 import { AuthContext } from '../../context/authProvider';
-import { collection, query, where, orderBy, limit, getDocs, doc, updateDoc, getDoc } from "firebase/firestore";
+import { collection, query, where, orderBy, limit, getDocs, getDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import debounce from 'lodash/debounce';
 import './inviteMemberModal.scss';
 
 export default function InviteMemberModal() {
-  const { isInviteMemberVisible, setIsInviteMemberVisible, selectedRoomId } = useContext(AppContext);
+  const { isInviteMemberVisible, setIsInviteMemberVisible, selectedRoomId, rooms, users } = useContext(AppContext);
   const { user } = useContext(AuthContext);
   const uid = user?.uid;
 
@@ -18,6 +18,7 @@ export default function InviteMemberModal() {
   const [currentMembers, setCurrentMembers] = useState([]);
   const [selectedMembers, setSelectedMembers] = useState([]);
 
+  // Reset modal & fetch current members
   useEffect(() => {
     const fetchCurrentMembers = async () => {
       if (!selectedRoomId) return;
@@ -30,6 +31,7 @@ export default function InviteMemberModal() {
         setCurrentMembers([]);
       }
     };
+
     if (isInviteMemberVisible) {
       fetchCurrentMembers();
       setSearchText('');
@@ -39,7 +41,7 @@ export default function InviteMemberModal() {
     }
   }, [isInviteMemberVisible, selectedRoomId]);
 
-  // --- SEARCH USERS BY USERNAME ---
+  // SEARCH USERS BY USERNAME
   const fetchUserList = async (text) => {
     setFetching(true);
     try {
@@ -59,9 +61,8 @@ export default function InviteMemberModal() {
           limit(50)
         );
       }
-
       const snapshot = await getDocs(q);
-      const users = snapshot.docs
+      const usersList = snapshot.docs
         .map(doc => ({
           uid: doc.data().uid,
           displayName: doc.data().displayName,
@@ -69,7 +70,7 @@ export default function InviteMemberModal() {
           username: doc.data().username || ''
         }))
         .filter(u => u.uid !== uid); // loại bỏ chính user
-      setOptions(users);
+      setOptions(usersList);
     } catch {
       setOptions([]);
     } finally {
@@ -78,18 +79,18 @@ export default function InviteMemberModal() {
   };
 
   const debounceFetcher = debounce(fetchUserList, 300);
-
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchText(value);
     debounceFetcher(value);
   };
 
-  const handleToggleMember = (user) => {
-    if (currentMembers.includes(user.uid)) return; // không cho chọn nếu đã là thành viên
+  const handleToggleMember = (userObj) => {
+    if (currentMembers.includes(userObj.uid)) return; // không cho chọn nếu đã là thành viên
     setSelectedMembers(prev => {
-      if (prev.find(u => u.uid === user.uid)) return prev.filter(u => u.uid !== user.uid);
-      return [...prev, user];
+      const exists = prev.find(u => u.uid === userObj.uid);
+      if (exists) return prev.filter(u => u.uid !== userObj.uid);
+      return [...prev, userObj];
     });
   };
 
@@ -117,7 +118,33 @@ export default function InviteMemberModal() {
     setIsInviteMemberVisible(false);
   };
 
-  const filteredOptions = options; // hiển thị tất cả user, filter chỉ dựa vào search
+  // --- Suggested Users ---
+  const suggestedUsers = useMemo(() => {
+    if (!uid || searchText) return [];
+    return users
+      .filter(u => u.uid !== uid && !currentMembers.includes(u.uid))
+      .slice(0, 20);
+  }, [users, uid, searchText, currentMembers]);
+
+  // --- Recent Chats ---
+  const recentChats = useMemo(() => {
+    if (!uid || searchText) return [];
+    return rooms
+      .filter(r => r.members.includes(uid) && r.type === "private")
+      .sort((a, b) => (b.updatedAt?.toDate?.() || 0) - (a.updatedAt?.toDate?.() || 0))
+      .map(r => {
+        const otherUid = r.members.find(m => m !== uid);
+        const otherUser = users.find(u => u.uid === otherUid);
+        return {
+          uid: otherUid,
+          displayName: otherUser?.displayName || r.name,
+          photoURL: otherUser?.photoURL || r.avatar,
+          username: otherUser?.username || ''
+        };
+      });
+  }, [rooms, uid, users, searchText]);
+
+  const displayUsers = searchText ? options : (recentChats.length > 0 ? recentChats : suggestedUsers);
 
   return (
     <Modal
@@ -126,8 +153,12 @@ export default function InviteMemberModal() {
       onCancel={handleCancel}
       footer={null}
       className="invite-member-modal"
+      centered
+      bodyStyle={{ maxHeight: '80vh', padding: '5px', display: 'flex', flexDirection: 'column' }}
     >
+      {/* Search */}
       <div style={{ marginBottom: 10 }}>
+        <div style={{ marginBottom: 6, fontWeight: 600 }}>Tìm kiếm theo Quik ID</div>
         <Input
           placeholder="Tìm kiếm người dùng theo Quik ID..."
           value={searchText}
@@ -135,69 +166,86 @@ export default function InviteMemberModal() {
         />
       </div>
 
-      <div style={{ maxHeight: 300, overflowY: 'auto' }}>
-        {fetching && <Spin size="small" />}
-        {filteredOptions.map(user => {
+      {/* Header gợi ý */}
+      {!searchText && (
+        <div style={{ marginBottom: 6, fontWeight: 600 }}>
+          {recentChats.length > 0 ? 'Trò chuyện gần đây' : 'Gợi ý'}
+        </div>
+      )}
+
+      {/* User list */}
+      <div style={{ flex: 1, overflowY: 'auto', paddingRight: '10px' }}>
+        {fetching && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: 20 }}>
+            <Spin size="small" />
+          </div>
+        )}
+
+        {displayUsers.map(user => {
           const isMember = currentMembers.includes(user.uid);
           return (
-            <div
+            <UserItem
               key={user.uid}
-              className="user-item"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '5px 0',
-                cursor: isMember ? 'not-allowed' : 'pointer',
-                opacity: isMember ? 0.5 : 1
-              }}
-              onClick={() => handleToggleMember(user)}
-            >
-              <Avatar src={user.photoURL} size={32} style={{ marginRight: 10 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 500 }}>{user.displayName}</div>
-                <div style={{ fontSize: 12, color: 'gray' }}>@{user.username}</div>
-              </div>
-              {isMember ? (
-                <span style={{ fontSize: 12, color: 'gray' }}>Đã trong nhóm</span>
-              ) : (
-                <Checkbox checked={!!selectedMembers.find(u => u.uid === user.uid)} />
-              )}
-            </div>
+              userObj={user}
+              selectedMembers={selectedMembers}
+              handleToggleMember={handleToggleMember}
+              isMember={isMember}
+            />
           );
         })}
       </div>
 
+      {/* Selected Members */}
       {selectedMembers.length > 0 && (
-        <>
-          <div className="selected-label" style={{ marginTop: 15, fontWeight: 500 }}>Đã chọn:</div>
-          <div style={{ maxHeight: 150, overflowY: 'auto' }}>
-            {selectedMembers.map(user => (
-              <div
-                key={user.uid}
-                style={{ display: 'flex', alignItems: 'center', padding: '5px 0', cursor: 'pointer' }}
-                onClick={() => handleToggleMember(user)}
-              >
-                <Avatar src={user.photoURL} size={32} style={{ marginRight: 10 }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 500 }}>{user.displayName}</div>
-                  <div style={{ fontSize: 12, color: 'gray' }}>@{user.username}</div>
-                </div>
-                <Checkbox checked={true} />
-              </div>
-            ))}
-          </div>
-        </>
+        <div style={{ flexShrink: 0, maxHeight: 150, overflowY: 'auto', marginTop: 10, paddingRight: '10px' }}>
+          <div style={{ fontWeight: 500 }}>Đã chọn:</div>
+          {selectedMembers.map(user => (
+            <UserItem
+              key={user.uid}
+              userObj={user}
+              selectedMembers={selectedMembers}
+              handleToggleMember={handleToggleMember}
+              isSelected
+            />
+          ))}
+        </div>
       )}
 
+      {/* Button */}
       <Button
         type="primary"
         block
         disabled={selectedMembers.length === 0}
         onClick={handleOk}
-        style={{ marginTop: 10 }}
+        style={{ marginTop: 10, flexShrink: 0 }}
       >
         Thêm vào nhóm
       </Button>
     </Modal>
   );
 }
+
+// --- User Item Component ---
+const UserItem = ({ userObj, selectedMembers, handleToggleMember, isSelected, isMember }) => (
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      padding: '5px 0',
+      cursor: isMember ? 'not-allowed' : 'pointer',
+      opacity: isMember ? 0.5 : 1
+    }}
+    onClick={() => !isMember && handleToggleMember(userObj)}
+  >
+    <Avatar src={userObj.photoURL} size={32} style={{ marginRight: 10 }} />
+    <div style={{ flex: 1 }}>
+      <div style={{ fontWeight: 500 }}>{userObj.displayName}</div>
+      <div style={{ fontSize: 12, color: 'gray' }}>@{userObj.username}</div>
+    </div>
+    {isMember ? (
+      <span style={{ fontSize: 12, color: 'gray' }}>Đã trong nhóm</span>
+    ) : (
+      <Checkbox checked={!!selectedMembers.find(u => u.uid === userObj.uid) || isSelected} />
+    )}
+  </div>
+);
