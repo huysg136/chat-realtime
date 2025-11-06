@@ -168,6 +168,7 @@ export default function ChatWindow() {
           text: revokedText,
           kind: "text",
           isRevoked: true,
+          visibleFor: selectedRoom.members
         },
       });
     }

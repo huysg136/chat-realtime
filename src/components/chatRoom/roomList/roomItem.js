@@ -146,6 +146,24 @@ export default function RoomItem({
           await updateDoc(docSnap.ref, { visibleFor: newVisibleFor });
         }
       });
+
+      const roomRef = doc(db, "rooms", room.id);
+      const roomSnap = await getDoc(roomRef);
+
+      if (roomSnap.exists()) {
+        const roomData = roomSnap.data();
+        const lastMessage = roomData.lastMessage || {};
+
+        if (Array.isArray(lastMessage.visibleFor)) {
+          const updatedVisibleFor = lastMessage.visibleFor.filter(
+            (uid) => uid !== user.uid
+          );
+
+          await updateDoc(roomRef, {
+            "lastMessage.visibleFor": updatedVisibleFor,
+          });
+        }
+      }
     } catch (err) {
     }
   };

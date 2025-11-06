@@ -78,6 +78,7 @@ export default function ChatInput({
           createdAt: new Date(),
           kind,
           fileName: file.name,
+          visibleFor: selectedRoom.members
         },
       });
     } catch (err) {
@@ -161,6 +162,7 @@ export default function ChatInput({
           uid,
           createdAt: new Date(),
           kind: "audio",
+          visibleFor: selectedRoom.members
         },
       });
     } catch (err) {
@@ -217,6 +219,7 @@ export default function ChatInput({
           uid,
           createdAt: new Date(),
           kind: "text",
+          visibleFor: selectedRoom.members
         },
       });
 

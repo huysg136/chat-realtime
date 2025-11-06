@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useMemo } from "react";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
-import RoomItem from './roomItem';
+import RoomItem from "./roomItem";
 import { db } from "../../../firebase/config";
 import { doc, onSnapshot } from "firebase/firestore";
 import "./roomList.scss";
@@ -31,34 +31,48 @@ export default function RoomList() {
   };
 
   const filteredRooms = useMemo(() => {
-    if (!searchText?.trim()) return rooms;
-    const text = searchText.toLowerCase();
+    if (!rooms?.length) return [];
+
+    const text = searchText?.trim().toLowerCase() || "";
 
     return rooms.filter((room) => {
+      const lm = room.lastMessage;
       const memberUids = Array.isArray(room.members)
         ? room.members.map((m) => (typeof m === "string" ? m : m?.uid)).filter(Boolean)
         : [];
 
-      const membersData = memberUids
-        .map((uid) => users.find((u) => String(u.uid).trim() === String(uid).trim()))
-        .filter(Boolean);
+      const isMember = memberUids.includes(user?.uid);
 
-      const isPrivate = room.type === "private" && membersData.length === 2;
+      // Nếu đang tìm kiếm → chỉ cần user vẫn trong phòng
+      if (text) {
+        const membersData = memberUids
+          .map((uid) => users.find((u) => String(u.uid).trim() === String(uid).trim()))
+          .filter(Boolean);
 
-      if (isPrivate) {
-        const otherUser = membersData.find((u) => u.uid !== user?.uid);
-        return (otherUser?.displayName || "")
-          .toLowerCase()
-          .includes(text);
-      } else {
-        // group or normal room
-        return (room.name || "")
-          .toLowerCase()
-          .includes(text);
+        const isPrivate = room.type === "private" && membersData.length === 2;
+
+        if (isPrivate) {
+          const otherUser = membersData.find((u) => u.uid !== user?.uid);
+          return (
+            isMember &&
+            (otherUser?.displayName || "")
+              .toLowerCase()
+              .includes(text)
+          );
+        } else {
+          return isMember && (room.name || "").toLowerCase().includes(text);
+        }
       }
+
+      // Không tìm kiếm → phải có lastMessage và visibleFor chứa user
+      if (!lm) return false;
+      if (Array.isArray(lm.visibleFor) && !lm.visibleFor.includes(user?.uid)) {
+        return false;
+      }
+
+      return true;
     });
   }, [rooms, searchText, users, user?.uid]);
-
 
   const sortedRooms = useMemo(() => {
     return [...filteredRooms].sort((a, b) => {
@@ -74,15 +88,24 @@ export default function RoomList() {
 
   return (
     <div className="room-list-wrapper">
-      {sortedRooms.map((room) => (
-        <RoomItem
-          key={room.id}
-          room={room}
-          users={users}
-          selectedRoomId={selectedRoomId}
-          setSelectedRoomId={setSelectedRoomId}
-        />
-      ))}
+      {sortedRooms.map((room) => {
+        const canSeeLastMessage =
+          Array.isArray(room.lastMessage?.visibleFor) &&
+          room.lastMessage.visibleFor.includes(user?.uid);
+
+        return (
+          <RoomItem
+            key={room.id}
+            room={{
+              ...room,
+              lastMessage: canSeeLastMessage ? room.lastMessage : null,
+            }}
+            users={users}
+            selectedRoomId={selectedRoomId}
+            setSelectedRoomId={setSelectedRoomId}
+          />
+        );
+      })}
     </div>
   );
 }
