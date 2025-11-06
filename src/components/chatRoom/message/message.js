@@ -23,17 +23,91 @@ const ReplyPreview = ({ replyTo, isOwn }) => {
     replyTo.text === "[Tin nhắn đã được thu hồi]" ||
     replyTo.decryptedText === "[Tin nhắn đã được thu hồi]";
 
+  const renderReplyContent = () => {
+    if (isRepliedRevoked)
+      return <p className="reply-text">[Tin nhắn đã được thu hồi]</p>;
+
+    const kind = replyTo.kind || "text";
+    const text = replyTo.text || replyTo.decryptedText || "";
+
+    if (kind === "picture") {
+      return (
+        <div className="reply-media">
+          <img
+            src={text}
+            alt="reply-img"
+            style={{
+              maxWidth: 60,
+              maxHeight: 60,
+              height: "auto",
+              width: "auto",
+              objectFit: "cover",
+              borderRadius: 6,
+              marginTop: 2,
+            }}
+          />
+        </div>
+      );
+    }
+
+    if (kind === "video") {
+      return (
+        <div className="reply-media">
+          <video
+            src={text}
+            style={{
+              maxWidth: 60,
+              maxHeight: 60,
+              height: "auto",
+              width: "auto",
+              borderRadius: 6,
+              objectFit: "cover",
+              marginTop: 2,
+            }}
+            muted
+          />
+        </div>
+      );
+    }
+
+    return (
+      <p className="reply-text">
+        {(() => {
+          switch (kind) {
+            case "video":
+              return (
+                <>
+                  🎬 [Video]
+                  {replyTo.fileName ? ` (${replyTo.fileName})` : ""}
+                </>
+              );
+            case "file":
+              return (
+                <>
+                  📎 [Tệp]
+                  {replyTo.fileName ? ` (${replyTo.fileName})` : ""}
+                </>
+              );
+            case "audio":
+            case "voice":
+              return <>🎤 [Tin nhắn thoại]</>;
+            default:
+              return text || "[Tin nhắn]";
+          }
+        })()}
+      </p>
+    );
+  };
+
   return (
     <div className={`reply-preview-in-message ${isOwn ? "own" : ""}`}>
       <span className="reply-label">Trả lời {replyTo.displayName}:</span>
-      <p className="reply-text">
-        {isRepliedRevoked
-          ? "[Tin nhắn đã được thu hồi]"
-          : replyTo.text || replyTo.decryptedText}
-      </p>
+      {renderReplyContent()}
     </div>
   );
 };
+
+
 
 export default function Message({
   text,
@@ -104,8 +178,18 @@ export default function Message({
   }, [uid, initialDisplayName, initialPhoto]);
 
   const handleReply = () => {
-    if (onReply)
-      onReply({ id: Date.now().toString(), decryptedText: text, displayName });
+    if (onReply) {
+      onReply({
+        id: Date.now().toString(),
+        decryptedText: text,
+        displayName,
+        kind: kind || "text",
+        fileName:
+          kind === "picture" || kind === "video" || kind === "file"
+            ? text.split("/").pop().slice(14)
+            : null,
+      });
+    }
   };
 
   const handleRevoke = () => {

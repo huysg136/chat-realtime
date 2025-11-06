@@ -1,32 +1,27 @@
 import React, { useContext, useState, useMemo, useRef, useEffect } from "react";
-import { Button, Avatar, Form, Input, Tooltip } from "antd";
+import { Button, Avatar, Tooltip } from "antd";
 import {
   PhoneOutlined,
   VideoCameraOutlined,
   UserAddOutlined,
   MessageOutlined,
-  SmileOutlined,
-  PaperClipOutlined,
-  AudioOutlined,
-  CloseOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import axios from "axios";
 import { onSnapshot, collection, query, where } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import Message from "../message/message";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import ChatDetailPanel from "../chatDetailPanel/chatDetailPanel";
 import TransferOwnershipModal from "../../modals/transferOwnershipModal";
+import ChatInput from "../chatInput/chatInput";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import { useFirestore } from "../../../hooks/useFirestore";
-import { addDocument, updateDocument, encryptMessage, decryptMessage } from "../../../firebase/services";
-import EmojiPicker from "emoji-picker-react";
+import { updateDocument, encryptMessage, decryptMessage } from "../../../firebase/services";
 
 import "./chatWindow.scss";
 
@@ -42,11 +37,7 @@ export default function ChatWindow() {
   const uid = user.uid || "";
   const photoURL = user.photoURL || null;
   const displayName = user.displayName || "Unknown";
-  const [audioStream, setAudioStream] = useState(null);
 
-  const [form] = Form.useForm();
-  const [inputValue, setInputValue] = useState("");
-  const [sending, setSending] = useState(false);
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
 
@@ -55,10 +46,6 @@ export default function ChatWindow() {
   const [selectedTransferUid, setSelectedTransferUid] = useState(null);
   const [leavingLoading, setLeavingLoading] = useState(false);
   const [banInfo, setBanInfo] = useState(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState(null);
-  const [audioChunks, setAudioChunks] = useState([]);
   const isBanned = !!banInfo;
 
   const toggleDetail = () => {
@@ -69,67 +56,6 @@ export default function ChatWindow() {
     () => rooms.find((room) => room.id === selectedRoomId),
     [rooms, selectedRoomId]
   );
-
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      setSending(true);
-      const res = await axios.post(
-        "https://chat-realtime-be.vercel.app/upload", // backend
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      const fileUrl = res.data.url; 
-
-      const encryptedText = selectedRoom.secretKey
-        ? encryptMessage(fileUrl, selectedRoom.secretKey)
-        : fileUrl;
-
-      await addDocument("messages", {
-        text: encryptedText,
-        uid,
-        photoURL,
-        roomId: selectedRoom.id,
-        displayName,
-        createdAt: new Date(),
-        kind: file.type.startsWith("image/")
-          ? "picture"
-          : file.type.startsWith("video/")
-          ? "video"
-          : "file",
-        fileName: file.name,
-      });
-
-      await updateDocument("rooms", selectedRoom.id, {
-        lastMessage: {
-          displayName,
-          text: encryptedText,
-          uid,
-          createdAt: new Date(),
-          kind: file.type.startsWith("image/")
-            ? "picture"
-            : file.type.startsWith("video/")
-            ? "video"
-            : "file",
-          fileName: file.name,
-        },
-      });
-    } catch (err) {
-      toast.error("Upload file thất bại");
-    } finally {
-      setSending(false);
-      e.target.value = null; // reset input
-    }
-  };
-
 
   const condition = useMemo(
     () =>
@@ -239,148 +165,6 @@ export default function ChatWindow() {
     }
   };
 
-  const handleInputChange = (e) => setInputValue(e.target.value);
-
-  const handleVoiceButtonClick = async () => {
-    if (isRecording) {
-      mediaRecorder?.stop();
-      audioStream?.getTracks().forEach(track => track.stop()); // dừng mic
-      setIsRecording(false); // tắt hiệu ứng sóng ngay
-      setMediaRecorder(null);
-      setAudioStream(null);
-      setAudioChunks([]);
-    } else {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const recorder = new MediaRecorder(stream);
-        const chunks = [];
-
-        recorder.ondataavailable = (event) => {
-          if (event.data.size > 0) chunks.push(event.data);
-        };
-
-        recorder.onstop = async () => {
-          const audioBlob = new Blob(chunks, { type: 'audio/wav' });
-          await handleAudioUpload(audioBlob); 
-        };
-
-        setMediaRecorder(recorder);
-        setAudioStream(stream); 
-        setAudioChunks(chunks);
-        recorder.start();
-        setIsRecording(true); 
-      } catch (err) {
-        toast.error("Không thể truy cập microphone");
-      }
-    }
-  };
-
-
-  const handleAudioUpload = async (audioBlob) => {
-    const formData = new FormData();
-    formData.append("file", audioBlob, "voice-message.wav");
-
-    try {
-      setSending(true);
-      const res = await axios.post(
-        "https://chat-realtime-be.vercel.app/upload",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      const audioUrl = res.data.url;
-
-      const encryptedText = selectedRoom.secretKey
-        ? encryptMessage(audioUrl, selectedRoom.secretKey)
-        : audioUrl;
-
-      await addDocument("messages", {
-        text: encryptedText,
-        uid,
-        photoURL,
-        roomId: selectedRoom.id,
-        displayName,
-        createdAt: new Date(),
-        kind: "audio",
-        fileName: "voice-message.wav",
-      });
-
-      await updateDocument("rooms", selectedRoom.id, {
-        lastMessage: {
-          displayName,
-          text: selectedRoom.secretKey 
-            ? encryptMessage("[Voice Message]", selectedRoom.secretKey) 
-            : "[Voice Message]",
-          uid,
-          createdAt: new Date(),
-          kind: "audio",
-        },
-      });
-    } catch (err) {
-      toast.error("Upload audio thất bại");
-    } finally {
-      setSending(false);
-      setIsRecording(false);
-      setMediaRecorder(null);
-      setAudioChunks([]);
-    }
-  };
-
-  const handleOnSubmit = async () => {
-    if (!inputValue.trim() || !selectedRoom) return;
-    if (!uid) return;
-    if (sending) return;
-
-    setSending(true);
-    const messageText = inputValue.trim();
-
-    form.resetFields(["message"]);
-    setInputValue("");
-    setShowEmojiPicker(false);
-
-    try {
-      const encryptedText = selectedRoom.secretKey 
-        ? encryptMessage(messageText, selectedRoom.secretKey) 
-        : messageText;
-
-      await addDocument("messages", {
-        text: encryptedText,
-        uid,
-        photoURL,
-        roomId: selectedRoom.id,
-        displayName,
-        createdAt: new Date(),
-        kind: "text",
-        replyTo: replyTo ? {
-          id: replyTo.id,
-          text: replyTo.decryptedText,
-          displayName: replyTo.displayName
-        } : null,
-      });
-
-      await updateDocument("rooms", selectedRoom.id, {
-        lastMessage: {
-          displayName,
-          text: encryptedText,
-          uid,
-          createdAt: new Date(),
-          kind: "text",
-        },
-      });
-
-      setReplyTo(null);
-    } catch (err) {
-      toast.error("Gửi tin nhắn thất bại");
-    } finally {
-      setSending(false);
-      setTimeout(() => {
-        inputRef.current?.focus();
-      }, 10);
-    }
-  };
-
   if (!selectedRoom) {
     return (
       <div className="chat-window no-room">
@@ -475,143 +259,85 @@ export default function ChatWindow() {
       </header>
 
       <div className="chat-window__content">
-            <div
-              className={`message-list-style ${sortedMessages.length < 7 ? "few-messages" : ""}`}
-              ref={messageListRef}
-            >
-              {sortedMessages.length === 0 ? (
-                <div className="empty-chat">
-                  <div className="empty-avatar">
-                    {isPrivate ? (
-                      otherUser ? (
-                        <Avatar src={otherUser.photoURL} size={80} />
-                      ) : (
-                        <Avatar size={80}>
-                          {(selectedRoom.name || "?").charAt(0).toUpperCase()}
-                        </Avatar>
-                      )
-                    ) : selectedRoom.avatar ? (
-                      <Avatar src={selectedRoom.avatar} size={80} />
-                    ) : (
-                      <CircularAvatarGroup
-                        members={membersData.map((u) => ({
-                          avatar: u.photoURL,
-                          name: u.displayName
-                        }))}
-                        size={80}
-                      />
-                    )}
-                  </div>
-                  <Tooltip title={isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}>
-                    <p className="empty-name">
-                      {isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}
-                    </p>
-                  </Tooltip>
-                  <p className="empty-info">{selectedRoom.description || "Quik"}</p>
-                  <p className="empty-hint">Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện</p>
-                </div>
-              ) : (
-                sortedMessages.map((msg, index) => {
-                  const prevMsg = sortedMessages[index - 1];
-                  const showTime =
-                    !prevMsg ||
-                    new Date(prevMsg.createdAt).getMinutes() !== new Date(msg.createdAt).getMinutes() ||
-                    new Date(prevMsg.createdAt).getHours() !== new Date(msg.createdAt).getHours();
-
-                  return (
-                    <React.Fragment key={msg.id}>
-                      {showTime && <div className="chat-time-separator">{formatDate(msg.createdAt)}</div>}
-                      <Message
-                        uid={msg.uid}
-                        text={msg.decryptedText || ""}
-                        photoURL={msg.photoURL || null}
-                        displayName={msg.displayName || "Unknown"}
-                        createdAt={msg.createdAt}
-                        isOwn={msg.uid === uid}
-                        replyTo={msg.replyTo}
-                        kind={msg.kind || "text"}
-                        onReply={(message) => setReplyTo(message)}
-                        onRevoke={() => handleRevokeMessage(msg.id)}
-                        isBanned={isBanned} 
-                      />
-                    </React.Fragment>
-                  );
-                })
-              )}
-            </div>
-          {banInfo ? (
-            <div className="ban-message">
-              <p>Rất tiếc! Bạn tạm thời bị giới hạn nhắn tin cho đến {format(banInfo.banEnd, "HH:mm dd/MM/yyyy", { locale: vi })}.</p>
-            </div>
-          ) : (
-            <Form className="form-style" form={form}>
-              {replyTo && (
-                <div className="reply-preview">
-                  <div className="reply-content">
-                    <span className="reply-label">Trả lời {replyTo.displayName}:</span>
-                    <p className="reply-text">{replyTo.decryptedText}</p>
-                  </div>
-                  <Button
-                    type="text"
-                    icon={<CloseOutlined />}
-                    onClick={() => setReplyTo(null)}
-                    className="cancel-reply-btn"
+        <div
+          className={`message-list-style ${sortedMessages.length < 7 ? "few-messages" : ""}`}
+          ref={messageListRef}
+        >
+          {sortedMessages.length === 0 ? (
+            <div className="empty-chat">
+              <div className="empty-avatar">
+                {isPrivate ? (
+                  otherUser ? (
+                    <Avatar src={otherUser.photoURL} size={80} />
+                  ) : (
+                    <Avatar size={80}>
+                      {(selectedRoom.name || "?").charAt(0).toUpperCase()}
+                    </Avatar>
+                  )
+                ) : selectedRoom.avatar ? (
+                  <Avatar src={selectedRoom.avatar} size={80} />
+                ) : (
+                  <CircularAvatarGroup
+                    members={membersData.map((u) => ({
+                      avatar: u.photoURL,
+                      name: u.displayName
+                    }))}
+                    size={80}
                   />
-                </div>
-              )}
-              <div style={{ position: "relative" }}>
-                <Button
-                  type="text"
-                  icon={<SmileOutlined />}
-                  className="input-icon-btn"
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                />
-
-                {showEmojiPicker && (
-                  <div style={{ position: "absolute", bottom: "50px", left: "0", zIndex: 1000 }}>
-                    <EmojiPicker
-                      onEmojiClick={(emojiData) => {
-                        setInputValue((prev) => prev + emojiData.emoji);
-                      }}
-                    />
-                  </div>
                 )}
               </div>
-              <Input
-                ref={inputRef}
-                value={inputValue}
-                onChange={handleInputChange}
-                onPressEnter={handleOnSubmit}
-                placeholder={replyTo ? "Trả lời tin nhắn..." : "Nhập tin nhắn..."}
-                bordered={false}
-                autoComplete="off"
-              />
-              {inputValue.trim() ? (
-                <Button type="text" onClick={handleOnSubmit} loading={sending} className="send-btn">
-                  Gửi
-                </Button>
-              ) : (
-                <div className="input-actions">
-                  <Button
-                    type="text"
-                    icon={<AudioOutlined />}
-                    className={`input-icon-btn ${isRecording ? 'recording' : ''}`}
-                    onClick={handleVoiceButtonClick}
-                    disabled={sending}
+              <Tooltip title={isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}>
+                <p className="empty-name">
+                  {isPrivate ? (otherUser?.displayName || selectedRoom.name) : selectedRoom.name}
+                </p>
+              </Tooltip>
+              <p className="empty-info">{selectedRoom.description || "Quik"}</p>
+              <p className="empty-hint">Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện</p>
+            </div>
+          ) : (
+            sortedMessages.map((msg, index) => {
+              const prevMsg = sortedMessages[index - 1];
+              const showTime =
+                !prevMsg ||
+                new Date(prevMsg.createdAt).getMinutes() !== new Date(msg.createdAt).getMinutes() ||
+                new Date(prevMsg.createdAt).getHours() !== new Date(msg.createdAt).getHours();
+
+              return (
+                <React.Fragment key={msg.id}>
+                  {showTime && <div className="chat-time-separator">{formatDate(msg.createdAt)}</div>}
+                  <Message
+                    uid={msg.uid}
+                    text={msg.decryptedText || ""}
+                    photoURL={msg.photoURL || null}
+                    displayName={msg.displayName || "Unknown"}
+                    createdAt={msg.createdAt}
+                    isOwn={msg.uid === uid}
+                    replyTo={msg.replyTo}
+                    kind={msg.kind || "text"}
+                    onReply={(message) => setReplyTo(message)}
+                    onRevoke={() => handleRevokeMessage(msg.id)}
+                    isBanned={isBanned} 
                   />
-                  <label htmlFor="fileUpload" className="input-icon-btn">
-                    <PaperClipOutlined />
-                  </label>
-                  <input
-                    id="fileUpload"
-                    type="file"
-                    style={{ display: "none" }}
-                    onChange={handleFileUpload}
-                  />
-                </div>
-              )}
-            </Form>
+                </React.Fragment>
+              );
+            })
           )}
+        </div>
+
+        {banInfo ? (
+          <div className="ban-message">
+            <p>Rất tiếc! Bạn tạm thời bị giới hạn nhắn tin cho đến {format(banInfo.banEnd, "HH:mm dd/MM/yyyy", { locale: vi })}.</p>
+          </div>
+        ) : (
+          <ChatInput
+            selectedRoom={selectedRoom}
+            user={{ uid, photoURL, displayName }}
+            replyTo={replyTo}
+            setReplyTo={setReplyTo}
+            isBanned={isBanned}
+            inputRef={inputRef}
+          />
+        )}
       </div>
 
       {isDetailVisible && <div className="chat-detail-overlay" onClick={toggleDetail} />}

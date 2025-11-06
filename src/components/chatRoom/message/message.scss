@@ -15,6 +15,7 @@
     .message-bubble {
       background: linear-gradient(135deg, #0084ff 0%, #0066ff 100%);
       color: white;
+      max-width: 400px;
 
       .message-name {
         color: rgba(255, 255, 255, 0.9);
@@ -584,5 +585,9 @@ body.theme-dark {
     border: 1.5px solid #3a3a3a;
   }
 }
+
+
+
+
 
 
