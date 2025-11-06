@@ -164,6 +164,7 @@ export default function RoomItem({
           });
         }
       }
+      setSelectedRoomId(null);
     } catch (err) {
     }
   };

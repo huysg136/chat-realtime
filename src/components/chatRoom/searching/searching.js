@@ -10,7 +10,7 @@ import { getUserDocIdByUid } from "../../../firebase/services";
 import "./searching.scss";
 
 export default function Searching() {
-  const { setIsAddRoomVisible, searchText, setSearchText } = useContext(AppContext);
+  const { setIsAddRoomVisible, searchText, setSearchText, selectedRoomId } = useContext(AppContext);
   const { user } = useContext(AuthContext) || {};
   const [displayName, setDisplayName] = useState("");
   const [usernameHandle, setUsernameHandle] = useState("");
@@ -41,6 +41,12 @@ export default function Searching() {
 
     return () => unsubscribe();
   }, [user?.uid]);
+
+  useEffect(() => {
+    if (selectedRoomId) {
+      setSearchText("");
+    }
+  }, [selectedRoomId, setSearchText]);
 
   const handleAddRoom = () => setIsAddRoomVisible(true);
   const handleSearchChange = (e) => setSearchText(e.target.value);
