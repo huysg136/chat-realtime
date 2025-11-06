@@ -218,6 +218,16 @@
 
 // Dark theme
 body.theme-dark {
+  .chat-input-form {
+    .ant-btn {
+        background: transparent !important;
+        color: #ffffff !important;
+
+        &:hover {
+            background: #353535 !important;
+        }
+    }
+  }
   .reply-preview {
     background: #2a2d31;
     border-left: 4px solid #0a7cff;
@@ -231,11 +241,11 @@ body.theme-dark {
     }
 
     .cancel-reply-btn {
-      color: #b8bbbf;
+      background: transparent !important;
+      color: #ffffff !important;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #e4e6eb;
+        background: #353535 !important;
       }
     }
   }
@@ -246,7 +256,7 @@ body.theme-dark {
 
     .input-icon-btn {
       .anticon {
-        color: #0a7cff;
+        color: #ffffff;
       }
 
       &:hover {
@@ -274,8 +284,8 @@ body.theme-dark {
 
       &:focus {
         background: #3a3b3c;
-        border-color: #0a7cff;
-        box-shadow: 0 0 0 2px rgba(10, 124, 255, 0.15);
+        border-color: #e3e3e3;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
       }
 
       &::placeholder {

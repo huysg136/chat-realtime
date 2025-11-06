@@ -26,8 +26,7 @@ export default function ProfileModal() {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 🆕 Trạng thái cho giới hạn username
-  const [lastChangeUTC, setLastChangeUTC] = useState(null);
+  const [lastChange, setLastChange] = useState(null);
   const [changeCount, setChangeCount] = useState(0);
 
   const nameInputRef = useRef(null);
@@ -56,7 +55,7 @@ export default function ProfileModal() {
           setDisplayName(data.displayName || '');
           setUsername(data.username || '');
           setPhotoURL(data.photoURL || defaultAvatar);
-          setLastChangeUTC(data.lastUsernameChangeUTC || null);
+          setLastChange(data.lastUsernameChange || null);
           setChangeCount(data.usernameChangeCount || 0);
 
           setUser(prev => ({
@@ -121,8 +120,8 @@ export default function ProfileModal() {
 
       // Kiểm tra giới hạn đổi
       const nowUTC = new Date().toISOString();
-      if (lastChangeUTC) {
-        const lastChange = new Date(lastChangeUTC);
+      if (lastChange) {
+        const lastChange = new Date(lastChange);
         const diffDays = Math.floor((new Date(nowUTC) - lastChange) / (1000 * 60 * 60 * 24));
         if (diffDays < 30) {
           toast.warning(`Bạn chỉ có thể đổi lại sau ${30 - diffDays} ngày nữa.`);
@@ -142,12 +141,12 @@ export default function ProfileModal() {
 
       await updateDocument("users", docId, {
         username: formatted,
-        lastUsernameChangeUTC: nowUTC,
+        lastUsernameChange: nowUTC,
         usernameChangeCount: (changeCount || 0) + 1
       });
 
       setUsername(formatted);
-      setLastChangeUTC(nowUTC);
+      setLastChange(nowUTC);
       setChangeCount((prev) => (prev || 0) + 1);
       setUser(prev => ({ ...prev, username: formatted }));
 
@@ -202,8 +201,8 @@ export default function ProfileModal() {
 
   // 🧮 Tính số ngày còn lại
   const getDaysLeft = () => {
-    if (!lastChangeUTC) return 0;
-    const diffDays = Math.floor((new Date() - new Date(lastChangeUTC)) / (1000 * 60 * 60 * 24));
+    if (!lastChange) return 0;
+    const diffDays = Math.floor((new Date() - new Date(lastChange)) / (1000 * 60 * 60 * 24));
     return diffDays >= 30 ? 0 : 30 - diffDays;
   };
 
@@ -289,27 +288,34 @@ export default function ProfileModal() {
               @{username || 'chưa có username'}
             </div>
           )}
-          {/* 🆕 Hiển thị thông tin giới hạn */}
+
           <div style={{ fontSize: 13, marginTop: 8 }}>
             {changeCount >= 5 ? (
               <div
                 style={{
-                  background: '#fff1f0',
-                  color: '#cf1322',
-                  padding: '6px 10px',
+                  color: '#ff4d4f', 
                   borderRadius: 8,
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  gap: 4,
                   fontWeight: 500,
+                  lineHeight: 1.4,
                 }}
               >
-                <FiXCircle size={16} />
-                <span>Bạn đã đạt giới hạn <b>5 lần đổi Quik ID</b></span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <FiXCircle size={16} />
+                  <span>
+                    Bạn đã đạt giới hạn <b>5 lần đổi Quik ID</b>
+                  </span>
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 400, opacity: 0.9, color: '#ff7875', }}>
+                  Vui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ thêm.
+                </div>
               </div>
             ) : (
               <>
-                {lastChangeUTC ? (
+                {lastChange && getDaysLeft() > 0 ? (
                   <div
                     style={{
                       color: '#d48806',
@@ -319,12 +325,12 @@ export default function ProfileModal() {
                     }}
                   >
                     <FiAlertTriangle size={14} />
-                    <span>Có thể đổi lại sau <b>{getDaysLeft()} ngày</b></span>
+                    <span>Có thể đổi lại Quik ID sau <b>{getDaysLeft()} ngày</b></span>
                   </div>
                 ) : (
                   null
                 )}
-                <div
+                {/* <div
                   style={{
                     color: '#555',
                     fontSize: 12,
@@ -338,7 +344,7 @@ export default function ProfileModal() {
                   <span>
                     Số lần đổi còn lại: <b>{5 - changeCount}</b> / 5
                   </span>
-                </div>
+                </div> */}
               </>
             )}
           </div>
