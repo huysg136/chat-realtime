@@ -6,7 +6,7 @@ import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import MediaRenderer from "./MediaRenderer";
 import { db } from "../../../firebase/config";
-import { doc, onSnapshot, collection, query, where  } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, where, getDoc  } from "firebase/firestore";
 import {
   getUserDocIdByUid,
   sendMessageToRoom,
@@ -17,20 +17,50 @@ import "./message.scss";
 import { toast } from "react-toastify";
 
 const ReplyPreview = ({ replyTo, isOwn }) => {
+  const [isRepliedRevoked, setIsRepliedRevoked] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!replyTo?.id) {
+      setLoading(false);
+      return;
+    }
+
+
+    const messageRef = doc(db, "messages", replyTo.id);
+    
+    getDoc(messageRef).then((docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setIsRepliedRevoked(data.isRevoked === true);
+      }
+      setLoading(false);
+    }).catch((error) => {
+      setLoading(false);
+    });
+
+    const unsubscribe = onSnapshot(messageRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setIsRepliedRevoked(data.isRevoked === true);
+      }
+    }, (error) => {
+    });
+
+    return () => unsubscribe();
+  }, [replyTo?.id]);
+
   if (!replyTo) return null;
 
-  const isRepliedRevoked =
-    replyTo.text === "[Tin nhắn đã được thu hồi]" ||
-    replyTo.decryptedText === "[Tin nhắn đã được thu hồi]";
-
   const renderReplyContent = () => {
-    if (isRepliedRevoked)
+    if (isRepliedRevoked) {
       return <p className="reply-text">[Tin nhắn đã được thu hồi]</p>;
+    }
 
     const kind = replyTo.kind || "text";
     const text = replyTo.text || replyTo.decryptedText || "";
 
-    if (kind === "picture") {
+    if (kind === "picture" && !isRepliedRevoked) {
       return (
         <div className="reply-media">
           <img
@@ -50,7 +80,7 @@ const ReplyPreview = ({ replyTo, isOwn }) => {
       );
     }
 
-    if (kind === "video") {
+    if (kind === "video" && !isRepliedRevoked) {
       return (
         <div className="reply-media">
           <video
@@ -107,9 +137,8 @@ const ReplyPreview = ({ replyTo, isOwn }) => {
   );
 };
 
-
-
 export default function Message({
+  messageId,
   text,
   displayName: initialDisplayName,
   photoURL: initialPhoto,
@@ -140,7 +169,6 @@ export default function Message({
   const [isForwardModalVisible, setIsForwardModalVisible] = useState(false);
   const [forwarding, setForwarding] = useState(false);
 
-  // Real-time ban check
   useEffect(() => {
     if (!uid) return;
 
@@ -180,7 +208,7 @@ export default function Message({
   const handleReply = () => {
     if (onReply) {
       onReply({
-        id: Date.now().toString(),
+        id: messageId,
         decryptedText: text,
         displayName,
         kind: kind || "text",
@@ -216,9 +244,6 @@ export default function Message({
     } catch (err) {
     }
   };
-
-
-
 
   const handleForward = () => setIsForwardModalVisible(true);
   const handleCancelForward = () => setIsForwardModalVisible(false);
@@ -309,7 +334,6 @@ export default function Message({
     </Menu>
   );
 
-
   return (
     <>
       <div className={`message-row ${isOwn ? "own" : ""}`}>
@@ -328,7 +352,12 @@ export default function Message({
             </span>
           )}
 
-          {isMediaWithoutBubble && <ReplyPreview replyTo={replyTo} isOwn={isOwn} />}
+          {isMediaWithoutBubble && (
+            <ReplyPreview 
+              replyTo={replyTo} 
+              isOwn={isOwn}
+            />
+          )}
 
           {isMediaWithoutBubble ? (
             <MediaRenderer
@@ -343,7 +372,12 @@ export default function Message({
               {!isPrivate && !isOwn && (
                 <span className="message-name">{displayName}</span>
               )}
-              {!isRevoked && <ReplyPreview replyTo={replyTo} isOwn={isOwn} />}
+              {!isRevoked && (
+                <ReplyPreview 
+                  replyTo={replyTo} 
+                  isOwn={isOwn}
+                />
+              )}
               <MediaRenderer
                 kind={kind}
                 content={text}

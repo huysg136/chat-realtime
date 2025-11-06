@@ -48,6 +48,10 @@ export default function ChatWindow() {
   const [banInfo, setBanInfo] = useState(null);
   const isBanned = !!banInfo;
 
+  useEffect(() => {
+    setReplyTo(null); 
+  }, [selectedRoomId]);
+
   const toggleDetail = () => {
     setIsDetailVisible((p) => !p);
   };
@@ -306,6 +310,7 @@ export default function ChatWindow() {
                 <React.Fragment key={msg.id}>
                   {showTime && <div className="chat-time-separator">{formatDate(msg.createdAt)}</div>}
                   <Message
+                    messageId={msg.id}
                     uid={msg.uid}
                     text={msg.decryptedText || ""}
                     photoURL={msg.photoURL || null}
