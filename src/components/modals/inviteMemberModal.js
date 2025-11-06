@@ -104,6 +104,15 @@ export default function InviteMemberModal() {
       const updatedMembers = Array.from(new Set([...existingMembers, ...newMemberIds]));
       await updateDoc(roomRef, { members: updatedMembers });
       setCurrentMembers(updatedMembers);
+      const lastMsg = roomSnap.data()?.lastMessage;
+      if (lastMsg && Array.isArray(lastMsg.visibleFor)) {
+        const updatedLastVisibleFor = Array.from(
+          new Set([...lastMsg.visibleFor, ...newMemberIds])
+        );
+        await updateDoc(roomRef, {
+          "lastMessage.visibleFor": updatedLastVisibleFor,
+        });
+      }
       setSelectedMembers([]);
       setSearchText('');
       setOptions([]);
