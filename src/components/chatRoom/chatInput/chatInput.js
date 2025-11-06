@@ -44,9 +44,7 @@ export default function ChatInput({
       const res = await axios.post(
         "https://chat-realtime-be.vercel.app/upload",
         formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
 
       const fileUrl = res.data.url;
@@ -69,6 +67,7 @@ export default function ChatInput({
         createdAt: new Date(),
         kind,
         fileName: file.name,
+        visibleFor: selectedRoom.members,
       });
 
       await updateDocument("rooms", selectedRoom.id, {
@@ -150,6 +149,7 @@ export default function ChatInput({
         createdAt: new Date(),
         kind: "audio",
         fileName: "voice-message.wav",
+        visibleFor: selectedRoom.members, 
       });
 
       await updateDocument("rooms", selectedRoom.id, {
@@ -198,15 +198,16 @@ export default function ChatInput({
         displayName,
         createdAt: new Date(),
         kind: "text",
+        visibleFor: selectedRoom.members,
         replyTo: replyTo
-        ? {
-            id: replyTo.id,
-            text: replyTo.decryptedText || replyTo.text || "",
-            displayName: replyTo.displayName,
-            kind: replyTo.kind,
-            fileName: replyTo.fileName || null,
+          ? {
+              id: replyTo.id,
+              text: replyTo.decryptedText || replyTo.text || "",
+              displayName: replyTo.displayName,
+              kind: replyTo.kind,
+              fileName: replyTo.fileName || null,
             }
-        : null,
+          : null,
       });
 
       await updateDocument("rooms", selectedRoom.id, {

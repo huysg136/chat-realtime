@@ -18,6 +18,9 @@ import {
   deleteDoc,
   collection,
   getDoc,
+  query, 
+  where,
+  getDocs
 } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import "./roomList.scss";
@@ -127,11 +130,27 @@ export default function RoomItem({
   };
 
   const handleDelete = async () => {
-    if (window.confirm("Bạn có chắc muốn xóa hội thoại này?")) {
-      const roomRef = doc(db, "rooms", room.id);
-      await deleteDoc(roomRef);
+    if (!window.confirm("Bạn có chắc muốn xóa đoạn hội thoại này?")) return;
+
+    try {
+      const messagesRef = collection(db, "messages");
+      const q = query(messagesRef, where("roomId", "==", room.id));
+      const snapshot = await getDocs(q);
+
+      snapshot.forEach(async (docSnap) => {
+        const msg = docSnap.data();
+        if (!Array.isArray(msg.visibleFor)) return;
+
+        if (msg.visibleFor.includes(user.uid)) {
+          const newVisibleFor = msg.visibleFor.filter((uid) => uid !== user.uid);
+          await updateDoc(docSnap.ref, { visibleFor: newVisibleFor });
+        }
+      });
+    } catch (err) {
     }
   };
+
+
 
   const menuItems = [
     {
@@ -144,7 +163,7 @@ export default function RoomItem({
       key: "delete",
       label: "Xóa hội thoại",
       icon: <DeleteOutlined />,
-      // onClick: handleDelete,
+      onClick: handleDelete,
     },
   ];
 

@@ -47,6 +47,7 @@ export default function ChatWindow() {
   const [leavingLoading, setLeavingLoading] = useState(false);
   const [banInfo, setBanInfo] = useState(null);
   const isBanned = !!banInfo;
+  
 
   useEffect(() => {
     setReplyTo(null); 
@@ -77,35 +78,38 @@ export default function ChatWindow() {
 
   const normalizedMessages = useMemo(() => {
     if (!Array.isArray(messages)) return [];
-    return messages.map((msg, index) => {
-      let timestamp = Date.now();
-      const createdAt = msg?.createdAt;
 
-      if (createdAt != null) {
-        if (typeof createdAt === "number") {
-          timestamp = createdAt;
-        } else if (createdAt.seconds) {
-          timestamp = createdAt.seconds * 1000;
-        } else if (typeof createdAt.toMillis === "function") {
-          timestamp = createdAt.toMillis();
-        } else if (createdAt instanceof Date) {
-          timestamp = createdAt.getTime();
+    return messages
+      .filter(msg => Array.isArray(msg.visibleFor) && msg.visibleFor.includes(uid))
+      .map((msg, index) => {
+        let timestamp = Date.now();
+        const createdAt = msg?.createdAt;
+
+        if (createdAt != null) {
+          if (typeof createdAt === "number") {
+            timestamp = createdAt;
+          } else if (createdAt.seconds) {
+            timestamp = createdAt.seconds * 1000;
+          } else if (typeof createdAt.toMillis === "function") {
+            timestamp = createdAt.toMillis();
+          } else if (createdAt instanceof Date) {
+            timestamp = createdAt.getTime();
+          }
         }
-      }
 
-      const decryptedText = selectedRoom?.secretKey 
-        ? decryptMessage(msg.text || "", selectedRoom.secretKey) 
-        : msg.text || "";
+        const decryptedText = selectedRoom?.secretKey
+          ? decryptMessage(msg.text || "", selectedRoom.secretKey)
+          : msg.text || "";
 
-      return {
-        ...msg,
-        createdAt: timestamp,
-        id: msg.id || msg._id || `msg-${index}`,
-        decryptedText,
-        kind: msg.kind || msg.type || "text",
-      };
-    });
-  }, [messages, selectedRoom?.secretKey]);
+        return {
+          ...msg,
+          createdAt: timestamp,
+          id: msg.id || msg._id || `msg-${index}`,
+          decryptedText,
+          kind: msg.kind || msg.type || "text",
+        };
+      });
+  }, [messages, selectedRoom?.secretKey, uid]);
 
   const sortedMessages = useMemo(() => {
     return [...normalizedMessages].sort(
