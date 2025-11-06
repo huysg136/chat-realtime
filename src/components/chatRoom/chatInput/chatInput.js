@@ -12,6 +12,26 @@ import EmojiPicker from "emoji-picker-react";
 import { addDocument, updateDocument, encryptMessage } from "../../../firebase/services";
 import "./chatInput.scss";
 
+const getVisibleFor = (selectedRoom) => {
+  if (!selectedRoom) return [];
+
+  const currentMembers = selectedRoom.members || [];
+
+  if (
+    !selectedRoom.lastMessage ||
+    !Array.isArray(selectedRoom.lastMessage.visibleFor)
+  ) {
+    return currentMembers;
+  }
+
+  const merged = Array.from(
+    new Set([...selectedRoom.lastMessage.visibleFor, ...currentMembers])
+  );
+
+  return merged;
+};
+
+
 export default function ChatInput({
   selectedRoom,
   user,
@@ -29,6 +49,7 @@ export default function ChatInput({
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioStream, setAudioStream] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
+  const visibleFor = getVisibleFor(selectedRoom);
 
   const handleInputChange = (e) => setInputValue(e.target.value);
 
@@ -67,7 +88,7 @@ export default function ChatInput({
         createdAt: new Date(),
         kind,
         fileName: file.name,
-        visibleFor: selectedRoom.members,
+        visibleFor
       });
 
       await updateDocument("rooms", selectedRoom.id, {
@@ -150,7 +171,7 @@ export default function ChatInput({
         createdAt: new Date(),
         kind: "audio",
         fileName: "voice-message.wav",
-        visibleFor: selectedRoom.members, 
+        visibleFor
       });
 
       await updateDocument("rooms", selectedRoom.id, {
@@ -200,7 +221,7 @@ export default function ChatInput({
         displayName,
         createdAt: new Date(),
         kind: "text",
-        visibleFor: selectedRoom.members,
+        visibleFor,
         replyTo: replyTo
           ? {
               id: replyTo.id,
