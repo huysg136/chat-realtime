@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState, useMemo } from "react";
-import { Avatar, Tooltip, Dropdown } from "antd";
+import { Avatar, Dropdown, Menu } from "antd";
 import {
   TeamOutlined,
   EllipsisOutlined,
   PushpinOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
-import { CiImageOn } from "react-icons/ci";
 import { AuthContext } from "../../../context/authProvider";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import { decryptMessage } from "../../../firebase/services";
@@ -18,9 +17,9 @@ import {
   deleteDoc,
   collection,
   getDoc,
-  query, 
+  query,
   where,
-  getDocs
+  getDocs,
 } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import "./roomList.scss";
@@ -107,25 +106,24 @@ export default function RoomItem({
   const lmUid = str(lm.uid);
   const currentUid = str(user?.uid);
   const isOwnMessage = lmUid ? lmUid === currentUid : false;
-  const lastMessageId = room.lastMessage?.id;
-  const sender = lm.uid ? usersById[lmUid] : null;
+  const sender = usersById[lmUid] || null;
   const senderName = isOwnMessage
     ? "Tôi"
     : sender?.displayName || lm.displayName || "Unknown";
 
-  const handleClick = async () => {
-    if (setSelectedRoomId) setSelectedRoomId(room.id);
+  const handleClick = () => {
+    setSelectedRoomId?.(room.id);
   };
 
   const handlePin = async () => {
     const pinRef = doc(db, "pinned", user.uid);
     const docSnap = await getDoc(pinRef);
     let pinnedRooms = docSnap.exists() ? docSnap.data().rooms || [] : [];
-    if (pinnedRooms.includes(room.id)) {
-      pinnedRooms = pinnedRooms.filter((r) => r !== room.id);
-    } else {
-      pinnedRooms.push(room.id);
-    }
+
+    pinnedRooms = pinnedRooms.includes(room.id)
+      ? pinnedRooms.filter((r) => r !== room.id)
+      : [...pinnedRooms, room.id];
+
     await setDoc(pinRef, { rooms: pinnedRooms }, { merge: true });
   };
 
@@ -142,49 +140,43 @@ export default function RoomItem({
         if (!Array.isArray(msg.visibleFor)) return;
 
         if (msg.visibleFor.includes(user.uid)) {
-          const newVisibleFor = msg.visibleFor.filter((uid) => uid !== user.uid);
-          await updateDoc(docSnap.ref, { visibleFor: newVisibleFor });
+          await updateDoc(docSnap.ref, {
+            visibleFor: msg.visibleFor.filter((id) => id !== user.uid),
+          });
         }
       });
 
       const roomRef = doc(db, "rooms", room.id);
       const roomSnap = await getDoc(roomRef);
-
       if (roomSnap.exists()) {
-        const roomData = roomSnap.data();
-        const lastMessage = roomData.lastMessage || {};
-
+        const lastMessage = roomSnap.data().lastMessage || {};
         if (Array.isArray(lastMessage.visibleFor)) {
-          const updatedVisibleFor = lastMessage.visibleFor.filter(
-            (uid) => uid !== user.uid
-          );
-
           await updateDoc(roomRef, {
-            "lastMessage.visibleFor": updatedVisibleFor,
+            "lastMessage.visibleFor": lastMessage.visibleFor.filter(
+              (id) => id !== user.uid
+            ),
           });
         }
       }
       setSelectedRoomId(null);
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
-
-
-  const menuItems = [
-    {
-      key: "pin",
-      label: isPinned ? "Bỏ ghim hội thoại" : "Ghim hội thoại",
-      icon: <PushpinOutlined />,
-      onClick: handlePin,
-    },
-    {
-      key: "delete",
-      label: "Xóa hội thoại",
-      icon: <DeleteOutlined />,
-      onClick: handleDelete,
-    },
-  ];
+  const menu = (
+    <Menu>
+      <Menu.Item key="pin" onClick={handlePin} icon={<PushpinOutlined />}>
+        {isPinned ? "Bỏ ghim đoạn chat" : "Ghim đoạn chat"}
+      </Menu.Item>
+      <Menu.Divider style={{ margin: "0" }} />
+      <Menu.Item
+        key="delete"
+        onClick={handleDelete}
+        icon={<DeleteOutlined style={{ color: "#ff4d4f" }} />}
+      >
+        <span style={{ color: "#ff4d4f", fontWeight: "500" }}>Xóa đoạn chat</span>
+      </Menu.Item>
+    </Menu>
+  );
 
   return (
     <div
@@ -209,8 +201,8 @@ export default function RoomItem({
           <div className="room-circular-avatar-wrapper">
             <CircularAvatarGroup
               members={membersData.map((u) => ({
-                avatar: u.photoURL || null,
-                name: u.displayName || "?",
+                avatar: u.photoURL,
+                name: u.displayName,
               }))}
               maxDisplay={3}
             />
@@ -220,75 +212,39 @@ export default function RoomItem({
 
       <div className="room-info">
         <p className="room-name">
-          {isGroup && (
-            <TeamOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />
-          )}
+          {isGroup && <TeamOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />}
           {isPrivate
-            ? membersData.find((u) => u.uid !== user?.uid)?.displayName ||
-              "No Name"
+            ? membersData.find((u) => u.uid !== user?.uid)?.displayName || "No Name"
             : room.name || "No Name"}
         </p>
 
         {room.lastMessage ? (
           <p className="last-message">
             {lm.isRevoked ? (
-              <>
-                {senderName}: [Tin nhắn đã được thu hồi]
-              </>
+              `${senderName}: [Tin nhắn đã được thu hồi]`
             ) : (
               <>
                 {senderName}:{" "}
                 {(() => {
                   const kind = lm.kind || "text";
-
-                  const decryptedText =
+                  const decrypted =
                     kind === "text" && room.secretKey
-                      ? decryptMessage(lm.text || lm?.content || "", room.secretKey)
-                      : lm.text || lm?.content || "";
+                      ? decryptMessage(lm.text, room.secretKey)
+                      : lm.text || lm.content || "";
 
                   switch (kind) {
                     case "text":
-                      return decryptedText;
-
+                      return decrypted;
                     case "picture":
-                      const picFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
-                      return (
-                        <>
-                          🖼️ [Hình ảnh]
-                          {picFileName && ` (${picFileName})`}
-                        </>
-                      );
-
+                      return "🖼️ [Hình ảnh]";
                     case "video":
-                      const vidFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
-                      return (
-                        <>
-                          🎬 [Video]
-                          {vidFileName && ` (${vidFileName})`}
-                        </>
-                      );
-
+                      return "🎬 [Video]";
                     case "file":
-                      const fileFileName = lm.fileName || (room.secretKey ? decryptMessage(lm.text, room.secretKey) : lm.text).split("/").pop().slice(14);
-                      return (
-                        <>
-                          📎 [Tệp]
-                          {fileFileName && ` (${fileFileName})`}
-                        </>
-                      );
-
-                    case "audio": {
-                      const raw = room.secretKey
-                        ? decryptMessage(lm.text || lm?.content || "", room.secretKey)
-                        : lm.text || lm?.content || "";
-                      return (
-                        <>
-                          🎤 [Tin nhắn thoại]
-                        </>
-                      );
-                    }
+                      return "📎 [Tệp]";
+                    case "audio":
+                      return "🎤 [Tin nhắn thoại]";
                     default:
-                      return decryptedText;
+                      return decrypted;
                   }
                 })()}
               </>
@@ -301,28 +257,15 @@ export default function RoomItem({
 
       <div className="room-right">
         {isHovered ? (
-          <>
-            <Dropdown
-              menu={{ items: menuItems }}
-              placement="bottomRight"
-              trigger={["click"]}
-            >
-              <EllipsisOutlined className="more-icon" />
-            </Dropdown>
-
-            {/* {isPinned && (
-                <PushpinOutlined className="pin-icon pinned" />
-            )} */}
-          </>
+          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+            <EllipsisOutlined className="more-icon" />
+          </Dropdown>
         ) : (
           <>
             <span className="room-time">
               {room.lastMessage?.createdAt ? timeAgo(room.lastMessage.createdAt) : ""}
             </span>
-
-            {isPinned && (
-                <PushpinOutlined className="pin-icon pinned" />
-            )}
+            {isPinned && <PushpinOutlined className="pin-icon pinned" />}
           </>
         )}
       </div>
