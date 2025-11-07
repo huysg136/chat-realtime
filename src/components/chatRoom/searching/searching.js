@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Input, Button } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, UserAddOutlined } from "@ant-design/icons";
 import { IoCreateOutline } from "react-icons/io5";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
@@ -58,12 +58,20 @@ export default function Searching() {
           <span className="display-name">{displayName}</span>
           {usernameHandle && <span className="username">@{usernameHandle.replace(/^@/, "")}</span>}
         </div>
-        <Button
-          type="text"
-          className="create-btn"
-          onClick={handleAddRoom}
-          icon={<IoCreateOutline />}
-        />
+        <div className="action-buttons">
+          {/* <Button
+            type="text"
+            className="add-friend-btn"
+            icon={<UserAddOutlined />}
+            // onClick={handleAddUser}
+          /> */}
+          <Button
+            type="text"
+            className="create-btn"
+            onClick={handleAddRoom}
+            icon={<IoCreateOutline />}
+          />
+        </div>
       </div>
 
       <div className="search-wrapper">

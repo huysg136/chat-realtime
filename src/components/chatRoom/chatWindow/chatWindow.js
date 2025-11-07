@@ -7,6 +7,7 @@ import {
   MessageOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
+import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { format } from "date-fns";
@@ -247,8 +248,8 @@ export default function ChatWindow() {
             {!isPrivate && (isOwner || isCoOwner) && (
               <Button
                 type="text"
-                icon={<UserAddOutlined />}
-                onClick={() => setIsInviteMemberVisible(true)}
+                icon={<AiOutlineUsergroupAdd />}
+                onClick={() => setIsInviteMemberVisible(true)}  
               />
             )}
             {!banInfo && (
