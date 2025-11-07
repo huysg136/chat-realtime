@@ -208,9 +208,9 @@ export default function ChatDetailPanel({
     toast.info("Chặn người dùng (chưa thực hiện)");
   };
 
-  const handleDeleteConversation = async () => {
-    toast.info("Xóa đoạn chat (chưa thực hiện)");
-  };
+  // const handleDeleteConversation = async () => {
+  //   toast.info("Xóa đoạn chat (chưa thực hiện)");
+  // };
 
   const leaveGroupDirect = async () => {
     if (!selectedRoom) return;
@@ -379,6 +379,7 @@ export default function ChatDetailPanel({
                       <Tooltip title={otherUser.displayName}>
                         <p className="member-name" style={{ margin: 0 }}>{otherUser.displayName}</p>
                       </Tooltip>
+                      <p style={{ fontSize: 12, color: "gray", margin: 0 }}>@{otherUser.username}</p>
                     </div>
                   </div>
                 )
@@ -454,7 +455,7 @@ export default function ChatDetailPanel({
             <div className="chat-actions">
               <button className="danger-btn" onClick={handleReport}>Báo cáo</button>
               <button className="danger-btn" onClick={handleBlock}>Chặn</button>
-              <button className="danger-btn" onClick={handleDeleteConversation}>Xóa đoạn chat</button>
+              {/* <button className="danger-btn" onClick={handleDeleteConversation}>Xóa đoạn chat</button> */}
             </div>
           ) : (
             <div className="chat-actions">
