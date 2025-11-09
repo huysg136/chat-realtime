@@ -16,6 +16,25 @@ import ForwardMessageModal from "../../modals/forwardMessageModal";
 import "./message.scss";
 import { toast } from "react-toastify";
 
+const getVisibleFor = (selectedRoom) => {
+  if (!selectedRoom) return [];
+
+  const currentMembers = selectedRoom.members || [];
+
+  if (
+    !selectedRoom.lastMessage ||
+    !Array.isArray(selectedRoom.lastMessage.visibleFor)
+  ) {
+    return currentMembers;
+  }
+
+  const merged = Array.from(
+    new Set([...selectedRoom.lastMessage.visibleFor, ...currentMembers])
+  );
+
+  return merged;
+};
+
 const ReplyPreview = ({ replyTo, isOwn }) => {
   const [isRepliedRevoked, setIsRepliedRevoked] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -257,6 +276,7 @@ export default function Message({
 
     try {
       for (const room of selectedRooms) {
+        const visibleFor = getVisibleFor(room);
         const messageData = {
           text: room.secretKey ? encryptMessage(text, room.secretKey) : text,
           uid: currentUid,
@@ -267,6 +287,7 @@ export default function Message({
             kind === "picture" || kind === "video"
               ? text.split("/").pop().slice(14)
               : null,
+          visibleFor,
         };
 
         const success = await sendMessageToRoom(room.id, messageData);
