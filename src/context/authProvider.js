@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import app from "../firebase/config";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { getFirestore, doc, onSnapshot } from "firebase/firestore";
 import { Spin } from 'antd';
 import { getUserDocIdByUid } from "../firebase/services";
 export const AuthContext = React.createContext();
@@ -95,7 +95,7 @@ export default function AuthProvider({ children }) {
         unsubscribeUserRef.current();
       }
     };
-  }, []);
+  }, [navigate]);
 
   return (
     <AuthContext.Provider value={{ user, setUser, isLoading }}>
