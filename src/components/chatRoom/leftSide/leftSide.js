@@ -26,8 +26,32 @@ export default function LeftSide() {
   const { user } = useContext(AuthContext);
   const { setIsProfileVisible, setIsSettingsVisible } = useContext(AppContext);
   const displayName = user?.displayName;
-  const photoURL = user?.photoURL;
+  const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    let unsubscribe;
+
+    const fetchDocIdAndSubscribe = async () => {
+      const docId = await getUserDocIdByUid(user.uid);
+      if (!docId) return;
+
+      const userRef = doc(db, "users", docId);
+
+      unsubscribe = onSnapshot(userRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setRole(data.role || "user");
+          setPhotoURL(data.photoURL || defaultAvatar);
+        }
+      });
+    };
+
+    void fetchDocIdAndSubscribe();
+
+    return () => unsubscribe && unsubscribe();
+  }, [user?.uid]);
 
   // Nếu user không có avatar thì set mặc định vào Firestore
   useEffect(() => {
