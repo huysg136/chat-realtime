@@ -13,6 +13,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = React.useRef(null);
 
+
   if (!content) return null;
 
   if (isRevoked) {

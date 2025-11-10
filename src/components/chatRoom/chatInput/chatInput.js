@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import EmojiPicker from "emoji-picker-react";
 import { addDocument, updateDocument, encryptMessage } from "../../../firebase/services";
+import { askGemini } from "../../../utils/aiBot";
 import "./chatInput.scss";
 
 const getVisibleFor = (selectedRoom) => {
@@ -209,6 +210,7 @@ export default function ChatInput({
     setShowEmojiPicker(false);
 
     try {
+      // 1. Gửi message người dùng
       const encryptedText = selectedRoom.secretKey
         ? encryptMessage(messageText, selectedRoom.secretKey)
         : messageText;
@@ -240,18 +242,52 @@ export default function ChatInput({
           uid,
           createdAt: new Date(),
           kind: "text",
-          visibleFor: selectedRoom.members
+          visibleFor: selectedRoom.members,
         },
       });
 
       setReplyTo(null);
+
+      // 2. Gọi bot nếu có tag @bot (không block user)
+      if (messageText.startsWith("@bot")) {
+        const question = messageText.replace(/^@bot\s*/, "");
+
+        // chạy async, không await
+        askGemini(question)
+          .then(async (reply) => {
+            const encryptedReply = selectedRoom.secretKey
+              ? encryptMessage(reply, selectedRoom.secretKey)
+              : reply;
+
+            await addDocument("messages", {
+              text: encryptedReply,
+              uid: "bot", // UID bot
+              displayName: "Trợ lý Bot",
+              photoURL: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png",
+              roomId: selectedRoom.id,
+              createdAt: new Date(),
+              kind: "text",
+              visibleFor,
+            });
+
+            // Không update lastMessage của phòng với bot
+          })
+          .catch((err) => {
+            console.error("Bot error:", err);
+            toast.error("Bot không trả lời được 🫠");
+          });
+      }
+
     } catch (err) {
       toast.error("Gửi tin nhắn thất bại");
+      console.error(err);
     } finally {
       setSending(false);
       setTimeout(() => inputRef.current?.focus(), 10);
     }
   };
+
+
 
   if (isBanned) return null;
 
