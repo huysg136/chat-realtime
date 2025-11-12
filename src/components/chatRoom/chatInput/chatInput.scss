@@ -191,9 +191,48 @@
       background: #f0f2f5;
     }
 
-    &:disabled {
+    &:disabled,
+    &.ant-btn-loading {
       color: #bcc0c4;
       opacity: 0.6;
+      cursor: not-allowed;
+      background: #f0f2f5;
+    }
+  }
+
+  .polish-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;     
+    box-sizing: content-box; 
+    position: relative;
+    margin-right: -8px;
+
+    &:hover {
+      background: #f0f2f5;
+    }
+
+    &:disabled {
+      opacity: 0.8;
+      cursor: not-allowed;
+      background: #f0f2f5;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ccc;        // xám
+      border-top: 2px solid #0084ff; // màu xoay
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      box-sizing: border-box; // bắt buộc để border không làm lệch hình
     }
   }
 
@@ -216,8 +255,24 @@
   100% { transform: scale(1.3); opacity: 0; }
 }
 
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 // Dark theme
 body.theme-dark {
+  .polish-btn {
+    color: #ffd966;
+
+    &:hover {
+      background: #3a3b3c;
+    }
+
+    &:disabled {
+      color: #6b6b6b;
+    }
+  }
   .chat-input-form {
     .ant-btn {
         background: transparent !important;

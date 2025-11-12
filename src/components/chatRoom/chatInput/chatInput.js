@@ -13,25 +13,15 @@ import { addDocument, updateDocument, encryptMessage } from "../../../firebase/s
 import { askGemini } from "../../../utils/aiBot";
 import "./chatInput.scss";
 
+// Lấy danh sách user có thể nhìn thấy message
 const getVisibleFor = (selectedRoom) => {
   if (!selectedRoom) return [];
-
   const currentMembers = selectedRoom.members || [];
-
-  if (
-    !selectedRoom.lastMessage ||
-    !Array.isArray(selectedRoom.lastMessage.visibleFor)
-  ) {
+  if (!selectedRoom.lastMessage || !Array.isArray(selectedRoom.lastMessage.visibleFor)) {
     return currentMembers;
   }
-
-  const merged = Array.from(
-    new Set([...selectedRoom.lastMessage.visibleFor, ...currentMembers])
-  );
-
-  return merged;
+  return Array.from(new Set([...selectedRoom.lastMessage.visibleFor, ...currentMembers]));
 };
-
 
 export default function ChatInput({
   selectedRoom,
@@ -51,9 +41,34 @@ export default function ChatInput({
   const [audioStream, setAudioStream] = useState(null);
   const [audioChunks, setAudioChunks] = useState([]);
   const visibleFor = getVisibleFor(selectedRoom);
+  const [polishing, setPolishing] = useState(false);
 
   const handleInputChange = (e) => setInputValue(e.target.value);
 
+  const handlePolishInput = async () => {
+    if (!inputValue.trim()) return;
+    try {
+      setPolishing(true);
+      const prompt = `
+        Hãy cải thiện câu sau sao cho:
+        - Nghe tự nhiên, lịch sự và rõ ràng
+        - Chỉ trả về **một câu duy nhất**
+        - Ngắn gọn, sẵn sàng gửi ngay
+        - Giữ nguyên ý nghĩa gốc
+        - Không thêm lời giải thích hay bình luận
+        Câu cần cải thiện: "${inputValue}"
+      `;
+      const polishedText = await askGemini(prompt);
+      const firstLine = polishedText.split("\n")[0];
+      setInputValue(firstLine);
+    } catch (err) {
+      toast.error("Không thể cải thiện câu từ 🫠");
+    } finally {
+      setPolishing(false);
+    }
+  };
+
+  // ==== Upload file ====
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -111,6 +126,7 @@ export default function ChatInput({
     }
   };
 
+  // ==== Ghi âm giọng nói ====
   const handleVoiceButtonClick = async () => {
     if (isRecording) {
       mediaRecorder?.stop();
@@ -158,7 +174,6 @@ export default function ChatInput({
       );
 
       const audioUrl = res.data.url;
-
       const encryptedText = selectedRoom.secretKey
         ? encryptMessage(audioUrl, selectedRoom.secretKey)
         : audioUrl;
@@ -197,20 +212,17 @@ export default function ChatInput({
     }
   };
 
+  // ==== Gửi tin nhắn ====
   const handleOnSubmit = async () => {
-    if (!inputValue.trim() || !selectedRoom) return;
-    if (!uid) return;
-    if (sending) return;
+    if (!inputValue.trim() || !selectedRoom || !uid || sending) return;
 
     setSending(true);
     const messageText = inputValue.trim();
-
     form.resetFields(["message"]);
     setInputValue("");
     setShowEmojiPicker(false);
 
     try {
-      // 1. Gửi message người dùng
       const encryptedText = selectedRoom.secretKey
         ? encryptMessage(messageText, selectedRoom.secretKey)
         : messageText;
@@ -248,11 +260,9 @@ export default function ChatInput({
 
       setReplyTo(null);
 
-      // 2. Gọi bot nếu có tag @bot (không block user)
+      // Gọi bot nếu có tag @bot
       if (messageText.startsWith("@bot")) {
         const question = messageText.replace(/^@bot\s*/, "");
-
-        // chạy async, không await
         askGemini(question)
           .then(async (reply) => {
             const encryptedReply = selectedRoom.secretKey
@@ -261,7 +271,7 @@ export default function ChatInput({
 
             await addDocument("messages", {
               text: encryptedReply,
-              uid: "bot", // UID bot
+              uid: "bot",
               displayName: "Trợ lý Bot",
               photoURL: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png",
               roomId: selectedRoom.id,
@@ -269,15 +279,12 @@ export default function ChatInput({
               kind: "text",
               visibleFor,
             });
-
-            // Không update lastMessage của phòng với bot
           })
           .catch((err) => {
             console.error("Bot error:", err);
             toast.error("Bot không trả lời được 🫠");
           });
       }
-
     } catch (err) {
       toast.error("Gửi tin nhắn thất bại");
       console.error(err);
@@ -286,8 +293,6 @@ export default function ChatInput({
       setTimeout(() => inputRef.current?.focus(), 10);
     }
   };
-
-
 
   if (isBanned) return null;
 
@@ -302,26 +307,11 @@ export default function ChatInput({
                 const kind = replyTo.kind || "text";
                 switch (kind) {
                   case "picture":
-                    return (
-                      <>
-                        🖼️ [Hình ảnh]
-                        {replyTo.fileName ? ` (${replyTo.fileName})` : ""}
-                      </>
-                    );
+                    return <>🖼️ [Hình ảnh]{replyTo.fileName ? ` (${replyTo.fileName})` : ""}</>;
                   case "video":
-                    return (
-                      <>
-                        🎬 [Video]
-                        {replyTo.fileName ? ` (${replyTo.fileName})` : ""}
-                      </>
-                    );
+                    return <>🎬 [Video]{replyTo.fileName ? ` (${replyTo.fileName})` : ""}</>;
                   case "file":
-                    return (
-                      <>
-                        📎 [Tệp]
-                        {replyTo.fileName ? ` (${replyTo.fileName})` : ""}
-                      </>
-                    );
+                    return <>📎 [Tệp]{replyTo.fileName ? ` (${replyTo.fileName})` : ""}</>;
                   case "audio":
                     return <>🎤 [Tin nhắn thoại]</>;
                   default:
@@ -348,62 +338,68 @@ export default function ChatInput({
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           />
           {showEmojiPicker && (
-            <div
-              style={{
-                position: "absolute",
-                bottom: "50px",
-                left: "0",
-                zIndex: 1000,
-              }}
-            >
+            <div style={{ position: "absolute", bottom: "50px", left: "0", zIndex: 1000 }}>
               <EmojiPicker
-                onEmojiClick={(emojiData) =>
-                  setInputValue((prev) => prev + emojiData.emoji)
-                }
+                onEmojiClick={(emojiData) => setInputValue((prev) => prev + emojiData.emoji)}
               />
             </div>
           )}
         </div>
 
-        <Input
-          ref={inputRef}
-          value={inputValue}
-          onChange={handleInputChange}
-          onPressEnter={handleOnSubmit}
-          placeholder={replyTo ? "Trả lời tin nhắn..." : "Nhập tin nhắn..."}
-          bordered={false}
-          autoComplete="off"
-        />
+        
+          <Input
+            ref={inputRef}
+            value={inputValue}
+            onChange={handleInputChange}
+            onPressEnter={handleOnSubmit}
+            placeholder={replyTo ? "Trả lời tin nhắn..." : "Nhập tin nhắn..."}
+            bordered={false}
+            autoComplete="off"
+          />
 
-        {inputValue.trim() ? (
-          <Button
-            type="text"
-            onClick={handleOnSubmit}
-            loading={sending}
-            className="send-btn"
-          >
-            Gửi
-          </Button>
-        ) : (
-          <div className="input-actions">
-            <Button
-              type="text"
-              icon={<AudioOutlined />}
-              className={`input-icon-btn ${isRecording ? "recording" : ""}`}
-              onClick={handleVoiceButtonClick}
-              disabled={sending}
-            />
-            <label htmlFor="fileUpload" className="input-icon-btn">
-              <PaperClipOutlined />
-            </label>
-            <input
-              id="fileUpload"
-              type="file"
-              style={{ display: "none" }}
-              onChange={handleFileUpload}
-            />
-          </div>
-        )}
+          {inputValue.trim() && (
+            <>
+              <Button
+                type="text"
+                onClick={handlePolishInput}
+                disabled={polishing || sending}
+                className={`polish-btn ${polishing ? 'loading' : ''}`}
+                title="Cải thiện tin nhắn"
+              >
+                {polishing ? <div className="spinner" /> : '✨'}
+              </Button>
+              <Button
+                type="text"
+                onClick={handleOnSubmit}
+                loading={sending}
+                className="send-btn"
+              >
+                Gửi
+              </Button>
+            </>
+          )}
+
+          {!inputValue.trim() && (
+            <div className="input-actions">
+              <Button
+                type="text"
+                icon={<AudioOutlined />}
+                className={`input-icon-btn ${isRecording ? "recording" : ""}`}
+                onClick={handleVoiceButtonClick}
+                disabled={sending}
+              />
+              <label htmlFor="fileUpload" className="input-icon-btn">
+                <PaperClipOutlined />
+              </label>
+              <input
+                id="fileUpload"
+                type="file"
+                style={{ display: "none" }}
+                onChange={handleFileUpload}
+              />
+            </div>
+          )}
+        
       </Form>
     </div>
   );
