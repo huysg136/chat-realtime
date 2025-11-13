@@ -50,19 +50,19 @@ export default function ChatInput({
     try {
       setPolishing(true);
       const prompt = `
-        Hãy cải thiện câu sau sao cho:
-        - Nghe tự nhiên, lịch sự và rõ ràng
-        - Chỉ trả về **một câu duy nhất**
-        - Ngắn gọn, sẵn sàng gửi ngay
+        Hãy chỉnh sửa đoạn văn sau sao cho:
+        - Nghe tự nhiên, rõ ràng, lịch sự và mạch lạc
         - Giữ nguyên ý nghĩa gốc
-        - Không thêm lời giải thích hay bình luận
-        Câu cần cải thiện: "${inputValue}"
+        - Nếu đầu vào là nhiều câu, hãy giữ nguyên số câu (đừng gộp lại)
+        - Không thêm lời giải thích hoặc bình luận
+        Văn bản cần chỉnh sửa:
+        """${inputValue}"""
       `;
       const polishedText = await askGemini(prompt);
-      const firstLine = polishedText.split("\n")[0];
-      setInputValue(firstLine);
+      const cleanedText = polishedText.replace(/\n+/g, " ").trim();
+      setInputValue(cleanedText);
     } catch (err) {
-      toast.error("Không thể cải thiện câu từ 🫠");
+      toast.error("Không thể cải thiện🫠");
     } finally {
       setPolishing(false);
     }
