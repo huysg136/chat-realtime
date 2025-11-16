@@ -272,7 +272,7 @@ export default function ChatInput({
             await addDocument("messages", {
               text: encryptedReply,
               uid: "bot",
-              displayName: "Trợ lý Bot",
+              displayName: "Quik Bot",
               photoURL: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png",
               roomId: selectedRoom.id,
               createdAt: new Date(),

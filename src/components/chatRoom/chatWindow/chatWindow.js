@@ -24,6 +24,7 @@ import { AuthContext } from "../../../context/authProvider";
 import { useFirestore } from "../../../hooks/useFirestore";
 import { updateDocument, encryptMessage, decryptMessage, getUserDocIdByUid } from "../../../firebase/services";
 import { getOnlineStatus } from "../../common/getOnlineStatus";
+import { useUserStatus } from "../../../hooks/useUserStatus";
 
 import "./chatWindow.scss";
 
@@ -48,12 +49,10 @@ export default function ChatWindow() {
   const [selectedTransferUid, setSelectedTransferUid] = useState(null);
   const [leavingLoading, setLeavingLoading] = useState(false);
   const [banInfo, setBanInfo] = useState(null);
-  const [otherUserStatus, setOtherUserStatus] = useState(null);
   const isBanned = !!banInfo;
-  
 
   useEffect(() => {
-    setReplyTo(null); 
+    setReplyTo(null);
   }, [selectedRoomId]);
 
   const toggleDetail = () => {
@@ -64,6 +63,21 @@ export default function ChatWindow() {
     () => rooms.find((room) => room.id === selectedRoomId),
     [rooms, selectedRoomId]
   );
+
+  const members = selectedRoom ? selectedRoom.members || [] : [];
+  const membersData = members
+    .map((m) => (typeof m === "string" ? m : m?.uid))
+    .filter(Boolean)
+    .map((mid) => users.find((u) => String(u.uid).trim() === String(mid).trim()))
+    .filter(Boolean);
+
+  const isPrivate = selectedRoom ? selectedRoom.type === "private" && membersData.length === 2 : false;
+  const otherUser = isPrivate
+    ? membersData.find((m) => String(m.uid).trim() !== String(uid).trim())
+    : null;
+
+  // Use the shared hook for other user status
+  const otherUserStatus = useUserStatus(otherUser?.uid);
 
   const condition = useMemo(
     () =>
@@ -155,50 +169,6 @@ export default function ChatWindow() {
     return () => unsubscribe();
   }, [uid]);
 
-  // Real-time other user status for private chats
-  useEffect(() => {
-    if (!selectedRoomId || !selectedRoom) return;
-
-    const members = selectedRoom.members || [];
-    const membersData = members
-      .map((m) => (typeof m === "string" ? m : m?.uid))
-      .filter(Boolean)
-      .map((mid) => users.find((u) => String(u.uid).trim() === String(mid).trim()))
-      .filter(Boolean);
-
-    const isPrivate = selectedRoom.type === "private";
-    const otherUser = isPrivate
-      ? membersData.find((m) => String(m.uid).trim() !== String(uid).trim())
-      : null;
-
-    if (!isPrivate || !otherUser) return;
-
-    const setupListener = async () => {
-      const otherUserDocId = await getUserDocIdByUid(otherUser.uid);
-      if (!otherUserDocId || typeof otherUserDocId !== 'string') return;
-
-      const unsubscribe = onSnapshot(doc(db, "users", otherUserDocId), (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setOtherUserStatus({
-            lastOnline: data.lastOnline?.toDate ? data.lastOnline.toDate() : new Date(data.lastOnline),
-          });
-        }
-      });
-
-      return unsubscribe;
-    };
-
-    let unsubscribe;
-    setupListener().then((unsub) => {
-      unsubscribe = unsub;
-    });
-
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, [selectedRoomId, selectedRoom, users, uid]);
-
   const handleRevokeMessage = async (messageId) => {
     if (!selectedRoom) return;
     const revokedText = selectedRoom.secretKey
@@ -232,18 +202,6 @@ export default function ChatWindow() {
       </div>
     );
   }
-
-  const members = selectedRoom.members || [];
-  const membersData = members
-    .map((m) => (typeof m === "string" ? m : m?.uid))
-    .filter(Boolean)
-    .map((mid) => users.find((u) => String(u.uid).trim() === String(mid).trim()))
-    .filter(Boolean);
-
-  const isPrivate = selectedRoom.type === "private";
-  const otherUser = isPrivate
-    ? membersData.find((m) => String(m.uid).trim() !== String(uid).trim())
-    : null;
 
   const rolesArray = selectedRoom.roles || [];
   const currentUserRole = rolesArray.find((r) => String(r.uid).trim() === String(uid).trim())?.role || "member";

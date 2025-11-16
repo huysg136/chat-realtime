@@ -8,14 +8,13 @@ import { doc, onSnapshot, setDoc, updateDoc, getDoc, collection, query, where, g
 import { db } from "../../../firebase/config";
 import "./roomList.scss";
 import { getOnlineStatus } from "../../common/getOnlineStatus";
+import { useUserStatus } from "../../../hooks/useUserStatus";
 
 export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomId }) {
   const { user } = useContext(AuthContext);
   const [member, setMember] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
-  const [otherUserStatus, setOtherUserStatus] = useState(null);
-
   // --- COMPUTED VARIABLES ---
   const memberUids = Array.isArray(room.members)
     ? room.members.map((m) => (typeof m === "string" ? m : m?.uid)).filter(Boolean)
@@ -27,6 +26,9 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
 
   const isPrivate = room.type === "private" && membersData.length === 2;
   const isGroup = !isPrivate && (room.type === "group" || membersData.length > 1);
+
+  const otherUser = isPrivate ? membersData.find((u) => u.uid !== user?.uid) : null;
+  const otherUserStatus = useUserStatus(otherUser?.uid);
 
   const usersById = useMemo(() => {
     const map = {};
@@ -87,34 +89,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
     };
   }, [user?.uid, room?.id]);
 
-  // --- Other user online status (private chat) ---
-  useEffect(() => {
-    if (!isPrivate) return;
-    const otherUser = membersData.find((u) => u.uid !== user?.uid);
-    if (!otherUser) return;
 
-    let unsubscribeStatus;
-
-    const setupListener = async () => {
-      const otherUserDocId = await getUserDocIdByUid(otherUser.uid);
-      if (!otherUserDocId) return;
-
-      unsubscribeStatus = onSnapshot(doc(db, "users", otherUserDocId), (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setOtherUserStatus({
-            lastOnline: data.lastOnline?.toDate ? data.lastOnline.toDate() : new Date(data.lastOnline),
-          });
-        }
-      });
-    };
-
-    setupListener();
-
-    return () => {
-      if (unsubscribeStatus) unsubscribeStatus();
-    };
-  }, [isPrivate, membersData, user?.uid]);
 
   // --- HANDLERS ---
   const handleClick = () => setSelectedRoomId?.(room.id);
