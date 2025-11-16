@@ -23,6 +23,7 @@ import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import { useFirestore } from "../../../hooks/useFirestore";
 import { updateDocument, encryptMessage, decryptMessage, getUserDocIdByUid } from "../../../firebase/services";
+import { getOnlineStatus } from "../../common/getOnlineStatus";
 
 import "./chatWindow.scss";
 
@@ -255,16 +256,34 @@ export default function ChatWindow() {
         <div className="header-avatar">
           {isPrivate ? (
             otherUser ? (
-              <Avatar src={otherUser.photoURL} size={40}>
-                {(otherUser.displayName || "?").charAt(0).toUpperCase()}
-              </Avatar>
+              <div style={{ position: "relative", display: "inline-block" }}>
+                <Avatar src={otherUser.photoURL} size={40}>
+                  {(otherUser.displayName || "?").charAt(0).toUpperCase()}
+                </Avatar>
+                {otherUserStatus && otherUserStatus.lastOnline && (() => {
+                  const { isOnline } = getOnlineStatus(otherUserStatus.lastOnline);
+                  return isOnline ? (
+                    <span
+                      style={{
+                        position: "absolute",
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        backgroundColor: "#4caf50",
+                        border: "2px solid white",
+                        bottom: 0,
+                        right: 0,
+                        boxShadow: "0 0 2px rgba(0,0,0,0.3)",
+                      }}
+                    />
+                  ) : null;
+                })()}
+              </div>
             ) : (
               <Avatar size={64}>
                 {(selectedRoom.name || "?").charAt(0).toUpperCase()}
               </Avatar>
             )
-          ) : selectedRoom.avatar ? (
-            <Avatar src={selectedRoom.avatar} size={40} />
           ) : (
             <CircularAvatarGroup
               members={membersData.map((u) => ({
@@ -284,25 +303,8 @@ export default function ChatWindow() {
           <span className="header__description">
             {!isPrivate
               ? `${membersData.length} thành viên`
-              : otherUserStatus && otherUserStatus.lastOnline && !isNaN(new Date(otherUserStatus.lastOnline).getTime())
-                ? (() => {
-                    const lastOnlineDate = new Date(otherUserStatus.lastOnline);
-                    const now = new Date();
-                    const minutesDiff = differenceInMinutes(now, lastOnlineDate);
-
-                    if (minutesDiff < 1) {
-                      return "Đang hoạt động";
-                    } else if (minutesDiff < 60) {
-                      return `Hoạt động ${minutesDiff} phút trước`;
-                    } else {
-                      const hoursDiff = differenceInHours(now, lastOnlineDate);
-                      if (hoursDiff < 24) {
-                        return `Hoạt động ${hoursDiff} giờ trước`;
-                      } else {
-                        return `Hoạt động ${format(lastOnlineDate, "HH:mm dd/MM", { locale: vi })}`;
-                      }
-                    }
-                  })()
+              : otherUserStatus && otherUserStatus.lastOnline
+                ? getOnlineStatus(otherUserStatus.lastOnline).text
                 : "Hoạt động hơn 1 ngày trước"
             }
           </span>
