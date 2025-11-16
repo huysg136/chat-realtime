@@ -10,9 +10,9 @@ import {
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { format } from "date-fns";
+import { format, differenceInMinutes, differenceInHours } from "date-fns";
 import { vi } from "date-fns/locale";
-import { onSnapshot, collection, query, where } from "firebase/firestore";
+import { onSnapshot, collection, query, where, doc } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import Message from "../message/message";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
@@ -22,7 +22,7 @@ import ChatInput from "../chatInput/chatInput";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import { useFirestore } from "../../../hooks/useFirestore";
-import { updateDocument, encryptMessage, decryptMessage } from "../../../firebase/services";
+import { updateDocument, encryptMessage, decryptMessage, getUserDocIdByUid } from "../../../firebase/services";
 
 import "./chatWindow.scss";
 
@@ -47,6 +47,7 @@ export default function ChatWindow() {
   const [selectedTransferUid, setSelectedTransferUid] = useState(null);
   const [leavingLoading, setLeavingLoading] = useState(false);
   const [banInfo, setBanInfo] = useState(null);
+  const [otherUserStatus, setOtherUserStatus] = useState(null);
   const isBanned = !!banInfo;
   
 
@@ -153,6 +154,50 @@ export default function ChatWindow() {
     return () => unsubscribe();
   }, [uid]);
 
+  // Real-time other user status for private chats
+  useEffect(() => {
+    if (!selectedRoomId || !selectedRoom) return;
+
+    const members = selectedRoom.members || [];
+    const membersData = members
+      .map((m) => (typeof m === "string" ? m : m?.uid))
+      .filter(Boolean)
+      .map((mid) => users.find((u) => String(u.uid).trim() === String(mid).trim()))
+      .filter(Boolean);
+
+    const isPrivate = selectedRoom.type === "private";
+    const otherUser = isPrivate
+      ? membersData.find((m) => String(m.uid).trim() !== String(uid).trim())
+      : null;
+
+    if (!isPrivate || !otherUser) return;
+
+    const setupListener = async () => {
+      const otherUserDocId = await getUserDocIdByUid(otherUser.uid);
+      if (!otherUserDocId || typeof otherUserDocId !== 'string') return;
+
+      const unsubscribe = onSnapshot(doc(db, "users", otherUserDocId), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setOtherUserStatus({
+            lastOnline: data.lastOnline?.toDate ? data.lastOnline.toDate() : new Date(data.lastOnline),
+          });
+        }
+      });
+
+      return unsubscribe;
+    };
+
+    let unsubscribe;
+    setupListener().then((unsub) => {
+      unsubscribe = unsub;
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [selectedRoomId, selectedRoom, users, uid]);
+
   const handleRevokeMessage = async (messageId) => {
     if (!selectedRoom) return;
     const revokedText = selectedRoom.secretKey
@@ -237,9 +282,28 @@ export default function ChatWindow() {
             {isPrivate ? otherUser?.displayName || selectedRoom.name : selectedRoom.name}
           </p>
           <span className="header__description">
-            {!isPrivate 
+            {!isPrivate
               ? `${membersData.length} thành viên`
-              : selectedRoom.description || "Đang hoạt động"
+              : otherUserStatus && otherUserStatus.lastOnline && !isNaN(new Date(otherUserStatus.lastOnline).getTime())
+                ? (() => {
+                    const lastOnlineDate = new Date(otherUserStatus.lastOnline);
+                    const now = new Date();
+                    const minutesDiff = differenceInMinutes(now, lastOnlineDate);
+
+                    if (minutesDiff < 1) {
+                      return "Đang hoạt động";
+                    } else if (minutesDiff < 60) {
+                      return `Hoạt động ${minutesDiff} phút trước`;
+                    } else {
+                      const hoursDiff = differenceInHours(now, lastOnlineDate);
+                      if (hoursDiff < 24) {
+                        return `Hoạt động ${hoursDiff} giờ trước`;
+                      } else {
+                        return `Hoạt động ${format(lastOnlineDate, "HH:mm dd/MM", { locale: vi })}`;
+                      }
+                    }
+                  })()
+                : "Hoạt động hơn 1 ngày trước"
             }
           </span>
         </div>

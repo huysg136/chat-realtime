@@ -4,7 +4,7 @@ import { GoogleOutlined } from "@ant-design/icons";
 import { BsSunFill, BsMoonStarsFill, BsLaptop } from "react-icons/bs";
 import { getAuth, signInWithPopup, GoogleAuthProvider, getAdditionalUserInfo } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { collection, query, where, getDoc, doc, getDocs } from "firebase/firestore";
+import { collection, query, where, getDoc, doc, getDocs, updateDoc, serverTimestamp } from "firebase/firestore";
 import app, { db } from "../../firebase/config";
 import { addDocument, generateKeywords, getUserDocIdByUid } from "../../firebase/services";
 import ReactCountryFlag from "react-country-flag";
@@ -109,6 +109,12 @@ export default function Login() {
       }
 
       const userDocId = await getUserDocIdByUid(user.uid);
+      if (userDocId) {
+        await updateDoc(doc(db, "users", userDocId), {
+          lastOnline: serverTimestamp()
+        });
+      }
+
       let role = "user";
       if (userDocId) {
         const userDoc = await getDoc(doc(db, "users", userDocId));
@@ -121,7 +127,7 @@ export default function Login() {
       if (maintenance && role !== "admin" && role !== "moderator") {
         navigate("/maintenance");
       } else {
-        navigate("/"); 
+        navigate("/");
       }
     } catch (err) {
       console.error("❌ Login Error:", err);

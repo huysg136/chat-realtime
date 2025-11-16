@@ -21,7 +21,10 @@ import ModPermissionManager from './admin/modPermissionManager/modPermissionMana
 
 import useApplyTheme from './hooks/useApplyTheme';
 import { AuthContext } from './context/authProvider';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { db } from './firebase/config';
+import { getUserDocIdByUid } from './firebase/services';
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -29,6 +32,31 @@ import "react-toastify/dist/ReactToastify.css";
 function ThemeWrapper({ children }) {
   const { user } = useContext(AuthContext);
   useApplyTheme(user?.theme);
+
+  useEffect(() => {
+    const handleOffline = async () => {
+      if (!user) return;
+
+      const userDocId = await getUserDocIdByUid(user.uid);
+      if (userDocId) {
+        await updateDoc(doc(db, "users", userDocId), {
+          lastOnline: serverTimestamp(),
+        });
+      }
+    };
+
+    window.addEventListener("beforeunload", handleOffline);
+    window.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        handleOffline();
+      }
+    });
+
+    return () => {
+      window.removeEventListener("beforeunload", handleOffline);
+    };
+  }, [user]);
+
   return children;
 }
 
