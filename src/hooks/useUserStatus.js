@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { ref, onValue, off } from 'firebase/database';
+import { rtdb } from '../firebase/config';
 import { getUserDocIdByUid } from '../firebase/services';
 
-// Global maps to store statuses and listeners per user UID
 const userStatusMap = new Map();
 const listenersMap = new Map();
 const statusListeners = new Map(); // uid => array of setStatus functions
@@ -17,7 +16,7 @@ export function useUserStatus(uid) {
       return;
     }
 
-    // If already have status, set it
+    // Nếu đã có status trước đó, set ngay
     if (userStatusMap.has(uid)) {
       setStatus(userStatusMap.get(uid));
     } else {
@@ -25,46 +24,77 @@ export function useUserStatus(uid) {
       setStatus(null);
     }
 
-    // Add this setStatus to the listeners
-    if (!statusListeners.has(uid)) {
-      statusListeners.set(uid, []);
-    }
+    // Thêm setStatus vào danh sách listeners
+    if (!statusListeners.has(uid)) statusListeners.set(uid, []);
     statusListeners.get(uid).push(setStatus);
 
-    // If not already listening, set up listener
+    // Nếu chưa có listener, setup
     if (!listenersMap.has(uid)) {
       const setupListener = async () => {
-        const docId = await getUserDocIdByUid(uid);
-        if (!docId) return;
+        const userDocId = await getUserDocIdByUid(uid);
+        if (!userDocId) return;
 
-        const unsubscribe = onSnapshot(doc(db, "users", docId), (docSnap) => {
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            const newStatus = {
-              lastOnline: data.lastOnline?.toDate ? data.lastOnline.toDate() : new Date(data.lastOnline),
-            };
-            userStatusMap.set(uid, newStatus);
-            // Notify all listeners
-            const listeners = statusListeners.get(uid) || [];
-            listeners.forEach(setStat => setStat(newStatus));
+        const statusRef = ref(rtdb, `userStatuses/${userDocId}`);
+
+        const updateStatus = (data) => {
+          const now = Date.now();
+          let isOnline;
+
+          if (!data) {
+            isOnline = false;
+          } else if (document.visibilityState === 'visible' && data.isOnline !== false) {
+            // Tab đang focus → online NGAY
+            isOnline = true;
+          } else {
+            const lastHeartbeat = data.lastHeartbeat || data.lastOnline || 0;
+            isOnline = (now - lastHeartbeat) < 60000; // offline nếu > 60s
           }
+
+          const newStatus = {
+            lastOnline: data?.lastOnline ? new Date(data.lastOnline) : null,
+            isOnline,
+          };
+
+          userStatusMap.set(uid, newStatus);
+          const listeners = statusListeners.get(uid) || [];
+          listeners.forEach(fn => fn(newStatus));
+        };
+
+        // Listen Realtime DB
+        const unsubscribeRTDB = onValue(statusRef, (snapshot) => {
+          const data = snapshot.val();
+          updateStatus(data);
         });
 
-        listenersMap.set(uid, unsubscribe);
+        // Interval để check heartbeat mỗi 5s (tăng realtime)
+        const interval = setInterval(() => {
+          const currentData = userStatusMap.get(uid);
+          if (currentData) {
+            updateStatus({
+              lastHeartbeat: currentData.lastOnline ? currentData.lastOnline.getTime() : 0,
+              lastOnline: currentData.lastOnline ? currentData.lastOnline.getTime() : null,
+              isOnline: currentData.isOnline,
+            });
+          }
+        }, 5000);
+
+        listenersMap.set(uid, () => {
+          off(statusRef);
+          clearInterval(interval);
+        });
       };
+
       setupListener();
     }
 
     return () => {
-      // Remove this setStatus from listeners
+      // remove setStatus khỏi listeners
       const listeners = statusListeners.get(uid) || [];
       const index = listeners.indexOf(setStatus);
-      if (index > -1) {
-        listeners.splice(index, 1);
-      }
+      if (index > -1) listeners.splice(index, 1);
+
       if (listeners.length === 0) {
         statusListeners.delete(uid);
-        // If no more listeners, unsubscribe
         const unsubscribe = listenersMap.get(uid);
         if (unsubscribe) {
           unsubscribe();
@@ -78,7 +108,7 @@ export function useUserStatus(uid) {
   return status;
 }
 
-// Cleanup function to remove listeners when app unmounts or as needed
+// Cleanup listeners khi cần
 export function cleanupUserStatusListeners() {
   listenersMap.forEach(unsubscribe => unsubscribe());
   listenersMap.clear();

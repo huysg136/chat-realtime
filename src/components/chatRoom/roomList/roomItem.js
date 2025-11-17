@@ -159,30 +159,21 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
             >
               {(membersData.find((u) => u.uid !== user?.uid)?.displayName || "?").charAt(0).toUpperCase()}
             </Avatar>
-
-            {otherUserStatus?.lastOnline && (() => {
-              const lastDate = otherUserStatus.lastOnline.toDate ? otherUserStatus.lastOnline.toDate() : new Date(otherUserStatus.lastOnline);
-              const minutesDiff = (new Date() - lastDate) / 1000 / 60;
-              return (
-                <>
-                  {minutesDiff < 5 && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        width: 10,
-                        height: 10,
-                        borderRadius: "50%",
-                        backgroundColor: "#4caf50",
-                        border: "2px solid white",
-                        bottom: 0,
-                        right: 0,
-                        boxShadow: "0 0 2px rgba(0,0,0,0.3)",
-                      }}
-                    />
-                  )}
-                </>
-              );
-            })()}
+            {isPrivate && otherUserStatus?.isOnline && (
+              <span
+                style={{
+                  position: "absolute",
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  backgroundColor: "#4caf50",
+                  border: "2px solid white",
+                  bottom: 0,
+                  right: 0,
+                  boxShadow: "0 0 2px rgba(0,0,0,0.3)",
+                }}
+              />
+            )}
           </div>
         ) : (
           <CircularAvatarGroup

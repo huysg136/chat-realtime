@@ -22,8 +22,8 @@ import ModPermissionManager from './admin/modPermissionManager/modPermissionMana
 import useApplyTheme from './hooks/useApplyTheme';
 import { AuthContext } from './context/authProvider';
 import { useContext, useEffect } from 'react';
-import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { db } from './firebase/config';
+import { ref, set } from 'firebase/database';
+import { rtdb } from './firebase/config';
 import { getUserDocIdByUid } from './firebase/services';
 
 import { ToastContainer } from "react-toastify";
@@ -34,26 +34,39 @@ function ThemeWrapper({ children }) {
   useApplyTheme(user?.theme);
 
   useEffect(() => {
-    const handleOffline = async () => {
+    const updateStatus = async (isOnline) => {
       if (!user) return;
-
       const userDocId = await getUserDocIdByUid(user.uid);
-      if (userDocId) {
-        await updateDoc(doc(db, "users", userDocId), {
-          lastOnline: serverTimestamp(),
+      if (!userDocId) return;
+
+      const statusRef = ref(rtdb, `userStatuses/${userDocId}`);
+      const now = Date.now();
+      try {
+        await set(statusRef, {
+          lastOnline: now,
+          lastHeartbeat: now,
+          isOnline,
         });
+      } catch (error) {
+        console.error("Error updating user status:", error);
+      }
+    };
+
+    const handleOffline = () => updateStatus(false);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        updateStatus(false);
+      } else {
+        updateStatus(true);
       }
     };
 
     window.addEventListener("beforeunload", handleOffline);
-    window.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") {
-        handleOffline();
-      }
-    });
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       window.removeEventListener("beforeunload", handleOffline);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [user]);
 

@@ -2,9 +2,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import app from "../firebase/config";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, onSnapshot, updateDoc, serverTimestamp } from "firebase/firestore";
+import { getFirestore, doc, onSnapshot } from "firebase/firestore";
+import { ref, set } from "firebase/database";
+import { rtdb } from "../firebase/config";
 import { Spin } from 'antd';
 import { getUserDocIdByUid } from "../firebase/services";
+
 export const AuthContext = React.createContext();
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -14,114 +17,110 @@ export default function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = React.useState(true);
   const navigate = useNavigate();
   const unsubscribeUserRef = React.useRef(null);
+  const heartbeatRef = React.useRef(null);
+  const currentUserDocIdRef = React.useRef(null);
+
+  const updateStatus = async (isOnline) => {
+    const userDocId = currentUserDocIdRef.current;
+    if (!userDocId) return;
+    const statusRef = ref(rtdb, `userStatuses/${userDocId}`);
+    const now = Date.now();
+    try {
+      await set(statusRef, {
+        lastOnline: now,
+        lastHeartbeat: now,
+        isOnline,
+      });
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+
+  const startHeartbeat = () => {
+    stopHeartbeat();
+    heartbeatRef.current = setInterval(() => {
+      updateStatus(true);
+    }, 10000); // mỗi 10s
+  };
+
+  const stopHeartbeat = () => {
+    if (heartbeatRef.current) {
+      clearInterval(heartbeatRef.current);
+      heartbeatRef.current = null;
+    }
+  };
 
   React.useEffect(() => {
-    let currentUserDocId = null;
-
-    const updatelastOnline = async () => {
-      if (currentUserDocId) {
-        try {
-          await updateDoc(doc(db, "users", currentUserDocId), {
-            lastOnline: serverTimestamp()
-          });
-        } catch (error) {
-          console.error("Error updating last seen:", error);
-        }
+    const handleVisibilityChange = () => {
+      if (!currentUserDocIdRef.current) return;
+      if (document.visibilityState === 'hidden') {
+        stopHeartbeat();
+        updateStatus(false);
+      } else {
+        updateStatus(true); // online NGAY
+        startHeartbeat();
       }
     };
 
     const handleBeforeUnload = () => {
-      updatelastOnline();
+      updateStatus(false);
     };
 
     const unsubscribeAuth = auth.onAuthStateChanged(async (currentUser) => {
-      // Unsubscribe previous user listener if exists
       if (unsubscribeUserRef.current) {
         unsubscribeUserRef.current();
         unsubscribeUserRef.current = null;
       }
+      stopHeartbeat();
 
       if (currentUser) {
         const { displayName, email, photoURL, uid } = currentUser;
-
         const userDocId = await getUserDocIdByUid(uid);
-        currentUserDocId = userDocId;
+        currentUserDocIdRef.current = userDocId;
 
         if (userDocId) {
-          // Update last seen on login
-          await updatelastOnline();
+          await updateStatus(true); // online NGAY khi login
+          startHeartbeat();
 
           const userDocRef = doc(db, "users", userDocId);
-          // Set up real-time listener for user data
           const unsubscribeUser = onSnapshot(userDocRef, (userSnap) => {
-            if (userSnap.exists()) {
-              const userData = userSnap.data();
-              setUser({
-                displayName,
-                email,
-                photoURL,
-                uid,
-                role: userData.role || "user",
-                theme: userData.theme || "system",
-                permissions: userData.permissions || {},
-              });
-              setIsLoading(false);
-              if (window.location.pathname === "/login") {
-                navigate("/");
-              }
-            } else {
-              setUser({
-                displayName,
-                email,
-                photoURL,
-                uid,
-                role: "user",
-                theme: "system",
-                permissions: {},
-              });
-              setIsLoading(false);
-              if (window.location.pathname === "/login") {
-                navigate("/");
-              }
-            }
+            const userData = userSnap.exists() ? userSnap.data() : {};
+            setUser({
+              displayName,
+              email,
+              photoURL,
+              uid,
+              role: userData.role || "user",
+              theme: userData.theme || "system",
+              permissions: userData.permissions || {},
+            });
+            setIsLoading(false);
+            if (window.location.pathname === "/login") navigate("/");
           });
 
-          // Store unsubscribe function in ref
           unsubscribeUserRef.current = unsubscribeUser;
         } else {
-          setUser({
-            displayName,
-            email,
-            photoURL,
-            uid,
-            role: "user",
-            theme: "system",
-            permissions: {},
-          });
+          setUser({ displayName, email, photoURL, uid, role: "user", theme: "system", permissions: {} });
           setIsLoading(false);
-          if (window.location.pathname === "/login") {
-            navigate("/");
-          }
+          if (window.location.pathname === "/login") navigate("/");
         }
       } else {
-        // User logged out
-        currentUserDocId = null;
+        currentUserDocIdRef.current = null;
         setUser(null);
         setIsLoading(false);
-        if (window.location.pathname !== "/login") {
-          navigate("/login");
-        }
+        stopHeartbeat();
+        if (window.location.pathname !== "/login") navigate("/login");
       }
     });
 
-    // Add event listener for offline detection on page unload
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       if (unsubscribeAuth) unsubscribeAuth();
-      if (unsubscribeUserRef.current) {
-        unsubscribeUserRef.current();
-      }
+      if (unsubscribeUserRef.current) unsubscribeUserRef.current();
+      stopHeartbeat();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [navigate]);
@@ -129,14 +128,7 @@ export default function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{ user, setUser, isLoading }}>
       {isLoading ? (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
           <Spin size="large" />
         </div>
       ) : (

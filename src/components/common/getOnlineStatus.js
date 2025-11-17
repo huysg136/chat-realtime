@@ -13,7 +13,7 @@ export function getOnlineStatus(lastOnline) {
   const hoursDiff = differenceInHours(now, lastDate);
   const daysDiff = differenceInDays(now, lastDate);
 
-  if (minutesDiff < 5) {
+  if (minutesDiff < 1) {
     return { text: "Đang hoạt động" };
   }
 

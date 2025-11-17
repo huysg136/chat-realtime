@@ -224,7 +224,7 @@ export default function ChatWindow() {
 
                   return (
                     <>
-                      {minutesDiff < 5 && (
+                      {otherUserStatus?.isOnline && (
                         <span
                           style={{
                             position: "absolute",
@@ -267,9 +267,11 @@ export default function ChatWindow() {
           <span className="header__description">
             {!isPrivate
               ? `${membersData.length} thành viên`
-              : otherUserStatus && otherUserStatus.lastOnline
-                ? getOnlineStatus(otherUserStatus.lastOnline).text
-                : "Hoạt động hơn 1 ngày trước"
+              : otherUserStatus
+                ? otherUserStatus.isOnline
+                  ? "Đang hoạt động"
+                  : getOnlineStatus(otherUserStatus.lastOnline).text
+                : "Hoạt động lâu rồi"
             }
           </span>
         </div>
