@@ -1,18 +1,19 @@
 import React, { useContext, useState, useMemo, useRef, useEffect } from "react";
-import { Button, Avatar, Tooltip } from "antd";
+import { Button, Avatar, Tooltip, Spin } from "antd";
 import {
   PhoneOutlined,
   VideoCameraOutlined,
   UserAddOutlined,
   MessageOutlined,
   InfoCircleOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { format, differenceInMinutes, differenceInHours } from "date-fns";
 import { vi } from "date-fns/locale";
-import { onSnapshot, collection, query, where, doc } from "firebase/firestore";
+import { onSnapshot, collection, query, where, doc, orderBy, limit, startAfter, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import Message from "../message/message";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
@@ -21,12 +22,13 @@ import TransferOwnershipModal from "../../modals/transferOwnershipModal";
 import ChatInput from "../chatInput/chatInput";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
-import { useFirestore } from "../../../hooks/useFirestore";
 import { updateDocument, encryptMessage, decryptMessage, getUserDocIdByUid } from "../../../firebase/services";
 import { getOnlineStatus } from "../../common/getOnlineStatus";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 
 import "./chatWindow.scss";
+
+const MESSAGES_PER_PAGE = 20;
 
 function formatDate(timestamp) {
   if (!timestamp) return "";
@@ -50,6 +52,17 @@ export default function ChatWindow() {
   const [leavingLoading, setLeavingLoading] = useState(false);
   const [banInfo, setBanInfo] = useState(null);
   const isBanned = !!banInfo;
+
+  // Lazy loading states
+  const [messages, setMessages] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [lastDoc, setLastDoc] = useState(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const messageListRef = useRef(null);
+  const scrollPositionRef = useRef(0);
+  const prevScrollHeightRef = useRef(0);
+  const shouldScrollToBottomRef = useRef(false);
 
   useEffect(() => {
     setReplyTo(null);
@@ -76,57 +89,83 @@ export default function ChatWindow() {
     ? membersData.find((m) => String(m.uid).trim() !== String(uid).trim())
     : null;
 
-  // Use the shared hook for other user status
   const otherUserStatus = useUserStatus(otherUser?.uid);
 
-  const condition = useMemo(
-    () =>
-      selectedRoomId
-        ? {
-            fieldName: "roomId",
-            operator: "==",
-            compareValue: selectedRoomId,
-          }
-        : null,
-    [selectedRoomId]
-  );
+  // Load initial messages and setup real-time listener
+  useEffect(() => {
+    if (!selectedRoomId || !uid) return;
 
-  const messages = useFirestore("messages", condition) || [];
+    setMessages([]);
+    setHasMore(true);
+    setLastDoc(null);
+    setIsInitialLoad(true);
+    shouldScrollToBottomRef.current = true;
+
+    // Query for latest 20 messages with real-time updates
+    const q = query(
+      collection(db, "messages"),
+      where("roomId", "==", selectedRoomId),
+      orderBy("createdAt", "desc"),
+      limit(MESSAGES_PER_PAGE)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const newMessages = [];
+      let lastVisible = null;
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (Array.isArray(data.visibleFor) && data.visibleFor.includes(uid)) {
+          newMessages.push({ id: doc.id, ...data });
+        }
+        lastVisible = doc;
+      });
+
+      setMessages(newMessages);
+      setLastDoc(lastVisible);
+      setHasMore(snapshot.docs.length === MESSAGES_PER_PAGE);
+      
+      // Mark initial load as complete after first snapshot
+      setTimeout(() => {
+        setIsInitialLoad(false);
+      }, 100);
+    });
+
+    return () => unsubscribe();
+  }, [selectedRoomId, uid]);
 
   const normalizedMessages = useMemo(() => {
     if (!Array.isArray(messages)) return [];
 
-    return messages
-      .filter(msg => Array.isArray(msg.visibleFor) && msg.visibleFor.includes(uid))
-      .map((msg, index) => {
-        let timestamp = Date.now();
-        const createdAt = msg?.createdAt;
+    return messages.map((msg, index) => {
+      let timestamp = Date.now();
+      const createdAt = msg?.createdAt;
 
-        if (createdAt != null) {
-          if (typeof createdAt === "number") {
-            timestamp = createdAt;
-          } else if (createdAt.seconds) {
-            timestamp = createdAt.seconds * 1000;
-          } else if (typeof createdAt.toMillis === "function") {
-            timestamp = createdAt.toMillis();
-          } else if (createdAt instanceof Date) {
-            timestamp = createdAt.getTime();
-          }
+      if (createdAt != null) {
+        if (typeof createdAt === "number") {
+          timestamp = createdAt;
+        } else if (createdAt.seconds) {
+          timestamp = createdAt.seconds * 1000;
+        } else if (typeof createdAt.toMillis === "function") {
+          timestamp = createdAt.toMillis();
+        } else if (createdAt instanceof Date) {
+          timestamp = createdAt.getTime();
         }
+      }
 
-        const decryptedText = selectedRoom?.secretKey
-          ? decryptMessage(msg.text || "", selectedRoom.secretKey)
-          : msg.text || "";
+      const decryptedText = selectedRoom?.secretKey
+        ? decryptMessage(msg.text || "", selectedRoom.secretKey)
+        : msg.text || "";
 
-        return {
-          ...msg,
-          createdAt: timestamp,
-          id: msg.id || msg._id || `msg-${index}`,
-          decryptedText,
-          kind: msg.kind || msg.type || "text",
-        };
-      });
-  }, [messages, selectedRoom?.secretKey, uid]);
+      return {
+        ...msg,
+        createdAt: timestamp,
+        id: msg.id || msg._id || `msg-${index}`,
+        decryptedText,
+        kind: msg.kind || msg.type || "text",
+      };
+    });
+  }, [messages, selectedRoom?.secretKey]);
 
   const sortedMessages = useMemo(() => {
     return [...normalizedMessages].sort(
@@ -134,15 +173,116 @@ export default function ChatWindow() {
     );
   }, [normalizedMessages]);
 
-  const messageListRef = useRef(null);
+  // Load more messages when scrolling up
+  const loadMoreMessages = async () => {
+    if (!selectedRoomId || !uid || !lastDoc || loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+
+    try {
+      const q = query(
+        collection(db, "messages"),
+        where("roomId", "==", selectedRoomId),
+        orderBy("createdAt", "desc"),
+        startAfter(lastDoc),
+        limit(MESSAGES_PER_PAGE)
+      );
+
+      const snapshot = await getDocs(q);
+      const olderMessages = [];
+      let lastVisible = null;
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (Array.isArray(data.visibleFor) && data.visibleFor.includes(uid)) {
+          olderMessages.push({ id: doc.id, ...data });
+        }
+        lastVisible = doc;
+      });
+
+      if (olderMessages.length > 0) {
+        // Save current scroll position
+        const messageList = messageListRef.current;
+        if (messageList) {
+          prevScrollHeightRef.current = messageList.scrollHeight;
+        }
+
+        setMessages((prev) => [...prev, ...olderMessages]);
+        setLastDoc(lastVisible);
+        setHasMore(snapshot.docs.length === MESSAGES_PER_PAGE);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Error loading more messages:", error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Handle scroll event
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    
+    // Save current scroll position
+    scrollPositionRef.current = scrollTop;
+
+    // Check if user scrolled to top (with 100px threshold)
+    if (scrollTop < 100 && hasMore && !loadingMore) {
+      loadMoreMessages();
+    }
+  };
 
   useEffect(() => {
-    const el = messageListRef.current;
-    if (!el) return;
-    requestAnimationFrame(() => {
-      el.scrollTop = el.scrollHeight;
-    });
-  }, [sortedMessages, selectedRoomId]);
+    const messageList = messageListRef.current;
+    if (!messageList) return;
+
+    // Reset scroll xuống cuối khi đổi phòng
+    setTimeout(() => {
+      messageList.scrollTop = messageList.scrollHeight;
+    }, 50);
+
+    // Reset trạng thái lazy load
+    prevScrollHeightRef.current = 0;
+    scrollPositionRef.current = 0;
+    shouldScrollToBottomRef.current = true;
+  }, [selectedRoomId]);
+
+
+  // Handle scroll position - this is the main scroll controller
+  useEffect(() => {
+    const messageList = messageListRef.current;
+    if (!messageList || sortedMessages.length === 0) return;
+
+    // Case 1: Initial load or room change - scroll to bottom
+    if (shouldScrollToBottomRef.current) {
+      setTimeout(() => {
+        messageList.scrollTop = messageList.scrollHeight;
+        shouldScrollToBottomRef.current = false;
+      }, 50);
+      return;
+    }
+
+    // Case 2: Loading more old messages - maintain scroll position
+    if (prevScrollHeightRef.current) {
+      const newScrollHeight = messageList.scrollHeight;
+      const scrollDiff = newScrollHeight - prevScrollHeightRef.current;
+
+      if (scrollDiff > 0) {
+        messageList.scrollTop = scrollPositionRef.current + scrollDiff;
+        prevScrollHeightRef.current = 0;
+      }
+      return;
+    }
+
+    // Case 3: New message arrived - scroll to bottom if user is near bottom
+    const isNearBottom = messageList.scrollHeight - messageList.scrollTop - messageList.clientHeight < 200;
+    if (isNearBottom && !isInitialLoad) {
+      setTimeout(() => {
+        messageList.scrollTop = messageList.scrollHeight;
+      }, 50);
+    }
+  }, [sortedMessages, isInitialLoad]);
 
   useEffect(() => {
     if (replyTo && inputRef.current) {
@@ -176,7 +316,6 @@ export default function ChatWindow() {
       : "[Tin nhắn đã được thu hồi]";
     await updateDocument("messages", messageId, { text: revokedText, kind: "text", isRevoked: true });
 
-    // Update lastMessage in room if this is the last message
     const lastMsg = sortedMessages[sortedMessages.length - 1];
     if (lastMsg && lastMsg.id === messageId) {
       await updateDocument("rooms", selectedRoom.id, {
@@ -304,7 +443,21 @@ export default function ChatWindow() {
         <div
           className={`message-list-style ${sortedMessages.length < 7 ? "few-messages" : ""}`}
           ref={messageListRef}
+          onScroll={handleScroll}
         >
+          {loadingMore && (
+            <div style={{ textAlign: "center", padding: "10px" }}>
+              <Spin indicator={<LoadingOutlined spin />} />
+              <span style={{ marginLeft: "8px", color: "#999" }}>Đang tải tin nhắn...</span>
+            </div>
+          )}
+
+          {!loadingMore && hasMore && sortedMessages.length >= MESSAGES_PER_PAGE && (
+            <div style={{ textAlign: "center", padding: "10px" }}>
+              <span style={{ color: "#999", fontSize: "12px" }}>Cuộn lên để xem thêm tin nhắn</span>
+            </div>
+          )}
+
           {sortedMessages.length === 0 ? (
             <div className="empty-chat">
               <div className="empty-avatar">

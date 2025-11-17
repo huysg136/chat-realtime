@@ -1,5 +1,5 @@
 import React from "react";
-import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot, limit } from "firebase/firestore";
 import { db } from "../firebase/config";
 
 export const useFirestore = (collectionName, condition) => {
@@ -19,6 +19,11 @@ export const useFirestore = (collectionName, condition) => {
         );
       }
     }
+
+    // // Limit to 50 documents for messages collection
+    // if (collectionName === "messages") {
+    //   q = query(q, limit(25));
+    // }
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map((doc) => ({
