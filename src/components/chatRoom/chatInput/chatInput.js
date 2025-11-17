@@ -218,6 +218,7 @@ export default function ChatInput({
     if (!inputValue.trim() || !selectedRoom || !uid || sending) return;
 
     setSending(true);
+    setReplyTo(null);
     const messageText = inputValue.trim();
     form.resetFields(["message"]);
     setInputValue("");
@@ -259,7 +260,7 @@ export default function ChatInput({
         },
       });
 
-      setReplyTo(null);
+      
 
       // Gọi bot nếu có tag @bot
       if (messageText.startsWith("@bot")) {
