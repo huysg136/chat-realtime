@@ -257,7 +257,7 @@ export default function ChatWindow() {
     // Reset scroll xuống cuối khi đổi phòng
     setTimeout(() => {
       messageList.scrollTop = messageList.scrollHeight;
-    }, 50);
+    }, 300);
 
     // Reset trạng thái lazy load
     prevScrollHeightRef.current = 0;
