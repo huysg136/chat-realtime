@@ -9,6 +9,7 @@ import {
   LoadingOutlined,
 } from "@ant-design/icons";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
+import { FaAngleDoubleDown } from "react-icons/fa";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { format, differenceInMinutes, differenceInHours } from "date-fns";
@@ -63,6 +64,7 @@ export default function ChatWindow() {
   const scrollPositionRef = useRef(0);
   const prevScrollHeightRef = useRef(0);
   const shouldScrollToBottomRef = useRef(false);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   useEffect(() => {
     setReplyTo(null);
@@ -220,18 +222,33 @@ export default function ChatWindow() {
     }
   };
 
+  const scrollToBottom = () => {
+    const messageList = messageListRef.current;
+    if (messageList) {
+      messageList.scrollTop = messageList.scrollHeight;
+      setShowScrollToBottom(false);
+    }
+  };
+
   // Handle scroll event
   const handleScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
     
-    // Save current scroll position
     scrollPositionRef.current = scrollTop;
 
-    // Check if user scrolled to top (with 100px threshold)
+    // Hiện nút nếu không ở gần cuối (threshold 200px)
+    if (scrollHeight - scrollTop - clientHeight > 200) {
+      setShowScrollToBottom(true);
+    } else {
+      setShowScrollToBottom(false);
+    }
+
+    // Load thêm khi scroll lên
     if (scrollTop < 100 && hasMore && !loadingMore) {
       loadMoreMessages();
     }
   };
+
 
   useEffect(() => {
     const messageList = messageListRef.current;
@@ -254,7 +271,7 @@ export default function ChatWindow() {
     const messageList = messageListRef.current;
     if (!messageList || sortedMessages.length === 0) return;
 
-    // Case 1: Initial load or room change - scroll to bottom
+    // Nếu vừa đổi phòng, scroll xuống cuối
     if (shouldScrollToBottomRef.current) {
       setTimeout(() => {
         messageList.scrollTop = messageList.scrollHeight;
@@ -263,11 +280,10 @@ export default function ChatWindow() {
       return;
     }
 
-    // Case 2: Loading more old messages - maintain scroll position
+    // Load more cũ hoặc scroll auto khi gần cuối
     if (prevScrollHeightRef.current) {
       const newScrollHeight = messageList.scrollHeight;
       const scrollDiff = newScrollHeight - prevScrollHeightRef.current;
-
       if (scrollDiff > 0) {
         messageList.scrollTop = scrollPositionRef.current + scrollDiff;
         prevScrollHeightRef.current = 0;
@@ -275,7 +291,6 @@ export default function ChatWindow() {
       return;
     }
 
-    // Case 3: New message arrived - scroll to bottom if user is near bottom
     const isNearBottom = messageList.scrollHeight - messageList.scrollTop - messageList.clientHeight < 200;
     if (isNearBottom && !isInitialLoad) {
       setTimeout(() => {
@@ -283,6 +298,7 @@ export default function ChatWindow() {
       }, 50);
     }
   }, [sortedMessages, isInitialLoad]);
+
 
   useEffect(() => {
     if (replyTo && inputRef.current) {
@@ -438,6 +454,27 @@ export default function ChatWindow() {
           </div>
         </div>
       </header>
+
+      {showScrollToBottom && (
+        <Button
+          type="primary"
+          shape="circle"
+          size="large"
+          style={{
+            position: "absolute",
+            bottom: 90, 
+            right: 20,
+            zIndex: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={scrollToBottom}
+          aria-label="Cuộn xuống cuối"
+        >
+          <FaAngleDoubleDown  size={20} />
+        </Button>
+      )}
 
       <div className="chat-window__content">
         <div
