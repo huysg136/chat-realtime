@@ -105,6 +105,8 @@ export default function Login() {
           //keywords: generateKeywords(user.displayName),
           theme: "system",
           language: "vi",
+          allowGroupInvite: true,     
+          showOnlineStatus: true,     
         });
       }
 
