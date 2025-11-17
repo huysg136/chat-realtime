@@ -50,13 +50,14 @@ export default function ChatInput({
     try {
       setPolishing(true);
       const prompt = `
-        Hãy chỉnh sửa đoạn văn sau sao cho:
+        Chỉnh sửa văn bản sau để:
         - Nghe tự nhiên, rõ ràng, lịch sự và mạch lạc
         - Giữ nguyên ý nghĩa gốc
-        - Nếu đầu vào là nhiều câu, hãy giữ nguyên số câu (đừng gộp lại)
-        - Không thêm lời giải thích hoặc bình luận
+        - Sửa chính tả, viết hoa đầu câu, thêm dấu câu nếu cần
+        - Luôn trả về phiên bản đã chỉnh sửa, ngay cả khi văn bản ngắn, đơn giản hoặc chỉ là một từ
+        - Không thêm lời giải thích, chú thích hay bất kỳ văn bản nào khác
         Văn bản cần chỉnh sửa:
-        """${inputValue}"""
+        ${inputValue}
       `;
       const polishedText = await askGemini(prompt);
       const cleanedText = polishedText.replace(/\n+/g, " ").trim();
