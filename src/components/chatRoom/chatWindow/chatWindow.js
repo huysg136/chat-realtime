@@ -379,7 +379,7 @@ export default function ChatWindow() {
 
                   return (
                     <>
-                      {otherUserStatus?.isOnline && (
+                      {otherUserStatus?.isOnline && otherUser?.showOnlineStatus && user?.showOnlineStatus && (
                         <span
                           style={{
                             position: "absolute",
@@ -420,12 +420,14 @@ export default function ChatWindow() {
             {isPrivate ? otherUser?.displayName || selectedRoom.name : selectedRoom.name}
           </p>
           <span className="header__description">
-            {!isPrivate
+            {(!isPrivate)
               ? `${membersData.length} thành viên`
               : otherUserStatus
-                ? otherUserStatus.isOnline
-                  ? "Đang hoạt động"
-                  : getOnlineStatus(otherUserStatus.lastOnline).text
+                ? (otherUserStatus.isOnline && otherUser?.showOnlineStatus && user?.showOnlineStatus)
+                  ? "Đang hoạt động" 
+                  : (otherUser?.showOnlineStatus && user?.showOnlineStatus)
+                  ? getOnlineStatus(otherUserStatus.lastOnline).text
+                  : null
                 : "Hoạt động lâu rồi"
             }
           </span>

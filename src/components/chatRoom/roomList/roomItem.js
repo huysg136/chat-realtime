@@ -141,7 +141,6 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
       </Menu.Item>
     </Menu>
   );
-
   // --- RENDER ---
   return (
     <div
@@ -159,7 +158,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
             >
               {(membersData.find((u) => u.uid !== user?.uid)?.displayName || "?").charAt(0).toUpperCase()}
             </Avatar>
-            {isPrivate && otherUserStatus?.isOnline && (
+            {isPrivate && otherUserStatus?.isOnline && otherUser?.showOnlineStatus && user?.showOnlineStatus && (
               <span
                 style={{
                   position: "absolute",

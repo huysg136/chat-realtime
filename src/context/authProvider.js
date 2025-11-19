@@ -86,13 +86,11 @@ export default function AuthProvider({ children }) {
           const unsubscribeUser = onSnapshot(userDocRef, (userSnap) => {
             const userData = userSnap.exists() ? userSnap.data() : {};
             setUser({
+              ...userData,
               displayName,
               email,
               photoURL,
               uid,
-              role: userData.role || "user",
-              theme: userData.theme || "system",
-              permissions: userData.permissions || {},
             });
             setIsLoading(false);
             if (window.location.pathname === "/login") navigate("/");

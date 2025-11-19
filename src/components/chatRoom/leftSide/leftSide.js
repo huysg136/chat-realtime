@@ -16,6 +16,7 @@ import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons
 import { AppContext } from '../../../context/appProvider';
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { useUserStatus } from "../../../hooks/useUserStatus";
 
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
@@ -28,6 +29,7 @@ export default function LeftSide() {
   const displayName = user?.displayName;
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
+  const userStatus = useUserStatus(user?.uid);
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -114,18 +116,35 @@ export default function LeftSide() {
       </Menu.Item>
     </Menu>
   );
-
   return (
     <div className="sidebar">
       <Dropdown overlay={menu} placement="bottomRight" trigger={["click"]}>
-        <Avatar
-          size={40}
-          src={photoURL || defaultAvatar}
-          className="user-avatar"
-        >
-          {!photoURL && displayName?.charAt(0)?.toUpperCase()}
-        </Avatar>
+        <div style={{ position: "relative", display: "inline-block" }}>
+          <Avatar
+            size={40}
+            src={photoURL || defaultAvatar}
+            className="user-avatar"
+          >
+            {!photoURL && displayName?.charAt(0)?.toUpperCase()}
+          </Avatar>
+          {userStatus?.isOnline && user?.showOnlineStatus && (
+            <span
+              style={{
+                position: "absolute",
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                backgroundColor: "#4caf50",
+                border: "2px solid white",
+                bottom: 7,
+                right: 0,
+                boxShadow: "0 0 2px rgba(0,0,0,0.3)",
+              }}
+            />
+          )}
+        </div>
       </Dropdown>
+
 
       <div className="icon-group top">
         {/* <div

@@ -73,7 +73,6 @@ export default function AppProvider({ children }) {
       const unseenAnnouncement = announcements.find(ann => {
         const hasSeen = ann.hasSeenBy?.includes(user.uid) || false;
         const isTargeted = ann.targetUids ? ann.targetUids.includes(user.uid) : true; 
-        console.log(`Announcement ${ann.id}: hasSeen=${hasSeen}, isTargeted=${isTargeted}, isShow=${ann.isShow}`);
         return !hasSeen && isTargeted;
       });
 
