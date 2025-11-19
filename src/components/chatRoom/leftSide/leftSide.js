@@ -136,7 +136,7 @@ export default function LeftSide() {
                 borderRadius: "50%",
                 backgroundColor: "#4caf50",
                 border: "2px solid white",
-                bottom: 7,
+                bottom: 9,
                 right: 0,
                 boxShadow: "0 0 2px rgba(0,0,0,0.3)",
               }}
