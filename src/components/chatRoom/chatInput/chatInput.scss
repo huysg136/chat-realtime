@@ -306,7 +306,7 @@ body.theme-dark {
   }
 
   .chat-input-form {
-    background: #242527;
+    background: map.get($theme-colors, "bg-dark");;
     border-top: 1px solid #3a3b3c;
 
     .input-icon-btn {

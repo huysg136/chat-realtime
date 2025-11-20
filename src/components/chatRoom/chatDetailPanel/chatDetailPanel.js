@@ -248,7 +248,7 @@ export default function ChatDetailPanel({
             <h3>Chi tiết</h3>
             <span className="room-type">{isPrivate ? "Riêng tư" : "Nhóm"}</span>
           </div>
-          <button className="close-btn" onClick={onClose} aria-label="Đóng">✕</button>
+          {/* <button className="close-btn" onClick={onClose} aria-label="Đóng">✕</button> */}
         </div>
 
         <div className="chat-detail-content">

@@ -10,20 +10,17 @@ import {
 } from "@ant-design/icons";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { FaAngleDoubleDown } from "react-icons/fa";
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { format, differenceInMinutes, differenceInHours } from "date-fns";
+import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { onSnapshot, collection, query, where, doc, orderBy, limit, startAfter, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import Message from "../message/message";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
-import ChatDetailPanel from "../chatDetailPanel/chatDetailPanel";
-import TransferOwnershipModal from "../../modals/transferOwnershipModal";
 import ChatInput from "../chatInput/chatInput";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
-import { updateDocument, encryptMessage, decryptMessage, getUserDocIdByUid } from "../../../firebase/services";
+import { updateDocument, encryptMessage, decryptMessage } from "../../../firebase/services";
 import { getOnlineStatus } from "../../common/getOnlineStatus";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 
@@ -36,7 +33,7 @@ function formatDate(timestamp) {
   return format(new Date(timestamp), "HH:mm dd/MM/yy", { locale: vi });
 }
 
-export default function ChatWindow() {
+export default function ChatWindow({isDetailVisible, onToggleDetail}) {
   const { rooms, users, selectedRoomId, setIsInviteMemberVisible } = useContext(AppContext);
   const authContext = useContext(AuthContext) || {};
   const user = authContext.user || {};
@@ -47,10 +44,10 @@ export default function ChatWindow() {
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
 
-  const [isDetailVisible, setIsDetailVisible] = useState(false);
-  const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
-  const [selectedTransferUid, setSelectedTransferUid] = useState(null);
-  const [leavingLoading, setLeavingLoading] = useState(false);
+  // const [isDetailVisible, setIsDetailVisible] = useState(false);
+  // const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
+  // const [selectedTransferUid, setSelectedTransferUid] = useState(null);
+  // const [leavingLoading, setLeavingLoading] = useState(false);
   const [banInfo, setBanInfo] = useState(null);
   const isBanned = !!banInfo;
 
@@ -65,14 +62,19 @@ export default function ChatWindow() {
   const prevScrollHeightRef = useRef(0);
   const shouldScrollToBottomRef = useRef(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [isDetailActive, setIsDetailActive] = useState(false);
 
   useEffect(() => {
     setReplyTo(null);
   }, [selectedRoomId]);
 
   const toggleDetail = () => {
-    setIsDetailVisible((p) => !p);
+    setIsDetailActive(prev => {
+      onToggleDetail?.(!prev); 
+      return !prev;
+    });
   };
+
 
   const selectedRoom = useMemo(
     () => rooms.find((room) => room.id === selectedRoomId),
@@ -450,8 +452,7 @@ export default function ChatWindow() {
             <Button
               type="text"
               icon={<InfoCircleOutlined />}
-              onClick={toggleDetail}
-              aria-label="Xem chi tiết cuộc trò chuyện"
+              onClick={onToggleDetail}
             />
           </div>
         </div>
@@ -575,7 +576,7 @@ export default function ChatWindow() {
         )}
       </div>
 
-      {isDetailVisible && <div className="chat-detail-overlay" onClick={toggleDetail} />}
+      {/* {isDetailVisible && <div className="chat-detail-overlay" onClick={toggleDetail} />}
 
       <ChatDetailPanel
         isVisible={isDetailVisible}
@@ -588,9 +589,9 @@ export default function ChatWindow() {
         otherUser={otherUser}
         onClose={toggleDetail}
         onOpenTransferModal={() => setIsTransferModalVisible(true)}
-      />
+      /> */}
 
-      <TransferOwnershipModal
+      {/* <TransferOwnershipModal
         visible={isTransferModalVisible}
         membersData={membersData}
         currentUid={uid}
@@ -601,7 +602,7 @@ export default function ChatWindow() {
         leavingLoading={leavingLoading}
         setLeavingLoading={setLeavingLoading}
         onClose={() => setIsTransferModalVisible(false)}
-      />
+      /> */}
     </div>
   );
 }
