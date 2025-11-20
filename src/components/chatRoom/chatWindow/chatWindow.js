@@ -453,6 +453,9 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
               type="text"
               icon={<InfoCircleOutlined />}
               onClick={onToggleDetail}
+              // style={{
+              //   backgroundColor: isDetailVisible ? '#e5e5e5' : 'transparent',
+              // }}
             />
           </div>
         </div>
