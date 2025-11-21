@@ -16,6 +16,8 @@ import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons
 import { AppContext } from '../../../context/appProvider';
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { ref, set } from "firebase/database";
+import { rtdb } from "../../../firebase/config";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 
 
@@ -24,12 +26,13 @@ const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b
 export default function LeftSide() {
   const [active, setActive] = useState("message");
   const [role, setRole] = useState("");
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const { setIsProfileVisible, setIsSettingsVisible } = useContext(AppContext);
   const displayName = user?.displayName;
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
   const userStatus = useUserStatus(user?.uid);
+
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -108,7 +111,7 @@ export default function LeftSide() {
       <Menu.Divider style={{margin: "0"}}/>
       <Menu.Item
         key="logout"
-        onClick={() => auth.signOut()}
+        onClick={logout}
         icon={<LogoutOutlined />}
         style={{ color: "#ff4d4f", fontWeight: "500" }}
       >
@@ -186,7 +189,7 @@ export default function LeftSide() {
       </div>
 
       <div className="icon-group bottom">
-        <div className="icon-item" onClick={() => auth.signOut()}>
+        <div className="icon-item" onClick={logout}>
           <AiOutlineLogout />
         </div>
       </div>
