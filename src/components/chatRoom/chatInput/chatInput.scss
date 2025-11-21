@@ -31,7 +31,6 @@
       margin: 0;
       white-space: nowrap;
       flex-shrink: 0;
-      //text-transform: uppercase;
       letter-spacing: 0.3px;
     }
 
@@ -210,13 +209,16 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    padding: 0;     
-    box-sizing: content-box; 
+    padding: 0;
+    box-sizing: content-box;
     position: relative;
     margin-right: -8px;
+    font-size: 18px;
+    transition: all 0.2s ease;
 
     &:hover {
       background: #f0f2f5;
+      transform: scale(1.05);
     }
 
     &:disabled {
@@ -228,11 +230,11 @@
     .spinner {
       width: 18px;
       height: 18px;
-      border: 2px solid #ccc;        // xám
-      border-top: 2px solid #0084ff; // màu xoay
+      border: 2px solid #ccc;
+      border-top: 2px solid #0084ff;
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      box-sizing: border-box; // bắt buộc để border không làm lệch hình
+      box-sizing: border-box;
     }
   }
 
@@ -241,6 +243,92 @@
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
+  }
+}
+
+.tone-picker {
+  position: absolute;
+  bottom: 55px;
+  right: 65px;
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1200;
+  min-width: 150px;
+  animation: slideUp 0.2s ease-out;
+
+  p {
+    font-weight: 600;
+    font-size: 13px;
+    color: #050505;
+    margin: 0 0 8px 0;
+    padding: 0 4px;
+    letter-spacing: 0.3px;
+  }
+
+  .tone-option {
+    padding: 5px 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #050505;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 3px;
+      background: #0084ff;
+      transform: scaleY(0);
+      transition: transform 0.2s ease;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &:hover {
+      background: linear-gradient(90deg, rgba(0, 132, 255, 0.08) 0%, rgba(0, 132, 255, 0.04) 100%);
+      color: #0084ff;
+      transform: translateX(3px);
+
+      &::before {
+        transform: scaleY(1);
+      }
+    }
+
+    &:active {
+      transform: translateX(3px) scale(0.98);
+    }
+
+    &:nth-child(2)::after { content: '✨'; margin-left: auto }
+    &:nth-child(3)::after { content: '💼'; margin-left: auto }
+    &:nth-child(4)::after { content: '📂'; margin-left: auto }
+    &:nth-child(5)::after { content: '💕'; margin-left: auto }
+    &:nth-child(6)::after { content: '🙏'; margin-left: auto }
+    &:nth-child(7)::after { content: '🤝'; margin-left: auto }
+  }
+}
+
+// ========== ANIMATIONS ==========
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -260,29 +348,8 @@
   100% { transform: rotate(360deg); }
 }
 
-// Dark theme
+// ========== DARK THEME ==========
 body.theme-dark {
-  .polish-btn {
-    color: #ffd966;
-
-    &:hover {
-      background: #3a3b3c;
-    }
-
-    &:disabled {
-      color: #6b6b6b;
-    }
-  }
-  .chat-input-form {
-    .ant-btn {
-        background: transparent !important;
-        color: #ffffff !important;
-
-        &:hover {
-            background: #353535 !important;
-        }
-    }
-  }
   .reply-preview {
     background: #2a2d31;
     border-left: 4px solid #0a7cff;
@@ -306,7 +373,7 @@ body.theme-dark {
   }
 
   .chat-input-form {
-    background: map.get($theme-colors, "bg-dark");;
+    background: map.get($theme-colors, "bg-dark");
     border-top: 1px solid #3a3b3c;
 
     .input-icon-btn {
@@ -357,6 +424,55 @@ body.theme-dark {
 
       &:disabled {
         color: #4e4f50;
+      }
+    }
+
+    .polish-btn {
+      color: #ffd966;
+
+      &:hover {
+        background: #3a3b3c;
+      }
+
+      &:disabled {
+        color: #6b6b6b;
+      }
+
+      .spinner {
+        border-color: #555;
+        border-top-color: #0a7cff;
+      }
+    }
+
+    .ant-btn {
+      background: transparent !important;
+      color: #ffffff !important;
+
+      &:hover {
+        background: #353535 !important;
+      }
+    }
+  }
+
+  // Tone picker dark theme
+  .tone-picker {
+    background: #242527 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+    p {
+      color: #e4e6eb;
+    }
+
+    .tone-option {
+      color: #e4e6eb;
+
+      &::before {
+        background: #0a7cff;
+      }
+
+      &:hover {
+        background: linear-gradient(90deg, rgba(10, 124, 255, 0.15) 0%, rgba(10, 124, 255, 0.08) 100%);
+        color: #58a6ff;
       }
     }
   }

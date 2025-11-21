@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Select } from "antd";
 import {
   SmileOutlined,
   PaperClipOutlined,
@@ -42,32 +42,85 @@ export default function ChatInput({
   const [audioChunks, setAudioChunks] = useState([]);
   const visibleFor = getVisibleFor(selectedRoom);
   const [polishing, setPolishing] = useState(false);
+  const [showTonePicker, setShowTonePicker] = useState(false);
 
   const handleInputChange = (e) => setInputValue(e.target.value);
 
-  const handlePolishInput = async () => {
+  const handleSelectTone = async (selectedTone) => {
+    setShowTonePicker(false); 
+
+    const toneMapping = {
+      default: `
+        Giọng văn trung tính, lịch sự, rõ ràng.
+        Không thiên về thân mật hay trang trọng.
+        Giữ xưng hô như trong nội dung gốc.
+      `,
+
+      boss: `
+        Nói chuyện với sếp, cấp trên.
+        Giữ thái độ tôn trọng, lịch sự.
+        Dùng xưng hô phù hợp như "em - sếp".
+        Ngữ khí trang trọng, chuyên nghiệp.
+      `,
+
+      lover: `
+        Viết nhẹ nhàng, tình cảm, ấm áp.
+        Dùng đại từ thân mật phù hợp như “em – anh”, “anh – em”.
+        Có thể thêm sắc thái dịu dàng nhưng không quá sến.
+        Ngữ khí gần gũi, thể hiện quan tâm.
+      `,
+
+      elder: `
+        Viết lễ phép và tôn trọng, phù hợp khi nói chuyện với người lớn tuổi.
+        Dùng từ ngữ nhẹ nhàng: “dạ”, “em/con/cháu”.
+        Tránh văn phong quá trang trọng kiểu nghi thức.
+        Giữ giọng tự nhiên, ấm áp, lịch sự.
+      `,
+
+
+      friend: `
+        Viết tự nhiên, thoải mái, gần gũi.
+        Dùng đại từ bạn bè: “mình – bạn”, “tớ – cậu”, hoặc giữ nguyên theo ngữ cảnh.
+        Giao tiếp thân thiện nhưng không suồng sã quá mức.
+        Nghe giống cách nhắn tin giữa bạn bè thân.
+      `,
+
+      client: `
+        Phù hợp khi nói chuyện với khách hàng hoặc đối tác.
+        Giữ thái độ chuyên nghiệp, lịch sự.
+        Dùng xưng hô trang trọng như "em - quý khách"
+        Ngữ khí rõ ràng, mạch lạc, tránh dùng từ ngữ quá thân mật.
+      `,
+    };
+
+
     if (!inputValue.trim()) return;
+
     try {
       setPolishing(true);
+
       const prompt = `
-        Chỉnh sửa văn bản sau để:
-        - Nghe tự nhiên, rõ ràng, lịch sự và mạch lạc
+        Hãy chỉnh sửa đoạn văn sau theo các yêu cầu:
         - Giữ nguyên ý nghĩa gốc
+        - Nghe tự nhiên, rõ ràng, mạch lạc
         - Sửa chính tả, viết hoa đầu câu, thêm dấu câu nếu cần
-        - Luôn trả về phiên bản đã chỉnh sửa, ngay cả khi văn bản ngắn, đơn giản hoặc chỉ là một từ
-        - Không thêm lời giải thích, chú thích hay bất kỳ văn bản nào khác
+        - Không giải thích, không thêm ghi chú
+        - Áp dụng giọng văn: ${toneMapping[selectedTone]}
         Văn bản cần chỉnh sửa:
         ${inputValue}
       `;
+
       const polishedText = await askGemini(prompt);
       const cleanedText = polishedText.replace(/\n+/g, " ").trim();
+
       setInputValue(cleanedText);
     } catch (err) {
-      toast.error("Không thể cải thiện🫠");
+      toast.error("Không thể cải thiện 🫠");
     } finally {
       setPolishing(false);
     }
   };
+
 
   // ==== Upload file ====
   const handleFileUpload = async (e) => {
@@ -361,12 +414,27 @@ export default function ChatInput({
 
           {inputValue.trim() && (
             <>
+              {showTonePicker && (
+                <div 
+                  className="tone-picker"
+                >
+                  <p style={{ fontWeight: "bold", marginBottom: 5 }}>Chọn giọng văn:</p>
+
+                  <div className="tone-option" onClick={() => handleSelectTone("default")}>Mặc định</div>
+                  <div className="tone-option" onClick={() => handleSelectTone("boss")}>Sếp</div>
+                  <div className="tone-option" onClick={() => handleSelectTone("client")}>Đối tác</div>
+                  <div className="tone-option" onClick={() => handleSelectTone("lover")}>Người yêu</div>
+                  <div className="tone-option" onClick={() => handleSelectTone("elder")}>Người lớn</div>
+                  <div className="tone-option" onClick={() => handleSelectTone("friend")}>Bạn bè</div>
+                </div>
+              )}
+
               <Button
                 type="text"
-                onClick={handlePolishInput}
+                onClick={() => setShowTonePicker(!showTonePicker)}
                 disabled={polishing || sending}
                 className={`polish-btn ${polishing ? 'loading' : ''}`}
-                title="Cải thiện tin nhắn"
+                title="Chọn giọng văn để cải thiện"
               >
                 {polishing ? <div className="spinner" /> : '✨'}
               </Button>

@@ -165,12 +165,12 @@ export default function LeftSide() {
         >
           {active === "message" ? <AiFillMessage /> : <AiOutlineMessage />}
         </div>
-        <div
+        {/* <div
           className={`icon-item ${active === "contacts" ? "active" : ""}`}
           onClick={() => setActive("contacts")}
         >
           {active === "contacts" ? <IoPeople /> : <IoPeopleOutline />}
-        </div>
+        </div> */}
         {/* <div
           className={`icon-item ${active === "notification" ? "active" : ""}`}
           // onClick={() => setActive("notification")}
