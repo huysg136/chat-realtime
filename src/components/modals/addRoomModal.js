@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { Modal, Input, Avatar, Spin, Checkbox, Button } from 'antd';
 import { AppContext } from '../../context/appProvider';
 import { AuthContext } from '../../context/authProvider';
-import { collection, query, where, orderBy, limit, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, query, where, orderBy, limit, getDocs, getDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import debounce from 'lodash/debounce';
 import { addDocument, generateAESKey } from '../../firebase/services';
@@ -17,14 +17,13 @@ export default function AddRoomModal() {
   const [options, setOptions] = useState([]);
   const [fetching, setFetching] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [currentMembers, setCurrentMembers] = useState([]);
   const [roomName, setRoomName] = useState('');
   const [isRoomNameEdited, setIsRoomNameEdited] = useState(false);
   const ROOM_NAME_MAX = 100;
 
   useEffect(() => {
-    if (!isAddRoomVisible) {
-      resetModal();
-    }
+    if (!isAddRoomVisible) resetModal();
   }, [isAddRoomVisible]);
 
   const resetModal = () => {
@@ -34,7 +33,20 @@ export default function AddRoomModal() {
     setFetching(false);
     setRoomName('');
     setIsRoomNameEdited(false);
+    setCurrentMembers([]);
   };
+
+  // Fetch current members if editing existing room (optional)
+  useEffect(() => {
+    if (!isAddRoomVisible) return;
+    const fetchCurrentMembers = async () => {
+      if (!currentMembers.length && rooms) {
+        const room = rooms.find(r => r.id === setSelectedRoomId);
+        if (room) setCurrentMembers(room.members || []);
+      }
+    };
+    fetchCurrentMembers();
+  }, [isAddRoomVisible, rooms, setSelectedRoomId]);
 
   // Auto-generate room name
   useEffect(() => {
@@ -43,7 +55,6 @@ export default function AddRoomModal() {
       setRoomName('');
       return;
     }
-
     let defaultName = '';
     if (selectedMembers.length === 1) {
       defaultName = selectedMembers[0].displayName || '';
@@ -55,18 +66,22 @@ export default function AddRoomModal() {
     setRoomName(defaultName);
   }, [selectedMembers, isRoomNameEdited, user]);
 
-  // SEARCH USERS BY QUIC ID
+  // SEARCH USERS
   const fetchUserList = async (text) => {
-    if (!text) return setOptions([]);
     setFetching(true);
     try {
-      const q = query(
-        collection(db, "users"),
-        where("username", ">=", text.toLowerCase()),
-        where("username", "<=", text.toLowerCase() + "\uf8ff"),
-        orderBy("username"),
-        limit(20)
-      );
+      let q;
+      if (text) {
+        q = query(
+          collection(db, "users"),
+          where("username", ">=", text.toLowerCase()),
+          where("username", "<=", text.toLowerCase() + "\uf8ff"),
+          orderBy("username"),
+          limit(20)
+        );
+      } else {
+        q = query(collection(db, "users"), orderBy("username"), limit(20));
+      }
       const snapshot = await getDocs(q);
       const usersList = snapshot.docs
         .map(doc => ({
@@ -75,7 +90,7 @@ export default function AddRoomModal() {
           photoURL: doc.data().photoURL,
           username: doc.data().username || ''
         }))
-        .filter(u => u.uid !== uid);
+        .filter(u => u.uid !== uid && !currentMembers.includes(u.uid));
       setOptions(usersList);
     } catch {
       setOptions([]);
@@ -95,7 +110,7 @@ export default function AddRoomModal() {
     setSelectedMembers(prev => {
       const exists = prev.find(u => u.uid === userObj.uid);
       if (exists) return prev.filter(u => u.uid !== userObj.uid);
-      return [...prev, { ...userObj }];
+      return [...prev, userObj];
     });
   };
 
@@ -104,27 +119,22 @@ export default function AddRoomModal() {
     setIsRoomNameEdited(true);
   };
 
-  useEffect(() => {
-    if (isRoomNameEdited) return;
-    // luôn để trống input
-    setRoomName('');
-  }, [selectedMembers, isRoomNameEdited]);
-
   // Handle create chat / group
   const handleOk = async () => {
     if (!uid || selectedMembers.length === 0) return;
 
     const finalRoomName = roomName?.trim()
-    ? roomName.trim().slice(0, ROOM_NAME_MAX)
-    : (() => {
-        if (selectedMembers.length === 1) return selectedMembers[0].displayName.slice(0, ROOM_NAME_MAX);
-        return [user?.displayName, ...selectedMembers.map(m => m.displayName)]
-          .filter(Boolean)
-          .join(', ')
-          .slice(0, ROOM_NAME_MAX);
-      })();
+      ? roomName.trim().slice(0, ROOM_NAME_MAX)
+      : (() => {
+          if (selectedMembers.length === 1) return selectedMembers[0].displayName.slice(0, ROOM_NAME_MAX);
+          return [user?.displayName, ...selectedMembers.map(m => m.displayName)]
+            .filter(Boolean)
+            .join(', ')
+            .slice(0, ROOM_NAME_MAX);
+        })();
 
     if (selectedMembers.length === 1) {
+      // PRIVATE CHAT
       const otherUser = selectedMembers[0];
       const q = query(
         collection(db, 'rooms'),
@@ -142,26 +152,56 @@ export default function AddRoomModal() {
       });
       if (!room) {
         const roles = [{ uid, role: 'owner' }, { uid: otherUser.uid, role: 'member' }];
-        const newRoom = { name: finalRoomName, type: 'private', members: [uid, otherUser.uid], avatar: otherUser.photoURL, secretKey: generateAESKey(), roles };
+        const newRoom = {
+          name: finalRoomName,
+          type: 'private',
+          members: [uid, otherUser.uid],
+          avatar: otherUser.photoURL,
+          secretKey: generateAESKey(),
+          roles
+        };
         const docRef = await addDocument('rooms', newRoom);
         room = { id: docRef.id, ...newRoom };
       }
       setSelectedRoomId(room.id);
     } else {
+      // GROUP
       const members = Array.from(new Set([uid, ...selectedMembers.map(u => u.uid)]));
       const roles = [{ uid, role: 'owner' }, ...selectedMembers.map(m => ({ uid: m.uid, role: 'member' }))];
       const newRoom = { name: finalRoomName, type: 'group', members, secretKey: generateAESKey(), roles };
       const docRef = await addDocument('rooms', newRoom);
 
+      const actor = { uid: user.uid, name: user.displayName, photoURL: user.photoURL };
+      // Add create_group system message
       await addDocument("messages", {
-        text: `${user?.displayName} đã tạo nhóm`,
-        uid: "system",                          
-        photoURL: user?.photoURL || null,
+        uid: "system",
         roomId: docRef.id,
-        createdAt: new Date(),
         kind: "system",
-        visibleFor: members,   
+        action: "create_group",
+        actor,
+        target: actor,
+        visibleFor: members,
+        createdAt: new Date(),
       });
+      
+      for (const member of selectedMembers) {
+        const fullMember = users.find(u => u.uid === member.uid) || member;
+        const target = { uid: fullMember.uid, name: fullMember.displayName || "Thành viên", photoURL: fullMember.photoURL || null };
+
+        await addDocument("messages", {
+          uid: "system",
+          roomId: docRef.id,
+          kind: "system",
+          action: "add_member",
+          actor,
+          target,
+          visibleFor: members,
+          createdAt: new Date(),
+        });
+      }
+
+      
+
       setSelectedRoomId(docRef.id);
     }
 
@@ -169,33 +209,21 @@ export default function AddRoomModal() {
     setIsAddRoomVisible(false);
   };
 
-  const handleCancel = () => {
-    resetModal();
-    setIsAddRoomVisible(false);
-  };
-
-  const suggestedUsers = useMemo(() => {
-    if (uid && !searchText) {
-      return users
-        .filter(u => u.uid !== uid)
-        .slice(0, 20);
-    }
-    return [];
-  }, [users, uid, searchText]);
+  const handleCancel = () => resetModal();
 
   const filteredOptions = options.filter(u => !selectedMembers.find(s => s.uid === u.uid));
   const isPrivateSelection = selectedMembers.length === 1;
 
-  // --- RECENT CHATS ---
+  const suggestedUsers = useMemo(() => {
+    if (!uid || searchText) return [];
+    return users.filter(u => u.uid !== uid && !currentMembers.includes(u.uid)).slice(0, 20);
+  }, [users, uid, searchText, currentMembers]);
+
   const recentChats = useMemo(() => {
     if (!uid || searchText) return [];
     return rooms
       .filter(r => r.members.includes(uid) && r.type === "private")
-      .sort((a, b) => {
-        const aTime = a.updatedAt?.toDate?.() || 0;
-        const bTime = b.updatedAt?.toDate?.() || 0;
-        return bTime - aTime;
-      })
+      .sort((a, b) => (b.updatedAt?.toDate?.() || 0) - (a.updatedAt?.toDate?.() || 0))
       .map(r => {
         const otherUid = r.members.find(m => m !== uid);
         const otherUser = users.find(u => u.uid === otherUid);
@@ -207,6 +235,8 @@ export default function AddRoomModal() {
         };
       });
   }, [rooms, uid, users, searchText]);
+
+  const displayUsers = searchText ? filteredOptions : (recentChats.length > 0 ? recentChats : suggestedUsers);
 
   return (
     <Modal
@@ -236,11 +266,7 @@ export default function AddRoomModal() {
       {/* Search */}
       <div style={{ marginBottom: 10 }}>
         <div style={{ marginBottom: 6, fontWeight: 600 }}>Tìm kiếm theo Quik ID</div>
-        <Input
-          placeholder="Nhập Quik ID..."
-          value={searchText}
-          onChange={handleSearchChange}
-        />
+        <Input placeholder="Nhập Quik ID..." value={searchText} onChange={handleSearchChange} />
       </div>
 
       {/* User List */}
@@ -250,21 +276,21 @@ export default function AddRoomModal() {
             {recentChats.length > 0 ? 'Trò chuyện gần đây' : 'Gợi ý'}
           </div>
         )}
+        {fetching && <div style={{ display: 'flex', justifyContent: 'center', padding: 20 }}><Spin size="small" /></div>}
 
-        {fetching && (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: 20 }}>
-            <Spin size="small" />
-          </div>
-        )}
-
-        {(searchText ? filteredOptions : (recentChats.length > 0 ? recentChats : suggestedUsers)).map(user => (
-          <UserItem
-            key={user.uid}
-            userObj={user}
-            selectedMembers={selectedMembers}
-            handleToggleMember={handleToggleMember}
-          />
-        ))}
+        {displayUsers.map(user => {
+          const isMember = currentMembers.includes(user.uid);
+          return (
+            <UserItem
+              key={user.uid}
+              userObj={user}
+              selectedMembers={selectedMembers}
+              handleToggleMember={handleToggleMember}
+              isSelected={!!selectedMembers.find(u => u.uid === user.uid)}
+              isMember={isMember}
+            />
+          );
+        })}
       </div>
 
       {/* Selected Members */}
@@ -294,20 +320,29 @@ export default function AddRoomModal() {
         {selectedMembers.length <= 1 ? 'Chat' : `Tạo nhóm (${selectedMembers.length + 1} người)`}
       </Button>
     </Modal>
-
   );
 }
 
-const UserItem = ({ userObj, selectedMembers, handleToggleMember }) => (
+const UserItem = ({ userObj, selectedMembers, handleToggleMember, isSelected, isMember }) => (
   <div
-    style={{ display: 'flex', alignItems: 'center', padding: '5px 0', cursor: 'pointer' }}
-    onClick={() => handleToggleMember(userObj)}
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      padding: '5px 0',
+      cursor: isMember ? 'not-allowed' : 'pointer',
+      opacity: isMember ? 0.5 : 1
+    }}
+    onClick={() => !isMember && handleToggleMember(userObj)}
   >
     <Avatar src={userObj.photoURL} size={32} style={{ marginRight: 10 }} />
     <div style={{ flex: 1 }}>
       <div style={{ fontWeight: 500 }}>{userObj.displayName}</div>
       <div style={{ fontSize: 12, color: 'gray' }}>@{userObj.username}</div>
     </div>
-    <Checkbox checked={!!selectedMembers.find(u => u.uid === userObj.uid)} />
+    {isMember ? (
+      <span style={{ fontSize: 12, color: 'gray' }}>Đã trong nhóm</span>
+    ) : (
+      <Checkbox checked={!!selectedMembers.find(u => u.uid === userObj.uid) || isSelected} />
+    )}
   </div>
 );

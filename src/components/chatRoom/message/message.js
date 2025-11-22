@@ -170,6 +170,7 @@ export default function Message({
   kind,
   uid,
   isBanned,
+  action, actor, target,
 }) {
   const { rooms, selectedRoomId, users } = useContext(AppContext);
   const authContext = useContext(AuthContext) || {};
@@ -228,11 +229,18 @@ export default function Message({
 
   if (kind === 'system') {
     return (
-      <div className="message-row system">
-        <MediaRenderer kind="system" content={text} photoURL={photoURL} />
-      </div>
+      <MediaRenderer
+        kind="system"
+        action={action}
+        actorUid={actor?.uid}
+        targetUid={target?.uid}
+        actorPhotoURL={actor?.photoURL}
+        targetPhotoURL={target?.photoURL}
+        users={users}  
+      />
     );
   }
+
 
   const handleReply = () => {
     if (onReply) {

@@ -90,25 +90,30 @@ export default function TransferOwnershipModal({
 
       // a chuyen cho b truong nhom
       await addDocument("messages", {
-        text: `${newOwner?.displayName} đã được ${currentUser?.displayName} bổ nhiệm làm trưởng nhóm`,
         uid: "system",
         roomId: selectedRoom.id,
-        photoURL: newOwner?.photoURL || null,
-        createdAt: new Date(),
         kind: "system",
+        action: "transfer_ownership",
+        target: { uid: newOwner?.uid, name: newOwner?.displayName, photoURL: newOwner?.photoURL },
+        actor: { uid: currentUser?.uid, name: currentUser?.displayName, photoURL: currentUser?.photoURL },
         visibleFor: newMembers,
+        createdAt: new Date(),
       });
 
 
       // a roi nhom
       await addDocument("messages", {
-        text: `${currentUser?.displayName} đã rời nhóm`,
         uid: "system",
-        photoURL: currentUser?.photoURL || null,
         roomId: selectedRoom.id,
-        createdAt: new Date(),
         kind: "system",
+        action: "leave_group", 
+        actor: {
+          uid: currentUser?.uid,
+          name: currentUser?.displayName || "Người dùng",
+          photoURL: currentUser?.photoURL || null,
+        },
         visibleFor: newMembers,
+        createdAt: new Date(),
       });
 
       toast.success("Đã chuyển quyền và rời nhóm");

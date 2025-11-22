@@ -6,7 +6,7 @@ import { MdAttachFile } from "react-icons/md";
 import 'react-image-lightbox/style.css';
 import Lightbox from 'react-image-lightbox';
 
-const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, photoURL }) => {
+const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, actorUid, targetUid, users }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -14,30 +14,83 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, photoURL }) 
   const audioRef = React.useRef(null);
 
 
-  if (!content) return null;
+  if (!content && kind !== 'system') return null;
 
   if (isRevoked) {
     return <span className="message-text-part revoked">[Tin nhắn đã được thu hồi]</span>;
   }
 
   if (kind === 'system') {
+    const actor = users.find(u => u.uid === actorUid);
+    const target = users.find(u => u.uid === targetUid);
+
+    const actorName = actor?.displayName || "Unknown";
+    const targetName = target?.displayName || "Unknown";
+    const actorPhoto = actor?.photoURL;
+    const targetPhoto = target?.photoURL;
+
+    let messageContent = null;
+
+    switch(action) {
+      case 'add_member':
+        messageContent = (
+          <span className="system-text">
+            {targetPhoto && <img src={targetPhoto} alt={targetName} className="system-avatar" />}
+            <span className="system-name">{targetName}</span> đã được
+            {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}
+            <span className="system-name">{actorName}</span> thêm vào nhóm
+          </span>
+        );
+        break;
+      case 'create_group':
+        messageContent = (
+          <span className="system-text">
+            {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}
+            <span className="system-name">{actorName}</span> đã tạo nhóm
+          </span>
+        );
+        break;
+      case 'remove_member':
+        messageContent = (
+          <span className="system-text">
+            {targetPhoto && <img src={targetPhoto} alt={targetName} className="system-avatar" />}
+            <span className="system-name">{targetName}</span> đã bị xóa khỏi nhóm bởi
+            {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}
+            <span className="system-name">{actorName}</span>
+          </span>
+        );
+        break;
+      case 'leave_group':
+        messageContent = (
+          <span className="system-text">
+            {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}
+            <span className="system-name">{actorName}</span> đã rời nhóm
+          </span>
+        );
+        break;
+      case 'transfer_ownership':
+        messageContent = (
+          <span className="system-text">
+            {targetPhoto && <img src={targetPhoto} alt={targetName} className="system-avatar" />}
+            <span className="system-name">{targetName}</span> đã được
+            {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}
+            <span className="system-name">{actorName}</span> bổ nhiệm làm trưởng nhóm
+          </span>
+        );
+        break;
+      default:
+        messageContent = <span className="system-text">[Tin nhắn hệ thống]</span>;
+    }
+
     return (
       <div className="message-row system">
         <div className="system-bubble">
-          {photoURL && (
-            <img
-              src={photoURL}
-              alt="system-avatar"
-              className="system-avatar"
-            />
-          )}
-          <div className="message-system">
-            {content}
-          </div>
+          {messageContent}
         </div>
       </div>
     );
   }
+
 
   if (kind === 'picture' || kind === 'image') {
     return (

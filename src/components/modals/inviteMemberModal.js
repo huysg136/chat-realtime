@@ -115,18 +115,20 @@ export default function InviteMemberModal() {
         });
       }
 
-      const actorName = user.displayName;
+      const actor = { uid: user.uid, name: user.displayName, photoURL: user.photoURL };
       for (const member of selectedMembers) {
         const fullMember = users.find(u => u.uid === member.uid) || member;
-        const memberName = fullMember.displayName || "Thành viên";
+        const target = { uid: fullMember.uid, name: fullMember.displayName || "Thành viên", photoURL: fullMember.photoURL || null };
+
         await addDocument("messages", {
-          text: `${memberName} đã được ${actorName} thêm vào nhóm`,
           uid: "system",
-          photoURL: fullMember.photoURL || null,
           roomId: selectedRoomId,
-          createdAt: new Date(),
           kind: "system",
+          action: "add_member",
+          actor,
+          target,
           visibleFor: updatedMembers,
+          createdAt: new Date(),
         });
       }
       setSelectedMembers([]);

@@ -142,15 +142,15 @@ export default function ChatDetailPanel({
 
       const targetMember = membersData.find(m => String(m.uid).trim() === String(targetUid).trim());
       const targetName = targetMember?.displayName;
-      const removerName = currentUser?.displayName;
       await addDocument("messages", {
-        text: `${targetName} đã bị xóa khỏi nhóm bởi ${removerName}`,
         uid: "system",
-        photoURL: targetMember?.photoURL || null,
         roomId: selectedRoom.id,
-        createdAt: new Date(),
         kind: "system",
-        visibleFor: newMembers, 
+        action: "remove_member",
+        target: { uid: targetMember?.uid, name: targetName, photoURL: targetMember?.photoURL },
+        actor: { uid: currentUser?.uid, name: currentUser?.displayName, photoURL: currentUser?.photoURL },
+        visibleFor: newMembers,
+        createdAt: new Date(),
       });
 
       toast.success("Đã xóa thành viên");
@@ -243,13 +243,17 @@ export default function ChatDetailPanel({
       });
 
       await addDocument("messages", {
-        text: `${currentUser?.displayName} đã rời nhóm.`,
         uid: "system",
-        photoURL: currentUser?.photoURL || null,
         roomId: selectedRoom.id,
-        createdAt: new Date(),
         kind: "system",
+        action: "leave_group", 
+        actor: {
+          uid: currentUser?.uid,
+          name: currentUser?.displayName || "Người dùng",
+          photoURL: currentUser?.photoURL || null,
+        },
         visibleFor: newMembers,
+        createdAt: new Date(),
       });
 
       toast.success("Bạn đã rời nhóm");

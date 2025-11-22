@@ -558,6 +558,9 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
                     onReply={(message) => setReplyTo(message)}
                     onRevoke={() => handleRevokeMessage(msg.id)}
                     isBanned={isBanned} 
+                    action={msg.action}   
+                    actor={msg.actor}    
+                    target={msg.target}
                   />
                 </React.Fragment>
               );
