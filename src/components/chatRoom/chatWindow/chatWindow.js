@@ -157,9 +157,11 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
         }
       }
 
-      const decryptedText = selectedRoom?.secretKey
-        ? decryptMessage(msg.text || "", selectedRoom.secretKey)
-        : msg.text || "";
+      const decryptedText = (msg.kind === "system")
+        ? (msg.text || "")
+        : (selectedRoom?.secretKey
+            ? decryptMessage(msg.text || "", selectedRoom.secretKey)
+            : msg.text || "");
 
       return {
         ...msg,

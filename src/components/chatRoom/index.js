@@ -40,6 +40,12 @@ export default function ChatRoom() {
         setIsDetailVisible(false);
     }, [selectedRoomId]);
 
+    const handleCloseTransferModal = () => {
+        setSelectedTransferUid(null);
+        setIsTransferModalVisible(false);
+        setIsDetailVisible(false);
+    };
+
     return (
         <div>
         <Row gutter={0} className="chat-room">
@@ -59,16 +65,16 @@ export default function ChatRoom() {
             {isDetailVisible && (
             <Col span={6}>
                 <ChatDetailPanel
-                isVisible={true}
-                selectedRoom={selectedRoom}
-                membersData={membersData}
-                currentUser={{ uid, displayName, photoURL }}
-                currentUserRole={currentUserRole}
-                rolesArray={rolesArray}
-                isPrivate={isPrivate}
-                otherUser={otherUser}
-                onClose={() => setIsDetailVisible(false)}
-                onOpenTransferModal={() => setIsTransferModalVisible(true)}
+                    isVisible={true}
+                    selectedRoom={selectedRoom}
+                    membersData={membersData}
+                    currentUser={{ uid, displayName, photoURL }}
+                    currentUserRole={currentUserRole}
+                    rolesArray={rolesArray}
+                    isPrivate={isPrivate}
+                    otherUser={otherUser}
+                    onClose={() => setIsDetailVisible(false)}
+                    onOpenTransferModal={() => setIsTransferModalVisible(true)}
                 />
             </Col>
             )}
@@ -78,13 +84,14 @@ export default function ChatRoom() {
             visible={isTransferModalVisible}
             membersData={membersData}
             currentUid={uid}
+            currentUser={user}
             selectedRoom={selectedRoom}
             rolesArray={rolesArray}
             selectedTransferUid={selectedTransferUid}
             setSelectedTransferUid={setSelectedTransferUid}
             leavingLoading={leavingLoading}
             setLeavingLoading={setLeavingLoading}
-            onClose={() => setIsTransferModalVisible(false)}
+            onClose={handleCloseTransferModal}
         />
         </div>
     );

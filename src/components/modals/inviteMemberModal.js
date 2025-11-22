@@ -4,6 +4,7 @@ import { AppContext } from '../../context/appProvider';
 import { AuthContext } from '../../context/authProvider';
 import { collection, query, where, orderBy, limit, getDocs, getDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
+import { addDocument } from '../../firebase/services';
 import debounce from 'lodash/debounce';
 import './inviteMemberModal.scss';
 
@@ -86,7 +87,7 @@ export default function InviteMemberModal() {
   };
 
   const handleToggleMember = (userObj) => {
-    if (currentMembers.includes(userObj.uid)) return; // không cho chọn nếu đã là thành viên
+    if (currentMembers.includes(userObj.uid)) return; // đã trong nhóm thì disable
     setSelectedMembers(prev => {
       const exists = prev.find(u => u.uid === userObj.uid);
       if (exists) return prev.filter(u => u.uid !== userObj.uid);
@@ -111,6 +112,21 @@ export default function InviteMemberModal() {
         );
         await updateDoc(roomRef, {
           "lastMessage.visibleFor": updatedLastVisibleFor,
+        });
+      }
+
+      const actorName = user.displayName;
+      for (const member of selectedMembers) {
+        const fullMember = users.find(u => u.uid === member.uid) || member;
+        const memberName = fullMember.displayName || "Thành viên";
+        await addDocument("messages", {
+          text: `${memberName} đã được ${actorName} thêm vào nhóm`,
+          uid: "system",
+          photoURL: fullMember.photoURL || null,
+          roomId: selectedRoomId,
+          createdAt: new Date(),
+          kind: "system",
+          visibleFor: updatedMembers,
         });
       }
       setSelectedMembers([]);

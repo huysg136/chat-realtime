@@ -6,7 +6,7 @@ import { MdAttachFile } from "react-icons/md";
 import 'react-image-lightbox/style.css';
 import Lightbox from 'react-image-lightbox';
 
-const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked }) => {
+const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, photoURL }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -18,6 +18,25 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked }) => {
 
   if (isRevoked) {
     return <span className="message-text-part revoked">[Tin nhắn đã được thu hồi]</span>;
+  }
+
+  if (kind === 'system') {
+    return (
+      <div className="message-row system">
+        <div className="system-bubble">
+          {photoURL && (
+            <img
+              src={photoURL}
+              alt="system-avatar"
+              className="system-avatar"
+            />
+          )}
+          <div className="message-system">
+            {content}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (kind === 'picture' || kind === 'image') {

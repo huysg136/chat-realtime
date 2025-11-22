@@ -152,6 +152,16 @@ export default function AddRoomModal() {
       const roles = [{ uid, role: 'owner' }, ...selectedMembers.map(m => ({ uid: m.uid, role: 'member' }))];
       const newRoom = { name: finalRoomName, type: 'group', members, secretKey: generateAESKey(), roles };
       const docRef = await addDocument('rooms', newRoom);
+
+      await addDocument("messages", {
+        text: `${user?.displayName} đã tạo nhóm`,
+        uid: "system",                          
+        photoURL: user?.photoURL || null,
+        roomId: docRef.id,
+        createdAt: new Date(),
+        kind: "system",
+        visibleFor: members,   
+      });
       setSelectedRoomId(docRef.id);
     }
 

@@ -1,13 +1,14 @@
 import React from "react";
 import { Modal, Select, Avatar, message } from "antd";
 import { toast } from 'react-toastify';
-import { updateDocument, deleteDocument } from "../../firebase/services";
+import { updateDocument, deleteDocument, addDocument } from "../../firebase/services";
 import "./transferOwnershipModal.scss";
 
 export default function TransferOwnershipModal({
   visible,
   membersData,
   currentUid,
+  currentUser,
   selectedRoom,
   rolesArray,
   selectedTransferUid,
@@ -24,6 +25,11 @@ export default function TransferOwnershipModal({
            String(m.uid).trim() !== String(ownerUid).trim()
   );
 
+  const handleClose = () => {
+    setSelectedTransferUid(null);  
+    onClose?.();                  
+  };
+
   const transferOwnershipAndLeave = async () => {
     if (!selectedRoom || !currentUid) return;
 
@@ -31,10 +37,10 @@ export default function TransferOwnershipModal({
 
     try {
       if (selectedRoom.members.length === 1) {
-        // Nếu là người duy nhất => xóa nhóm
         await deleteDocument("rooms", selectedRoom.id);
         toast.success("Bạn đã giải tán nhóm");
-        onClose();
+        handleClose();
+        setLeavingLoading(false);
         return;
       }
 
@@ -79,8 +85,35 @@ export default function TransferOwnershipModal({
         roles: newRoles,
       });
 
+      const currentUser = membersData.find(m => String(m.uid) === String(currentUid));
+      const newOwner = membersData.find(m => String(m.uid) === String(selectedTransferUid));
+
+      // a chuyen cho b truong nhom
+      await addDocument("messages", {
+        text: `${newOwner?.displayName} đã được ${currentUser?.displayName} bổ nhiệm làm trưởng nhóm`,
+        uid: "system",
+        roomId: selectedRoom.id,
+        photoURL: newOwner?.photoURL || null,
+        createdAt: new Date(),
+        kind: "system",
+        visibleFor: newMembers,
+      });
+
+
+      // a roi nhom
+      await addDocument("messages", {
+        text: `${currentUser?.displayName} đã rời nhóm`,
+        uid: "system",
+        photoURL: currentUser?.photoURL || null,
+        roomId: selectedRoom.id,
+        createdAt: new Date(),
+        kind: "system",
+        visibleFor: newMembers,
+      });
+
       toast.success("Đã chuyển quyền và rời nhóm");
-      onClose();
+      handleClose();
+      setLeavingLoading(false);
     } catch (err) {
       console.error(err);
       toast.error("Chuyển quyền hoặc rời nhóm thất bại, thử lại sau");
@@ -94,7 +127,7 @@ export default function TransferOwnershipModal({
       title="Chuyển quyền trưởng nhóm và rời"
       open={visible}
       onOk={transferOwnershipAndLeave}
-      onCancel={onClose}
+      onCancel={handleClose}
       okText={selectedRoom?.members?.length === 1 ? "Giải tán nhóm" : "Chuyển & Rời"}
       cancelText="Hủy"
       confirmLoading={leavingLoading}

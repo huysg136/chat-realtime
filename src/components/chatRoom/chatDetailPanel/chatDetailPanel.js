@@ -10,7 +10,7 @@ import {
 import { FaKey } from "react-icons/fa6";
 import { toast } from 'react-toastify';
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
-import { updateDocument } from "../../../firebase/services";
+import { updateDocument, addDocument } from "../../../firebase/services";
 import "./chatDetailPanel.scss";
 
 export default function ChatDetailPanel({
@@ -140,6 +140,19 @@ export default function ChatDetailPanel({
         roles: newRoles
       });
 
+      const targetMember = membersData.find(m => String(m.uid).trim() === String(targetUid).trim());
+      const targetName = targetMember?.displayName;
+      const removerName = currentUser?.displayName;
+      await addDocument("messages", {
+        text: `${targetName} đã bị xóa khỏi nhóm bởi ${removerName}`,
+        uid: "system",
+        photoURL: targetMember?.photoURL || null,
+        roomId: selectedRoom.id,
+        createdAt: new Date(),
+        kind: "system",
+        visibleFor: newMembers, 
+      });
+
       toast.success("Đã xóa thành viên");
     } catch (err) {
       toast.error("Xóa thành viên thất bại, thử lại sau");
@@ -229,7 +242,18 @@ export default function ChatDetailPanel({
         roles: newRoles,
       });
 
+      await addDocument("messages", {
+        text: `${currentUser?.displayName} đã rời nhóm.`,
+        uid: "system",
+        photoURL: currentUser?.photoURL || null,
+        roomId: selectedRoom.id,
+        createdAt: new Date(),
+        kind: "system",
+        visibleFor: newMembers,
+      });
+
       toast.success("Bạn đã rời nhóm");
+      onClose?.();
     } catch (err) {
       toast.error("Rời nhóm thất bại, thử lại sau");
     }

@@ -226,6 +226,14 @@ export default function Message({
     return () => unsubscribe?.();
   }, [uid, initialDisplayName, initialPhoto]);
 
+  if (kind === 'system') {
+    return (
+      <div className="message-row system">
+        <MediaRenderer kind="system" content={text} photoURL={photoURL} />
+      </div>
+    );
+  }
+
   const handleReply = () => {
     if (onReply) {
       onReply({
