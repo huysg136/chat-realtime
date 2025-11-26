@@ -209,7 +209,10 @@ export default function AddRoomModal() {
     setIsAddRoomVisible(false);
   };
 
-  const handleCancel = () => resetModal();
+  const handleCancel = () => {
+    resetModal();
+    setIsAddRoomVisible(false);
+  };
 
   const filteredOptions = options.filter(u => !selectedMembers.find(s => s.uid === u.uid));
   const isPrivateSelection = selectedMembers.length === 1;

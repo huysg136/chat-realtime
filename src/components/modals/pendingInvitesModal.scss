@@ -1,0 +1,66 @@
+/* PendingInvitesModal.scss */
+.pending-invites-modal {
+  .ant-modal-content {
+    background-color: #ffffff;
+    color: #000000;
+  }
+
+  .ant-modal-header {
+    background-color: #ffffff;
+  }
+
+  .ant-modal-title {
+    color: #000000;
+  }
+
+  .ant-modal-body {
+    background-color: #ffffff;
+    color: #000000;
+  }
+
+  .ant-modal-close {
+    color: #000000;
+  }
+
+  .ant-btn {
+    color: #000000;
+    border-color: #d9d9d9;
+  }
+
+  .ant-btn-primary {
+    background-color: #1890ff;
+    border-color: #1890ff;
+    color: #ffffff;
+  }
+
+  div {
+    color: #000000;
+  }
+
+  /* Dark theme */
+  body.theme-dark & {
+    .ant-modal-content {
+      background-color: rgba(30, 30, 30, 0.95);
+      color: #f9fafb;
+    }
+
+    .ant-modal-title {
+      color: #f9fafb;
+    }
+
+    .ant-modal-body {
+      color: #f9fafb;
+    }
+
+    .ant-btn {
+      color: #f9fafb;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .ant-btn-primary {
+      background-color: #3b82f6;
+      border-color: #3b82f6;
+      color: #ffffff;
+    }
+  }
+}

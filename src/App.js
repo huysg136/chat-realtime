@@ -7,6 +7,7 @@ import AppProvider from './context/appProvider';
 import AddRoomModal from './components/modals/addRoomModal';
 import InviteMemberModal from './components/modals/inviteMemberModal';
 import ProfileModal from './components/modals/profileModal';
+import PendingInvitesModal from './components/modals/pendingInvitesModal';
 import PrivateRoute from './routes/privateRoute';
 import AdminLayout from './admin/adminLayout/adminLayout';
 import Dashboard from './admin/dashboard/dashboard';
@@ -110,6 +111,7 @@ function App() {
             <AddRoomModal />
             <InviteMemberModal />
             <ProfileModal />
+            <PendingInvitesModal/>
             <SettingsModal />
             <AnnouncementModal />
           </ThemeWrapper>

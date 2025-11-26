@@ -11,6 +11,7 @@ export default function AppProvider({ children }) {
   const [isAddRoomVisible, setIsAddRoomVisible] = useState(false);
   const [isInviteMemberVisible, setIsInviteMemberVisible] = useState(false);
   const [isProfileVisible, setIsProfileVisible] = useState(false);
+  const [isPendingInviteVisible, setIsPendingInviteVisible] = useState(false);
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState("");
   const [searchText, setSearchText] = useState("");
@@ -115,6 +116,8 @@ export default function AppProvider({ children }) {
         setIsProfileVisible,
         isSettingsVisible,
         setIsSettingsVisible,
+        isPendingInviteVisible,
+        setIsPendingInviteVisible,
         searchText,
         setSearchText,
         theme,

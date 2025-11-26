@@ -11,6 +11,7 @@ import "./searching.scss";
 
 export default function Searching() {
   const { setIsAddRoomVisible, searchText, setSearchText, selectedRoomId } = useContext(AppContext);
+  const { setIsPendingInviteVisible } = useContext(AppContext);
   const { user } = useContext(AuthContext) || {};
   const [displayName, setDisplayName] = useState("");
   const [usernameHandle, setUsernameHandle] = useState("");
@@ -87,7 +88,12 @@ export default function Searching() {
 
       <div className="room-header">
         <span className="header-1">Tin nhắn</span>
-        <span className="header-2">Lời mời đang chờ</span>
+        <span 
+          className="header-2"
+          onClick={() => setIsPendingInviteVisible(true)}
+        >
+            Lời mời đang chờ
+        </span>
       </div>
     </div>
   );
