@@ -60,8 +60,9 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
 
   const [videoCall, setVideoCall] = useState(null);
   const [isInCall, setIsInCall] = useState(false);
-  const [callStatus, setCallStatus] = useState(''); 
+  const [callStatus, setCallStatus] = useState('');
   const [incomingCall, setIncomingCall] = useState(null);
+  const [callerUser, setCallerUser] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
@@ -136,7 +137,11 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
     console.log('📞 Incoming call handler triggered');
     console.log('   From:', call.fromNumber);
     console.log('   Call ID:', call.callId);
-    
+
+    // Find the caller user from the users list
+    const caller = users.find((u) => String(u.uid).trim() === String(call.fromNumber).trim());
+    setCallerUser(caller);
+
     setIncomingCall(call);
     setIsInCall(true);
     setCallStatus('incoming');
@@ -827,29 +832,29 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
               zIndex: 10
             }}>
               {/* User avatar and name */}
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
                 gap: '12px',
                 marginBottom: '12px'
               }}>
-                <Avatar 
-                  src={otherUser?.photoURL} 
+                <Avatar
+                  src={(callStatus === 'incoming' ? callerUser?.photoURL : otherUser?.photoURL)}
                   size={48}
                   style={{ border: '2px solid white' }}
                 >
-                  {(otherUser?.displayName || 'U').charAt(0).toUpperCase()}
+                  {((callStatus === 'incoming' ? callerUser?.displayName : otherUser?.displayName) || 'U').charAt(0).toUpperCase()}
                 </Avatar>
                 <div>
-                  <div style={{ 
-                    color: 'white', 
-                    fontSize: '20px', 
-                    fontWeight: 'bold' 
+                  <div style={{
+                    color: 'white',
+                    fontSize: '20px',
+                    fontWeight: 'bold'
                   }}>
-                    {otherUser?.displayName || 'Unknown User'}
+                    {(callStatus === 'incoming' ? callerUser?.displayName : otherUser?.displayName) || 'Unknown User'}
                   </div>
-                  <div style={{ 
-                    color: 'rgba(255,255,255,0.7)', 
+                  <div style={{
+                    color: 'rgba(255,255,255,0.7)',
                     fontSize: '14px',
                     marginTop: '2px'
                   }}>
