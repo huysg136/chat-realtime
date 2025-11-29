@@ -7,7 +7,6 @@ import { decryptMessage, getUserDocIdByUid } from "../../../firebase/services";
 import { doc, onSnapshot, setDoc, updateDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import "./roomList.scss";
-import { getOnlineStatus } from "../../common/getOnlineStatus";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 
 export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomId }) {
@@ -15,7 +14,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
   const [member, setMember] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
-  // --- COMPUTED VARIABLES ---
+  
   const memberUids = Array.isArray(room.members)
     ? room.members.map((m) => (typeof m === "string" ? m : m?.uid)).filter(Boolean)
     : [];

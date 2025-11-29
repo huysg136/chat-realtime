@@ -78,6 +78,17 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
           </span>
         );
         break;
+      case 'accept_invite':
+        messageContent = (
+          <span className="system-text">
+            {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}{" "}
+            <span className="system-name">{actorName}</span>{" "}
+            đã chấp nhận lời mời tham gia nhóm từ{" "}
+            {targetPhoto && <img src={targetPhoto} alt={targetName} className="system-avatar" />}{" "}
+            <span className="system-name">{targetName}</span>
+          </span>
+        );
+        break;
       default:
         messageContent = <span className="system-text">[Tin nhắn hệ thống]</span>;
     }

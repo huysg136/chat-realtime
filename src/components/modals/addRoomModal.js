@@ -166,13 +166,12 @@ export default function AddRoomModal() {
       setSelectedRoomId(room.id);
     } else {
       // GROUP
-      const members = Array.from(new Set([uid, ...selectedMembers.map(u => u.uid)]));
-      const roles = [{ uid, role: 'owner' }, ...selectedMembers.map(m => ({ uid: m.uid, role: 'member' }))];
-      const newRoom = { name: finalRoomName, type: 'group', members, secretKey: generateAESKey(), roles };
+      const members = [uid]; 
+      const roles = [{ uid, role: 'owner' }];
+      const newRoom = { name: finalRoomName, type: 'group', members: [...members], secretKey: generateAESKey(), roles };
       const docRef = await addDocument('rooms', newRoom);
-
       const actor = { uid: user.uid, name: user.displayName, photoURL: user.photoURL };
-      // Add create_group system message
+
       await addDocument("messages", {
         uid: "system",
         roomId: docRef.id,
@@ -183,24 +182,54 @@ export default function AddRoomModal() {
         visibleFor: members,
         createdAt: new Date(),
       });
-      
+
       for (const member of selectedMembers) {
         const fullMember = users.find(u => u.uid === member.uid) || member;
-        const target = { uid: fullMember.uid, name: fullMember.displayName || "Thành viên", photoURL: fullMember.photoURL || null };
 
-        await addDocument("messages", {
-          uid: "system",
-          roomId: docRef.id,
-          kind: "system",
-          action: "add_member",
-          actor,
-          target,
-          visibleFor: members,
-          createdAt: new Date(),
-        });
+        if (fullMember.allowGroupInvite === true) {
+          newRoom.members.push(fullMember.uid);
+          roles.push({ uid: fullMember.uid, role: 'member' });
+
+          const target = { uid: fullMember.uid, name: fullMember.displayName || "Thành viên", photoURL: fullMember.photoURL || null };
+          await addDocument("messages", {
+            uid: "system",
+            roomId: docRef.id,
+            kind: "system",
+            action: "add_member",
+            actor,
+            target,
+            visibleFor: newRoom.members,
+            createdAt: new Date(),
+          });
+        } else {
+          try {
+            const q = query(
+              collection(db, "groupInvites"),
+              where("uid", "==", fullMember.uid),
+              where("roomId", "==", docRef.id),
+              where("status", "==", "pending"),
+              limit(1)
+            );
+            const snapshot = await getDocs(q);
+            if (snapshot.empty) {
+              await addDocument("groupInvites", {
+                uid: fullMember.uid,
+                invitedBy: user.uid,
+                roomId: docRef.id,
+                status: "pending",
+                createdAt: new Date(),
+              });
+            }
+          } catch (err) {
+            console.error("Error checking existing invite:", err);
+          }
+        }
       }
 
-      
+      await updateDoc(doc(db, "rooms", docRef.id), {
+        members: newRoom.members,
+        roles
+      });
 
       setSelectedRoomId(docRef.id);
     }

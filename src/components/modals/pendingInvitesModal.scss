@@ -1,4 +1,6 @@
-/* PendingInvitesModal.scss */
+@use "sass:map";
+@import "../../style/theme";
+
 .pending-invites-modal {
   .ant-modal-content {
     background-color: #ffffff;
@@ -11,6 +13,8 @@
 
   .ant-modal-title {
     color: #000000;
+    font-size: 16px;
+    font-weight: 600;
   }
 
   .ant-modal-body {
@@ -22,26 +26,124 @@
     color: #000000;
   }
 
-  .ant-btn {
-    color: #000000;
-    border-color: #d9d9d9;
-  }
-
-  .ant-btn-primary {
-    background-color: #1890ff;
-    border-color: #1890ff;
-    color: #ffffff;
-  }
-
-  div {
+  .ant-modal-close:hover {
     color: #000000;
   }
 
-  /* Dark theme */
+  .pending-invites-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #8c8c8c;
+    font-size: 14px;
+  }
+
+  .pending-invite-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background-color: #fafafa;
+    border: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+    gap: 15px;
+
+    &:hover {
+      background-color: #f5f5f5;
+      border-color: #d9d9d9;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .pending-invite-avatars {
+    margin-right: 16px;
+    flex-shrink: 0;
+  }
+
+  .pending-invite-info {
+    flex: 1;
+    min-width: 0;
+
+    .pending-invite-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: #262626;
+      //margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pending-invite-inviter {
+      font-size: 13px;
+      color: #8c8c8c;
+    }
+
+    .pending-invite-time {
+      font-size: 13px;
+      color: #8c8c8c;
+    }
+  }
+
+  .pending-invite-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+
+    .ant-btn {
+      font-size: 13px;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .ant-btn-primary {
+      background-color: #1890ff;
+      border-color: #1890ff;
+      color: #ffffff;
+
+      &:hover {
+        background-color: #40a9ff;
+        border-color: #40a9ff;
+      }
+    }
+
+    .ant-btn-default {
+      color: #595959;
+      border-color: #d9d9d9;
+      background-color: #ffffff;
+
+      &:hover {
+        color: #262626;
+        border-color: #40a9ff;
+      }
+    }
+
+    .ant-btn-dangerous {
+      color: #ffffff;
+      border-color: #ff4d4f;
+      background-color: #ff3438;
+
+      &:hover {
+        color: #ffffff;
+        background-color: #ff595c;
+        border-color: #ff4d4f;
+      }
+    }
+  }
+
   body.theme-dark & {
     .ant-modal-content {
-      background-color: rgba(30, 30, 30, 0.95);
+      background-color: map.get($theme-colors, "bg-dark");
       color: #f9fafb;
+    }
+
+    .ant-modal-header {
+      background-color: map.get($theme-colors, "bg-dark");
     }
 
     .ant-modal-title {
@@ -49,18 +151,82 @@
     }
 
     .ant-modal-body {
+      background-color: map.get($theme-colors, "bg-dark");
       color: #f9fafb;
     }
 
-    .ant-btn {
+    .ant-modal-close {
       color: #f9fafb;
-      border-color: rgba(255, 255, 255, 0.2);
     }
 
-    .ant-btn-primary {
-      background-color: #3b82f6;
-      border-color: #3b82f6;
-      color: #ffffff;
+    .ant-modal-close:hover {
+      color: #f9fafb;
+    }
+
+    .pending-invites-empty {
+      color: #9ca3af;
+    }
+
+    .pending-invite-item {
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    .pending-invite-info {
+      .pending-invite-name {
+        color: #f9fafb;
+      }
+
+      .pending-invite-inviter {
+        color: #9ca3af;
+      }
+    }
+
+    .pending-invite-actions {
+      .ant-btn {
+        color: #f9fafb;
+        border-color: rgba(255, 255, 255, 0.2);
+        background-color: transparent;
+
+        &:hover {
+          border-color: rgba(255, 255, 255, 0.3);
+        }
+      }
+
+      .ant-btn-primary {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+        color: #ffffff;
+
+        &:hover {
+          background-color: #5aa3fb;
+          border-color: #60a5fa;
+        }
+      }
+
+      .ant-btn-default {
+        &:hover {
+          color: #f9fafb;
+          border-color: #60a5fa;
+        }
+      }
+
+      .ant-btn-dangerous {
+        color: #ffffff;
+        border-color: #ff4d4f;
+        background-color: #ff3438;
+
+        &:hover {
+          color: #ffffff;
+          background-color: #ff595c;
+          border-color: #ff4d4f;
+        }
+      }
     }
   }
 }

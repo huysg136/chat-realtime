@@ -100,37 +100,85 @@ export default function InviteMemberModal() {
     try {
       const roomRef = doc(db, "rooms", selectedRoomId);
       const roomSnap = await getDoc(roomRef);
-      const existingMembers = roomSnap.data()?.members || [];
-      const newMemberIds = selectedMembers.map(u => u.uid);
-      const updatedMembers = Array.from(new Set([...existingMembers, ...newMemberIds]));
-      await updateDoc(roomRef, { members: updatedMembers });
-      setCurrentMembers(updatedMembers);
-      const lastMsg = roomSnap.data()?.lastMessage;
-      if (lastMsg && Array.isArray(lastMsg.visibleFor)) {
-        const updatedLastVisibleFor = Array.from(
-          new Set([...lastMsg.visibleFor, ...newMemberIds])
-        );
-        await updateDoc(roomRef, {
-          "lastMessage.visibleFor": updatedLastVisibleFor,
-        });
+      if (!roomSnap.exists){
+        return;
       }
-
+      const existingMembers = roomSnap.data()?.members || [];
+      const lastMsg = roomSnap.data()?.lastMessage;
       const actor = { uid: user.uid, name: user.displayName, photoURL: user.photoURL };
+      const newImmediateMembers = [];
+      const pendingInvites = [];
+
       for (const member of selectedMembers) {
         const fullMember = users.find(u => u.uid === member.uid) || member;
-        const target = { uid: fullMember.uid, name: fullMember.displayName || "Thành viên", photoURL: fullMember.photoURL || null };
-
-        await addDocument("messages", {
-          uid: "system",
-          roomId: selectedRoomId,
-          kind: "system",
-          action: "add_member",
-          actor,
-          target,
-          visibleFor: updatedMembers,
-          createdAt: new Date(),
-        });
+        if (fullMember.allowGroupInvite === true){
+          newImmediateMembers.push(fullMember.uid);
+        }
+        else {
+           pendingInvites.push({
+            uid: fullMember.uid,
+            invitedBy: user.uid,
+            roomId: selectedRoomId,
+            status: "pending",
+            createdAt: new Date(),
+          });
+        }
       }
+
+      let updatedMembers =  [...existingMembers];
+      if (newImmediateMembers.length > 0){
+        updatedMembers = Array.from(new Set([...existingMembers, ...newImmediateMembers]));
+
+        await updateDoc(roomRef, {
+          members: updatedMembers
+        });
+
+        if (lastMsg && Array.isArray(lastMsg.visibleFor)) {
+          const updatedVisibleFor = Array.from(
+            new Set([...lastMsg.visibleFor, ...newImmediateMembers])
+          );
+          await updateDoc(roomRef, {
+            "lastMessage.visibleFor": updatedVisibleFor,
+          });
+        }
+
+        for (const uid of newImmediateMembers){
+          const targetUser = users.find(u => u.uid === uid);
+          const target = { 
+            uid: targetUser.uid, name: targetUser.displayName || "Thành viên", photoURL: targetUser.photoURL || null 
+          };
+
+          await addDocument("messages", {
+            uid: "system",
+            roomId: selectedRoomId,
+            kind: "system",
+            action: "add_member",
+            actor,
+            target,
+            visibleFor: updatedMembers,
+            createdAt: new Date(),
+          });
+        }
+      }
+
+      for (const invite of pendingInvites){
+        try {
+          const q = query(
+            collection(db, "groupInvites"),
+            where("uid", "==", invite.uid),
+            where("roomId", "==", invite.roomId),
+            where("status", "==", "pending"),
+            limit(1)
+          );
+          const snapshot = await getDocs(q);
+          if (snapshot.empty) {
+            await addDocument("groupInvites", invite);
+          }
+        } catch (err) {
+        }
+      }
+
+      setCurrentMembers(updatedMembers);
       setSelectedMembers([]);
       setSearchText('');
       setOptions([]);
