@@ -445,12 +445,12 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
                 onClick={() => setIsInviteMemberVisible(true)}  
               />
             )}
-            {!banInfo && (
+            {/* {!banInfo && (
               <>
                 <Button type="text" icon={<PhoneOutlined />} />
                 <Button type="text" icon={<VideoCameraOutlined />} />
               </>
-            )}
+            )} */}
             <Button
               type="text"
               icon={<InfoCircleOutlined />}

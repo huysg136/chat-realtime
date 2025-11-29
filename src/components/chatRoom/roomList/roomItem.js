@@ -42,7 +42,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
   const currentUid = user?.uid ? String(user.uid).trim() : "";
   const isOwnMessage = lmUid === currentUid;
   const sender = usersById[lmUid] || null;
-  const senderName = isOwnMessage ? "Tôi" : sender?.displayName || lm.displayName || "Unknown";
+  const senderName = isOwnMessage ? "Tôi" : sender?.displayName || lm.displayName || "";
 
   const str = (v) => (v == null ? "" : String(v).trim());
   const toMs = (ts) => {
@@ -66,8 +66,6 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
     return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
   };
 
-  // --- EFFECTS ---
-  // Member & Pin real-time
   useEffect(() => {
     if (!user?.uid || !room?.id) return;
 
@@ -89,8 +87,6 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
   }, [user?.uid, room?.id]);
 
 
-
-  // --- HANDLERS ---
   const handleClick = () => setSelectedRoomId?.(room.id);
 
   const handlePin = async () => {
@@ -140,7 +136,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
       </Menu.Item>
     </Menu>
   );
-  // --- RENDER ---
+  
   return (
     <div
       className={`room-item ${selectedRoomId === room.id ? "active" : ""}`}

@@ -158,6 +158,18 @@ export default function InviteMemberModal() {
             visibleFor: updatedMembers,
             createdAt: new Date(),
           });
+
+          // const lastMessageData = {
+          //   text: `${actor.name} đã thêm ${target.name} vào nhóm`,
+          //   uid: "system",
+          //   kind: "system",
+          //   createdAt: new Date(),
+          //   visibleFor: updatedMembers,
+          // };
+
+          // await updateDoc(roomRef, {
+          //   lastMessage: lastMessageData
+          // });
         }
       }
 

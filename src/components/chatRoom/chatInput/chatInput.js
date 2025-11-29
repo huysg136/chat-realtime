@@ -180,7 +180,6 @@ export default function ChatInput({
     }
   };
 
-  // ==== Ghi âm giọng nói ====
   const handleVoiceButtonClick = async () => {
     if (isRecording) {
       mediaRecorder?.stop();
