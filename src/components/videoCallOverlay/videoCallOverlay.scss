@@ -1,0 +1,225 @@
+.video-call-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #0a0a0a;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  &__header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+  }
+
+  &__user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+
+    .user-avatar {
+      border: 2px solid white;
+    }
+
+    .user-details {
+      .user-name {
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      .call-status {
+        color: rgba(255,255,255,0.7);
+        font-size: 14px;
+        margin-top: 2px;
+      }
+    }
+  }
+
+  &__video-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 80px 20px 160px 20px;
+  }
+
+  &__remote-video {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    aspect-ratio: 16/9;
+    border-radius: 24px;
+    overflow: hidden;
+    background-color: #1a1a1a;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__status-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+
+    .status-content {
+      text-align: center;
+      color: white;
+
+      .status-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+
+      .status-text {
+        font-size: 20px;
+        font-weight: 500;
+      }
+    }
+  }
+
+  &__local-video {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 240px;
+    aspect-ratio: 4/3;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: #1a1a1a;
+    border: 3px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); // Mirror effect
+    }
+
+    .video-disabled-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &__controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 30px;
+    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+
+    .control-button {
+      height: 64px;
+      width: 64px;
+      border-radius: 50%;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &--answer {
+        background-color: #52c41a;
+        border-color: #52c41a;
+      }
+
+      &--end {
+        height: 72px;
+        width: 72px;
+        font-size: 28px;
+        box-shadow: 0 4px 12px rgba(255,77,79,0.4);
+      }
+
+      &--mute {
+        &.active {
+          background-color: #ff4d4f;
+          border-color: #ff4d4f;
+        }
+
+        &:not(.active) {
+          background-color: rgba(255,255,255,0.2);
+          border-color: transparent;
+          color: white;
+        }
+      }
+
+      &--video {
+        &.disabled {
+          background-color: #ff4d4f;
+          border-color: #ff4d4f;
+        }
+
+        &:not(.disabled) {
+          background-color: rgba(255,255,255,0.2);
+          border-color: transparent;
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .video-call-overlay {
+    &__local-video {
+      width: 120px;
+      bottom: 10px;
+      right: 10px;
+    }
+
+    &__controls {
+      padding: 20px;
+      gap: 12px;
+
+      .control-button {
+        height: 52px;
+        width: 52px;
+        font-size: 20px;
+
+        &--end {
+          height: 60px;
+          width: 60px;
+          font-size: 24px;
+        }
+      }
+    }
+  }
+}

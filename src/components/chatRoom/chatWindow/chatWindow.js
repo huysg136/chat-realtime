@@ -1,16 +1,13 @@
 import React, { useContext, useState, useMemo, useRef, useEffect } from "react";
 import { Button, Avatar, Tooltip, Spin } from "antd";
-import { AiOutlinePhone, AiOutlineVideoCamera, AiOutlineAudioMuted, AiOutlineClockCircle, AiOutlineSync } from "react-icons/ai";
-import { MdCallEnd } from "react-icons/md";
+import { AiOutlineUsergroupAdd } from "react-icons/ai";
+import { FaAngleDoubleDown } from "react-icons/fa";
 import {
-  PhoneOutlined,
-  VideoCameraOutlined,
   MessageOutlined,
   InfoCircleOutlined,
   LoadingOutlined,
+  VideoCameraOutlined,
 } from "@ant-design/icons";
-import { AiOutlineUsergroupAdd } from "react-icons/ai";
-import { FaAngleDoubleDown } from "react-icons/fa";
 import 'react-toastify/dist/ReactToastify.css';
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -24,6 +21,8 @@ import { AuthContext } from "../../../context/authProvider";
 import { updateDocument, encryptMessage, decryptMessage } from "../../../firebase/services";
 import { getOnlineStatus } from "../../common/getOnlineStatus";
 import { useUserStatus } from "../../../hooks/useUserStatus";
+import { useVideoCall } from "../../../hooks/useVideoCall";
+import VideoCallOverlay from "../../videoCallOverlay/videoCallOverlay";
 import "./chatWindow.scss";
 
 const MESSAGES_PER_PAGE = 20;
@@ -38,13 +37,10 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
   const authContext = useContext(AuthContext) || {};
   const user = authContext.user || {};
   const uid = user.uid || "";
-  const photoURL = user.photoURL || null;
-  const displayName = user.displayName || "Unknown";
 
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);
   const [banInfo, setBanInfo] = useState(null);
-  const isBanned = !!banInfo;
 
   // Lazy loading states
   const [messages, setMessages] = useState([]);
@@ -57,270 +53,6 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
   const prevScrollHeightRef = useRef(0);
   const shouldScrollToBottomRef = useRef(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
-
-  const [videoCall, setVideoCall] = useState(null);
-  const [isInCall, setIsInCall] = useState(false);
-  const [callStatus, setCallStatus] = useState('');
-  const [incomingCall, setIncomingCall] = useState(null);
-  const [callerUser, setCallerUser] = useState(null);
-  const [isInitializing, setIsInitializing] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-
-  const initStringee = async () => {
-    if (!uid) {
-      console.log('⚠️ No user ID, skipping Stringee init');
-      return;
-    }
-
-    if (!window.StringeeClient || !window.StringeeCall2) {
-      console.log('⏳ Waiting for Stringee SDK...');
-      await new Promise((resolve) => {
-        const checkInterval = setInterval(() => {
-          if (window.StringeeClient && window.StringeeCall2) {
-            clearInterval(checkInterval);
-            resolve();
-          }
-        }, 100);
-        
-        setTimeout(() => {
-          clearInterval(checkInterval);
-          resolve();
-        }, 10000);
-      });
-    }
-
-    if (!window.StringeeClient || !window.StringeeCall2) {
-      console.error('❌ Stringee SDK not loaded');
-      return;
-    }
-
-    try {
-      setIsInitializing(true);
-      console.log('🎥 Initializing Stringee for user:', uid);
-
-      const tokenRes = await fetch(
-        `https://chat-realtime-be.vercel.app/api/stringee/token?uid=${encodeURIComponent(uid)}`
-      );
-      
-      if (!tokenRes.ok) {
-        throw new Error(`HTTP ${tokenRes.status}`);
-      }
-
-      const data = await tokenRes.json();
-      
-      if (!data.access_token) {
-        throw new Error('No access token received');
-      }
-
-      console.log('✅ Token received');
-
-      const VideoCallService = (await import('../../../stringee/StringeeService')).default;
-      const vc = new VideoCallService(data.access_token, handleIncomingCall);
-
-      await vc.connect();
-      
-      console.log('✅ Stringee ready');
-      setVideoCall(vc);
-
-    } catch (err) {
-      console.error('❌ Init Stringee failed:', err);
-      alert(`Không thể kết nối Video Call: ${err.message}`);
-    } finally {
-      setIsInitializing(false);
-    }
-  };
-
-  const handleIncomingCall = (call) => {
-    console.log('📞 Incoming call handler triggered');
-    console.log('   From:', call.fromNumber);
-    console.log('   Call ID:', call.callId);
-
-    // Find the caller user from the users list
-    const caller = users.find((u) => String(u.uid).trim() === String(call.fromNumber).trim());
-    setCallerUser(caller);
-
-    setIncomingCall(call);
-    setIsInCall(true);
-    setCallStatus('incoming');
-  };
-
-  const handleCallStateChanged = (state) => {
-    console.log('🔔 Call state changed:', state);
-    
-    // State.code values:
-    // 1: Calling
-    // 2: Ringing
-    // 3: Answered (CONNECTED!)
-    // 4: Busy
-    // 5: Ended
-    // 6: Ended by other side
-    
-    if (state.code === 1) {
-      setCallStatus('calling');
-    } else if (state.code === 2) {
-      setCallStatus('ringing');
-    } else if (state.code === 3) {
-      // Call was answered - connected!
-      console.log('✅ Call answered and connected!');
-      setCallStatus('connected');
-    } else if (state.code === 4) {
-      setCallStatus('busy');
-      setTimeout(() => {
-        handleEndCall();
-      }, 2000);
-    } else if (state.code === 5 || state.code === 6) {
-      handleEndCall();
-    }
-  };
-
-  const handleAnswerCall = async () => {
-    if (!incomingCall || !videoCall) {
-      console.error('❌ No incoming call to answer');
-      return;
-    }
-
-    console.log('✅ Answering incoming call...');
-    setCallStatus('connecting');
-
-    try {
-      await videoCall.answerCall(incomingCall, handleStream, handleCallStateChanged);
-      setCallStatus('connected');
-      setIncomingCall(null);
-      console.log('✅ Call answered');
-    } catch (err) {
-      console.error('❌ Error answering call:', err);
-      alert(`Không thể trả lời: ${err.message}`);
-      handleEndCall();
-    }
-  };
-
-  const handleRejectCall = () => {
-    if (!incomingCall || !videoCall) {
-      console.error('❌ No incoming call to reject');
-      return;
-    }
-
-    console.log('❌ Rejecting incoming call...');
-    videoCall.rejectCall(incomingCall);
-    
-    setIncomingCall(null);
-    setIsInCall(false);
-    setCallStatus('');
-  };
-
-  const handleStream = (stream, type) => {
-    console.log(`📹 Stream: ${type}`);
-    
-    if (type === 'local') {
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-        console.log('✅ Local video attached');
-      }
-    } else if (type === 'remote') {
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = stream;
-        console.log('✅ Remote video attached');
-      }
-    }
-  };
-
-  const handleVideoCall = async () => {
-    console.log('📞 Initiating video call...');
-
-    if (!videoCall) {
-      alert('Dịch vụ Video Call chưa sẵn sàng');
-      return;
-    }
-
-    if (!videoCall.isConnected()) {
-      alert('Đang kết nối tới máy chủ, vui lòng thử lại');
-      return;
-    }
-
-    if (!otherUser || !otherUser.uid) {
-      alert('Không tìm thấy người nhận');
-      return;
-    }
-
-    setIsInCall(true);
-    setCallStatus('calling');
-
-    try {
-      await videoCall.makeVideoCall(uid, otherUser.uid, handleStream, handleCallStateChanged);
-      console.log('✅ Call initiated');
-    } catch (err) {
-      console.error('❌ Call failed:', err);
-      alert(`Không thể gọi: ${err.message}`);
-      handleEndCall();
-    }
-  };
-
-  const handleEndCall = () => {
-    console.log('📴 Ending call...');
-
-    if (videoCall) {
-      videoCall.endCall();
-    }
-
-    if (localVideoRef.current) {
-      const stream = localVideoRef.current.srcObject;
-      if (stream) {
-        stream.getTracks().forEach(t => t.stop());
-      }
-      localVideoRef.current.srcObject = null;
-    }
-
-    if (remoteVideoRef.current) {
-      const stream = remoteVideoRef.current.srcObject;
-      if (stream) {
-        stream.getTracks().forEach(t => t.stop());
-      }
-      remoteVideoRef.current.srcObject = null;
-    }
-
-    setIsInCall(false);
-    setCallStatus('');
-    setIncomingCall(null);
-    setIsMuted(false);
-    setIsVideoEnabled(true);
-
-    console.log('✅ Call ended');
-  };
-
-  const handleToggleMute = () => {
-    if (!videoCall) return;
-    
-    const newMutedState = !isMuted;
-    videoCall.setMuted(newMutedState);
-    setIsMuted(newMutedState);
-    console.log(newMutedState ? '🔇 Muted' : '🔊 Unmuted');
-  };
-
-  const handleToggleVideo = () => {
-    if (!videoCall) return;
-    
-    const newVideoState = !isVideoEnabled;
-    videoCall.setVideoEnabled(newVideoState);
-    setIsVideoEnabled(newVideoState);
-    console.log(newVideoState ? '📹 Video ON' : '📵 Video OFF');
-  };
-
-  useEffect(() => {
-    setReplyTo(null);
-    
-    if (uid) {
-      initStringee();
-    }
-
-    return () => {
-      if (videoCall) {
-        videoCall.disconnect();
-      }
-    };
-  }, [selectedRoomId, uid]);
 
   const selectedRoom = useMemo(
     () => rooms.find((room) => room.id === selectedRoomId),
@@ -340,6 +72,13 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
     : null;
 
   const otherUserStatus = useUserStatus(otherUser?.uid);
+
+  // Video call hook
+  const videoCallState = useVideoCall(uid, selectedRoomId, otherUser, users);
+
+  useEffect(() => {
+    setReplyTo(null);
+  }, [selectedRoomId]);
 
   useEffect(() => {
     if (!selectedRoomId || !uid) return;
@@ -460,6 +199,7 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
         setHasMore(false);
       }
     } catch (error) {
+      console.error(error);
     } finally {
       setLoadingMore(false);
     }
@@ -489,7 +229,6 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
     }
   };
 
-
   useEffect(() => {
     const messageList = messageListRef.current;
     if (!messageList) return;
@@ -502,7 +241,6 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
     scrollPositionRef.current = 0;
     shouldScrollToBottomRef.current = true;
   }, [selectedRoomId]);
-
 
   useEffect(() => {
     const messageList = messageListRef.current;
@@ -533,7 +271,6 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
       }, 50);
     }
   }, [sortedMessages, isInitialLoad]);
-
 
   useEffect(() => {
     if (replyTo && inputRef.current) {
@@ -596,6 +333,7 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
   const currentUserRole = rolesArray.find((r) => String(r.uid).trim() === String(uid).trim())?.role || "member";
   const isOwner = currentUserRole === "owner";
   const isCoOwner = currentUserRole === "co-owner";
+  const isBanned = !!banInfo;
 
   return (
     <div className="chat-window">
@@ -676,13 +414,13 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
               <Button
                 type="text"
                 icon={<VideoCameraOutlined />}
-                onClick={handleVideoCall}
-                disabled={!videoCall || !videoCall.isConnected() || isInitializing}
-                loading={isInitializing}
+                onClick={videoCallState.handleVideoCall}
+                disabled={!videoCallState.videoCall || !videoCallState.videoCall.isConnected() || videoCallState.isInitializing}
+                loading={videoCallState.isInitializing}
                 title={
-                  isInitializing 
+                  videoCallState.isInitializing 
                     ? 'Đang khởi tạo...'
-                    : !videoCall || !videoCall.isConnected()
+                    : !videoCallState.videoCall || !videoCallState.videoCall.isConnected()
                     ? 'Đang kết nối...'
                     : 'Gọi video'
                 }
@@ -714,7 +452,7 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
           onClick={scrollToBottom}
           aria-label="Cuộn xuống cuối"
         >
-          <FaAngleDoubleDown  size={20} />
+          <FaAngleDoubleDown size={20} />
         </Button>
       )}
 
@@ -802,310 +540,12 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
           )}
         </div>
 
-        {isInCall && (
-          <div 
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: '#0a0a0a',
-              zIndex: 99999,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            {/* Top bar with user info and status */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              padding: '20px',
-              background: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              zIndex: 10
-            }}>
-              {/* User avatar and name */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                marginBottom: '12px'
-              }}>
-                <Avatar
-                  src={(callStatus === 'incoming' ? callerUser?.photoURL : otherUser?.photoURL)}
-                  size={48}
-                  style={{ border: '2px solid white' }}
-                >
-                  {((callStatus === 'incoming' ? callerUser?.displayName : otherUser?.displayName) || 'U').charAt(0).toUpperCase()}
-                </Avatar>
-                <div>
-                  <div style={{
-                    color: 'white',
-                    fontSize: '20px',
-                    fontWeight: 'bold'
-                  }}>
-                    {(callStatus === 'incoming' ? callerUser?.displayName : otherUser?.displayName) || 'Unknown User'}
-                  </div>
-                  <div style={{
-                    color: 'rgba(255,255,255,0.7)',
-                    fontSize: '14px',
-                    marginTop: '2px'
-                  }}>
-                    {callStatus === 'calling' && 'Đang gọi...'}
-                    {callStatus === 'ringing' && 'Đang đổ chuông...'}
-                    {callStatus === 'connecting' && 'Đang kết nối...'}
-                    {callStatus === 'connected' && 'Đã kết nối'}
-                    {callStatus === 'incoming' && 'Cuộc gọi đến'}
-                    {callStatus === 'busy' && 'Máy bận'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Video container */}
-            <div style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              padding: '80px 20px 160px 20px'
-            }}>
-              {/* Remote video (main) */}
-              <div style={{ 
-                position: 'relative',
-                width: '100%',
-                maxWidth: '1200px',
-                aspectRatio: '16/9',
-                borderRadius: '24px',
-                overflow: 'hidden',
-                backgroundColor: '#1a1a1a',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
-              }}>
-                <video 
-                  ref={remoteVideoRef}
-                  autoPlay
-                  playsInline
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                  }}
-                />
-                
-                {/* Overlay when not connected */}
-                {callStatus !== 'connected' && (
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    backdropFilter: 'blur(10px)'
-                  }}>
-                    <div style={{
-                      textAlign: 'center',
-                      color: 'white'
-                    }}>
-                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>
-                        {callStatus === 'calling' && <AiOutlinePhone />}
-                        {callStatus === 'ringing' && <AiOutlineClockCircle />}
-                        {callStatus === 'connecting' && <AiOutlineSync />}
-                        {callStatus === 'incoming' && <AiOutlinePhone />}
-                      </div>
-                      <div style={{ fontSize: '20px', fontWeight: '500' }}>
-                        {callStatus === 'calling' && 'Đang gọi...'}
-                        {callStatus === 'ringing' && 'Đang đổ chuông...'}
-                        {callStatus === 'connecting' && 'Đang kết nối...'}
-                        {callStatus === 'incoming' && 'Cuộc gọi đến'}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Local video (PiP) */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: '20px',
-                  right: '20px',
-                  width: '240px',
-                  aspectRatio: '4/3',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  backgroundColor: '#1a1a1a',
-                  border: '3px solid rgba(255,255,255,0.2)',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
-                }}>
-                  <video 
-                    ref={localVideoRef}
-                    autoPlay
-                    muted
-                    playsInline
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      transform: 'scaleX(-1)' // Mirror effect
-                    }}
-                  />
-                  {!isVideoEnabled && (
-                    <div style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: '#1a1a1a',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <Avatar size={64} src={photoURL}>
-                        {displayName.charAt(0).toUpperCase()}
-                      </Avatar>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom control bar */}
-            <div style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: '30px',
-              background: 'linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)',
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '16px'
-            }}>
-              {callStatus === 'incoming' ? (
-                <>
-                  {/* Answer button */}
-                  <Button
-                    type="primary"
-                    size="large"
-                    onClick={handleAnswerCall}
-                    style={{
-                      height: '64px',
-                      width: '64px',
-                      borderRadius: '50%',
-                      fontSize: '24px',
-                      backgroundColor: '#52c41a',
-                      borderColor: '#52c41a',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <AiOutlinePhone />
-                  </Button>
-                  
-                  {/* Reject button */}
-                  <Button
-                    danger
-                    type="primary"
-                    size="large"
-                    onClick={handleRejectCall}
-                    style={{
-                      height: '64px',
-                      width: '64px',
-                      borderRadius: '50%',
-                      fontSize: '24px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <MdCallEnd />
-                  </Button>
-                </>
-              ) : (
-                <>
-                  {/* Mute button */}
-                  <Tooltip title={isMuted ? 'Bật mic' : 'Tắt mic'}>
-                    <Button
-                      type={isMuted ? 'primary' : 'default'}
-                      danger={isMuted}
-                      size="large"
-                      onClick={handleToggleMute}
-                      style={{
-                        height: '64px',
-                        width: '64px',
-                        borderRadius: '50%',
-                        fontSize: '24px',
-                        backgroundColor: isMuted ? '#ff4d4f' : 'rgba(255,255,255,0.2)',
-                        borderColor: isMuted ? '#ff4d4f' : 'transparent',
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      <AiOutlineAudioMuted />
-                    </Button>
-                  </Tooltip>
-
-                  {/* End call button */}
-                  <Button
-                    danger
-                    type="primary"
-                    size="large"
-                    onClick={handleEndCall}
-                    style={{
-                      height: '72px',
-                      width: '72px',
-                      borderRadius: '50%',
-                      fontSize: '28px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 4px 12px rgba(255,77,79,0.4)'
-                    }}
-                  >
-                    <MdCallEnd />
-                  </Button>
-
-                  {/* Video toggle button */}
-                  <Tooltip title={isVideoEnabled ? 'Tắt camera' : 'Bật camera'}>
-                    <Button
-                      type={isVideoEnabled ? 'default' : 'primary'}
-                      danger={!isVideoEnabled}
-                      size="large"
-                      onClick={handleToggleVideo}
-                      style={{
-                        height: '64px',
-                        width: '64px',
-                        borderRadius: '50%',
-                        fontSize: '24px',
-                        backgroundColor: !isVideoEnabled ? '#ff4d4f' : 'rgba(255,255,255,0.2)',
-                        borderColor: !isVideoEnabled ? '#ff4d4f' : 'transparent',
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      <AiOutlineVideoCamera />
-                    </Button>
-                  </Tooltip>
-                </>
-              )}
-            </div>
-          </div>
+        {videoCallState.isInCall && (
+          <VideoCallOverlay
+            {...videoCallState}
+            user={user}
+            otherUser={otherUser}
+          />
         )}
 
         {banInfo ? (
@@ -1115,7 +555,7 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
         ) : (
           <ChatInput
             selectedRoom={selectedRoom}
-            user={{ uid, photoURL, displayName }}
+            user={{ uid, photoURL: user.photoURL, displayName: user.displayName }}
             replyTo={replyTo}
             setReplyTo={setReplyTo}
             isBanned={isBanned}

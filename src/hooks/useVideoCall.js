@@ -1,0 +1,273 @@
+import { useState, useEffect, useRef } from 'react';
+
+export function useVideoCall(uid, selectedRoomId, otherUser, users) {
+  const [videoCall, setVideoCall] = useState(null);
+  const [isInCall, setIsInCall] = useState(false);
+  const [callStatus, setCallStatus] = useState('');
+  const [incomingCall, setIncomingCall] = useState(null);
+  const [callerUser, setCallerUser] = useState(null);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+
+  const initStringee = async () => {
+    if (!uid) {
+      console.log('⚠️ No user ID, skipping Stringee init');
+      return;
+    }
+
+    if (!window.StringeeClient || !window.StringeeCall2) {
+      console.log('⏳ Waiting for Stringee SDK...');
+      await new Promise((resolve) => {
+        const checkInterval = setInterval(() => {
+          if (window.StringeeClient && window.StringeeCall2) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 100);
+        
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          resolve();
+        }, 10000);
+      });
+    }
+
+    if (!window.StringeeClient || !window.StringeeCall2) {
+      console.error('❌ Stringee SDK not loaded');
+      return;
+    }
+
+    try {
+      setIsInitializing(true);
+      console.log('🎥 Initializing Stringee for user:', uid);
+
+      const tokenRes = await fetch(
+        `https://chat-realtime-be.vercel.app/api/stringee/token?uid=${encodeURIComponent(uid)}`
+      );
+      
+      if (!tokenRes.ok) {
+        throw new Error(`HTTP ${tokenRes.status}`);
+      }
+
+      const data = await tokenRes.json();
+      
+      if (!data.access_token) {
+        throw new Error('No access token received');
+      }
+
+      console.log('✅ Token received');
+
+      const VideoCallService = (await import('../stringee/StringeeService')).default;
+      const vc = new VideoCallService(data.access_token, handleIncomingCall);
+
+      await vc.connect();
+      
+      console.log('✅ Stringee ready');
+      setVideoCall(vc);
+
+    } catch (err) {
+      console.error('❌ Init Stringee failed:', err);
+      alert(`Không thể kết nối Video Call: ${err.message}`);
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
+  const handleIncomingCall = (call) => {
+    console.log('📞 Incoming call handler triggered');
+    console.log('   From:', call.fromNumber);
+    console.log('   Call ID:', call.callId);
+
+    const caller = users.find((u) => String(u.uid).trim() === String(call.fromNumber).trim());
+    setCallerUser(caller);
+    setIncomingCall(call);
+    setIsInCall(true);
+    setCallStatus('incoming');
+  };
+
+  const handleCallStateChanged = (state) => {
+    console.log('🔔 Call state changed:', state);
+    
+    if (state.code === 1) {
+      setCallStatus('calling');
+    } else if (state.code === 2) {
+      setCallStatus('ringing');
+    } else if (state.code === 3) {
+      console.log('✅ Call answered and connected!');
+      setCallStatus('connected');
+    } else if (state.code === 4) {
+      setCallStatus('busy');
+      setTimeout(() => {
+        handleEndCall();
+      }, 2000);
+    } else if (state.code === 5 || state.code === 6) {
+      handleEndCall();
+    }
+  };
+
+  const handleAnswerCall = async () => {
+    if (!incomingCall || !videoCall) {
+      console.error('❌ No incoming call to answer');
+      return;
+    }
+
+    console.log('✅ Answering incoming call...');
+    setCallStatus('connecting');
+
+    try {
+      await videoCall.answerCall(incomingCall, handleStream, handleCallStateChanged);
+      setCallStatus('connected');
+      setIncomingCall(null);
+      console.log('✅ Call answered');
+    } catch (err) {
+      console.error('❌ Error answering call:', err);
+      alert(`Không thể trả lời: ${err.message}`);
+      handleEndCall();
+    }
+  };
+
+  const handleRejectCall = () => {
+    if (!incomingCall || !videoCall) {
+      console.error('❌ No incoming call to reject');
+      return;
+    }
+
+    console.log('❌ Rejecting incoming call...');
+    videoCall.rejectCall(incomingCall);
+    
+    setIncomingCall(null);
+    setIsInCall(false);
+    setCallStatus('');
+  };
+
+  const handleStream = (stream, type) => {
+    console.log(`📹 Stream: ${type}`);
+    
+    if (type === 'local') {
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+        console.log('✅ Local video attached');
+      }
+    } else if (type === 'remote') {
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = stream;
+        console.log('✅ Remote video attached');
+      }
+    }
+  };
+
+  const handleVideoCall = async () => {
+    console.log('📞 Initiating video call...');
+
+    if (!videoCall) {
+      alert('Dịch vụ Video Call chưa sẵn sàng');
+      return;
+    }
+
+    if (!videoCall.isConnected()) {
+      alert('Đang kết nối tới máy chủ, vui lòng thử lại');
+      return;
+    }
+
+    if (!otherUser || !otherUser.uid) {
+      alert('Không tìm thấy người nhận');
+      return;
+    }
+
+    setIsInCall(true);
+    setCallStatus('calling');
+
+    try {
+      await videoCall.makeVideoCall(uid, otherUser.uid, handleStream, handleCallStateChanged);
+      console.log('✅ Call initiated');
+    } catch (err) {
+      console.error('❌ Call failed:', err);
+      alert(`Không thể gọi: ${err.message}`);
+      handleEndCall();
+    }
+  };
+
+  const handleEndCall = () => {
+    console.log('📴 Ending call...');
+
+    if (videoCall) {
+      videoCall.endCall();
+    }
+
+    if (localVideoRef.current) {
+      const stream = localVideoRef.current.srcObject;
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+      }
+      localVideoRef.current.srcObject = null;
+    }
+
+    if (remoteVideoRef.current) {
+      const stream = remoteVideoRef.current.srcObject;
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+      }
+      remoteVideoRef.current.srcObject = null;
+    }
+
+    setIsInCall(false);
+    setCallStatus('');
+    setIncomingCall(null);
+    setIsMuted(false);
+    setIsVideoEnabled(true);
+
+    console.log('✅ Call ended');
+  };
+
+  const handleToggleMute = () => {
+    if (!videoCall) return;
+    
+    const newMutedState = !isMuted;
+    videoCall.setMuted(newMutedState);
+    setIsMuted(newMutedState);
+    console.log(newMutedState ? '🔇 Muted' : '🔊 Unmuted');
+  };
+
+  const handleToggleVideo = () => {
+    if (!videoCall) return;
+    
+    const newVideoState = !isVideoEnabled;
+    videoCall.setVideoEnabled(newVideoState);
+    setIsVideoEnabled(newVideoState);
+    console.log(newVideoState ? '📹 Video ON' : '📵 Video OFF');
+  };
+
+  useEffect(() => {
+    if (uid) {
+      initStringee();
+    }
+
+    return () => {
+      if (videoCall) {
+        videoCall.disconnect();
+      }
+    };
+  }, [selectedRoomId, uid]);
+
+  return {
+    videoCall,
+    isInCall,
+    callStatus,
+    incomingCall,
+    callerUser,
+    isInitializing,
+    isMuted,
+    isVideoEnabled,
+    localVideoRef,
+    remoteVideoRef,
+    handleVideoCall,
+    handleAnswerCall,
+    handleRejectCall,
+    handleEndCall,
+    handleToggleMute,
+    handleToggleVideo,
+  };
+}
