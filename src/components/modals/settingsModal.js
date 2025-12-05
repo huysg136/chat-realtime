@@ -69,94 +69,94 @@ export default function SettingsModal() {
       cancel: "Cancel",
       save: "Save",
     },
-    zh: {
-      title: "设置",
-      menuAccount: "账户",
-      menuInterface: "界面",
-      themeLabel: "主题",
-      light: "浅色",
-      dark: "深色",
-      system: "系统",
-      languageLabel: "语言",
-      allowGroupInviteLabel: "允许他人将我添加到群组",
-      allowGroupInviteDesc: {
-        on: "人们可以直接将您添加到群组。",
-        off: '如果有人添加您，您将在"待处理邀请"中收到邀请，并可以决定是否加入。'
-      },
-      allowOnlineStatusLabel: "显示在线状态",
-      allowOnlineStatusDesc: {
-        on: "人们可以看到您在线。",
-        off: "人们看不到您在线。"
-      },
-      cancel: "取消",
-      save: "保存",
-    },
-    es: {
-      title: "Configuración",
-      menuAccount: "Cuenta",
-      menuInterface: "Interfaz",
-      themeLabel: "Tema",
-      light: "Claro",
-      dark: "Oscuro",
-      system: "Sistema",
-      languageLabel: "Idioma",
-      allowGroupInviteLabel: "Permitir que otros me agreguen a grupos",
-      allowGroupInviteDesc: {
-        on: "Las personas pueden agregarte directamente a grupos.",
-        off: "Si alguien te agrega, recibirás una invitación en 'Invitaciones pendientes' y podrás decidir si unirte."
-      },
-      allowOnlineStatusLabel: "Mostrar estado en línea",
-      allowOnlineStatusDesc: {
-        on: "Las personas pueden ver que estás en línea.",
-        off: "Las personas no podrán ver que estás en línea."
-      },
-      cancel: "Cancelar",
-      save: "Guardar",
-    },
-    fr: {
-      title: "Paramètres",
-      menuAccount: "Compte",
-      menuInterface: "Interface",
-      themeLabel: "Thème",
-      light: "Clair",
-      dark: "Sombre",
-      system: "Système",
-      languageLabel: "Langue",
-      allowGroupInviteLabel: "Autoriser les autres à m'ajouter aux groupes",
-      allowGroupInviteDesc: {
-        on: "Les gens peuvent vous ajouter directement aux groupes.",
-        off: "Si quelqu'un vous ajoute, vous recevrez une invitation dans 'Invitations en attente' et pourrez décider de rejoindre ou non."
-      },
-      allowOnlineStatusLabel: "Afficher le statut en ligne",
-      allowOnlineStatusDesc: {
-        on: "Les gens peuvent voir que vous êtes en ligne.",
-        off: "Les gens ne pourront pas voir que vous êtes en ligne."
-      },
-      cancel: "Annuler",
-      save: "Enregistrer",
-    },
-    ar: {
-      title: "الإعدادات",
-      menuAccount: "الحساب",
-      menuInterface: "الواجهة",
-      themeLabel: "السمة",
-      light: "فاتح",
-      dark: "داكن",
-      system: "النظام",
-      languageLabel: "اللغة",
-      allowGroupInviteLabel: "السماح للآخرين بإضافتي إلى المجموعات",
-      allowGroupInviteDesc: {
-        on: "يمكن للأشخاص إضافتك مباشرة إلى المجموعات.",
-        off: "إذا أضافك أحد، ستتلقى دعوة في 'الدعوات المعلقة' ويمكنك أن تقرر الانضمام أم لا."
-      },
-      allowOnlineStatusLabel: "عرض حالة الاتصال",
-      allowOnlineStatusDesc: {
-        on: "يمكن للآخرين رؤية أنك متصل.",
-        off: "لن يرى الآخرون أنك متصل."
-      },
-      cancel: "إلغاء",
-      save: "حفظ",
-    },
+    // zh: {
+    //   title: "设置",
+    //   menuAccount: "账户",
+    //   menuInterface: "界面",
+    //   themeLabel: "主题",
+    //   light: "浅色",
+    //   dark: "深色",
+    //   system: "系统",
+    //   languageLabel: "语言",
+    //   allowGroupInviteLabel: "允许他人将我添加到群组",
+    //   allowGroupInviteDesc: {
+    //     on: "人们可以直接将您添加到群组。",
+    //     off: '如果有人添加您，您将在"待处理邀请"中收到邀请，并可以决定是否加入。'
+    //   },
+    //   allowOnlineStatusLabel: "显示在线状态",
+    //   allowOnlineStatusDesc: {
+    //     on: "人们可以看到您在线。",
+    //     off: "人们看不到您在线。"
+    //   },
+    //   cancel: "取消",
+    //   save: "保存",
+    // },
+    // es: {
+    //   title: "Configuración",
+    //   menuAccount: "Cuenta",
+    //   menuInterface: "Interfaz",
+    //   themeLabel: "Tema",
+    //   light: "Claro",
+    //   dark: "Oscuro",
+    //   system: "Sistema",
+    //   languageLabel: "Idioma",
+    //   allowGroupInviteLabel: "Permitir que otros me agreguen a grupos",
+    //   allowGroupInviteDesc: {
+    //     on: "Las personas pueden agregarte directamente a grupos.",
+    //     off: "Si alguien te agrega, recibirás una invitación en 'Invitaciones pendientes' y podrás decidir si unirte."
+    //   },
+    //   allowOnlineStatusLabel: "Mostrar estado en línea",
+    //   allowOnlineStatusDesc: {
+    //     on: "Las personas pueden ver que estás en línea.",
+    //     off: "Las personas no podrán ver que estás en línea."
+    //   },
+    //   cancel: "Cancelar",
+    //   save: "Guardar",
+    // },
+    // fr: {
+    //   title: "Paramètres",
+    //   menuAccount: "Compte",
+    //   menuInterface: "Interface",
+    //   themeLabel: "Thème",
+    //   light: "Clair",
+    //   dark: "Sombre",
+    //   system: "Système",
+    //   languageLabel: "Langue",
+    //   allowGroupInviteLabel: "Autoriser les autres à m'ajouter aux groupes",
+    //   allowGroupInviteDesc: {
+    //     on: "Les gens peuvent vous ajouter directement aux groupes.",
+    //     off: "Si quelqu'un vous ajoute, vous recevrez une invitation dans 'Invitations en attente' et pourrez décider de rejoindre ou non."
+    //   },
+    //   allowOnlineStatusLabel: "Afficher le statut en ligne",
+    //   allowOnlineStatusDesc: {
+    //     on: "Les gens peuvent voir que vous êtes en ligne.",
+    //     off: "Les gens ne pourront pas voir que vous êtes en ligne."
+    //   },
+    //   cancel: "Annuler",
+    //   save: "Enregistrer",
+    // },
+    // ar: {
+    //   title: "الإعدادات",
+    //   menuAccount: "الحساب",
+    //   menuInterface: "الواجهة",
+    //   themeLabel: "السمة",
+    //   light: "فاتح",
+    //   dark: "داكن",
+    //   system: "النظام",
+    //   languageLabel: "اللغة",
+    //   allowGroupInviteLabel: "السماح للآخرين بإضافتي إلى المجموعات",
+    //   allowGroupInviteDesc: {
+    //     on: "يمكن للأشخاص إضافتك مباشرة إلى المجموعات.",
+    //     off: "إذا أضافك أحد، ستتلقى دعوة في 'الدعوات المعلقة' ويمكنك أن تقرر الانضمام أم لا."
+    //   },
+    //   allowOnlineStatusLabel: "عرض حالة الاتصال",
+    //   allowOnlineStatusDesc: {
+    //     on: "يمكن للآخرين رؤية أنك متصل.",
+    //     off: "لن يرى الآخرون أنك متصل."
+    //   },
+    //   cancel: "إلغاء",
+    //   save: "حفظ",
+    // },
   };
 
   useEffect(() => {
@@ -293,10 +293,10 @@ export default function SettingsModal() {
                     <Select value={language} onChange={handleLanguageChange} style={{ width: "100%" }}>
                       <Option value="vi"><ReactCountryFlag countryCode="VN" svg style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }} />Tiếng Việt</Option>
                       <Option value="en"><ReactCountryFlag countryCode="US" svg style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }} />English</Option>
-                      <Option value="zh"><ReactCountryFlag countryCode="CN" svg style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }} />中文</Option>
+                      {/* <Option value="zh"><ReactCountryFlag countryCode="CN" svg style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }} />中文</Option>
                       <Option value="es"><ReactCountryFlag countryCode="ES" svg style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }} />Español</Option>
                       <Option value="fr"><ReactCountryFlag countryCode="FR" svg style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }} />Français</Option>
-                      <Option value="ar"><ReactCountryFlag countryCode="SA" svg style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }} />العربية</Option>
+                      <Option value="ar"><ReactCountryFlag countryCode="SA" svg style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }} />العربية</Option> */}
                     </Select>
                   </div>
                 </div>

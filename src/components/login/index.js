@@ -160,42 +160,42 @@ export default function Login() {
       dark: "Tối",
       system: "Hệ thống",
     },
-    zh: {
-      title: "欢迎回来",
-      subtitle: "登录以继续使用 Quik",
-      google: "使用 Google 继续",
-      privacy: "继续即表示您同意我们的服务条款和隐私政策",
-      light: "浅色",
-      dark: "深色",
-      system: "系统",
-    },
-    es: {
-      title: "Bienvenido de nuevo",
-      subtitle: "Inicia sesión para continuar con Quik",
-      google: "Continuar con Google",
-      privacy: "Al continuar, aceptas nuestros Términos de servicio y Política de privacidad",
-      light: "Claro",
-      dark: "Oscuro",
-      system: "Sistema"
-    },
-    fr: {
-      title: "Bon retour",
-      subtitle: "Connectez-vous pour continuer sur Quik",
-      google: "Continuer avec Google",
-      privacy: "En continuant, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité",
-      light: "Clair",
-      dark: "Sombre",
-      system: "Système",
-    },
-    ar: {
-      title: "مرحبًا بعودتك",
-      subtitle: "قم بتسجيل الدخول للمتابعة إلى Quik",
-      google: "المتابعة باستخدام Google",
-      privacy: "من خلال المتابعة، فإنك توافق على شروط الخدمة وسياسة الخصوصية الخاصة بنا",
-      light: "فاتح",
-      dark: "داكن",
-      system: "النظام",
-    },
+    // zh: {
+    //   title: "欢迎回来",
+    //   subtitle: "登录以继续使用 Quik",
+    //   google: "使用 Google 继续",
+    //   privacy: "继续即表示您同意我们的服务条款和隐私政策",
+    //   light: "浅色",
+    //   dark: "深色",
+    //   system: "系统",
+    // },
+    // es: {
+    //   title: "Bienvenido de nuevo",
+    //   subtitle: "Inicia sesión para continuar con Quik",
+    //   google: "Continuar con Google",
+    //   privacy: "Al continuar, aceptas nuestros Términos de servicio y Política de privacidad",
+    //   light: "Claro",
+    //   dark: "Oscuro",
+    //   system: "Sistema"
+    // },
+    // fr: {
+    //   title: "Bon retour",
+    //   subtitle: "Connectez-vous pour continuer sur Quik",
+    //   google: "Continuer avec Google",
+    //   privacy: "En continuant, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité",
+    //   light: "Clair",
+    //   dark: "Sombre",
+    //   system: "Système",
+    // },
+    // ar: {
+    //   title: "مرحبًا بعودتك",
+    //   subtitle: "قم بتسجيل الدخول للمتابعة إلى Quik",
+    //   google: "المتابعة باستخدام Google",
+    //   privacy: "من خلال المتابعة، فإنك توافق على شروط الخدمة وسياسة الخصوصية الخاصة بنا",
+    //   light: "فاتح",
+    //   dark: "داكن",
+    //   system: "النظام",
+    // },
   };
 
   const handleChangeTheme = async (value) => {
@@ -226,7 +226,7 @@ export default function Login() {
             />
             English
           </Option>
-          <Option value="zh">
+          {/* <Option value="zh">
             <ReactCountryFlag
               countryCode="CN"
               svg
@@ -257,7 +257,7 @@ export default function Login() {
               style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
             />
             العربية
-          </Option>
+          </Option> */}
         </Select>
         <div style={{ marginTop: 5 }}>
           <Select value={theme} onChange={handleChangeTheme} style={{ width: 160 }}>

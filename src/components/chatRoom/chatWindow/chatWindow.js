@@ -535,11 +535,12 @@ export default function ChatWindow({onToggleDetail}) {
                     isOwn={msg.uid === uid}
                     replyTo={msg.replyTo}
                     kind={msg.kind || "text"}
+                    transcript={msg.transcript || ""}
                     onReply={(message) => setReplyTo(message)}
                     onRevoke={() => handleRevokeMessage(msg.id)}
-                    isBanned={isBanned} 
-                    action={msg.action}   
-                    actor={msg.actor}    
+                    isBanned={isBanned}
+                    action={msg.action}
+                    actor={msg.actor}
                     target={msg.target}
                   />
                 </React.Fragment>
@@ -563,7 +564,7 @@ export default function ChatWindow({onToggleDetail}) {
         ) : (
           <ChatInput
             selectedRoom={selectedRoom}
-            user={{ uid, photoURL: user.photoURL, displayName: user.displayName }}
+            user={{ uid, photoURL: user.photoURL, displayName: user.displayName, language: user.language }}
             replyTo={replyTo}
             setReplyTo={setReplyTo}
             isBanned={isBanned}

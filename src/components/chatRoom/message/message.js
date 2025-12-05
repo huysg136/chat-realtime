@@ -171,6 +171,7 @@ export default function Message({
   uid,
   isBanned,
   action, actor, target,
+  transcript,
 }) {
   const { rooms, selectedRoomId, users } = useContext(AppContext);
   const authContext = useContext(AuthContext) || {};
@@ -272,7 +273,6 @@ export default function Message({
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        //toast.success("Đã mở file để tải");
       }
       else {
         await navigator.clipboard.writeText(text);
@@ -402,6 +402,7 @@ export default function Message({
             <MediaRenderer
               kind={kind}
               content={text}
+              transcript={transcript}
               fileName={text.split("/").pop().slice(14)}
               isOwn={isOwn}
               isRevoked={isRevoked}
@@ -412,14 +413,15 @@ export default function Message({
                 <span className="message-name">{displayName}</span>
               )}
               {!isRevoked && (
-                <ReplyPreview 
-                  replyTo={replyTo} 
+                <ReplyPreview
+                  replyTo={replyTo}
                   isOwn={isOwn}
                 />
               )}
               <MediaRenderer
                 kind={kind}
                 content={text}
+                transcript={transcript}
                 fileName={text.split("/").pop().slice(14)}
                 isOwn={isOwn}
                 isRevoked={isRevoked}

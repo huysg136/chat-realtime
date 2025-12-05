@@ -13,7 +13,6 @@ import { addDocument, updateDocument, encryptMessage } from "../../../firebase/s
 import { askGemini } from "../../../utils/aiBot";
 import "./chatInput.scss";
 
-// Lấy danh sách user có thể nhìn thấy message
 const getVisibleFor = (selectedRoom) => {
   if (!selectedRoom) return [];
   const currentMembers = selectedRoom.members || [];
@@ -31,7 +30,7 @@ export default function ChatInput({
   isBanned,
   inputRef,
 }) {
-  const { uid, photoURL, displayName } = user;
+  const { uid, photoURL, displayName, language } = user || {};
   const [form] = Form.useForm();
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
@@ -220,19 +219,52 @@ export default function ChatInput({
 
     try {
       setSending(true);
-      const res = await axios.post(
+
+      const uploadRes = await axios.post(
         "https://chat-realtime-be.vercel.app/upload",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      const audioUrl = res.data.url;
-      const encryptedText = selectedRoom.secretKey
+      const audioUrl = uploadRes.data.url;
+      const encryptedAudioUrl = selectedRoom.secretKey
         ? encryptMessage(audioUrl, selectedRoom.secretKey)
         : audioUrl;
 
+      const assemblyHeaders = { authorization: "9ca437cbe65d4f5387e937846ec08f46" };
+      const transcriptRes = await axios.post(
+        "https://api.assemblyai.com/v2/transcript",
+        { 
+          audio_url: audioUrl,
+          language_code: language || "vi"
+        },
+        { headers: assemblyHeaders }
+      );
+
+      const transcriptId = transcriptRes.data.id;
+
+      let transcriptText = "";
+      while (true) {
+        const pollRes = await axios.get(
+          `https://api.assemblyai.com/v2/transcript/${transcriptId}`,
+          { headers: assemblyHeaders }
+        );
+        const data = pollRes.data;
+
+        if (data.status === "completed") {
+          transcriptText = data.text;
+          break;
+        } else if (data.status === "error") {
+          transcriptText = "";
+          toast.error("Chuyển giọng nói thành text thất bại");
+          break;
+        } else {
+          await new Promise((r) => setTimeout(r, 3000));
+        }
+      }
+
       await addDocument("messages", {
-        text: encryptedText,
+        text: encryptedAudioUrl,
         uid,
         photoURL,
         roomId: selectedRoom.id,
@@ -240,7 +272,8 @@ export default function ChatInput({
         createdAt: new Date(),
         kind: "audio",
         fileName: "voice-message.wav",
-        visibleFor
+        visibleFor,
+        transcript: transcriptText 
       });
 
       await updateDocument("rooms", selectedRoom.id, {
@@ -252,11 +285,13 @@ export default function ChatInput({
           uid,
           createdAt: new Date(),
           kind: "audio",
-          visibleFor: selectedRoom.members
+          visibleFor: selectedRoom.members,
         },
       });
+
     } catch (err) {
-      toast.error("Upload audio thất bại");
+      console.error(err);
+      toast.error("Gửi tin nhắn thoại thất bại");
     } finally {
       setSending(false);
       setIsRecording(false);
@@ -265,7 +300,6 @@ export default function ChatInput({
     }
   };
 
-  // ==== Gửi tin nhắn ====
   const handleOnSubmit = async () => {
     if (!inputValue.trim() || !selectedRoom || !uid || sending) return;
 
@@ -312,9 +346,6 @@ export default function ChatInput({
         },
       });
 
-      
-
-      // Gọi bot nếu có tag @bot
       if (messageText.startsWith("@bot")) {
         const question = messageText.replace(/^@bot\s*/, "");
         askGemini(question)

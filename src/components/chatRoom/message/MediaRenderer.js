@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import ReactPlayer from 'react-player';
-import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import { MdAttachFile } from "react-icons/md";
 import 'react-image-lightbox/style.css';
 import Lightbox from 'react-image-lightbox';
+import { SlSpeech } from "react-icons/sl";
 
-const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, actorUid, targetUid, users }) => {
+
+const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, actorUid, targetUid, users, transcript }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [showTranscript, setShowTranscript] = useState(false); 
   const audioRef = React.useRef(null);
 
 
@@ -160,7 +162,6 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
     );
   }
 
-
   if (kind === 'audio') {
     const formatTime = (time) => {
       if (isNaN(time)) return '0:00';
@@ -171,25 +172,18 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
 
     const togglePlay = () => {
       if (audioRef.current) {
-        if (isPlaying) {
-          audioRef.current.pause();
-        } else {
-          audioRef.current.play();
-        }
+        if (isPlaying) audioRef.current.pause();
+        else audioRef.current.play();
         setIsPlaying(!isPlaying);
       }
     };
 
     const handleTimeUpdate = () => {
-      if (audioRef.current) {
-        setCurrentTime(audioRef.current.currentTime);
-      }
+      if (audioRef.current) setCurrentTime(audioRef.current.currentTime);
     };
 
     const handleLoadedMetadata = () => {
-      if (audioRef.current) {
-        setDuration(audioRef.current.duration);
-      }
+      if (audioRef.current) setDuration(audioRef.current.duration);
     };
 
     const handleEnded = () => {
@@ -202,7 +196,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
       const clickPosition = e.nativeEvent.offsetX;
       const progressBarWidth = progressBar.offsetWidth;
       const newTime = (clickPosition / progressBarWidth) * duration;
-      
+
       if (audioRef.current) {
         audioRef.current.currentTime = newTime;
         setCurrentTime(newTime);
@@ -213,48 +207,60 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
 
     return (
       <div className={`voice-message ${isOwn ? 'own' : ''}`}>
-        <audio
-          ref={audioRef}
-          src={content}
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={handleLoadedMetadata}
-          onEnded={handleEnded}
-        />
-        
-        <button className="voice-play-btn" onClick={togglePlay}>
-          {isPlaying ? (
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <rect x="6" y="5" width="4" height="14" rx="1"/>
-              <rect x="14" y="5" width="4" height="14" rx="1"/>
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-          )}
-        </button>
+        <div className="voice-message-controls">
+          <audio
+            ref={audioRef}
+            src={content}
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
+            onEnded={handleEnded}
+          />
 
-        <div className="voice-content">
-          <div className="voice-waveform" onClick={handleSeek}>
-            <div className="voice-progress" style={{ width: `${progress}%` }} />
-            <div className="voice-bars">
-              {[3, 5, 4, 6, 3, 5, 7, 4, 5, 3, 6, 4, 5, 3, 7, 5, 4, 6, 3, 5].map((height, i) => (
-                <div
-                  key={i}
-                  className="voice-bar"
-                  style={{ height: `${height * 3}px` }}
-                />
-              ))}
+          <button className="voice-play-btn" onClick={togglePlay}>
+            {isPlaying ? (
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <rect x="6" y="5" width="4" height="14" rx="1"/>
+                <rect x="14" y="5" width="4" height="14" rx="1"/>
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            )}
+          </button>
+
+          <div className="voice-content">
+            <div className="voice-waveform" onClick={handleSeek}>
+              <div className="voice-progress" style={{ width: `${progress}%` }} />
+              <div className="voice-bars">
+                {[3, 5, 4, 6, 3, 5, 7, 4, 5, 3, 6, 4, 5, 3, 7, 5, 4, 6, 3, 5].map((height, i) => (
+                  <div key={i} className="voice-bar" style={{ height: `${height * 3}px` }} />
+                ))}
+              </div>
             </div>
+            <div className="voice-time">{formatTime(isPlaying ? currentTime : duration)}</div>
           </div>
-          
-          <div className="voice-time">
-            {formatTime(isPlaying ? currentTime : duration)}
-          </div>
+
+          {transcript && (
+            <button
+              className={`toggle-transcript-btn ${showTranscript ? 'open' : ''}`}
+              onClick={() => setShowTranscript(!showTranscript)}
+            >
+              <SlSpeech />
+            </button>
+          )}
         </div>
+        
+
+        {showTranscript && transcript && (
+          <div className="voice-transcript">
+            {transcript}
+          </div>
+        )}
       </div>
     );
   }
+
 
   if (kind === 'file') {
     return (

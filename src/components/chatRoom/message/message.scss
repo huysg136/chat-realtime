@@ -290,11 +290,19 @@
 
 .voice-message {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start; 
+  gap: 6px;
   padding: 0px 4px;
   min-width: 200px;
   max-width: 280px;
+
+  .voice-message-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
   
   .voice-play-btn {
     flex-shrink: 0;
@@ -458,7 +466,45 @@
   }
 }
 
-/* ===== File ===== */
+.toggle-transcript-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #0084ff;
+  padding: 2px;
+  margin-left: auto; 
+  transition: color 0.2s ease;
+}
+
+.voice-message.own .toggle-transcript-btn {
+  border-left-color: #ffffff;
+  color: white;
+}
+
+.voice-transcript {
+  width: 100%;
+  max-width: 90%;
+  background-color: #f5f5f5;
+  border-left: 2px solid #0084ff;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #333;
+  word-break: break-word;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.voice-message.own .voice-transcript {
+  background-color: rgba(255,255,255,0.15);
+  border-left-color: #ffffff;
+  color: white;
+}
+
 .message-media-file {
   display: inline-flex;
   align-items: center;
@@ -510,7 +556,6 @@
   }
 }
 
-/* ===== Link ===== */
 .message-media-link {
   display: inline;
   text-decoration: underline;
@@ -546,6 +591,64 @@
 }
 
 body.theme-dark {
+  .voice-message {
+    .voice-bar {
+      flex: 1;
+      background: #bcc4cc;
+      border-radius: 2px;
+      min-height: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .voice-time {
+      color: #bcc4cc;
+    }
+
+    &.own {
+      .voice-play-btn {
+        background: white;
+        color: #0084ff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        &:hover {
+          background: #f0f0f0;
+        }
+      }
+
+      .voice-progress {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      .voice-bar {
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      .voice-time {
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .voice-waveform:hover .voice-bar {
+        background: rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    .voice-waveform:hover .voice-bar {
+      background: #95a5a6;
+    }
+  }
+
+  .voice-message.own .toggle-transcript-btn {
+    background-color: transparent;
+    border-left-color: #ffffff;
+    color: white;
+  }
+
+  .voice-message.own .voice-transcript {
+    background-color: rgba(255,255,255,0.15);
+    border-left-color: #ffffff;
+    color: white;
+  }
+
   .system-bubble {
     background: #3c3c3c;
     box-shadow: 0 1px 4px rgba(0,0,0,0.1);
@@ -632,6 +735,10 @@ body.theme-dark {
     border: 1.5px solid #3a3a3a;
   }
 }
+
+
+
+
 
 
 
