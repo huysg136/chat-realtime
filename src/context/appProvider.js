@@ -4,6 +4,7 @@ import { useFirestore } from "../hooks/useFirestore";
 import { db } from "../firebase/config";
 import { useLocation } from "react-router-dom";
 import { doc, onSnapshot, collection, query, where, arrayUnion, updateDoc } from "firebase/firestore";
+import { useVideoCall } from "../hooks/useVideoCall";
 
 export const AppContext = React.createContext();
 
@@ -30,7 +31,6 @@ export default function AppProvider({ children }) {
     }
   }, [user?.uid]);
 
-  
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "config", "appStatus"), (snap) => {
       const maintenance = snap.exists() ? snap.data().maintenance : false;
@@ -51,6 +51,61 @@ export default function AppProvider({ children }) {
 
   const rooms = useFirestore("rooms", roomsCondition);
   const users = useFirestore("users");
+
+  // Get current selected room and other user for video call
+  const selectedRoom = useMemo(
+    () => rooms.find((room) => room.id === selectedRoomId),
+    [rooms, selectedRoomId]
+  );
+
+  const otherUser = useMemo(() => {
+    if (!selectedRoom || selectedRoom.type !== "private") return null;
+    
+    const members = selectedRoom.members || [];
+    const membersData = members
+      .map((m) => (typeof m === "string" ? m : m?.uid))
+      .filter(Boolean)
+      .map((mid) => {
+        let found = users.find((u) => String(u.uid).trim() === String(mid).trim());
+        
+        if (!found && String(mid).trim() !== String(user?.uid).trim()) {
+          return {
+            uid: mid,
+            displayName: 'Loading...',
+            photoURL: null,
+            _isPlaceholder: true
+          };
+        }
+        
+        return found;
+      })
+      .filter(Boolean);
+
+    if (membersData.length !== 2) return null;
+
+    return membersData.find((m) => String(m.uid).trim() !== String(user?.uid).trim());
+  }, [selectedRoom, users, user?.uid]);
+
+  const videoCallState = useVideoCall(
+    user?.uid, 
+    selectedRoomId, 
+    otherUser, 
+    users,
+    (callerId) => {
+      const callerRoom = rooms.find(room => {
+        if (room.type !== 'private') return false;
+        const members = room.members || [];
+        return members.some(m => {
+          const memberId = typeof m === "string" ? m : m?.uid;
+          return String(memberId).trim() === String(callerId).trim();
+        });
+      });
+      
+      if (callerRoom && callerRoom.id !== selectedRoomId) {
+        setSelectedRoomId(callerRoom.id);
+      }
+    }
+  );
 
   useEffect(() => {
     if (location.pathname.startsWith("/admin")) {
@@ -77,7 +132,6 @@ export default function AppProvider({ children }) {
         return !hasSeen && isTargeted;
       });
 
-
       if (unseenAnnouncement) {
         setCurrentAnnouncement(unseenAnnouncement);
         setIsAnnouncementVisible(true);
@@ -98,6 +152,7 @@ export default function AppProvider({ children }) {
         hasSeenBy: arrayUnion(user.uid)
       });
     } catch (error) {
+      console.error("Error marking announcement as seen:", error);
     }
   };
 
@@ -127,6 +182,9 @@ export default function AppProvider({ children }) {
         setIsAnnouncementVisible,
         currentAnnouncement,
         markAnnouncementAsSeen,
+        videoCallState,
+        selectedRoom,
+        otherUser,
       }}
     >
       {children}

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Button, Avatar, Tooltip } from 'antd';
+import { Button, Avatar, Tooltip, Spin } from 'antd';
 import { AiOutlinePhone, AiOutlineVideoCamera, AiOutlineAudioMuted, AiOutlineClockCircle, AiOutlineSync } from "react-icons/ai";
 import { MdCallEnd } from "react-icons/md";
+import { LoadingOutlined } from '@ant-design/icons';
 
 export default function VideoCallOverlay({
   callStatus,
@@ -19,8 +20,11 @@ export default function VideoCallOverlay({
   handleToggleVideo,
 }) {
   const displayUser = callStatus === 'incoming' ? callerUser : otherUser;
-  const displayName = displayUser?.displayName || 'Unknown User';
-  const photoURL = displayUser?.photoURL;
+  
+  // Handle loading state
+  const isLoading = !displayUser || displayUser._isPlaceholder;
+  const displayName = isLoading ? 'Đang tải...' : (displayUser?.displayName || 'Unknown User');
+  const photoURL = isLoading ? null : displayUser?.photoURL;
 
   return (
     <div 
@@ -58,13 +62,28 @@ export default function VideoCallOverlay({
           gap: '12px',
           marginBottom: '12px'
         }}>
-          <Avatar
-            src={photoURL}
-            size={48}
-            style={{ border: '2px solid white' }}
-          >
-            {displayName.charAt(0).toUpperCase()}
-          </Avatar>
+          {isLoading ? (
+            <div style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              border: '2px solid white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(255,255,255,0.1)'
+            }}>
+              <Spin indicator={<LoadingOutlined style={{ fontSize: 20, color: 'white' }} spin />} />
+            </div>
+          ) : (
+            <Avatar
+              src={photoURL}
+              size={48}
+              style={{ border: '2px solid white' }}
+            >
+              {displayName.charAt(0).toUpperCase()}
+            </Avatar>
+          )}
           <div>
             <div style={{
               color: 'white',
@@ -138,18 +157,31 @@ export default function VideoCallOverlay({
                 textAlign: 'center',
                 color: 'white'
               }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>
-                  {callStatus === 'calling' && <AiOutlinePhone />}
-                  {callStatus === 'ringing' && <AiOutlineClockCircle />}
-                  {callStatus === 'connecting' && <AiOutlineSync />}
-                  {callStatus === 'incoming' && <AiOutlinePhone />}
-                </div>
-                <div style={{ fontSize: '20px', fontWeight: '500' }}>
-                  {callStatus === 'calling' && 'Đang gọi...'}
-                  {callStatus === 'ringing' && 'Đang đổ chuông...'}
-                  {callStatus === 'connecting' && 'Đang kết nối...'}
-                  {callStatus === 'incoming' && 'Cuộc gọi đến'}
-                </div>
+                {isLoading ? (
+                  <>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+                      <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+                    </div>
+                    <div style={{ fontSize: '20px', fontWeight: '500' }}>
+                      Đang tải thông tin...
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+                      {callStatus === 'calling' && <AiOutlinePhone />}
+                      {callStatus === 'ringing' && <AiOutlineClockCircle />}
+                      {callStatus === 'connecting' && <AiOutlineSync />}
+                      {callStatus === 'incoming' && <AiOutlinePhone />}
+                    </div>
+                    <div style={{ fontSize: '20px', fontWeight: '500' }}>
+                      {callStatus === 'calling' && 'Đang gọi...'}
+                      {callStatus === 'ringing' && 'Đang đổ chuông...'}
+                      {callStatus === 'connecting' && 'Đang kết nối...'}
+                      {callStatus === 'incoming' && 'Cuộc gọi đến'}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -219,16 +251,18 @@ export default function VideoCallOverlay({
               type="primary"
               size="large"
               onClick={handleAnswerCall}
+              disabled={isLoading}
               style={{
                 height: '64px',
                 width: '64px',
                 borderRadius: '50%',
                 fontSize: '24px',
-                backgroundColor: '#52c41a',
-                borderColor: '#52c41a',
+                backgroundColor: isLoading ? '#666' : '#52c41a',
+                borderColor: isLoading ? '#666' : '#52c41a',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                cursor: isLoading ? 'not-allowed' : 'pointer'
               }}
             >
               <AiOutlinePhone />

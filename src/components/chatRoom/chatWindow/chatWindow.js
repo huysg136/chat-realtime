@@ -21,7 +21,6 @@ import { AuthContext } from "../../../context/authProvider";
 import { updateDocument, encryptMessage, decryptMessage } from "../../../firebase/services";
 import { getOnlineStatus } from "../../common/getOnlineStatus";
 import { useUserStatus } from "../../../hooks/useUserStatus";
-import { useVideoCall } from "../../../hooks/useVideoCall";
 import VideoCallOverlay from "../../videoCallOverlay/videoCallOverlay";
 import "./chatWindow.scss";
 
@@ -32,8 +31,16 @@ function formatDate(timestamp) {
   return format(new Date(timestamp), "HH:mm dd/MM/yy", { locale: vi });
 }
 
-export default function ChatWindow({isDetailVisible, onToggleDetail}) {
-  const { rooms, users, selectedRoomId, setIsInviteMemberVisible } = useContext(AppContext);
+export default function ChatWindow({onToggleDetail}) {
+  const { 
+    users, 
+    selectedRoomId, 
+    setIsInviteMemberVisible,
+    videoCallState,
+    selectedRoom: contextSelectedRoom,
+    otherUser: contextOtherUser 
+  } = useContext(AppContext);
+  
   const authContext = useContext(AuthContext) || {};
   const user = authContext.user || {};
   const uid = user.uid || "";
@@ -54,10 +61,7 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
   const shouldScrollToBottomRef = useRef(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
-  const selectedRoom = useMemo(
-    () => rooms.find((room) => room.id === selectedRoomId),
-    [rooms, selectedRoomId]
-  );
+  const selectedRoom = contextSelectedRoom;
 
   const members = selectedRoom ? selectedRoom.members || [] : [];
   const membersData = members
@@ -67,14 +71,10 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
     .filter(Boolean);
 
   const isPrivate = selectedRoom ? selectedRoom.type === "private" && membersData.length === 2 : false;
-  const otherUser = isPrivate
-    ? membersData.find((m) => String(m.uid).trim() !== String(uid).trim())
-    : null;
+  
+  const otherUser = contextOtherUser;
 
   const otherUserStatus = useUserStatus(otherUser?.uid);
-
-  // Video call hook
-  const videoCallState = useVideoCall(uid, selectedRoomId, otherUser, users);
 
   useEffect(() => {
     setReplyTo(null);
@@ -410,13 +410,12 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
                 onClick={() => setIsInviteMemberVisible(true)}  
               />
             )}
-            {!banInfo && isPrivate && (
+            {!banInfo && isPrivate && videoCallState && (
               <Button
                 type="text"
                 icon={<VideoCameraOutlined />}
                 onClick={videoCallState.handleVideoCall}
                 disabled={!videoCallState.videoCall || !videoCallState.videoCall.isConnected() || videoCallState.isInitializing}
-                loading={videoCallState.isInitializing}
                 title={
                   videoCallState.isInitializing 
                     ? 'Đang khởi tạo...'
@@ -540,7 +539,7 @@ export default function ChatWindow({isDetailVisible, onToggleDetail}) {
           )}
         </div>
 
-        {videoCallState.isInCall && (
+        {videoCallState && videoCallState.isInCall && (
           <VideoCallOverlay
             {...videoCallState}
             user={user}

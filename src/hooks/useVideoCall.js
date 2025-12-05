@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-export function useVideoCall(uid, selectedRoomId, otherUser, users) {
+export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCall) {
   const [videoCall, setVideoCall] = useState(null);
   const [isInCall, setIsInCall] = useState(false);
   const [callStatus, setCallStatus] = useState('');
@@ -76,16 +76,54 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users) {
     }
   };
 
-  const handleIncomingCall = (call) => {
+  const handleIncomingCall = async (call) => {
     console.log('📞 Incoming call handler triggered');
     console.log('   From:', call.fromNumber);
     console.log('   Call ID:', call.callId);
 
-    const caller = users.find((u) => String(u.uid).trim() === String(call.fromNumber).trim());
+    let caller = users.find((u) => String(u.uid).trim() === String(call.fromNumber).trim());
+    
+    if (!caller) {
+      console.log('⏳ Caller not in users array, fetching from Firestore...');
+      try {
+        const { collection, query, where, getDocs } = await import('firebase/firestore');
+        const { db } = await import('../firebase/config');
+        
+        const q = query(collection(db, 'users'), where('uid', '==', call.fromNumber));
+        const snapshot = await getDocs(q);
+        
+        if (!snapshot.empty) {
+          caller = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+          console.log('✅ Caller fetched:', caller.displayName);
+        } else {
+          console.warn('⚠️ Caller not found in database');
+          // Create a fallback user object
+          caller = {
+            uid: call.fromNumber,
+            displayName: 'Unknown User',
+            photoURL: null
+          };
+        }
+      } catch (error) {
+        console.error('❌ Error fetching caller:', error);
+        // Create a fallback user object
+        caller = {
+          uid: call.fromNumber,
+          displayName: 'Unknown User',
+          photoURL: null
+        };
+      }
+    }
+
     setCallerUser(caller);
     setIncomingCall(call);
     setIsInCall(true);
     setCallStatus('incoming');
+
+    // Notify parent to auto-select room
+    if (onIncomingCall && typeof onIncomingCall === 'function') {
+      onIncomingCall(call.fromNumber);
+    }
   };
 
   const handleCallStateChanged = (state) => {
@@ -250,7 +288,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users) {
         videoCall.disconnect();
       }
     };
-  }, [selectedRoomId, uid]);
+  }, [uid]); // Remove selectedRoomId from dependencies
 
   return {
     videoCall,
