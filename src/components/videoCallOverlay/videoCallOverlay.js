@@ -20,7 +20,7 @@ export default function VideoCallOverlay({
   handleToggleVideo,
 }) {
   // Use callerUser for incoming calls or when otherUser is not available
-  const displayUser = otherUser || callerUser;
+  const displayUser = callerUser || otherUser;
 
   // Handle loading state
   const isLoading = !displayUser || displayUser._isPlaceholder;
