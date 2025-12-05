@@ -6,6 +6,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { getUserDocIdByUid } from '../../firebase/services';
+import './videoCallOverlay.scss';
 
 export default function VideoCallOverlay({
   callStatus,
@@ -46,61 +47,38 @@ export default function VideoCallOverlay({
     fetchCurrentUser();
   }, [user?.uid]);
 
-  // Use callerUser for incoming calls or when otherUser is not available
   const displayUser = callerUser || otherUser;
-
-  // Handle loading state
   const isLoading = !displayUser || displayUser._isPlaceholder;
   const displayName = isLoading ? 'Đang tải...' : (displayUser?.displayName || 'Unknown User');
   const photoURL = isLoading ? null : displayUser?.photoURL;
 
+  const getCallStatusText = () => {
+    switch(callStatus) {
+      case 'calling': return 'Đang gọi...';
+      case 'ringing': return 'Đang đổ chuông...';
+      case 'connecting': return 'Đang kết nối...';
+      case 'connected': return 'Đã kết nối';
+      case 'busy': return 'Máy bận';
+      default: return '';
+    }
+  };
+
+  const getCallStatusIcon = () => {
+    switch(callStatus) {
+      case 'calling': return <AiOutlinePhone />;
+      case 'ringing': return <AiOutlineClockCircle />;
+      case 'connecting': return <AiOutlineSync />;
+      default: return null;
+    }
+  };
+
   return (
-    <div 
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#0a0a0a',
-        zIndex: 99999,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-    >
+    <div className="video-call-overlay">
       {/* Top bar with user info and status */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        padding: '20px',
-        background: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        zIndex: 10
-      }}>
-        {/* User avatar and name */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          marginBottom: '12px'
-        }}>
+      <div className="video-call-overlay__top-bar">
+        <div className="video-call-overlay__user-info">
           {isLoading ? (
-            <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '50%',
-              border: '2px solid white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(255,255,255,0.1)'
-            }}>
+            <div className="video-call-overlay__avatar-loading">
               <Spin indicator={<LoadingOutlined style={{ fontSize: 20, color: 'white' }} spin />} />
             </div>
           ) : (
@@ -112,74 +90,31 @@ export default function VideoCallOverlay({
               {displayName.charAt(0).toUpperCase()}
             </Avatar>
           )}
-          <div>
-            <div style={{
-              color: 'white',
-              fontSize: '20px',
-              fontWeight: 'bold'
-            }}>
+          <div className="video-call-overlay__user-details">
+            <div className="video-call-overlay__user-name">
               {displayName}
             </div>
-            <div style={{
-              color: 'rgba(255,255,255,0.7)',
-              fontSize: '14px',
-              marginTop: '2px'
-            }}>
-              {callStatus === 'calling' && 'Đang gọi...'}
-              {callStatus === 'ringing' && 'Đang đổ chuông...'}
-              {callStatus === 'connecting' && 'Đang kết nối...'}
-              {callStatus === 'connected' && 'Đã kết nối'}
-              {callStatus === 'busy' && 'Máy bận'}
+            <div className="video-call-overlay__call-status">
+              {getCallStatusText()}
             </div>
           </div>
         </div>
       </div>
 
       {/* Video container */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-        padding: '80px 20px 160px 20px'
-      }}>
+      <div className="video-call-overlay__video-container">
         {/* Remote video (main) */}
-        <div style={{ 
-          position: 'relative',
-          width: '100%',
-          maxWidth: '1200px',
-          aspectRatio: '16/9',
-          borderRadius: '24px',
-          overflow: 'hidden',
-          backgroundColor: '#1a1a1a',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
-        }}>
+        <div className="video-call-overlay__remote-video">
           <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              display: isRemoteVideoEnabled ? 'block' : 'none'
-            }}
+            className={`video-call-overlay__video ${!isRemoteVideoEnabled ? 'video-call-overlay__video--hidden' : ''}`}
           />
 
           {/* Overlay when remote video is disabled */}
           {callStatus === 'connected' && !isRemoteVideoEnabled && (
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: '#1a1a1a',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
+            <div className="video-call-overlay__video-disabled">
               <Avatar size={128} src={photoURL}>
                 {displayName.charAt(0).toUpperCase()}
               </Avatar>
@@ -188,42 +123,24 @@ export default function VideoCallOverlay({
 
           {/* Overlay when not connected */}
           {callStatus !== 'connected' && (
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div style={{
-                textAlign: 'center',
-                color: 'white'
-              }}>
+            <div className="video-call-overlay__connecting">
+              <div className="video-call-overlay__connecting-content">
                 {isLoading ? (
                   <>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+                    <div className="video-call-overlay__connecting-icon">
                       <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
                     </div>
-                    <div style={{ fontSize: '20px', fontWeight: '500' }}>
+                    <div className="video-call-overlay__connecting-text">
                       Đang tải thông tin...
                     </div>
                   </>
                 ) : (
                   <>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>
-                      {callStatus === 'calling' && <AiOutlinePhone />}
-                      {callStatus === 'ringing' && <AiOutlineClockCircle />}
-                      {callStatus === 'connecting' && <AiOutlineSync />}
+                    <div className="video-call-overlay__connecting-icon">
+                      {getCallStatusIcon()}
                     </div>
-                    <div style={{ fontSize: '20px', fontWeight: '500' }}>
-                      {callStatus === 'calling' && 'Đang gọi...'}
-                      {callStatus === 'ringing' && 'Đang đổ chuông...'}
-                      {callStatus === 'connecting' && 'Đang kết nối...'}
+                    <div className="video-call-overlay__connecting-text">
+                      {getCallStatusText()}
                     </div>
                   </>
                 )}
@@ -232,42 +149,16 @@ export default function VideoCallOverlay({
           )}
 
           {/* Local video (PiP) */}
-          <div style={{
-            position: 'absolute',
-            bottom: '20px',
-            right: '20px',
-            width: '240px',
-            aspectRatio: '4/3',
-            borderRadius: '16px',
-            overflow: 'hidden',
-            backgroundColor: '#1a1a1a',
-            border: '3px solid rgba(255,255,255,0.2)',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
-          }}>
+          <div className="video-call-overlay__local-video">
             <video 
               ref={localVideoRef}
               autoPlay
               muted
               playsInline
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transform: 'scaleX(-1)' // Mirror effect
-              }}
+              className="video-call-overlay__video video-call-overlay__video--mirror"
             />
             {!isVideoEnabled && (
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: '#1a1a1a',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
+              <div className="video-call-overlay__video-disabled">
                 <Avatar size={64} src={currentUser?.photoURL}>
                   {currentUser?.displayName?.charAt(0).toUpperCase()}
                 </Avatar>
@@ -278,86 +169,43 @@ export default function VideoCallOverlay({
       </div>
 
       {/* Bottom control bar */}
-      <div style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: '30px',
-        background: 'linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)',
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '16px'
-      }}>
-        <>
-          {/* Mute button */}
-          <Tooltip title={isMuted ? 'Bật mic' : 'Tắt mic'}>
-            <Button
-              type={isMuted ? 'primary' : 'default'}
-              danger={isMuted}
-              size="large"
-              onClick={handleToggleMute}
-              style={{
-                height: '64px',
-                width: '64px',
-                borderRadius: '50%',
-                fontSize: '24px',
-                backgroundColor: isMuted ? '#ff4d4f' : 'rgba(255,255,255,0.2)',
-                borderColor: isMuted ? '#ff4d4f' : 'transparent',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <AiOutlineAudioMuted />
-            </Button>
-          </Tooltip>
-
-          {/* End call button */}
+      <div className="video-call-overlay__controls">
+        {/* Mute button */}
+        <Tooltip title={isMuted ? 'Bật mic' : 'Tắt mic'}>
           <Button
-            danger
-            type="primary"
+            type={isMuted ? 'primary' : 'default'}
+            danger={isMuted}
             size="large"
-            onClick={handleEndCall}
-            style={{
-              height: '72px',
-              width: '72px',
-              borderRadius: '50%',
-              fontSize: '28px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(255,77,79,0.4)'
-            }}
+            onClick={handleToggleMute}
+            className={`video-call-overlay__control-btn ${isMuted ? 'video-call-overlay__control-btn--muted' : ''}`}
           >
-            <MdCallEnd />
+            <AiOutlineAudioMuted />
           </Button>
+        </Tooltip>
 
-          {/* Video toggle button */}
-          <Tooltip title={isVideoEnabled ? 'Tắt camera' : 'Bật camera'}>
-            <Button
-              type={isVideoEnabled ? 'default' : 'primary'}
-              danger={!isVideoEnabled}
-              size="large"
-              onClick={handleToggleVideo}
-              style={{
-                height: '64px',
-                width: '64px',
-                borderRadius: '50%',
-                fontSize: '24px',
-                backgroundColor: !isVideoEnabled ? '#ff4d4f' : 'rgba(255,255,255,0.2)',
-                borderColor: !isVideoEnabled ? '#ff4d4f' : 'transparent',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <AiOutlineVideoCamera />
-            </Button>
-          </Tooltip>
-        </>
+        {/* End call button */}
+        <Button
+          danger
+          type="primary"
+          size="large"
+          onClick={handleEndCall}
+          className="video-call-overlay__control-btn video-call-overlay__control-btn--end"
+        >
+          <MdCallEnd />
+        </Button>
+
+        {/* Video toggle button */}
+        <Tooltip title={isVideoEnabled ? 'Tắt camera' : 'Bật camera'}>
+          <Button
+            type={isVideoEnabled ? 'default' : 'primary'}
+            danger={!isVideoEnabled}
+            size="large"
+            onClick={handleToggleVideo}
+            className={`video-call-overlay__control-btn ${!isVideoEnabled ? 'video-call-overlay__control-btn--video-off' : ''}`}
+          >
+            <AiOutlineVideoCamera />
+          </Button>
+        </Tooltip>
       </div>
     </div>
   );
