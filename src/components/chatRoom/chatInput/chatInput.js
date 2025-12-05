@@ -204,8 +204,8 @@ export default function ChatInput({
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-
       const audioUrl = uploadRes.data.url;
+
       const encryptedAudioUrl = selectedRoom.secretKey
         ? encryptMessage(audioUrl, selectedRoom.secretKey)
         : audioUrl;
@@ -213,16 +213,17 @@ export default function ChatInput({
       const assemblyHeaders = { authorization: "9ca437cbe65d4f5387e937846ec08f46" };
       const transcriptRes = await axios.post(
         "https://api.assemblyai.com/v2/transcript",
-        { 
+        {
           audio_url: audioUrl,
-          language_code: language || "vi"
+          language_detection: true,
         },
         { headers: assemblyHeaders }
       );
 
       const transcriptId = transcriptRes.data.id;
-
       let transcriptText = "";
+      let detectedLanguage = "unknown";
+
       while (true) {
         const pollRes = await axios.get(
           `https://api.assemblyai.com/v2/transcript/${transcriptId}`,
@@ -232,6 +233,7 @@ export default function ChatInput({
 
         if (data.status === "completed") {
           transcriptText = data.text;
+          detectedLanguage = data.language_code || "unknown";
           break;
         } else if (data.status === "error") {
           transcriptText = "";
@@ -252,7 +254,8 @@ export default function ChatInput({
         kind: "audio",
         fileName: "voice-message.wav",
         visibleFor,
-        transcript: transcriptText 
+        transcript: transcriptText,
+        language: detectedLanguage, 
       });
 
       await updateDocument("rooms", selectedRoom.id, {
@@ -278,6 +281,7 @@ export default function ChatInput({
       setAudioChunks([]);
     }
   };
+
 
   const handleOnSubmit = async () => {
     if (!inputValue.trim() || !selectedRoom || !uid || sending) return;
