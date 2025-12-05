@@ -16,6 +16,7 @@ export default function VideoCallOverlay({
   remoteVideoRef,
   isVideoEnabled,
   isMuted,
+  isRemoteVideoEnabled,
   handleAnswerCall,
   handleRejectCall,
   handleEndCall,
@@ -154,17 +155,37 @@ export default function VideoCallOverlay({
           backgroundColor: '#1a1a1a',
           boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
         }}>
-          <video 
+          <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
             style={{
               width: '100%',
               height: '100%',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              display: isRemoteVideoEnabled ? 'block' : 'none'
             }}
           />
-          
+
+          {/* Overlay when remote video is disabled */}
+          {callStatus === 'connected' && !isRemoteVideoEnabled && (
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: '#1a1a1a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Avatar size={128} src={photoURL}>
+                {displayName.charAt(0).toUpperCase()}
+              </Avatar>
+            </div>
+          )}
+
           {/* Overlay when not connected */}
           {callStatus !== 'connected' && (
             <div style={{

@@ -9,8 +9,11 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
   const [isInitializing, setIsInitializing] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  const [isRemoteVideoEnabled, setIsRemoteVideoEnabled] = useState(true);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  const remoteVideoCheckInterval = useRef(null);
+  const remoteStreamRef = useRef(null);
 
   const initStringee = async () => {
     if (!uid) {
@@ -183,19 +186,94 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
 
   const handleStream = (stream, type) => {
     console.log(`📹 Stream: ${type}`);
-    
+
     if (type === 'local') {
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
         console.log('✅ Local video attached');
       }
     } else if (type === 'remote') {
+      remoteStreamRef.current = stream; // Store the remote stream
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = stream;
-        console.log('✅ Remote video attached');
+        // Check if remote video has video tracks
+        const hasVideo = stream && stream.getVideoTracks().length > 0;
+        setIsRemoteVideoEnabled(hasVideo);
+        console.log('✅ Remote video attached, has video:', hasVideo);
+
+        // Listen for video track changes
+        if (stream && stream.getVideoTracks().length > 0) {
+          const videoTrack = stream.getVideoTracks()[0];
+          const handleTrackChange = () => {
+            const isEnabled = videoTrack.enabled && !videoTrack.muted;
+            setIsRemoteVideoEnabled(isEnabled);
+            console.log('📹 Remote video track changed, enabled:', isEnabled);
+          };
+
+          videoTrack.addEventListener('ended', handleTrackChange);
+          videoTrack.addEventListener('mute', handleTrackChange);
+          videoTrack.addEventListener('unmute', handleTrackChange);
+
+          // Also listen for enabled property changes
+          const originalEnabled = videoTrack.enabled;
+          Object.defineProperty(videoTrack, 'enabled', {
+            get: () => originalEnabled,
+            set: (value) => {
+              originalEnabled = value;
+              handleTrackChange();
+            }
+          });
+        }
       }
     }
   };
+
+  // Effect to manage remote video display based on enabled state
+  useEffect(() => {
+    if (remoteVideoRef.current) {
+      if (isRemoteVideoEnabled && remoteStreamRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current;
+        // Force play to ensure video resumes
+        remoteVideoRef.current.play().catch(err => console.log('Play failed:', err));
+        console.log('📹 Remote video restored, showing live video');
+      } else if (!isRemoteVideoEnabled) {
+        remoteVideoRef.current.srcObject = null;
+        console.log('🖤 Remote video cleared, showing avatar overlay');
+      }
+    }
+  }, [isRemoteVideoEnabled]);
+
+  // Effect to periodically check remote video track status
+  useEffect(() => {
+    if (isInCall && callStatus === 'connected') {
+      remoteVideoCheckInterval.current = setInterval(() => {
+        if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
+          const stream = remoteVideoRef.current.srcObject;
+          const videoTracks = stream.getVideoTracks();
+          if (videoTracks.length > 0) {
+            const videoTrack = videoTracks[0];
+            const isEnabled = videoTrack.enabled && !videoTrack.muted;
+            if (isEnabled !== isRemoteVideoEnabled) {
+              setIsRemoteVideoEnabled(isEnabled);
+              console.log('📹 Remote video status changed:', isEnabled);
+            }
+          }
+        }
+      }, 500); // Check every 500ms
+    } else {
+      if (remoteVideoCheckInterval.current) {
+        clearInterval(remoteVideoCheckInterval.current);
+        remoteVideoCheckInterval.current = null;
+      }
+    }
+
+    return () => {
+      if (remoteVideoCheckInterval.current) {
+        clearInterval(remoteVideoCheckInterval.current);
+        remoteVideoCheckInterval.current = null;
+      }
+    };
+  }, [isInCall, callStatus, isRemoteVideoEnabled]);
 
   const handleVideoCall = async () => {
     console.log('📞 Initiating video call...');
@@ -299,6 +377,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
     isInitializing,
     isMuted,
     isVideoEnabled,
+    isRemoteVideoEnabled,
     localVideoRef,
     remoteVideoRef,
     handleVideoCall,
