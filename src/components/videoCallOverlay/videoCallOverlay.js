@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Avatar, Tooltip, Spin } from 'antd';
 import { AiOutlinePhone, AiOutlineVideoCamera, AiOutlineAudioMuted, AiOutlineClockCircle, AiOutlineSync } from "react-icons/ai";
 import { MdCallEnd } from "react-icons/md";
 import { LoadingOutlined } from '@ant-design/icons';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase/config';
+import { getUserDocIdByUid } from '../../firebase/services';
 
 export default function VideoCallOverlay({
   callStatus,
@@ -19,6 +22,29 @@ export default function VideoCallOverlay({
   handleToggleMute,
   handleToggleVideo,
 }) {
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      if (!user?.uid) return;
+
+      try {
+        const docId = await getUserDocIdByUid(user.uid);
+        if (docId) {
+          const userDoc = await getDoc(doc(db, 'users', docId));
+          if (userDoc.exists()) {
+            const userData = { id: userDoc.id, ...userDoc.data() };
+            setCurrentUser(userData);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, [user?.uid]);
+
   // Use callerUser for incoming calls or when otherUser is not available
   const displayUser = callerUser || otherUser;
 
@@ -221,8 +247,8 @@ export default function VideoCallOverlay({
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
-                <Avatar size={64} src={user.photoURL}>
-                  {user.displayName?.charAt(0).toUpperCase()}
+                <Avatar size={64} src={currentUser?.photoURL}>
+                  {currentUser?.displayName?.charAt(0).toUpperCase()}
                 </Avatar>
               </div>
             )}
