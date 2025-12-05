@@ -564,7 +564,7 @@ export default function ChatWindow({onToggleDetail}) {
         ) : (
           <ChatInput
             selectedRoom={selectedRoom}
-            user={{ uid, photoURL: user.photoURL, displayName: user.displayName, language: user.language }}
+            user={{ uid, photoURL: user.photoURL, displayName: user.displayName }}
             replyTo={replyTo}
             setReplyTo={setReplyTo}
             isBanned={isBanned}

@@ -30,7 +30,7 @@ export default function ChatInput({
   isBanned,
   inputRef,
 }) {
-  const { uid, photoURL, displayName, language } = user || {};
+  const { uid, photoURL, displayName } = user || {};
   const [form] = Form.useForm();
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
