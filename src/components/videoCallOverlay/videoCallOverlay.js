@@ -19,8 +19,9 @@ export default function VideoCallOverlay({
   handleToggleMute,
   handleToggleVideo,
 }) {
-  const displayUser = callStatus === 'incoming' ? callerUser : otherUser;
-  
+  // Use callerUser for incoming calls or when otherUser is not available
+  const displayUser = otherUser || callerUser;
+
   // Handle loading state
   const isLoading = !displayUser || displayUser._isPlaceholder;
   const displayName = isLoading ? 'Đang tải...' : (displayUser?.displayName || 'Unknown User');
@@ -101,7 +102,6 @@ export default function VideoCallOverlay({
               {callStatus === 'ringing' && 'Đang đổ chuông...'}
               {callStatus === 'connecting' && 'Đang kết nối...'}
               {callStatus === 'connected' && 'Đã kết nối'}
-              {callStatus === 'incoming' && 'Cuộc gọi đến'}
               {callStatus === 'busy' && 'Máy bận'}
             </div>
           </div>
@@ -172,13 +172,11 @@ export default function VideoCallOverlay({
                       {callStatus === 'calling' && <AiOutlinePhone />}
                       {callStatus === 'ringing' && <AiOutlineClockCircle />}
                       {callStatus === 'connecting' && <AiOutlineSync />}
-                      {callStatus === 'incoming' && <AiOutlinePhone />}
                     </div>
                     <div style={{ fontSize: '20px', fontWeight: '500' }}>
                       {callStatus === 'calling' && 'Đang gọi...'}
                       {callStatus === 'ringing' && 'Đang đổ chuông...'}
                       {callStatus === 'connecting' && 'Đang kết nối...'}
-                      {callStatus === 'incoming' && 'Cuộc gọi đến'}
                     </div>
                   </>
                 )}
@@ -244,120 +242,75 @@ export default function VideoCallOverlay({
         justifyContent: 'center',
         gap: '16px'
       }}>
-        {callStatus === 'incoming' ? (
-          <>
-            {/* Answer button */}
+        <>
+          {/* Mute button */}
+          <Tooltip title={isMuted ? 'Bật mic' : 'Tắt mic'}>
             <Button
-              type="primary"
+              type={isMuted ? 'primary' : 'default'}
+              danger={isMuted}
               size="large"
-              onClick={handleAnswerCall}
-              disabled={isLoading}
+              onClick={handleToggleMute}
               style={{
                 height: '64px',
                 width: '64px',
                 borderRadius: '50%',
                 fontSize: '24px',
-                backgroundColor: isLoading ? '#666' : '#52c41a',
-                borderColor: isLoading ? '#666' : '#52c41a',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: isLoading ? 'not-allowed' : 'pointer'
-              }}
-            >
-              <AiOutlinePhone />
-            </Button>
-            
-            {/* Reject button */}
-            <Button
-              danger
-              type="primary"
-              size="large"
-              onClick={handleRejectCall}
-              style={{
-                height: '64px',
-                width: '64px',
-                borderRadius: '50%',
-                fontSize: '24px',
+                backgroundColor: isMuted ? '#ff4d4f' : 'rgba(255,255,255,0.2)',
+                borderColor: isMuted ? '#ff4d4f' : 'transparent',
+                color: 'white',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
             >
-              <MdCallEnd />
+              <AiOutlineAudioMuted />
             </Button>
-          </>
-        ) : (
-          <>
-            {/* Mute button */}
-            <Tooltip title={isMuted ? 'Bật mic' : 'Tắt mic'}>
-              <Button
-                type={isMuted ? 'primary' : 'default'}
-                danger={isMuted}
-                size="large"
-                onClick={handleToggleMute}
-                style={{
-                  height: '64px',
-                  width: '64px',
-                  borderRadius: '50%',
-                  fontSize: '24px',
-                  backgroundColor: isMuted ? '#ff4d4f' : 'rgba(255,255,255,0.2)',
-                  borderColor: isMuted ? '#ff4d4f' : 'transparent',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <AiOutlineAudioMuted />
-              </Button>
-            </Tooltip>
+          </Tooltip>
 
-            {/* End call button */}
+          {/* End call button */}
+          <Button
+            danger
+            type="primary"
+            size="large"
+            onClick={handleEndCall}
+            style={{
+              height: '72px',
+              width: '72px',
+              borderRadius: '50%',
+              fontSize: '28px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(255,77,79,0.4)'
+            }}
+          >
+            <MdCallEnd />
+          </Button>
+
+          {/* Video toggle button */}
+          <Tooltip title={isVideoEnabled ? 'Tắt camera' : 'Bật camera'}>
             <Button
-              danger
-              type="primary"
+              type={isVideoEnabled ? 'default' : 'primary'}
+              danger={!isVideoEnabled}
               size="large"
-              onClick={handleEndCall}
+              onClick={handleToggleVideo}
               style={{
-                height: '72px',
-                width: '72px',
+                height: '64px',
+                width: '64px',
                 borderRadius: '50%',
-                fontSize: '28px',
+                fontSize: '24px',
+                backgroundColor: !isVideoEnabled ? '#ff4d4f' : 'rgba(255,255,255,0.2)',
+                borderColor: !isVideoEnabled ? '#ff4d4f' : 'transparent',
+                color: 'white',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 12px rgba(255,77,79,0.4)'
+                justifyContent: 'center'
               }}
             >
-              <MdCallEnd />
+              <AiOutlineVideoCamera />
             </Button>
-
-            {/* Video toggle button */}
-            <Tooltip title={isVideoEnabled ? 'Tắt camera' : 'Bật camera'}>
-              <Button
-                type={isVideoEnabled ? 'default' : 'primary'}
-                danger={!isVideoEnabled}
-                size="large"
-                onClick={handleToggleVideo}
-                style={{
-                  height: '64px',
-                  width: '64px',
-                  borderRadius: '50%',
-                  fontSize: '24px',
-                  backgroundColor: !isVideoEnabled ? '#ff4d4f' : 'rgba(255,255,255,0.2)',
-                  borderColor: !isVideoEnabled ? '#ff4d4f' : 'transparent',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <AiOutlineVideoCamera />
-              </Button>
-            </Tooltip>
-          </>
-        )}
+          </Tooltip>
+        </>
       </div>
     </div>
   );

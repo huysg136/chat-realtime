@@ -1,10 +1,11 @@
 import React from "react";
 import { Row, Col } from "antd";
-import SideBar from "../chatRoom/sideBar/sideBar";   
+import SideBar from "../chatRoom/sideBar/sideBar";
 import ChatWindow from "../chatRoom/chatWindow/chatWindow";
 import LeftSide from "./leftSide/leftSide";
 import ChatDetailPanel from "./chatDetailPanel/chatDetailPanel";
 import TransferOwnershipModal from "../modals/transferOwnershipModal";
+import IncomingCallUI from "../common/IncomingCallUI";
 import { AppContext } from "../../context/appProvider";
 import { AuthContext } from "../../context/authProvider";
 
@@ -14,7 +15,7 @@ export default function ChatRoom() {
     const [selectedTransferUid, setSelectedTransferUid] = React.useState(null);
     const [leavingLoading, setLeavingLoading] = React.useState(false);
 
-    const { rooms, users, selectedRoomId } = React.useContext(AppContext);
+    const { rooms, users, selectedRoomId, videoCallState } = React.useContext(AppContext);
     const authContext = React.useContext(AuthContext) || {};
     const user = authContext.user || {};
     const uid = user.uid || "";
@@ -93,6 +94,14 @@ export default function ChatRoom() {
             setLeavingLoading={setLeavingLoading}
             onClose={handleCloseTransferModal}
         />
+
+        {videoCallState && videoCallState.callStatus === "incoming" && (
+            <IncomingCallUI
+                caller={videoCallState.callerUser}
+                onAccept={videoCallState.handleAnswerCall}
+                onReject={videoCallState.handleRejectCall}
+            />
+        )}
         </div>
     );
 }

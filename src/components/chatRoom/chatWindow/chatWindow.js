@@ -325,6 +325,15 @@ export default function ChatWindow({onToggleDetail}) {
           <h2>Tin nhắn của bạn</h2>
           <p>Gửi ảnh và tin nhắn riêng tư cho bạn bè</p>
         </div>
+
+        {/* Render VideoCallOverlay even when no room is selected for active calls */}
+        {videoCallState && videoCallState.isInCall && videoCallState.callStatus !== 'incoming' && (
+          <VideoCallOverlay
+            {...videoCallState}
+            user={user}
+            otherUser={otherUser}
+          />
+        )}
       </div>
     );
   }
@@ -539,7 +548,7 @@ export default function ChatWindow({onToggleDetail}) {
           )}
         </div>
 
-        {videoCallState && videoCallState.isInCall && (
+        {videoCallState && videoCallState.isInCall && videoCallState.callStatus !== 'incoming' && (
           <VideoCallOverlay
             {...videoCallState}
             user={user}
