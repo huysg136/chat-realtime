@@ -34,6 +34,8 @@ export default function ChatInput({
   const [form] = Form.useForm();
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
+  const [sendingFile, setSendingFile] = useState(false); 
+  const [sendingVoice, setSendingVoice] = useState(false); 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
@@ -46,54 +48,28 @@ export default function ChatInput({
   const handleInputChange = (e) => setInputValue(e.target.value);
 
   const handleSelectTone = async (selectedTone) => {
-    setShowTonePicker(false); 
+    setShowTonePicker(false);
 
     const toneMapping = {
-      default: `
-        Giọng văn trung tính, lịch sự, rõ ràng.
-        Không thiên về thân mật hay trang trọng.
-        Giữ xưng hô như trong nội dung gốc.
-      `,
-
-      boss: `
-        Nói chuyện với sếp, cấp trên.
-        Giữ thái độ tôn trọng, lịch sự.
-        Dùng xưng hô phù hợp như "em - sếp".
-        Ngữ khí trang trọng, chuyên nghiệp.
-      `,
-
-      lover: `
-        Viết nhẹ nhàng, tình cảm, ấm áp.
-        Dùng đại từ thân mật phù hợp như “em – anh”, “anh – em”.
-        Có thể thêm sắc thái dịu dàng nhưng không quá sến.
-        Ngữ khí gần gũi, thể hiện quan tâm.
-      `,
-
-      elder: `
-        Viết lễ phép và tôn trọng, phù hợp khi nói chuyện với người lớn tuổi.
-        Dùng từ ngữ nhẹ nhàng: “dạ”, “em/con/cháu”.
-        Tránh văn phong quá trang trọng kiểu nghi thức.
-        Giữ giọng tự nhiên, ấm áp, lịch sự.
-      `,
-
-
-      friend: `
-        Viết tự nhiên, thoải mái, gần gũi.
-        Dùng đại từ bạn bè: “mình – bạn”, “tớ – cậu”, hoặc giữ nguyên theo ngữ cảnh.
-        Giao tiếp thân thiện nhưng không suồng sã quá mức.
-        Nghe giống cách nhắn tin giữa bạn bè thân.
-      `,
-
-      client: `
-        Phù hợp khi nói chuyện với khách hàng hoặc đối tác.
-        Giữ thái độ chuyên nghiệp, lịch sự.
-        Dùng xưng hô trang trọng như "em - quý khách"
-        Ngữ khí rõ ràng, mạch lạc, tránh dùng từ ngữ quá thân mật.
-      `,
+      default: `Giọng văn trung tính, lịch sự, rõ ràng. Giữ xưng hô như trong nội dung gốc.`,
+      boss: `Nói chuyện với sếp, cấp trên. Giữ thái độ tôn trọng, lịch sự. Dùng xưng hô phù hợp như "em - sếp".`,
+      lover: `Viết nhẹ nhàng, tình cảm, ấm áp. Dùng đại từ thân mật như “em – anh”, “anh – em”.`,
+      elder: `Viết lễ phép và tôn trọng với người lớn tuổi. Dùng từ nhẹ nhàng: “dạ”, “em/con/cháu”.`,
+      friend: `Viết tự nhiên, thoải mái, gần gũi. Dùng đại từ bạn bè: “mình – bạn”, “tớ – cậu”.`,
+      client: `Phù hợp với khách hàng hoặc đối tác. Thái độ chuyên nghiệp, lịch sự, xưng hô trang trọng.`
     };
 
-
     if (!inputValue.trim()) return;
+
+    const isMeaningful = (text) => {
+      const cleaned = text.replace(/[\p{Emoji}\p{So}\p{Sk}\p{P}\p{S}]/gu, "").trim();
+      return cleaned.length >= 2; 
+    };
+
+    if (!isMeaningful(inputValue)) {
+      toast.info("Nội dung không đủ ý nghĩa để cải thiện");
+      return; 
+    }
 
     try {
       setPolishing(true);
@@ -107,12 +83,17 @@ export default function ChatInput({
         - Áp dụng giọng văn: ${toneMapping[selectedTone]}
         Văn bản cần chỉnh sửa:
         ${inputValue}
+
+        QUAN TRỌNG:
+          - Nếu văn bản này không có ý nghĩa (chỉ là ký tự vô nghĩa, spam, emoji hoặc lặp lại), hãy trả về chính xác văn bản gốc mà không thêm, xóa, sửa bất cứ gì. Không giải thích gì thêm.
       `;
 
       const polishedText = await askGemini(prompt);
       const cleanedText = polishedText.replace(/\n+/g, " ").trim();
 
-      setInputValue(cleanedText);
+      if (isMeaningful(cleanedText)) {
+        setInputValue(cleanedText);
+      }
     } catch (err) {
       toast.error("Không thể cải thiện 🫠");
     } finally {
@@ -121,7 +102,6 @@ export default function ChatInput({
   };
 
 
-  // ==== Upload file ====
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -130,7 +110,7 @@ export default function ChatInput({
     formData.append("file", file);
 
     try {
-      setSending(true);
+      setSendingFile(true);
       const res = await axios.post(
         "https://chat-realtime-be.vercel.app/upload",
         formData,
@@ -174,7 +154,7 @@ export default function ChatInput({
     } catch (err) {
       toast.error("Upload file thất bại");
     } finally {
-      setSending(false);
+      setSendingFile(false);
       e.target.value = null;
     }
   };
@@ -218,8 +198,7 @@ export default function ChatInput({
     formData.append("file", audioBlob, "voice-message.wav");
 
     try {
-      setSending(true);
-
+      setSendingVoice(true);
       const uploadRes = await axios.post(
         "https://chat-realtime-be.vercel.app/upload",
         formData,
@@ -293,7 +272,7 @@ export default function ChatInput({
       console.error(err);
       toast.error("Gửi tin nhắn thoại thất bại");
     } finally {
-      setSending(false);
+      setSendingVoice(false);
       setIsRecording(false);
       setMediaRecorder(null);
       setAudioChunks([]);
@@ -483,23 +462,24 @@ export default function ChatInput({
             <div className="input-actions">
               <Button
                 type="text"
-                icon={<AudioOutlined />}
                 className={`input-icon-btn ${isRecording ? "recording" : ""}`}
                 onClick={handleVoiceButtonClick}
-                disabled={sending}
-              />
+                disabled={sending || sendingVoice}
+              >
+                {sendingVoice ? <div className="spinner-small" /> : <AudioOutlined />}
+              </Button>
               <label htmlFor="fileUpload" className="input-icon-btn">
-                <PaperClipOutlined />
+                {sendingFile ? <div className="spinner-small" /> : <PaperClipOutlined />}
               </label>
               <input
                 id="fileUpload"
                 type="file"
                 style={{ display: "none" }}
                 onChange={handleFileUpload}
+                disabled={sendingFile}
               />
             </div>
           )}
-        
       </Form>
     </div>
   );
