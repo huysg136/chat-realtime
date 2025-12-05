@@ -1,25 +1,45 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Button, Avatar, Spin } from 'antd';
 import { AiOutlinePhone } from "react-icons/ai";
 import { MdCallEnd } from "react-icons/md";
 import { LoadingOutlined } from '@ant-design/icons';
 
-export default function IncomingCallUI({
-  caller,
-  onAccept,
-  onReject,
-}) {
-  // Handle loading state
+export default function IncomingCallUI({ caller, onAccept, onReject }) {
   const isLoading = !caller || caller._isPlaceholder;
   const displayName = isLoading ? 'Đang tải...' : (caller?.displayName || 'Unknown User');
   const photoURL = isLoading ? null : caller?.photoURL;
 
+  const [position, setPosition] = useState(null);
+  const dragRef = useRef(null);
+  const offsetRef = useRef({ x: 0, y: 0 });
+
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    const rect = dragRef.current.getBoundingClientRect();
+    offsetRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleMouseMove = (e) => {
+    setPosition({ x: e.clientX - offsetRef.current.x, y: e.clientY - offsetRef.current.y });
+  };
+
+  const handleMouseUp = () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+
   return (
     <div
+      ref={dragRef}
+      onMouseDown={handleMouseDown} 
       style={{
         position: 'fixed',
-        bottom: '20px',
-        right: '20px',
+        bottom: position ? undefined : '20px',
+        right: position ? undefined : '20px',
+        left: position ? `${position.x}px` : undefined,
+        top: position ? `${position.y}px` : undefined,
         zIndex: 99999,
         backgroundColor: 'rgba(0, 0, 0, 0.9)',
         borderRadius: '16px',
@@ -31,15 +51,17 @@ export default function IncomingCallUI({
         minWidth: '280px',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
         backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        cursor: 'grab',
+        userSelect: 'none'
       }}
     >
-      {/* Caller info */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
-        width: '100%'
+        width: '100%',
+        marginBottom: '10px'
       }}>
         {isLoading ? (
           <div style={{
@@ -55,39 +77,17 @@ export default function IncomingCallUI({
             <Spin indicator={<LoadingOutlined style={{ fontSize: 20, color: 'white' }} spin />} />
           </div>
         ) : (
-          <Avatar
-            src={photoURL}
-            size={48}
-            style={{ border: '2px solid white' }}
-          >
+          <Avatar src={photoURL} size={48} style={{ border: '2px solid white' }}>
             {displayName.charAt(0).toUpperCase()}
           </Avatar>
         )}
         <div style={{ flex: 1 }}>
-          <div style={{
-            color: 'white',
-            fontSize: '16px',
-            fontWeight: 'bold'
-          }}>
-            {displayName}
-          </div>
-          <div style={{
-            color: 'rgba(255,255,255,0.7)',
-            fontSize: '14px'
-          }}>
-            Cuộc gọi đến...
-          </div>
+          <div style={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>{displayName}</div>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>Cuộc gọi đến...</div>
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div style={{
-        display: 'flex',
-        gap: '12px',
-        width: '100%',
-        justifyContent: 'center'
-      }}>
-        {/* Accept button */}
+      <div style={{ display: 'flex', gap: '12px', width: '100%', justifyContent: 'center' }}>
         <Button
           type="primary"
           size="large"
@@ -109,7 +109,6 @@ export default function IncomingCallUI({
           <AiOutlinePhone />
         </Button>
 
-        {/* Reject button */}
         <Button
           danger
           type="primary"
