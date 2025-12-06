@@ -70,8 +70,8 @@ export default function ChatRoom() {
                 </Col>
 
                 <Col
-                    xs={selectedRoomId ? 24 : 0}
-                    sm={selectedRoomId ? 24 : 0}
+                    xs={isDetailVisible ? 0 : (selectedRoomId ? 24 : 0)}
+                    sm={isDetailVisible ? 0 : (selectedRoomId ? 24 : 0)}
                     md={isDetailVisible ? 10 : 15}
                     lg={isDetailVisible ? 11 : 16}
                     xl={isDetailVisible ? 11 : 17}
@@ -86,8 +86,8 @@ export default function ChatRoom() {
 
                 {isDetailVisible && (
                     <Col
-                        xs={0}
-                        sm={0}
+                        xs={24}
+                        sm={24}
                         md={6}
                         lg={6}
                         xl={6}
