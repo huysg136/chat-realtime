@@ -11,7 +11,6 @@
   align-items: center;
   justify-content: center;
 
-  // Top bar
   &__top-bar {
     position: absolute;
     top: 0;
@@ -60,7 +59,6 @@
     margin-top: 2px;
   }
 
-  // Video container
   &__video-container {
     flex: 1;
     display: flex;
@@ -135,7 +133,6 @@
     font-weight: 500;
   }
 
-  // Local video (PiP)
   &__local-video {
     position: absolute;
     bottom: 20px;
@@ -149,7 +146,6 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   }
 
-  // Controls
   &__controls {
     position: absolute;
     bottom: 0;
@@ -172,23 +168,50 @@
     justify-content: center;
     color: white;
     background-color: rgba(255, 255, 255, 0.2);
-    border-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: 0.25s ease;
 
-    &--muted {
-      background-color: #ff4d4f;
-      border-color: #ff4d4f;
+    &:hover {
+      transform: scale(1.08);
+      background-color: rgba(255, 255, 255, 0.35);
     }
 
-    &--video-off {
-      background-color: #ff4d4f;
-      border-color: #ff4d4f;
+    &:active {
+      transform: scale(0.92);
+    }
+  }
+
+  &__control-btn--muted {
+    background-color: #ff4d4f !important;
+
+    &:hover {
+      background-color: #ff6b6d !important;
+      transform: scale(1.12);
+    }
+  }
+
+  &__control-btn--video-off {
+    background-color: #ff4d4f !important;
+
+    &:hover {
+      background-color: #ff6b6d !important;
+      transform: scale(1.12);
+    }
+  }
+
+  &__control-btn--end {
+    background-color: #ff4d4f !important;
+    box-shadow: 0 4px 12px rgba(255, 77, 79, 0.4);
+
+    &:hover {
+      background-color: #ff6b6d !important;
+      transform: scale(1.15);
+      box-shadow: 0 6px 18px rgba(255, 77, 79, 0.6);
     }
 
-    &--end {
-      height: 72px;
-      width: 72px;
-      font-size: 28px;
-      box-shadow: 0 4px 12px rgba(255, 77, 79, 0.4);
+    &:active {
+      transform: scale(0.9);
     }
   }
 }

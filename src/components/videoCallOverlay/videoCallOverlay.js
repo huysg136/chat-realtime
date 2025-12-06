@@ -1,7 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Avatar, Tooltip, Spin } from 'antd';
-import { AiOutlinePhone, AiOutlineVideoCamera, AiOutlineAudioMuted, AiOutlineClockCircle, AiOutlineSync } from "react-icons/ai";
-import { MdCallEnd } from "react-icons/md";
+import { useState, useEffect } from 'react';
+import { Avatar, Tooltip, Spin } from 'antd';
+import {
+  AiOutlinePhone,
+  AiOutlineVideoCamera,
+  AiOutlineAudio,
+  AiOutlineAudioMuted,
+  AiOutlineClockCircle,
+  AiOutlineSync
+} from "react-icons/ai";
+import { MdCallEnd, MdVideocamOff } from "react-icons/md";
 import { LoadingOutlined } from '@ant-design/icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase/config';
@@ -18,8 +25,6 @@ export default function VideoCallOverlay({
   isVideoEnabled,
   isMuted,
   isRemoteVideoEnabled,
-  handleAnswerCall,
-  handleRejectCall,
   handleEndCall,
   handleToggleMute,
   handleToggleVideo,
@@ -74,37 +79,27 @@ export default function VideoCallOverlay({
 
   return (
     <div className="video-call-overlay">
-      {/* Top bar with user info and status */}
-      <div className="video-call-overlay__top-bar">
+            <div className="video-call-overlay__top-bar">
         <div className="video-call-overlay__user-info">
           {isLoading ? (
             <div className="video-call-overlay__avatar-loading">
               <Spin indicator={<LoadingOutlined style={{ fontSize: 20, color: 'white' }} spin />} />
             </div>
           ) : (
-            <Avatar
-              src={photoURL}
-              size={48}
-              style={{ border: '2px solid white' }}
-            >
+            <Avatar src={photoURL} size={48} style={{ border: '2px solid white' }}>
               {displayName.charAt(0).toUpperCase()}
             </Avatar>
           )}
           <div className="video-call-overlay__user-details">
-            <div className="video-call-overlay__user-name">
-              {displayName}
-            </div>
-            <div className="video-call-overlay__call-status">
-              {getCallStatusText()}
-            </div>
+            <div className="video-call-overlay__user-name">{displayName}</div>
+            <div className="video-call-overlay__call-status">{getCallStatusText()}</div>
           </div>
         </div>
       </div>
 
-      {/* Video container */}
       <div className="video-call-overlay__video-container">
-        {/* Remote video (main) */}
         <div className="video-call-overlay__remote-video">
+
           <video
             ref={remoteVideoRef}
             autoPlay
@@ -112,7 +107,6 @@ export default function VideoCallOverlay({
             className={`video-call-overlay__video ${!isRemoteVideoEnabled ? 'video-call-overlay__video--hidden' : ''}`}
           />
 
-          {/* Overlay when remote video is disabled */}
           {callStatus === 'connected' && !isRemoteVideoEnabled && (
             <div className="video-call-overlay__video-disabled">
               <Avatar size={128} src={photoURL}>
@@ -121,7 +115,6 @@ export default function VideoCallOverlay({
             </div>
           )}
 
-          {/* Overlay when not connected */}
           {callStatus !== 'connected' && (
             <div className="video-call-overlay__connecting">
               <div className="video-call-overlay__connecting-content">
@@ -136,21 +129,16 @@ export default function VideoCallOverlay({
                   </>
                 ) : (
                   <>
-                    <div className="video-call-overlay__connecting-icon">
-                      {getCallStatusIcon()}
-                    </div>
-                    <div className="video-call-overlay__connecting-text">
-                      {getCallStatusText()}
-                    </div>
+                    <div className="video-call-overlay__connecting-icon">{getCallStatusIcon()}</div>
+                    <div className="video-call-overlay__connecting-text">{getCallStatusText()}</div>
                   </>
                 )}
               </div>
             </div>
           )}
 
-          {/* Local video (PiP) */}
           <div className="video-call-overlay__local-video">
-            <video 
+            <video
               ref={localVideoRef}
               autoPlay
               muted
@@ -165,48 +153,39 @@ export default function VideoCallOverlay({
               </div>
             )}
           </div>
+
         </div>
       </div>
 
-      {/* Bottom control bar */}
       <div className="video-call-overlay__controls">
-        {/* Mute button */}
-        <Tooltip title={isMuted ? 'Bật mic' : 'Tắt mic'}>
-          <Button
-            type={isMuted ? 'primary' : 'default'}
-            danger={isMuted}
-            size="large"
+        <Tooltip title={isMuted ? "Bật mic" : "Tắt mic"}>
+          <div
             onClick={handleToggleMute}
-            className={`video-call-overlay__control-btn ${isMuted ? 'video-call-overlay__control-btn--muted' : ''}`}
+            className={`video-call-overlay__control-btn ${isMuted ? "video-call-overlay__control-btn--muted" : ""}`}
           >
-            <AiOutlineAudioMuted />
-          </Button>
+            {isMuted ? <AiOutlineAudioMuted /> : <AiOutlineAudio />}
+          </div>
         </Tooltip>
 
-        {/* End call button */}
-        <Button
-          danger
-          type="primary"
-          size="large"
+        <div
           onClick={handleEndCall}
           className="video-call-overlay__control-btn video-call-overlay__control-btn--end"
+          style={{ backgroundColor: "#ff4d4f" }}
         >
           <MdCallEnd />
-        </Button>
+        </div>
 
-        {/* Video toggle button */}
-        <Tooltip title={isVideoEnabled ? 'Tắt camera' : 'Bật camera'}>
-          <Button
-            type={isVideoEnabled ? 'default' : 'primary'}
-            danger={!isVideoEnabled}
-            size="large"
+        <Tooltip title={isVideoEnabled ? "Tắt camera" : "Bật camera"}>
+          <div
             onClick={handleToggleVideo}
-            className={`video-call-overlay__control-btn ${!isVideoEnabled ? 'video-call-overlay__control-btn--video-off' : ''}`}
+            className={`video-call-overlay__control-btn ${!isVideoEnabled ? "video-call-overlay__control-btn--video-off" : ""}`}
           >
-            <AiOutlineVideoCamera />
-          </Button>
+            {isVideoEnabled ? <AiOutlineVideoCamera /> : <MdVideocamOff />}
+          </div>
         </Tooltip>
+
       </div>
+
     </div>
   );
 }
