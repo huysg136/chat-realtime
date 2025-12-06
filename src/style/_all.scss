@@ -1,0 +1,35 @@
+@use "sass:map";
+@import "theme";
+@import "responsive";
+@import "@fontsource/be-vietnam-pro";
+
+@include Responsive($DESKTOP) {
+    .container {
+        max-width: 1170px;
+    }
+}
+
+@include Responsive($MEDIUM_DEVICE) {
+    .container {
+        max-width: 960px;
+    }
+}
+
+@include Responsive($TABLET_DEVICE) {
+    .container {
+        max-width: 720px;
+    }
+}
+
+@include Responsive($WIDE_MOBILE) {
+    .container {
+        max-width: 540px;
+    }
+}
+
+@include Responsive($SMALL_DEVICES) {
+    .container {
+        max-width: 350px;
+    }
+}
+
