@@ -64,7 +64,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
       console.log('✅ Token received');
 
       const VideoCallService = (await import('../stringee/StringeeService')).default;
-      const vc = new VideoCallService(data.access_token, handleIncomingCall);
+      const vc = new VideoCallService(data.access_token, handleIncomingCall, handleCallStateChanged);
 
       await vc.connect();
       
@@ -313,6 +313,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
 
     if (videoCall) {
       videoCall.endCall();
+      videoCall.onCallStateChanged = null; // Clean up callback
     }
 
     if (localVideoRef.current) {

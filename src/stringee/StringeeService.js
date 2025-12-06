@@ -1,8 +1,9 @@
 class VideoCallService {
-  constructor(accessToken, onIncomingCall) {
+  constructor(accessToken, onIncomingCall, onCallStateChanged) {
     this.client = new window.StringeeClient();
     this.accessToken = accessToken;
     this.onIncomingCall = onIncomingCall;
+    this.onCallStateChanged = onCallStateChanged;
     this.connected = false;
     this.authenticated = false;
     this.currentCall = null;
@@ -65,13 +66,14 @@ class VideoCallService {
         if (this.onIncomingCall) {
           this.onIncomingCall(incomingCall);
         }
-        
+
         incomingCall.on('signalingstate', (state) => {
+          if (this.onCallStateChanged) {
+            this.onCallStateChanged(state);
+          }
+
           if (state.code === 5 || state.code === 6) {
             this.cleanup();
-            if (this.onCallStateChanged) {
-              this.onCallStateChanged(state);
-            }
           }
         });
       });
