@@ -204,43 +204,87 @@ export default function ChatInput({
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-      const audioUrl = uploadRes.data.url;
 
+      const audioUrl = uploadRes.data.url;
       const encryptedAudioUrl = selectedRoom.secretKey
         ? encryptMessage(audioUrl, selectedRoom.secretKey)
         : audioUrl;
 
       const assemblyHeaders = { authorization: "9ca437cbe65d4f5387e937846ec08f46" };
-      const transcriptRes = await axios.post(
+
+      let transcriptId = null;
+      let transcriptText = "";
+      let detectedLanguage = "vi";
+
+      const viRequest = {
+        audio_url: audioUrl,
+        language_code: "vi",      
+        punctuate: true,
+        format_text: true
+      };
+
+      let resVi = await axios.post(
         "https://api.assemblyai.com/v2/transcript",
-        {
-          audio_url: audioUrl,
-          language_detection: true,
-        },
+        viRequest,
         { headers: assemblyHeaders }
       );
 
-      const transcriptId = transcriptRes.data.id;
-      let transcriptText = "";
-      let detectedLanguage = "unknown";
+      transcriptId = resVi.data.id;
+
+      let needFallback = false;
 
       while (true) {
-        const pollRes = await axios.get(
+        const poll = await axios.get(
           `https://api.assemblyai.com/v2/transcript/${transcriptId}`,
           { headers: assemblyHeaders }
         );
-        const data = pollRes.data;
 
-        if (data.status === "completed") {
-          transcriptText = data.text;
-          detectedLanguage = data.language_code || "unknown";
+        if (poll.data.status === "completed") {
+          transcriptText = poll.data.text;
+          detectedLanguage = poll.data.language_code || "vi";
           break;
-        } else if (data.status === "error") {
-          transcriptText = "";
-          toast.error("Chuyển giọng nói thành text thất bại");
+        } else if (poll.data.status === "error") {
+          needFallback = true;
           break;
         } else {
           await new Promise((r) => setTimeout(r, 3000));
+        }
+      }
+
+      if (needFallback) {
+        const autoRequest = {
+          audio_url: audioUrl,
+          language_detection: true,
+          punctuate: true,
+          format_text: true
+        };
+
+        const autoRes = await axios.post(
+          "https://api.assemblyai.com/v2/transcript",
+          autoRequest,
+          { headers: assemblyHeaders }
+        );
+
+        transcriptId = autoRes.data.id;
+        detectedLanguage = "auto";
+
+        while (true) {
+          const poll = await axios.get(
+            `https://api.assemblyai.com/v2/transcript/${transcriptId}`,
+            { headers: assemblyHeaders }
+          );
+
+          if (poll.data.status === "completed") {
+            transcriptText = poll.data.text;
+            detectedLanguage = poll.data.language_code || detectedLanguage;
+            break;
+          } else if (poll.data.status === "error") {
+            transcriptText = "";
+            toast.error("Chuyển giọng nói thành text thất bại");
+            break;
+          } else {
+            await new Promise((r) => setTimeout(r, 3000));
+          }
         }
       }
 
@@ -255,7 +299,7 @@ export default function ChatInput({
         fileName: "voice-message.wav",
         visibleFor,
         transcript: transcriptText,
-        language: detectedLanguage, 
+        language: detectedLanguage,
       });
 
       await updateDocument("rooms", selectedRoom.id, {
@@ -281,7 +325,6 @@ export default function ChatInput({
       setAudioChunks([]);
     }
   };
-
 
   const handleOnSubmit = async () => {
     if (!inputValue.trim() || !selectedRoom || !uid || sending) return;
