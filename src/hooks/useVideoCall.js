@@ -293,6 +293,8 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
       return;
     }
 
+    // Reset callerUser for outgoing calls to ensure correct display
+    setCallerUser(null);
     setIsInCall(true);
     setCallStatus('calling');
 
@@ -332,6 +334,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
     setIsInCall(false);
     setCallStatus('');
     setIncomingCall(null);
+    setCallerUser(null);
     setIsMuted(false);
     setIsVideoEnabled(true);
 

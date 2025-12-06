@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Button, Avatar, Spin } from 'antd';
+import { Avatar, Spin } from 'antd';
 import { AiOutlinePhone } from "react-icons/ai";
 import { MdCallEnd } from "react-icons/md";
 import { LoadingOutlined } from '@ant-design/icons';
@@ -31,102 +31,145 @@ export default function IncomingCallUI({ caller, onAccept, onReject }) {
   };
 
   return (
-    <div
-      ref={dragRef}
-      onMouseDown={handleMouseDown} 
-      style={{
-        position: 'fixed',
-        bottom: position ? undefined : '20px',
-        right: position ? undefined : '20px',
-        left: position ? `${position.x}px` : undefined,
-        top: position ? `${position.y}px` : undefined,
-        zIndex: 99999,
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
-        borderRadius: '16px',
-        padding: '16px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '12px',
-        minWidth: '280px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        cursor: 'grab',
-        userSelect: 'none'
-      }}
-    >
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        width: '100%',
-        marginBottom: '10px'
-      }}>
-        {isLoading ? (
-          <div style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            border: '2px solid white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(255,255,255,0.1)'
-          }}>
-            <Spin indicator={<LoadingOutlined style={{ fontSize: 20, color: 'white' }} spin />} />
+    <>
+      <style>{`
+        .incoming-call-container {
+          position: fixed;
+          z-index: 99999;
+          background-color: rgba(0, 0, 0, 0.9);
+          border-radius: 16px;
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+          min-width: 280px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          cursor: grab;
+          user-select: none;
+        }
+
+        .incoming-call-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          width: 100%;
+          margin-bottom: 10px;
+        }
+
+        .incoming-avatar {
+          border: 2px solid white;
+        }
+
+        .incoming-avatar.loading {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          border: 2px solid white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: rgba(255,255,255,0.1);
+        }
+
+        .incoming-info {
+          flex: 1;
+        }
+
+        .incoming-name {
+          color: white;
+          font-size: 16px;
+          font-weight: bold;
+        }
+
+        .incoming-status {
+          color: rgba(255,255,255,0.7);
+          font-size: 14px;
+        }
+
+        .incoming-buttons {
+          display: flex;
+          gap: 12px;
+          width: 100%;
+          justify-content: center;
+        }
+
+        .accept-btn,
+        .reject-btn {
+          height: 56px;
+          width: 56px;
+          border-radius: 50%;
+          font-size: 20px;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: white;
+        }
+
+        .accept-btn {
+          background: #52c41a;
+        }
+
+        .accept-btn.disabled {
+          background: #666;
+          cursor: not-allowed;
+        }
+
+        .reject-btn {
+          background: #ff4d4f !important;
+        }
+      `}</style>
+
+      {/* UI */}
+      <div
+        ref={dragRef}
+        onMouseDown={handleMouseDown}
+        className="incoming-call-container"
+        style={{
+          left: position ? `${position.x}px` : undefined,
+          top: position ? `${position.y}px` : undefined,
+          bottom: position ? undefined : '20px',
+          right: position ? undefined : '20px'
+        }}
+      >
+        <div className="incoming-call-header">
+          {isLoading ? (
+            <div className="incoming-avatar loading">
+              <Spin indicator={<LoadingOutlined style={{ fontSize: 20, color: 'white' }} spin />} />
+            </div>
+          ) : (
+            <Avatar src={photoURL} size={48} className="incoming-avatar">
+              {displayName.charAt(0).toUpperCase()}
+            </Avatar>
+          )}
+
+          <div className="incoming-info">
+            <div className="incoming-name">{displayName}</div>
+            <div className="incoming-status">Cuộc gọi đến...</div>
           </div>
-        ) : (
-          <Avatar src={photoURL} size={48} style={{ border: '2px solid white' }}>
-            {displayName.charAt(0).toUpperCase()}
-          </Avatar>
-        )}
-        <div style={{ flex: 1 }}>
-          <div style={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>{displayName}</div>
-          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>Cuộc gọi đến...</div>
+        </div>
+
+        <div className="incoming-buttons">
+          <button
+            className={`accept-btn ${isLoading ? 'disabled' : ''}`}
+            onClick={onAccept}
+            disabled={isLoading}
+          >
+            <AiOutlinePhone />
+          </button>
+
+          <button
+            className="reject-btn"
+            onClick={onReject}
+          >
+            <MdCallEnd />
+          </button>
         </div>
       </div>
-
-      <div style={{ display: 'flex', gap: '12px', width: '100%', justifyContent: 'center' }}>
-        <Button
-          type="primary"
-          size="large"
-          onClick={onAccept}
-          disabled={isLoading}
-          style={{
-            height: '56px',
-            width: '56px',
-            borderRadius: '50%',
-            fontSize: '20px',
-            backgroundColor: isLoading ? '#666' : '#52c41a',
-            borderColor: isLoading ? '#666' : '#52c41a',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: isLoading ? 'not-allowed' : 'pointer'
-          }}
-        >
-          <AiOutlinePhone />
-        </Button>
-
-        <Button
-          danger
-          type="primary"
-          size="large"
-          onClick={onReject}
-          style={{
-            height: '56px',
-            width: '56px',
-            borderRadius: '50%',
-            fontSize: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <MdCallEnd />
-        </Button>
-      </div>
-    </div>
+    </>
   );
 }
