@@ -325,15 +325,6 @@ export default function ChatWindow({onToggleDetail}) {
           <h2>Tin nhắn của bạn</h2>
           <p>Gửi ảnh và tin nhắn riêng tư cho bạn bè</p>
         </div>
-
-        {/* Render VideoCallOverlay even when no room is selected for active calls */}
-        {videoCallState && videoCallState.isInCall && videoCallState.callStatus !== 'incoming' && (
-          <VideoCallOverlay
-            {...videoCallState}
-            user={user}
-            otherUser={otherUser}
-          />
-        )}
       </div>
     );
   }
@@ -417,6 +408,12 @@ export default function ChatWindow({onToggleDetail}) {
                 type="text"
                 icon={<AiOutlineUsergroupAdd />}
                 onClick={() => setIsInviteMemberVisible(true)}  
+              />
+            )}
+            {!banInfo && !isPrivate && videoCallState && (
+              <Button
+                type="text"
+                icon={<VideoCameraOutlined />}
               />
             )}
             {!banInfo && isPrivate && videoCallState && (
