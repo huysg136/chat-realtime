@@ -221,7 +221,6 @@ export default function AddRoomModal() {
               });
             }
           } catch (err) {
-            console.error("Error checking existing invite:", err);
           }
         }
       }

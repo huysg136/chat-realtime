@@ -49,7 +49,6 @@ function ThemeWrapper({ children }) {
           isOnline,
         });
       } catch (error) {
-        console.error("Error updating user status:", error);
       }
     };
 

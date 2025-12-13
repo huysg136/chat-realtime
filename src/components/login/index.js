@@ -43,7 +43,6 @@ async function isUsernameTaken(username) {
   return !snapshot.empty;
 }
 
-
 async function getUniqueUsername(baseUsername) {
   let username = baseUsername;
   let counter = 1;
@@ -54,7 +53,6 @@ async function getUniqueUsername(baseUsername) {
 
   return username;
 }
-
 
 export default function Login() {
   const [lang, setLang] = useState("vi");
@@ -76,8 +74,24 @@ export default function Login() {
     } else if (theme === "dark") {
       root.classList.add("theme-dark");
     } else {
-      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.classList.add(systemDark ? "theme-dark" : "theme-light");
+      // System theme
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      
+      const applySystemTheme = () => {
+        root.classList.remove("theme-light", "theme-dark");
+        root.classList.add(mediaQuery.matches ? "theme-dark" : "theme-light");
+      };
+      
+      // Apply initial system theme
+      applySystemTheme();
+      
+      // Listen for system theme changes
+      mediaQuery.addEventListener("change", applySystemTheme);
+      
+      // Cleanup
+      return () => {
+        mediaQuery.removeEventListener("change", applySystemTheme);
+      };
     }
   }, [theme]);
 
@@ -132,9 +146,6 @@ export default function Login() {
         navigate("/");
       }
     } catch (err) {
-      console.error("❌ Login Error:", err);
-      console.error("Error code:", err.code);
-      console.error("Error message:", err.message);
       toast(`Lỗi đăng nhập: ${err.message}`);
     } finally {
       setLoading(false);
@@ -160,42 +171,6 @@ export default function Login() {
       dark: "Tối",
       system: "Hệ thống",
     },
-    // zh: {
-    //   title: "欢迎回来",
-    //   subtitle: "登录以继续使用 Quik",
-    //   google: "使用 Google 继续",
-    //   privacy: "继续即表示您同意我们的服务条款和隐私政策",
-    //   light: "浅色",
-    //   dark: "深色",
-    //   system: "系统",
-    // },
-    // es: {
-    //   title: "Bienvenido de nuevo",
-    //   subtitle: "Inicia sesión para continuar con Quik",
-    //   google: "Continuar con Google",
-    //   privacy: "Al continuar, aceptas nuestros Términos de servicio y Política de privacidad",
-    //   light: "Claro",
-    //   dark: "Oscuro",
-    //   system: "Sistema"
-    // },
-    // fr: {
-    //   title: "Bon retour",
-    //   subtitle: "Connectez-vous pour continuer sur Quik",
-    //   google: "Continuer avec Google",
-    //   privacy: "En continuant, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité",
-    //   light: "Clair",
-    //   dark: "Sombre",
-    //   system: "Système",
-    // },
-    // ar: {
-    //   title: "مرحبًا بعودتك",
-    //   subtitle: "قم بتسجيل الدخول للمتابعة إلى Quik",
-    //   google: "المتابعة باستخدام Google",
-    //   privacy: "من خلال المتابعة، فإنك توافق على شروط الخدمة وسياسة الخصوصية الخاصة بنا",
-    //   light: "فاتح",
-    //   dark: "داكن",
-    //   system: "النظام",
-    // },
   };
 
   const handleChangeTheme = async (value) => {
@@ -226,38 +201,6 @@ export default function Login() {
             />
             English
           </Option>
-          {/* <Option value="zh">
-            <ReactCountryFlag
-              countryCode="CN"
-              svg
-              style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
-            />
-            中文
-          </Option>
-          <Option value="es">
-            <ReactCountryFlag
-              countryCode="ES"
-              svg
-              style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
-            />
-            Español
-          </Option>
-          <Option value="fr">
-            <ReactCountryFlag
-              countryCode="FR"
-              svg
-              style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
-            />
-            Français
-          </Option>
-          <Option value="ar">
-            <ReactCountryFlag
-              countryCode="SA"
-              svg
-              style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8 }}
-            />
-            العربية
-          </Option> */}
         </Select>
         <div style={{ marginTop: 5 }}>
           <Select value={theme} onChange={handleChangeTheme} style={{ width: 160 }}>
@@ -276,8 +219,6 @@ export default function Login() {
           </Select>
         </div>
       </div>
-
-      
 
       <div className="background-pattern">
         <div className="circle circle-1"></div>
@@ -305,6 +246,7 @@ export default function Login() {
                 icon={<GoogleOutlined />}
                 className="google-btn"
                 onClick={() => handleLogin(googleProvider)}
+                loading={loading}
                 block
               >
                 {text[lang].google}

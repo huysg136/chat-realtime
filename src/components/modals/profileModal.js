@@ -153,7 +153,6 @@ export default function ProfileModal() {
       setIsEditingUsername(false);
       toast.success('Cập nhật Quik ID thành công!');
     } catch (error) {
-      console.error(error);
       toast.error('Lỗi khi cập nhật Quik ID');
     } finally {
       setLoading(false);

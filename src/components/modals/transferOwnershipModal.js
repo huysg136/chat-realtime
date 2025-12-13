@@ -120,7 +120,6 @@ export default function TransferOwnershipModal({
       handleClose();
       setLeavingLoading(false);
     } catch (err) {
-      console.error(err);
       toast.error("Chuyển quyền hoặc rời nhóm thất bại, thử lại sau");
     } finally {
       setLeavingLoading(false);

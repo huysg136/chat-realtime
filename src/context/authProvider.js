@@ -33,7 +33,6 @@ export default function AuthProvider({ children }) {
         isOnline,
       });
     } catch (error) {
-      console.error("Error updating status:", error);
     }
   };
 
@@ -57,7 +56,6 @@ export default function AuthProvider({ children }) {
       await updateStatus(false);    // set offline
       await auth.signOut();         // logout
     } catch (err) {
-      console.error("Logout failed", err);
     }
   };
 

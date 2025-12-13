@@ -56,7 +56,6 @@ export default function PendingInvitesModal() {
         );
         setInviteRooms(roomData);
       } catch (err) {
-        console.error("Fetch pending invites failed:", err);
         setPendingInvites([]);
       }
     };
@@ -103,7 +102,6 @@ export default function PendingInvitesModal() {
       });
 
     } catch (err) {
-      console.error("Accept invite failed:", err);
     }
   };
 
@@ -117,7 +115,6 @@ export default function PendingInvitesModal() {
         return copy;
       });
     } catch (err) {
-      console.error("Decline invite failed:", err);
     }
   };
 

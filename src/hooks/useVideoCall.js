@@ -17,12 +17,10 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
 
   const initStringee = async () => {
     if (!uid) {
-      console.log('⚠️ No user ID, skipping Stringee init');
       return;
     }
 
     if (!window.StringeeClient || !window.StringeeCall2) {
-      console.log('⏳ Waiting for Stringee SDK...');
       await new Promise((resolve) => {
         const checkInterval = setInterval(() => {
           if (window.StringeeClient && window.StringeeCall2) {
@@ -39,13 +37,11 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
     }
 
     if (!window.StringeeClient || !window.StringeeCall2) {
-      console.error('❌ Stringee SDK not loaded');
       return;
     }
 
     try {
       setIsInitializing(true);
-      console.log('🎥 Initializing Stringee for user:', uid);
 
       const tokenRes = await fetch(
         `https://chat-realtime-be.vercel.app/api/stringee/token?uid=${encodeURIComponent(uid)}`
@@ -61,18 +57,15 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
         throw new Error('No access token received');
       }
 
-      console.log('✅ Token received');
 
       const VideoCallService = (await import('../stringee/StringeeService')).default;
       const vc = new VideoCallService(data.access_token, handleIncomingCall, handleCallStateChanged);
 
       await vc.connect();
       
-      console.log('✅ Stringee ready');
       setVideoCall(vc);
 
     } catch (err) {
-      console.error('❌ Init Stringee failed:', err);
       alert(`Không thể kết nối Video Call: ${err.message}`);
     } finally {
       setIsInitializing(false);
@@ -80,14 +73,9 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
   };
 
   const handleIncomingCall = async (call) => {
-    console.log('📞 Incoming call handler triggered');
-    console.log('   From:', call.fromNumber);
-    console.log('   Call ID:', call.callId);
-
     let caller = users.find((u) => String(u.uid).trim() === String(call.fromNumber).trim());
     
     if (!caller) {
-      console.log('⏳ Caller not in users array, fetching from Firestore...');
       try {
         const { collection, query, where, getDocs } = await import('firebase/firestore');
         const { db } = await import('../firebase/config');
@@ -97,10 +85,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
         
         if (!snapshot.empty) {
           caller = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-          console.log('✅ Caller fetched:', caller.displayName);
         } else {
-          console.warn('⚠️ Caller not found in database');
-          // Create a fallback user object
           caller = {
             uid: call.fromNumber,
             displayName: 'Unknown User',
@@ -108,8 +93,6 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
           };
         }
       } catch (error) {
-        console.error('❌ Error fetching caller:', error);
-        // Create a fallback user object
         caller = {
           uid: call.fromNumber,
           displayName: 'Unknown User',
@@ -130,14 +113,12 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
   };
 
   const handleCallStateChanged = (state) => {
-    console.log('🔔 Call state changed:', state);
     
     if (state.code === 1) {
       setCallStatus('calling');
     } else if (state.code === 2) {
       setCallStatus('ringing');
     } else if (state.code === 3) {
-      console.log('✅ Call answered and connected!');
       setCallStatus('connected');
     } else if (state.code === 4) {
       setCallStatus('busy');
@@ -151,20 +132,16 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
 
   const handleAnswerCall = async () => {
     if (!incomingCall || !videoCall) {
-      console.error('❌ No incoming call to answer');
       return;
     }
 
-    console.log('✅ Answering incoming call...');
     setCallStatus('connecting');
 
     try {
       await videoCall.answerCall(incomingCall, handleStream, handleCallStateChanged);
       setCallStatus('connected');
       setIncomingCall(null);
-      console.log('✅ Call answered');
     } catch (err) {
-      console.error('❌ Error answering call:', err);
       alert(`Không thể trả lời: ${err.message}`);
       handleEndCall();
     }
@@ -172,11 +149,9 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
 
   const handleRejectCall = () => {
     if (!incomingCall || !videoCall) {
-      console.error('❌ No incoming call to reject');
       return;
     }
 
-    console.log('❌ Rejecting incoming call...');
     videoCall.rejectCall(incomingCall);
     
     setIncomingCall(null);
@@ -185,12 +160,10 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
   };
 
   const handleStream = (stream, type) => {
-    console.log(`📹 Stream: ${type}`);
 
     if (type === 'local') {
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
-        console.log('✅ Local video attached');
       }
     } else if (type === 'remote') {
       remoteStreamRef.current = stream; // Store the remote stream
@@ -199,7 +172,6 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
         // Check if remote video has video tracks
         const hasVideo = stream && stream.getVideoTracks().length > 0;
         setIsRemoteVideoEnabled(hasVideo);
-        console.log('✅ Remote video attached, has video:', hasVideo);
 
         // Listen for video track changes
         if (stream && stream.getVideoTracks().length > 0) {
@@ -207,7 +179,6 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
           const handleTrackChange = () => {
             const isEnabled = videoTrack.enabled && !videoTrack.muted;
             setIsRemoteVideoEnabled(isEnabled);
-            console.log('📹 Remote video track changed, enabled:', isEnabled);
           };
 
           videoTrack.addEventListener('ended', handleTrackChange);
@@ -234,11 +205,9 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
       if (isRemoteVideoEnabled && remoteStreamRef.current) {
         remoteVideoRef.current.srcObject = remoteStreamRef.current;
         // Force play to ensure video resumes
-        remoteVideoRef.current.play().catch(err => console.log('Play failed:', err));
-        console.log('📹 Remote video restored, showing live video');
+        remoteVideoRef.current.play();
       } else if (!isRemoteVideoEnabled) {
         remoteVideoRef.current.srcObject = null;
-        console.log('🖤 Remote video cleared, showing avatar overlay');
       }
     }
   }, [isRemoteVideoEnabled]);
@@ -255,7 +224,6 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
             const isEnabled = videoTrack.enabled && !videoTrack.muted;
             if (isEnabled !== isRemoteVideoEnabled) {
               setIsRemoteVideoEnabled(isEnabled);
-              console.log('📹 Remote video status changed:', isEnabled);
             }
           }
         }
@@ -276,8 +244,6 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
   }, [isInCall, callStatus, isRemoteVideoEnabled]);
 
   const handleVideoCall = async () => {
-    console.log('📞 Initiating video call...');
-
     if (!videoCall) {
       alert('Dịch vụ Video Call chưa sẵn sàng');
       return;
@@ -293,24 +259,19 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
       return;
     }
 
-    // Reset callerUser for outgoing calls to ensure correct display
     setCallerUser(null);
     setIsInCall(true);
     setCallStatus('calling');
 
     try {
       await videoCall.makeVideoCall(uid, otherUser.uid, handleStream, handleCallStateChanged);
-      console.log('✅ Call initiated');
     } catch (err) {
-      console.error('❌ Call failed:', err);
       alert(`Không thể gọi: ${err.message}`);
       handleEndCall();
     }
   };
 
   const handleEndCall = () => {
-    console.log('📴 Ending call...');
-
     if (videoCall) {
       videoCall.endCall();
       videoCall.onCallStateChanged = null; // Clean up callback
@@ -338,8 +299,6 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
     setCallerUser(null);
     setIsMuted(false);
     setIsVideoEnabled(true);
-
-    console.log('✅ Call ended');
   };
 
   const handleToggleMute = () => {
@@ -348,7 +307,6 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
     const newMutedState = !isMuted;
     videoCall.setMuted(newMutedState);
     setIsMuted(newMutedState);
-    console.log(newMutedState ? '🔇 Muted' : '🔊 Unmuted');
   };
 
   const handleToggleVideo = () => {
@@ -357,7 +315,6 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
     const newVideoState = !isVideoEnabled;
     videoCall.setVideoEnabled(newVideoState);
     setIsVideoEnabled(newVideoState);
-    console.log(newVideoState ? '📹 Video ON' : '📵 Video OFF');
   };
 
   useEffect(() => {

@@ -175,7 +175,6 @@ export default function SettingsModal() {
           setShowOnlineStatus(data.showOnlineStatus ?? true);
         }
       } catch (err) {
-        console.error(err);
       }
     };
 

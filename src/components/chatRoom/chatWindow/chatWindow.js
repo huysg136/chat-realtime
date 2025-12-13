@@ -199,7 +199,6 @@ export default function ChatWindow({onToggleDetail}) {
         setHasMore(false);
       }
     } catch (error) {
-      console.error(error);
     } finally {
       setLoadingMore(false);
     }

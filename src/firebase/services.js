@@ -32,7 +32,6 @@ export const deleteDocument = async (collectionName, docId) => {
     await deleteDoc(docRef);
     return true;
   } catch (error) {
-    console.error("Delete document failed:", error);
     return false;
   }
 };

@@ -45,7 +45,6 @@ export default function VideoCallOverlay({
           }
         }
       } catch (error) {
-        console.error('Error fetching current user:', error);
       }
     };
 

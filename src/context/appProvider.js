@@ -152,7 +152,6 @@ export default function AppProvider({ children }) {
         hasSeenBy: arrayUnion(user.uid)
       });
     } catch (error) {
-      console.error("Error marking announcement as seen:", error);
     }
   };
 

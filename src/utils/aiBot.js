@@ -14,7 +14,6 @@ export async function askGemini(prompt) {
     if (res?.data?.answer) return res.data.answer;
 
     if (res?.data?.error) {
-      console.error("Backend Gemini error:", res.data.error);
       return "Bot không trả lời được 🫠";
     }
 
@@ -22,15 +21,8 @@ export async function askGemini(prompt) {
 
   } catch (err) {
     if (err.code === "ECONNABORTED") {
-      console.error("Timeout khi gọi backend Gemini:", err.message);
       toast.error("Bot phản hồi quá chậm 🫠");
       return "Bot phản hồi quá chậm 🫠";
-    }
-
-    if (err.response?.data?.error) {
-      console.error("Gemini API error:", err.response.data.error);
-    } else {
-      console.error("Error calling backend Gemini:", err);
     }
 
     return "Bot không trả lời được 🫠";

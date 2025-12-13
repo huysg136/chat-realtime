@@ -316,7 +316,6 @@ export default function ChatInput({
       });
 
     } catch (err) {
-      console.error(err);
       toast.error("Gửi tin nhắn thoại thất bại");
     } finally {
       setSendingVoice(false);
@@ -392,13 +391,11 @@ export default function ChatInput({
             });
           })
           .catch((err) => {
-            console.error("Bot error:", err);
             toast.error("Bot không trả lời được 🫠");
           });
       }
     } catch (err) {
       toast.error("Gửi tin nhắn thất bại");
-      console.error(err);
     } finally {
       setSending(false);
       setTimeout(() => inputRef.current?.focus(), 10);
