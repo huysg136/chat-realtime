@@ -377,8 +377,8 @@ export default function ChatDetailPanel({
                       </>
                     )}
                   </div>
-                  <p className="room-uid">ID phòng chat: {selectedRoom.id}</p>
-                  <p className="sub">{selectedRoom.description}</p>
+                  {/* <p className="room-uid">ID phòng chat: {selectedRoom.id}</p>
+                  <p className="sub">{selectedRoom.description}</p> */}
                 </div>
               </div>
             )}
