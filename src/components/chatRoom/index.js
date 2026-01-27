@@ -1,5 +1,4 @@
 import React from "react";
-import { Row, Col } from "antd";
 import SideBar from "../chatRoom/sideBar/sideBar";
 import ChatWindow from "../chatRoom/chatWindow/chatWindow";
 import LeftSide from "./leftSide/leftSide";
@@ -47,40 +46,38 @@ export default function ChatRoom() {
     };
 
     return (
-        <div>
-            <Row>
-                <Col span={1}>
-                    <LeftSide />
-                </Col>
+        <div style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
+            <div style={{ width: '64px', flexShrink: 0 }}>
+                <LeftSide />
+            </div>
 
-                <Col span={6}>
-                    <SideBar />
-                </Col>
+            <div style={{ width: '360px', flexShrink: 0 }}> 
+                <SideBar />
+            </div>
 
-                <Col span={isDetailVisible ? 11 : 17}>
-                    <ChatWindow
-                        isDetailVisible={isDetailVisible}
-                        onToggleDetail={() => setIsDetailVisible(prev => !prev)}
+            <div style={{ flex: 1 }}>
+                <ChatWindow
+                    isDetailVisible={isDetailVisible}
+                    onToggleDetail={() => setIsDetailVisible(prev => !prev)}
+                />
+            </div>
+
+            {isDetailVisible && selectedRoom && (
+                <div style={{ width: '360px', flexShrink: 0 }}>
+                    <ChatDetailPanel
+                        isVisible={true}
+                        selectedRoom={selectedRoom}
+                        membersData={membersData}
+                        currentUser={{ uid, displayName, photoURL }}
+                        currentUserRole={currentUserRole}
+                        rolesArray={rolesArray}
+                        isPrivate={isPrivate}
+                        otherUser={otherUser}
+                        onClose={() => setIsDetailVisible(false)}
+                        onOpenTransferModal={() => setIsTransferModalVisible(true)}
                     />
-                </Col>
-
-                {isDetailVisible && selectedRoom && (
-                    <Col span={6}>
-                        <ChatDetailPanel
-                            isVisible={true}
-                            selectedRoom={selectedRoom}
-                            membersData={membersData}
-                            currentUser={{ uid, displayName, photoURL }}
-                            currentUserRole={currentUserRole}
-                            rolesArray={rolesArray}
-                            isPrivate={isPrivate}
-                            otherUser={otherUser}
-                            onClose={() => setIsDetailVisible(false)}
-                            onOpenTransferModal={() => setIsTransferModalVisible(true)}
-                        />
-                    </Col>
-                )}
-            </Row>
+                </div>
+            )}
 
             {selectedRoom && (
                 <TransferOwnershipModal

@@ -1,23 +1,19 @@
-import React, { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import { AiOutlineLogout } from "react-icons/ai";
 import { Avatar, Dropdown, Menu } from "antd";
-import { auth } from "../../../firebase/config";
+//import { auth } from "../../../firebase/config";
 import { AuthContext } from "../../../context/authProvider";
 import { db } from "../../../firebase/config";
 import { getUserDocIdByUid } from "../../../firebase/services";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import "./leftSide.scss"; 
-import { GoHome, GoHomeFill} from "react-icons/go";
 //import { RiMessengerFill, RiMessengerLine } from "react-icons/ri";
 import { AiFillMessage, AiOutlineMessage  } from "react-icons/ai";
-import { IoNotifications, IoMailUnreadOutline, IoMailUnread, IoPeople, IoPeopleOutline } from "react-icons/io5";
-import { IoMdNotificationsOutline } from "react-icons/io";
+import { IoMailUnreadOutline } from "react-icons/io5";
 import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { AppContext } from '../../../context/appProvider';
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { ref, set } from "firebase/database";
-import { rtdb } from "../../../firebase/config";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 
 
