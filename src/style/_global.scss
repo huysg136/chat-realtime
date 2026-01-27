@@ -10,6 +10,15 @@ body * {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden; // Ngăn body scroll
+}
+
+#root {
+  height: 100%;
+}
+
 .copyable {
   position: relative;
   display: inline-flex;
