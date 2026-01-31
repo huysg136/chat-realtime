@@ -11,6 +11,7 @@ import ReactCountryFlag from "react-country-flag";
 import "./index.scss";
 import logo_quik from "../../images/logo_quik.png";
 import { toast } from "react-toastify";
+import { ROUTERS } from "../../utils/router";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -141,9 +142,9 @@ export default function Login() {
       const maintenance = configDoc.exists() ? configDoc.data().maintenance : false;
 
       if (maintenance && role !== "admin" && role !== "moderator") {
-        navigate("/maintenance");
+        navigate(ROUTERS.USER.MAINTENANCE);
       } else {
-        navigate("/");
+        navigate(ROUTERS.USER.LOGIN);
       }
     } catch (err) {
       toast(`Lỗi đăng nhập: ${err.message}`);
@@ -259,7 +260,7 @@ export default function Login() {
       </Row>
 
       <div className="footer-credit">
-        © 2025 Made by <span className="author-name">Thái Gia Huy</span> · quik.id.vn
+        © {new Date().getFullYear()} Made by <span className="author-name">Thái Gia Huy</span> · quik.id.vn
       </div>
     </div>
   );

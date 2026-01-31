@@ -1,0 +1,67 @@
+@use "sass:map";
+@import "../../../style/theme";
+
+.admin-header {
+  position: fixed;
+  width: calc(100% - 220px);
+  z-index: 101;
+  background: #fff;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  //box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid #e6e8eb;
+  transition: all 0.3s ease;
+
+  h2 {
+    margin: 0;
+    color: #1890ff;
+    font-weight: 500;
+    font-size: 18px;
+
+    body.dark-theme & {
+      color: #e8e8f2;
+    }
+  }
+
+  .admin-user {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0px 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+
+    .ant-avatar {
+      margin-right: 8px;
+    }
+
+    span {
+      font-weight: 500;
+      color: #2f3640;
+    }
+  }
+}
+
+body.theme-dark {
+  .admin-header {
+    background: map.get($theme-colors, "bg-dark-blue");
+    border-bottom: 1px solid #36465d;
+
+    h2 {
+      color: #ffffff;
+    }
+
+    .admin-user {
+      .ant-avatar {
+        border: none;
+        box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+      }
+
+      span {
+        color: #ffffff;
+      }
+    }
+  }
+}

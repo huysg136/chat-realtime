@@ -1,0 +1,39 @@
+@use "sass:map";
+@import "../../../style/theme";
+
+.admin-layout {
+  min-height: 100vh;
+  background: #f5f6fa; 
+  transition: all 0.3s ease;
+
+  .admin-main {
+    background: #f5f6fa;
+    margin-left: 220px;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .admin-content {
+    margin: 24px;
+    background: #fff;
+    border-radius: 12px;
+    padding: calc(64px) 24px 24px 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    min-height: auto;
+    transition: all 0.3s ease;
+  }
+}
+
+body.theme-dark {
+  .admin-layout {
+    background: map.get($theme-colors, "bg-dark-blue"); 
+
+    .admin-main {
+      background: map.get($theme-colors, "bg-dark-blue");
+    }
+
+    .admin-content {
+      background: map.get($theme-colors, "bg-dark-blue");
+    }
+  }
+}

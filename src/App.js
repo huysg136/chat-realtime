@@ -1,34 +1,20 @@
 import './App.css';
-import ChatRoom from './components/chatRoom';
-import Login from './components/login';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import AuthProvider from './context/authProvider';
-import AppProvider from './context/appProvider';
-import AddRoomModal from './components/modals/addRoomModal';
-import InviteMemberModal from './components/modals/inviteMemberModal';
-import ProfileModal from './components/modals/profileModal';
-import PendingInvitesModal from './components/modals/pendingInvitesModal';
-import PrivateRoute from './routes/privateRoute';
-import AdminLayout from './admin/adminLayout/adminLayout';
-import Dashboard from './admin/dashboard/dashboard';
-import UsersManager from './admin/userManager/userManager';
-import RoomsManager from './admin/roomManager/roomManager';
-import AnnouncementManager from './admin/announcementManager/announcementManager';
-import AdminSettings from './admin/adminSettings/adminSettings';
-import MaintenancePage from './components/maintenancePage/maintenancePage';
-import SettingsModal from './components/modals/settingsModal';
-import AnnouncementModal from './components/modals/announcementModal';
-import ModPermissionManager from './admin/modPermissionManager/modPermissionManager';
-
-import useApplyTheme from './hooks/useApplyTheme';
-import { AuthContext } from './context/authProvider';
+import { BrowserRouter, Routes } from 'react-router-dom';
+import './i18n/config';
 import { useContext, useEffect } from 'react';
 import { ref, set } from 'firebase/database';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import AuthProvider, { AuthContext } from './context/authProvider';
+import AppProvider from './context/appProvider';
+import useApplyTheme from './hooks/useApplyTheme';
 import { rtdb } from './firebase/config';
 import { getUserDocIdByUid } from './firebase/services';
 
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { renderPublicRoutes, renderUserRoutes, renderAdminRoutes } from './routes/router';
+
+import ModalManager from './context/modalManager';
 
 function ThemeWrapper({ children }) {
   const { user } = useContext(AuthContext);
@@ -37,11 +23,13 @@ function ThemeWrapper({ children }) {
   useEffect(() => {
     const updateStatus = async (isOnline) => {
       if (!user) return;
+
       const userDocId = await getUserDocIdByUid(user.uid);
       if (!userDocId) return;
 
       const statusRef = ref(rtdb, `userStatuses/${userDocId}`);
       const now = Date.now();
+
       try {
         await set(statusRef, {
           lastOnline: now,
@@ -49,10 +37,12 @@ function ThemeWrapper({ children }) {
           isOnline,
         });
       } catch (error) {
+        console.error('Error updating status:', error);
       }
     };
 
     const handleOffline = () => updateStatus(false);
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
         updateStatus(false);
@@ -73,46 +63,29 @@ function ThemeWrapper({ children }) {
   return children;
 }
 
+function AppRoutes() {
+  return (
+    <Routes>
+      {renderPublicRoutes()}
+      {renderUserRoutes()}
+      {renderAdminRoutes()}
+    </Routes>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <AppProvider>
           <ThemeWrapper>
-            <ToastContainer position="top-right" autoClose={1500} toastClassName="small-toast"/>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/maintenance" element={<MaintenancePage />} />
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute>
-                    <ChatRoom />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/admin"
-                element={
-                  <PrivateRoute requireAdmin requirePermission="canAccessAdminPage">
-                    <AdminLayout />
-                  </PrivateRoute>
-                }
-              >
-                <Route index element={<Dashboard />} />
-                <Route path="users" element={<UsersManager />} />
-                <Route path="rooms" element={<RoomsManager />} />
-                <Route path="announcements" element={<AnnouncementManager />} />
-                <Route path="settings" element={<AdminSettings />} />
-                <Route path="mod-permissions" element={<ModPermissionManager />}/>
-              </Route>
-            </Routes>
-            <AddRoomModal />
-            <InviteMemberModal />
-            <ProfileModal />
-            <PendingInvitesModal/>
-            <SettingsModal />
-            <AnnouncementModal />
+            <ToastContainer
+              position="top-right"
+              autoClose={2000}
+              toastClassName="small-toast"
+            />
+            <AppRoutes />
+            <ModalManager />
           </ThemeWrapper>
         </AppProvider>
       </AuthProvider>

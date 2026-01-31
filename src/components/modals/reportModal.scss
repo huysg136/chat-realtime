@@ -1,0 +1,409 @@
+.report-modal {
+  .ant-modal-content {
+    background-color: #ffffff;
+    color: #000;
+  }
+
+  .ant-modal-header,
+  .ant-modal-title {
+    background-color: #ffffff;
+    color: #000;
+  }
+
+  .ant-modal-body {
+    background-color: #ffffff;
+    color: #000;
+    padding: 0 !important; 
+    max-height: 70vh; 
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ant-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .ant-modal-close {
+    color: #000;
+    &:hover {
+      color: #000;
+    }
+  }
+
+  .report-scrollable {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0px 10px 0px 10px;
+    max-height: calc(70vh - 60px); // Reserve space for footer
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 3px;
+
+      &:hover {
+        background: #555;
+      }
+    }
+  }
+
+  .report-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  // ← FIXED FOOTER
+  .report-footer {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 24px;
+    border-top: 1px solid #f0f0f0;
+    background-color: #ffffff;
+  }
+
+  // Message Preview Section
+  .message-preview {
+    .preview-label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #000;
+
+      .sender-name {
+        color: #1890ff;
+      }
+    }
+
+    .preview-box {
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 8px;
+      max-height: 120px;
+      overflow: auto;
+      border: 1px solid #e8e8e8;
+
+      p {
+        margin: 0;
+        word-break: break-word;
+        color: #000;
+      }
+    }
+  }
+
+  // Reason Section
+  .reason-section {
+    .section-label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #000;
+
+      .required {
+        color: #ff4d4f;
+      }
+    }
+
+    .reason-group {
+      width: 100%;
+    }
+
+    .reason-radio {
+      padding: 10px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      width: 100%;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: #1890ff;
+        background: #f0f7ff;
+      }
+
+      .ant-radio-checked + span {
+        color: #1890ff;
+      }
+
+      .ant-radio + span > div {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+    }
+  }
+
+  // Details Section
+  .details-section {
+    .section-label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #000;
+    }
+
+    .details-textarea {
+      background-color: #fff;
+      border-color: #d9d9d9;
+      color: #000;
+
+      &:focus,
+      &.ant-input-focused {
+        border-color: #1890ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+      }
+
+      &::placeholder {
+        color: #bfbfbf;
+      }
+    }
+  }
+
+  // Warning Box
+  .warning-box {
+    padding: 12px;
+    background: #fff7e6;
+    border: 1px solid #ffd591;
+    border-radius: 6px;
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: #ad6800;
+    }
+  }
+
+  // Button Styles
+  .cancel-button {
+    color: #000 !important;
+    border-color: #d9d9d9 !important;
+    background-color: #fff !important;
+
+    &:hover {
+      border-color: #40a9ff !important;
+      color: #40a9ff !important;
+    }
+  }
+
+  .submit-button {
+    background-color: #ff4d4f !important;
+    border-color: #ff4d4f !important;
+    color: #fff !important;
+
+    &:hover:not(:disabled) {
+      background-color: #ff7875 !important;
+      border-color: #ff7875 !important;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  // Ant Design Overrides
+  .ant-radio-wrapper {
+    color: #000;
+  }
+
+  .ant-input,
+  .ant-input-affix-wrapper {
+    background-color: #fff;
+    border-color: #d9d9d9;
+    color: #000;
+
+    &:focus,
+    &.ant-input-focused {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+  }
+
+  .ant-input::placeholder {
+    color: #bfbfbf;
+  }
+
+  // ==================== DARK THEME ====================
+  body.theme-dark & {
+    .ant-modal-content,
+    .ant-modal-header,
+    .ant-modal-title {
+      background-color: rgba(30, 30, 30, 0.95);
+      color: #f9fafb;
+    }
+
+    .ant-modal-body {
+      background-color: rgba(30, 30, 30, 0.95);
+    }
+
+    .ant-modal-close {
+      color: #ffffff;
+      &:hover {
+        color: #cdcdcd;
+      }
+    }
+
+    // Scrollbar dark theme
+    .report-scrollable {
+      &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+      }
+    }
+
+    .report-footer {
+      border-top-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(30, 30, 30, 0.95);
+    }
+
+    // Message Preview
+    .message-preview {
+      .preview-label {
+        color: #f9fafb;
+
+        .sender-name {
+          color: #3b82f6;
+        }
+      }
+
+      .preview-box {
+        background: rgba(51, 51, 51, 0.95);
+        border-color: rgba(255, 255, 255, 0.2);
+
+        p {
+          color: #f9fafb;
+        }
+      }
+    }
+
+    // Reason Section
+    .reason-section {
+      .section-label {
+        color: #f9fafb;
+      }
+
+      .reason-radio {
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #f9fafb;
+
+        &:hover {
+          border-color: #3b82f6;
+          background: rgba(59, 130, 246, 0.1);
+        }
+
+        .ant-radio-checked + span {
+          color: #3b82f6;
+        }
+      }
+    }
+
+    // Details Section
+    .details-section {
+      .section-label {
+        color: #f9fafb;
+      }
+
+      .details-textarea {
+        background-color: rgba(51, 51, 51, 0.95);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #f9fafb;
+
+        &:focus,
+        &.ant-input-focused {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        &::placeholder {
+          color: #cecece;
+        }
+      }
+    }
+
+    // Warning Box
+    .warning-box {
+      background: rgba(120, 53, 15, 0.2);
+      border-color: rgba(250, 173, 20, 0.3);
+
+      p {
+        color: #faad14;
+      }
+    }
+
+    // Buttons
+    .cancel-button {
+      color: #f9fafb !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      background-color: transparent !important;
+
+      &:hover {
+        border-color: #3b82f6 !important;
+        color: #3b82f6 !important;
+      }
+    }
+
+    .submit-button {
+      background-color: #dc2626 !important;
+      border-color: #dc2626 !important;
+      color: #fff !important;
+
+      &:hover:not(:disabled) {
+        background-color: #ef4444 !important;
+        border-color: #ef4444 !important;
+      }
+    }
+
+    // Ant Design Overrides
+    .ant-radio-wrapper {
+      color: #f9fafb;
+    }
+
+    .ant-radio-inner {
+      background-color: rgba(51, 51, 51, 0.95);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .ant-radio-checked .ant-radio-inner {
+      border-color: #3b82f6;
+      background-color: #3b82f6;
+    }
+
+    .ant-input,
+    .ant-input-affix-wrapper {
+      background-color: rgba(51, 51, 51, 0.95);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #f9fafb;
+
+      &:focus,
+      &.ant-input-focused {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      }
+    }
+
+    .ant-input::placeholder {
+      color: #cecece;
+    }
+
+    .ant-input-textarea-show-count::after {
+      color: #cecece;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+    "settings": {
+        "title": "Settings",
+        "menuAccount": "Account",
+        "menuInterface": "Interface",
+        "themeLabel": "Theme",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System",
+        "languageLabel": "Language",
+        "allowGroupInviteLabel": "Allow others to add me to groups",
+        "allowGroupInviteDesc": {
+            "on": "People can add you directly to groups.",
+            "off": "If someone adds you, you'll receive an invite in 'Pending Invites' and can decide whether to join."
+        },
+        "allowOnlineStatusLabel": "Show online status",
+        "allowOnlineStatusDesc": {
+            "on": "People can see you are online.",
+            "off": "People won't see that you are online."
+        }
+    }
+}

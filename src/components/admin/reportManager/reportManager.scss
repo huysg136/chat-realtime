@@ -1,0 +1,440 @@
+.report-manager {
+  .filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+
+    input,
+    select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 13px;
+      min-width: 120px;
+      background: #fff;
+      color: #2f3640;
+
+      &::placeholder {
+        color: #94a3b8;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: #1677ff;
+        box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+      }
+    }
+  }
+
+  .ant-table {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+    .ant-table-thead > tr > th {
+      background: #f5f6fa;
+      font-weight: 600;
+      color: #2f3640;
+      border-bottom: 1px solid #e6e8eb;
+      padding: 12px 16px;
+    }
+
+    .ant-table-tbody > tr > td {
+      border-bottom: 1px solid #e6e8eb;
+      padding: 12px 16px;
+      vertical-align: top;
+    }
+
+    .ant-table-tbody > tr:nth-child(odd) {
+      background: #fff;
+    }
+
+    .ant-table-tbody > tr:hover > td {
+      background: rgba(24, 144, 255, 0.05);
+    }
+
+    // Message Preview Cell
+    .message-preview-cell {
+      .message-kind {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: #8c8c8c;
+        margin-bottom: 4px;
+      }
+
+      .message-text {
+        font-size: 13px;
+        color: #2f3640;
+        line-height: 1.4;
+        margin-bottom: 4px;
+      }
+
+      .message-meta {
+        font-size: 11px;
+        color: #8c8c8c;
+
+        .copyable-id {
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          transition: color 0.2s;
+
+          &:hover {
+            color: #1677ff;
+          }
+        }
+      }
+    }
+
+    // Reporter Cell
+    .reporter-cell {
+      .reporter-name {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #2f3640;
+        margin-bottom: 4px;
+      }
+
+      .reporter-meta {
+        font-size: 11px;
+        color: #8c8c8c;
+      }
+    }
+
+    // Category Cell
+    .category-cell {
+      .ai-category {
+        font-size: 11px;
+        color: #8c8c8c;
+        margin-top: 4px;
+      }
+    }
+
+    // Confidence Cell
+    .confidence-cell {
+      .confidence-label {
+        margin-bottom: 4px;
+      }
+
+      .confidence-progress {
+        width: 100%;
+        height: 6px;
+        background: #f0f0f0;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 4px;
+      }
+    }
+
+    // Actions Cell
+    .actions-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .btn-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 6px 10px;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+
+        &:hover:not(:disabled) {
+          opacity: 0.85;
+          transform: translateY(-1px);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        &.btn-view {
+          background: #1677ff;
+          color: #fff;
+        }
+
+        &.btn-approve {
+          background: #52c41a;
+          color: #fff;
+        }
+
+        &.btn-reject {
+          background: #faad14;
+          color: #fff;
+        }
+
+        &.btn-delete {
+          background: #ff4d4f;
+          color: #fff;
+        }
+      }
+    }
+  }
+}
+
+// Detail Modal
+.report-detail-modal,
+.action-modal {
+  .report-detail-content,
+  .action-content {
+    .detail-section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f0f0f0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      h4 {
+        margin: 0 0 12px 0;
+        color: #2f3640;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 8px 0;
+        font-size: 13px;
+        line-height: 1.6;
+
+        strong {
+          font-weight: 600;
+          color: #2f3640;
+        }
+
+        .copyable-text {
+          cursor: pointer;
+          color: #1677ff;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          transition: opacity 0.2s;
+
+          &:hover {
+            opacity: 0.8;
+          }
+        }
+      }
+    }
+
+    .quick-info {
+      background: #f5f6fa;
+      padding: 12px;
+      border-radius: 8px;
+
+      p {
+        margin: 6px 0;
+        font-size: 13px;
+
+        strong {
+          font-weight: 600;
+          color: #2f3640;
+        }
+      }
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover:not(:disabled) {
+          opacity: 0.85;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        &.btn-cancel {
+          background: #8c8c8c;
+          color: #fff;
+        }
+
+        &.btn-submit.approve {
+          background: #52c41a;
+          color: #fff;
+        }
+
+        &.btn-submit.reject {
+          background: #faad14;
+          color: #fff;
+        }
+      }
+    }
+  }
+}
+
+// Dark Mode
+body.theme-dark {
+  .report-manager {
+    .filters {
+      input,
+      select {
+        background: #27354a;
+        color: #f1f5f9;
+        border: 1px solid #334155;
+
+        &::placeholder {
+          color: #64748b;
+        }
+
+        &:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+      }
+    }
+
+    .ant-table {
+      background: #1e293b;
+      color: #e2e8f0;
+
+      .ant-table-thead > tr > th {
+        background: #27354a;
+        color: #f1f5f9;
+        border-bottom: 1px solid #334155;
+      }
+
+      .ant-table-tbody > tr > td {
+        border-bottom: 1px solid #334155;
+      }
+
+      .ant-table-tbody > tr:nth-child(odd) {
+        background: #1e293b;
+      }
+
+      .ant-table-tbody > tr:hover > td {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .message-preview-cell {
+        .message-text {
+          color: #e2e8f0;
+        }
+      }
+
+      .reporter-cell {
+        .reporter-name {
+          color: #e2e8f0;
+        }
+      }
+
+      .confidence-cell {
+        .confidence-progress {
+          background: #334155;
+        }
+
+        .ai-explanation {
+          color: #cbd5e1;
+        }
+      }
+    }
+  }
+
+  .report-detail-modal,
+  .action-modal {
+    .ant-modal-content {
+      background: #1e293b;
+      color: #f1f5f9;
+
+      .ant-modal-header {
+        background: #27354a;
+        border-bottom: 1px solid #334155;
+
+        .ant-modal-title {
+          color: #f1f5f9;
+        }
+      }
+    }
+
+    .report-detail-content,
+    .action-content {
+      .detail-section {
+        border-bottom: 1px solid #334155;
+
+        h4 {
+          color: #f1f5f9;
+        }
+
+        p {
+          color: #cbd5e1;
+
+          strong {
+            color: #f1f5f9;
+          }
+
+          .copyable-text {
+            color: #60a5fa;
+          }
+        }
+      }
+
+      .quick-info {
+        background: #27354a;
+        border: 1px solid #334155;
+
+        p strong {
+          color: #f1f5f9;
+        }
+      }
+
+      .ant-input,
+      textarea {
+        background: #27354a;
+        color: #f1f5f9;
+        border: 1px solid #334155;
+
+        &:focus,
+        &:hover {
+          border-color: #3b82f6;
+        }
+      }
+
+      .modal-actions {
+        button {
+          &.btn-cancel {
+            background: #475569;
+          }
+
+          &.btn-submit.approve {
+            background: #22c55e;
+          }
+
+          &.btn-submit.reject {
+            background: #f59e0b;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+    "settings": {
+        "title": "Cài đặt",
+        "menuAccount": "Tài khoản",
+        "menuInterface": "Giao diện",
+        "themeLabel": "Chủ đề giao diện",
+        "light": "Sáng",
+        "dark": "Tối",
+        "system": "Theo hệ thống",
+        "languageLabel": "Ngôn ngữ",
+        "allowGroupInviteLabel": "Cho phép người khác thêm vào nhóm",
+        "allowGroupInviteDesc": {
+            "on": "Mọi người có thể thêm bạn trực tiếp vào nhóm.",
+            "off": "Nếu ai thêm bạn, bạn sẽ nhận lời mời trong phần ‘Lời mời đang chờ’, và bạn có thể quyết định có tham gia hay không."
+        },
+        "allowOnlineStatusLabel": "Hiển thị trạng thái trực tuyến",
+        "allowOnlineStatusDesc": {
+            "on": "Mọi người có thể thấy bạn đang trực tuyến.",
+            "off": "Mọi người sẽ không thấy bạn đang trực tuyến."
+        }
+    }
+}

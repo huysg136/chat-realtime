@@ -7,6 +7,7 @@ import { ref, set } from "firebase/database";
 import { rtdb } from "../firebase/config";
 import { Spin } from 'antd';
 import { getUserDocIdByUid } from "../firebase/services";
+import { ROUTERS } from '../utils/router';
 
 export const AuthContext = React.createContext();
 const auth = getAuth(app);
@@ -102,14 +103,14 @@ export default function AuthProvider({ children }) {
               uid,
             });
             setIsLoading(false);
-            if (window.location.pathname === "/login") navigate("/");
+            if (window.location.pathname === "/login") navigate(ROUTERS.USER.HOME);
           });
 
           unsubscribeUserRef.current = unsubscribeUser;
         } else {
           setUser({ displayName, email, photoURL, uid, role: "user", theme: "system", permissions: {} });
           setIsLoading(false);
-          if (window.location.pathname === "/login") navigate("/");
+          if (window.location.pathname === "/login") navigate(ROUTERS.USER.HOME);
         }
       } else {
         updateStatus(false); 
@@ -117,7 +118,7 @@ export default function AuthProvider({ children }) {
         setUser(null);
         setIsLoading(false);
         stopHeartbeat();
-        if (window.location.pathname !== "/login") navigate("/login");
+        if (window.location.pathname !== "/login") navigate(ROUTERS.USER.LOGIN);
       }
     });
 
