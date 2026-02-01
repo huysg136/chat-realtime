@@ -8,7 +8,7 @@ const { Header } = Layout;
 
 export default function AdminHeader() {
   const { user } = useContext(AuthContext);
-  const { role, photoURL, displayName, loading } = useUserData(user.uid);
+  const { role, photoURL, displayName, loading } = useUserData(user?.uid);
   return (
     <Header className="admin-header">
       <h2>Trang quản trị quik.id.vn</h2>
