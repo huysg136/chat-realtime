@@ -29,6 +29,7 @@ import { Table, Tag, Spin, Modal, Input, Radio, Space, Select } from "antd";
 import "react-toastify/dist/ReactToastify.css";
 import "./reportManager.scss";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 const { TextArea } = Input;
 
 const CATEGORY_COLORS = {
@@ -284,7 +285,7 @@ export default function ReportManager() {
 
       // 4. Send email notification
       try {
-        const emailResponse = await fetch('https://chat-realtime-be.vercel.app/api/reports/notify', {
+        const emailResponse = await fetch(`${API_BASE_URL}/api/reports/notify`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

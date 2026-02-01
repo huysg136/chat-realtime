@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCall) {
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   const [videoCall, setVideoCall] = useState(null);
   const [isInCall, setIsInCall] = useState(false);
   const [callStatus, setCallStatus] = useState('');
@@ -44,7 +45,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
       setIsInitializing(true);
 
       const tokenRes = await fetch(
-        `https://chat-realtime-be.vercel.app/api/stringee/token?uid=${encodeURIComponent(uid)}`
+        `${API_BASE_URL}/api/stringee/token?uid=${encodeURIComponent(uid)}`
       );
       
       if (!tokenRes.ok) {

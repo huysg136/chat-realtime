@@ -1,11 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 export async function askGroq(prompt) {
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   if (!prompt || !prompt.trim()) return "Bạn muốn hỏi gì? 🫠";
 
   try {
     const res = await axios.post(
-      "https://chat-realtime-be.vercel.app/api/ask-groq", 
+      `${API_BASE_URL}/api/ask-groq`, 
       { prompt },
       { timeout: 30000 }    
     );

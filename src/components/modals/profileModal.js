@@ -6,10 +6,11 @@ import { AppContext } from '../../context/appProvider';
 import { updateDocument, getUserDocIdByUid } from '../../firebase/services';
 import { db } from "../../firebase/config";
 import { toast } from 'react-toastify';
-import axios from "axios";
 import 'react-toastify/dist/ReactToastify.css';
 import { doc, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
-import { FiAlertTriangle, FiCheckCircle, FiXCircle, FiRefreshCcw } from "react-icons/fi";
+import { FiAlertTriangle, FiXCircle } from "react-icons/fi";
+import { uploadToR2 } from '../../utils/uploadToR2';
+import { validateFile } from '../../utils/fileValidation';
 import "./profileModal.scss";
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
@@ -25,6 +26,7 @@ export default function ProfileModal() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const [lastChange, setLastChange] = useState(null);
   const [changeCount, setChangeCount] = useState(0);
@@ -172,33 +174,42 @@ export default function ProfileModal() {
     const file = e.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
+    // Validate file (optional)
+    if (!validateFile(file)) {
+      e.target.value = null;
+      return;
+    }
+
+    // Chỉ cho phép upload ảnh
+    if (!file.type.startsWith('image/')) {
+      toast.error('Vui lòng chọn file ảnh');
+      e.target.value = null;
+      return;
+    }
 
     try {
-      const res = await axios.post(
-        "https://chat-realtime-be.vercel.app/upload",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      setUploadingAvatar(true);
 
-      const avatarUrl = res.data.url;
+      // Upload lên R2 giống ChatInput
+      const avatarUrl = await uploadToR2(file);
 
-      // cập nhật Firestore
+      // Cập nhật Firestore
       const docId = await getUserDocIdByUid(user.uid);
       await updateDocument("users", docId, { photoURL: avatarUrl });
       setUser((prev) => ({ ...prev, photoURL: avatarUrl }));
 
       toast.success("Đổi ảnh đại diện thành công!");
     } catch (err) {
+      console.error('Upload avatar error:', err);
       toast.error("Upload ảnh thất bại");
+    } finally {
+      setUploadingAvatar(false);
+      e.target.value = null;
     }
   };
 
 
-  // 🧮 Tính số ngày còn lại
+  // Tính số ngày còn lại
   const getDaysLeft = () => {
     if (!lastChange) return 0;
     const diffDays = Math.floor((new Date() - new Date(lastChange)) / (1000 * 60 * 60 * 24));
@@ -232,6 +243,8 @@ export default function ProfileModal() {
               onClick={() => fileInputRef.current.click()}
               className="camera-button"
               style={{ position: 'absolute', bottom: 0, right: 0, border: 'none' }}
+              loading={uploadingAvatar}
+              disabled={uploadingAvatar}
             />
           </div>
           <input
@@ -240,6 +253,7 @@ export default function ProfileModal() {
             onChange={handleAvatarChange}
             accept="image/*"
             style={{ display: 'none' }}
+            disabled={uploadingAvatar}
           />
         </div>
 

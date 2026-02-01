@@ -7,6 +7,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import "./reportModal.scss";
 import { askGemini } from "../../utils/AI/geminiBot";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 const { TextArea } = Input;
 
 // ==================== SIMPLE CATEGORIES ====================
@@ -461,7 +462,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
       // 8. Send Email if Auto-Resolved
       if (resolved) {
         try {
-          fetch('https://chat-realtime-be.vercel.app/api/reports/notify', {
+          fetch(`${API_BASE_URL}/api/reports/notify`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
