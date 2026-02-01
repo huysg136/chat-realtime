@@ -6,7 +6,7 @@ import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import MediaRenderer from "./MediaRenderer";
 import { db } from "../../../firebase/config";
-import { doc, onSnapshot, collection, query, where, getDoc  } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, where, getDoc } from "firebase/firestore";
 import {
   getUserDocIdByUid,
   sendMessageToRoom,
@@ -49,7 +49,7 @@ const ReplyPreview = ({ replyTo, isOwn }) => {
 
 
     const messageRef = doc(db, "messages", replyTo.id);
-    
+
     getDoc(messageRef).then((docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
@@ -240,7 +240,7 @@ export default function Message({
         targetUid={target?.uid}
         actorPhotoURL={actor?.photoURL}
         targetPhotoURL={target?.photoURL}
-        users={users}  
+        users={users}
       />
     );
   }
@@ -362,22 +362,25 @@ export default function Message({
         Chia sẻ tin nhắn
       </Menu.Item>
 
-      <Menu.Item
-        key="report"
-        onClick={handleReport}
-        icon={<MdReportProblem/>}
-      >
-        <span>Báo cáo</span>
-      </Menu.Item>
-      
+      {/* Hide report for picture/video - AI cannot analyze visual content */}
+      {kind !== "picture" && kind !== "video" && kind !== "file" && (
+        <Menu.Item
+          key="report"
+          onClick={handleReport}
+          icon={<MdReportProblem />}
+        >
+          <span>Báo cáo</span>
+        </Menu.Item>
+      )}
+
 
       {isOwn ? (
         <>
-          <Menu.Divider style={{margin: "0"}}/>
+          <Menu.Divider style={{ margin: "0" }} />
           <Menu.Item
             key="revoke"
             onClick={handleRevoke}
-            icon={<UndoOutlined style={{ color: "#ff4d4f"}} />}
+            icon={<UndoOutlined style={{ color: "#ff4d4f" }} />}
           >
             <span style={{ color: "#ff4d4f", fontWeight: "500" }}>Thu hồi</span>
           </Menu.Item>
@@ -407,8 +410,8 @@ export default function Message({
           )}
 
           {isMediaWithoutBubble && (
-            <ReplyPreview 
-              replyTo={replyTo} 
+            <ReplyPreview
+              replyTo={replyTo}
               isOwn={isOwn}
             />
           )}
@@ -445,27 +448,26 @@ export default function Message({
           )}
 
           <div
-            className={`message-hover ${
-              isOwn && isRevoked
-                ? "own-revoked"
-                : !isOwn && isRevoked
+            className={`message-hover ${isOwn && isRevoked
+              ? "own-revoked"
+              : !isOwn && isRevoked
                 ? "revoked-other"
                 : ""
-            }`}
-          > 
+              }`}
+          >
             {
               !isBanned ? (
                 <>
-                <FaReply onClick={handleReply} />
-                {!isRevoked && (
-                  <Dropdown
-                    overlay={menu}
-                    trigger={["click"]}
-                    placement={isOwn ? "leftTop" : "rightTop"}
-                  >
-                    <MoreOutlined />
-                  </Dropdown>
-                )}
+                  <FaReply onClick={handleReply} />
+                  {!isRevoked && (
+                    <Dropdown
+                      overlay={menu}
+                      trigger={["click"]}
+                      placement={isOwn ? "leftTop" : "rightTop"}
+                    >
+                      <MoreOutlined />
+                    </Dropdown>
+                  )}
                 </>
               ) : (
                 null
@@ -496,7 +498,8 @@ export default function Message({
           displayName: displayName,
           uid: uid,
           kind: kind,
-          roomId: selectedRoom?.id
+          roomId: selectedRoom?.id,
+          transcript: transcript,
         }}
         currentUser={user}
       />

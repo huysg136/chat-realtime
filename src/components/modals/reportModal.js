@@ -91,10 +91,17 @@ function normalizeModeration(result, messageLength) {
   };
 }
 
-function buildModerationPrompt({ messageText, reasonLabel, details }) {
-  // ⭐ Thêm cảnh báo nếu tin nhắn ngắn
+function buildModerationPrompt({ messageText, reasonLabel, details, messageKind }) {
+  // ⭐ Detect media type from prefix
+  const isMediaMessage = messageText.startsWith("[Hình ảnh") ||
+    messageText.startsWith("[Video") ||
+    messageText.startsWith("[Tệp đính kèm") ||
+    messageText.startsWith("[Tin nhắn thoại");
+  const hasTranscript = messageText.includes("Transcript]:");
+
+  // ⭐ Thêm cảnh báo nếu tin nhắn ngắn (chỉ với text thường)
   let lengthWarning = "";
-  if (messageText.length < 10) {
+  if (!isMediaMessage && messageText.length < 10) {
     lengthWarning = `
 
 ⚠️ LƯU Ý QUAN TRỌNG: Tin nhắn này RẤT NGẮN (${messageText.length} ký tự).
@@ -105,13 +112,30 @@ function buildModerationPrompt({ messageText, reasonLabel, details }) {
 `;
   }
 
+  // ⭐ Media context for AI
+  let mediaContext = "";
+  if (isMediaMessage) {
+    mediaContext = `
+
+📎 ĐÂY LÀ TIN NHẮN MEDIA:
+- Nội dung là LINK tới file media (hình ảnh/video/file/voice)
+- Domain "files.quik.id.vn" là hệ thống lưu trữ của ứng dụng
+${hasTranscript ? "- Có TRANSCRIPT (nội dung chuyển đổi từ giọng nói) - HÃY PHÂN TÍCH TRANSCRIPT" : "- KHÔNG có transcript - chỉ có thể phân tích context"}
+
+VỚI MEDIA:
+- Nếu có transcript → phân tích NỘI DUNG transcript
+- Nếu chỉ có link → confidence thấp hơn vì không thể "nhìn" nội dung
+- Link spam/lạ (không phải files.quik.id.vn) → có thể là spam
+`;
+  }
+
   return `
 Bạn là AI kiểm duyệt nội dung. Phân tích tin nhắn và trả về JSON thuần (KHÔNG dùng \`\`\`json).
 
 TIN NHẮN: "${messageText}"
 LÝ DO USER BÁO CÁO: ${reasonLabel}
 CHI TIẾT: ${details || "Không có"}
-${lengthWarning}
+${lengthWarning}${mediaContext}
 
 TRẢ VỀ JSON:
 {
@@ -128,42 +152,119 @@ CATEGORY:
 - **safe**: KHÔNG vi phạm
 
 CONFIDENCE (Mức độ chắc chắn):
-- **0.85-1.0**: Vi phạm CỰC KỲ RÕ RÀNG (ví dụ: "Tao sẽ giết mày")
+- **0.85-1.0**: Vi phạm CỰC KỲ RÕ RÀNG (text/transcript rõ ràng vi phạm)
 - **0.6-0.85**: Có khả năng vi phạm
-- **0.0-0.6**: Không chắc chắn hoặc KHÔNG vi phạm
+- **0.4-0.6**: Media không có transcript - cần admin xem xét
+- **0.0-0.4**: Không chắc chắn hoặc KHÔNG vi phạm
 
 ⚠️ QUY TẮC:
 1. CHỈ cho confidence >= 0.85 khi vi phạm CỰC KỲ rõ ràng
 2. Tin nhắn ngắn, vô nghĩa → confidence < 0.4, category: "safe"
 3. ĐỪNG bị bias bởi lý do user chọn - phân tích độc lập
-4. "kjkkk", "hehe", "lol", "123" → category: "safe", confidence < 0.3
+4. Media không có transcript → confidence tối đa 0.6 (cần admin xem)
+5. Voice có transcript vi phạm → phân tích như text thường
 
 VÍ DỤ:
 
 Tin nhắn: "kjkkk"
 → {"category": "safe", "confidence": 0.15, "explanation": "Tin nhắn vô nghĩa, không có dấu hiệu vi phạm"}
 
-Tin nhắn: "Mua bằng đại học giá rẻ 0123456789"
-→ {"category": "spam", "confidence": 0.9, "explanation": "Quảng cáo dịch vụ bất hợp pháp với số điện thoại"}
+Tin nhắn: "[Tin nhắn thoại - Transcript]: Tao sẽ giết mày"
+→ {"category": "harmful", "confidence": 0.95, "explanation": "Transcript chứa lời đe dọa bạo lực trực tiếp"}
 
-Tin nhắn: "Tao sẽ giết mày"
-→ {"category": "harmful", "confidence": 0.95, "explanation": "Đe dọa bạo lực trực tiếp, cực kỳ nguy hiểm"}
+Tin nhắn: "[Hình ảnh - Link]: https://files.quik.id.vn/abc123.jpg"
+→ {"category": "other", "confidence": 0.5, "explanation": "Không thể phân tích nội dung hình ảnh, cần admin xem xét"}
+
+Tin nhắn: "[Video - Link]: https://malicious-site.com/video.mp4"
+→ {"category": "spam", "confidence": 0.8, "explanation": "Link video từ domain lạ, có thể là spam/lừa đảo"}
 
 Phân tích CHÍNH XÁC và CÔNG BẰNG.
 `.trim();
 }
 
 function getMessageText(message) {
-  return (message?.text || message?.decryptedText || "").toString();
+  const kind = message?.kind || "text";
+  const rawText = (message?.text || message?.decryptedText || "").toString();
+  const transcript = message?.transcript || "";
+
+  // Voice message: use transcript for AI analysis
+  if (kind === "audio" && transcript) {
+    return `[Tin nhắn thoại - Transcript]: ${transcript}`;
+  }
+
+  // Media types: prefix with type for AI context
+  if (kind === "picture") {
+    return `[Hình ảnh - Link]: ${rawText}`;
+  }
+  if (kind === "video") {
+    return `[Video - Link]: ${rawText}`;
+  }
+  if (kind === "file") {
+    return `[Tệp đính kèm - Link]: ${rawText}`;
+  }
+  if (kind === "audio" && !transcript) {
+    return `[Tin nhắn thoại - Link]: ${rawText}`;
+  }
+
+  return rawText;
 }
 
 function renderMessagePreview(message) {
   const kind = message?.kind || "text";
-  if (kind === "text") return <p>{message?.text || message?.decryptedText}</p>;
-  if (kind === "picture") return <p>🖼️ [Hình ảnh]</p>;
-  if (kind === "video") return <p>🎬 [Video]</p>;
-  if (kind === "file") return <p>📎 [Tệp đính kèm]</p>;
-  if (kind === "audio") return <p>🎤 [Tin nhắn thoại]</p>;
+  const text = message?.text || message?.decryptedText || "";
+  const transcript = message?.transcript || "";
+
+  if (kind === "text") return <p>{text}</p>;
+
+  if (kind === "picture") {
+    return (
+      <div>
+        <p>🖼️ [Hình ảnh]</p>
+        <a href={text} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "#1890ff", wordBreak: "break-all" }}>
+          {text}
+        </a>
+      </div>
+    );
+  }
+
+  if (kind === "video") {
+    return (
+      <div>
+        <p>🎬 [Video]</p>
+        <a href={text} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "#1890ff", wordBreak: "break-all" }}>
+          {text}
+        </a>
+      </div>
+    );
+  }
+
+  if (kind === "file") {
+    return (
+      <div>
+        <p>📎 [Tệp đính kèm]</p>
+        <a href={text} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "#1890ff", wordBreak: "break-all" }}>
+          {text}
+        </a>
+      </div>
+    );
+  }
+
+  if (kind === "audio") {
+    return (
+      <div>
+        <p>🎤 [Tin nhắn thoại]</p>
+        {transcript && (
+          <p style={{ fontSize: 12, color: "#595959", marginTop: 4, fontStyle: "italic" }}>
+            Transcript: "{transcript}"
+          </p>
+        )}
+        <a href={text} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "#1890ff", wordBreak: "break-all" }}>
+          {text}
+        </a>
+      </div>
+    );
+  }
+
   return <p>[Tin nhắn]</p>;
 }
 
@@ -245,6 +346,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         messageText,
         reasonLabel: reasonData?.label || "",
         details,
+        messageKind: message?.kind || "text",
       });
 
       const aiRaw = await askGemini(prompt);
@@ -298,6 +400,8 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         // Message Info
         messageId: message?.id || "",
         messageText,
+        messageRawText: message?.text || message?.decryptedText || "", // Original link/text
+        messageTranscript: message?.transcript || "", // Voice transcript if any
         messageUid: message?.uid,
         messageDisplayName: message?.displayName || "",
         messageKind: message?.kind || "text",
@@ -319,7 +423,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         aiExplanation: moderationResult.explanation,
 
         // Status (SIMPLE)
-        status, // pending, urgent, low_priority, resolved
+        status, // pending, resolved
         reportCount,
         needsUrgent,
 

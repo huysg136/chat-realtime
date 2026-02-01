@@ -603,7 +603,41 @@ export default function ReportManager() {
           <div className="report-detail-content">
             <div className="detail-section">
               <h5>Tin nhắn vi phạm</h5>
-              <p><strong>Nội dung:</strong> {selectedReport.messageText}</p>
+              <p>
+                <strong>Loại:</strong>{" "}
+                {selectedReport.messageKind === "picture" ? "🖼️ Hình ảnh" :
+                  selectedReport.messageKind === "video" ? "🎬 Video" :
+                    selectedReport.messageKind === "file" ? "📎 Tệp đính kèm" :
+                      selectedReport.messageKind === "audio" ? "🎤 Tin nhắn thoại" : "💬 Văn bản"}
+              </p>
+
+              {/* Text/Transcript content */}
+              {selectedReport.messageKind === "audio" && selectedReport.messageTranscript ? (
+                <p>
+                  <strong>Transcript:</strong>{" "}
+                  <span style={{ fontStyle: "italic", color: "#595959" }}>
+                    "{selectedReport.messageTranscript}"
+                  </span>
+                </p>
+              ) : selectedReport.messageKind === "text" && (
+                <p><strong>Nội dung:</strong> {selectedReport.messageRawText || selectedReport.messageText}</p>
+              )}
+
+              {/* Media link if applicable */}
+              {["picture", "video", "file", "audio"].includes(selectedReport.messageKind) && (
+                <p>
+                  <strong>Link media:</strong>{" "}
+                  <a
+                    href={selectedReport.messageRawText || selectedReport.messageText?.split(": ").pop()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#1890ff", wordBreak: "break-all" }}
+                  >
+                    {selectedReport.messageRawText || selectedReport.messageText?.split(": ").pop()}
+                  </a>
+                </p>
+              )}
+
               <p><strong>Người gửi:</strong> {selectedReport.messageDisplayName}</p>
               <p>
                 <strong>Message ID:</strong>{" "}

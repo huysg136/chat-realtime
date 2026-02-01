@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ref, off } from 'firebase/database';
+import { ref, off, onValue } from 'firebase/database';
 import { rtdb } from '../firebase/config';
 import { getUserDocIdByUid } from '../firebase/services';
 
@@ -42,12 +42,12 @@ export function useUserStatus(uid) {
 
           if (!data) {
             isOnline = false;
-          } else if (document.visibilityState === 'visible' && data.isOnline !== false) {
-            // Tab đang focus → online NGAY
-            isOnline = true;
-          } else {
+          } else if (data.isOnline === true) {
+            // Check heartbeat - nếu quá 60s thì offline
             const lastHeartbeat = data.lastHeartbeat || data.lastOnline || 0;
-            isOnline = (now - lastHeartbeat) < 60000; // offline nếu > 60s
+            isOnline = (now - lastHeartbeat) < 60000;
+          } else {
+            isOnline = false;
           }
 
           const newStatus = {
@@ -60,7 +60,13 @@ export function useUserStatus(uid) {
           listeners.forEach(fn => fn(newStatus));
         };
 
-        // Interval để check heartbeat mỗi 5s (tăng realtime)
+        // 🔥 FIX: Thêm onValue để lắng nghe thay đổi từ RTDB
+        const unsubscribeOnValue = onValue(statusRef, (snapshot) => {
+          const data = snapshot.val();
+          updateStatus(data);
+        });
+
+        // Interval để check heartbeat mỗi 5s
         const interval = setInterval(() => {
           const currentData = userStatusMap.get(uid);
           if (currentData) {
@@ -74,6 +80,7 @@ export function useUserStatus(uid) {
 
         listenersMap.set(uid, () => {
           off(statusRef);
+          unsubscribeOnValue(); // 🔥 Cleanup onValue listener
           clearInterval(interval);
         });
       };
