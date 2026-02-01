@@ -1,7 +1,7 @@
 # ⚡ Quik - Real-Time Chat & Video Call
 
 ![React](https://img.shields.io/badge/React-18-blue?logo=react&logoColor=white) ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?logo=firebase&logoColor=black) ![Ant Design](https://img.shields.io/badge/Ant%20Design-5.0-red?logo=antdesign&logoColor=white) 
-[![Stringee](https://img.shields.io/badge/Stringee-Video%20Call-red)](https://stringee.com/) [![Cloudflare R2](https://img.shields.io/badge/Cloudflare-R2_Storage-orange?logo=cloudflare&logoColor=white)](https://www.cloudflare.com/developer-platform/r2/) [![AI](https://img.shields.io/badge/AI-Gemini%20%26%20Llama-blue?logo=google-gemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
+[![Stringee](https://img.shields.io/badge/Stringee-Video%20Call-red)](https://stringee.com/) [![Cloudflare R2](https://img.shields.io/badge/Cloudflare-R2_Storage-orange?logo=cloudflare&logoColor=white)](https://www.cloudflare.com/developer-platform/r2/) [![AI](https://img.shields.io/badge/AI-Gemini%20%26%20Llama-blue?logo=google-gemini&logoColor=white)](https://deepmind.google/technologies/gemini/) [![AssemblyAI](https://img.shields.io/badge/AssemblyAI-Speech%20to%20Text-purple)](https://www.assemblyai.com/)
 
 > **Quik** is a powerful, full-featured real-time messaging platform powered by **ReactJS** and **Node.js**. It features high-performance video calls, lightning-fast file storage, and smart AI assistants, designed for both personal and community communication.
 
