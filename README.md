@@ -49,48 +49,6 @@ Quik combines a seamless chat interface with robust backend services.
 
 🔗 **Backend Repository:** [**chat-realtime-api**](https://github.com/huysg136/chat-realtime-api)
 
----
-
-## 📦 Getting Started
-
-### Prerequisites
-*   **Node.js** (v18 recommended)
-*   **npm** or **yarn**
-
-### Installation
-
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/huysg136/chat-realtime.git
-    cd chat-realtime
-    ```
-
-2.  **Install dependencies**
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
-
-3.  **Environment Setup**
-    Create a `.env` file in the root directory and add your keys (match these with your backend/firebase setup):
-    ```env
-    REACT_APP_FIREBASE_API_KEY=your_api_key
-    REACT_APP_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-    REACT_APP_FIREBASE_PROJECT_ID=your_project_id
-    REACT_APP_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-    REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-    REACT_APP_FIREBASE_APP_ID=your_app_id
-    REACT_APP_FIREBASE_MEASUREMENT_ID=your_measurement_id
-    ```
-
-4.  **Start the application**
-    ```bash
-    npm start
-    ```
-    The app will launch at `http://localhost:3000`.
-
----
 
 ## 🤝 Contributing
 
