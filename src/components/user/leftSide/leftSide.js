@@ -10,7 +10,7 @@ import "./leftSide.scss";
 import { AiFillMessage, AiOutlineMessage  } from "react-icons/ai";
 import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { AppContext } from '../../../context/appProvider';
-import { MdOutlineAdminPanelSettings } from "react-icons/md";
+import { MdOutlineAdminPanelSettings, MdReport, MdReportProblem } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 import { ROUTERS } from "../../../utils/router";
@@ -22,7 +22,7 @@ export default function LeftSide() {
   const [active, setActive] = useState("message");
   const [role, setRole] = useState("");
   const { user, logout } = useContext(AuthContext);
-  const { setIsProfileVisible, setIsSettingsVisible } = useContext(AppContext);
+  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible } = useContext(AppContext);
   const displayName = user?.displayName;
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
@@ -100,9 +100,9 @@ export default function LeftSide() {
       {/* <Menu.Item key="saved" icon={<SaveOutlined />}>
         Đã lưu
       </Menu.Item> */}
-      {/* <Menu.Item key="request" icon={<IoMailUnreadOutline />}>
-        Lời mời đang chờ
-      </Menu.Item> */}
+      <Menu.Item key="reports" icon={<MdReportProblem />} onClick={() => setIsMyReportsVisible(true)}>
+        Báo cáo của tôi
+      </Menu.Item>
       <Menu.Divider style={{margin: "0"}}/>
       <Menu.Item
         key="logout"

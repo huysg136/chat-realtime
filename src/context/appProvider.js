@@ -14,6 +14,7 @@ export default function AppProvider({ children }) {
   const [isProfileVisible, setIsProfileVisible] = useState(false);
   const [isPendingInviteVisible, setIsPendingInviteVisible] = useState(false);
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+  const [isMyReportsVisible, setIsMyReportsVisible] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState("");
   const [searchText, setSearchText] = useState("");
   const [theme, setTheme] = useState("system");
@@ -170,6 +171,8 @@ export default function AppProvider({ children }) {
         setIsProfileVisible,
         isSettingsVisible,
         setIsSettingsVisible,
+        isMyReportsVisible, 
+        setIsMyReportsVisible,
         isPendingInviteVisible,
         setIsPendingInviteVisible,
         searchText,

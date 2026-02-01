@@ -99,6 +99,14 @@ function getBanDurationInMs(value, unit) {
   }
 }
 
+function getTimestamp(t) {
+  if (!t) return 0;
+  if (t.seconds) return t.seconds; // Firestore Timestamp
+  if (t instanceof Date) return t.getTime() / 1000;
+  if (t.toDate) return t.toDate().getTime() / 1000;
+  return 0;
+}
+
 function formatBanDuration(value, unit) {
   const unitLabels = {
     minutes: "phút",
@@ -117,7 +125,8 @@ export default function ReportManager() {
     messageId: "",
     reportedBy: "",
     category: "",
-    status: "pending",
+    status: "",
+    sortBy: "newest",
   });
 
   // Modals
@@ -347,7 +356,17 @@ export default function ReportManager() {
       r.reportedByEmail?.toLowerCase().includes(filters.reportedBy.toLowerCase())
     )
     .filter((r) => (filters.category ? r.aiCategory === filters.category : true))
-    .filter((r) => (filters.status ? r.status === filters.status : true));
+    .filter((r) => (filters.status ? r.status === filters.status : true))
+    .sort((a, b) => {
+      const timeA = getTimestamp(a.createdAt);
+      const timeB = getTimestamp(b.createdAt);
+      
+      if (filters.sortBy === "newest") {
+        return timeB - timeA; 
+      } else {
+        return timeA - timeB; 
+      }
+    });
 
   // ==================== TABLE COLUMNS ====================
   const columns = [
@@ -572,12 +591,25 @@ export default function ReportManager() {
           <option value="pending">Chờ xử lý</option>
           <option value="resolved">Đã xử lý</option>
         </select>
+        <select
+            value={filters.sortBy}
+            onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
+          >
+            <option value="newest">Mới nhất</option>
+            <option value="oldest">Cũ nhất</option>
+          </select>
       </div>
 
       <Table
         columns={columns}
-        dataSource={filteredReports}
+        dataSource={filteredReports}  
         rowKey="id"
+        pagination={{
+          pageSize: 10,
+          showSizeChanger: false,
+          pageSizeOptions: ['10', '20', '50', '100'],
+          showTotal: (total) => `Tổng ${total} báo cáo`,
+        }}
       />
 
       {/* Detail Modal - Announcement Style */}

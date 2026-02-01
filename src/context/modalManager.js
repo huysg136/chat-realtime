@@ -8,6 +8,7 @@ const ProfileModal = lazy(() => import('../components/modals/profileModal'));
 const PendingInvitesModal = lazy(() => import('../components/modals/pendingInvitesModal'));
 const SettingsModal = lazy(() => import('../components/modals/settingsModal'));
 const AnnouncementModal = lazy(() => import('../components/modals/announcementModal'));
+const MyReportsModal = lazy(() => import('../components/modals/myReportsModal'));
 
 export default function ModalManager() {
     const {
@@ -16,7 +17,8 @@ export default function ModalManager() {
         isProfileVisible,
         isPendingInviteVisible,
         isSettingsVisible,
-        isAnnouncementVisible
+        isAnnouncementVisible,
+        isMyReportsVisible
     } = useContext(AppContext);
 
     // Render nothing if no modal is active (check logic below if you want stricter control, 
@@ -30,6 +32,7 @@ export default function ModalManager() {
             {isPendingInviteVisible && <PendingInvitesModal />}
             {isSettingsVisible && <SettingsModal />}
             {isAnnouncementVisible && <AnnouncementModal />}
+            {isMyReportsVisible && <MyReportsModal />}
         </Suspense>
     );
 }
