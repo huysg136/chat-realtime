@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom';
 import { Spin } from 'antd';
 import PrivateRoute from './privateRoute';
 import { ROUTERS } from '../utils/router';
-import ReportManager from '../components/admin/reportManager/reportManager';
+import ReportManager from '../components/admin/report/reportManager';
 
 // Lazy load components
 const ChatRoom = lazy(() => import('../pages/user/landingPage/landingPage'));
