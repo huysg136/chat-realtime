@@ -32,6 +32,7 @@ export default function ModPermissionManager() {
     { key: "canAccessAdminPage", label: "Truy cập trang Admin" },
     { key: "canManageUsers", label: "Quản lý người dùng" },
     { key: "canManageRooms", label: "Quản lý phòng chat" },
+    { key: "canManageReports", label: "Quản lý báo cáo" },
     { key: "canManageAnnouncements", label: "Quản lý thông báo" },
     { key: "canToggleMaintenance", label: "Bật/Tắt bảo trì" },
   ];
@@ -40,6 +41,7 @@ export default function ModPermissionManager() {
     canAccessAdminPage: "Cho phép moderator truy cập trang Admin",
     canManageUsers: "Cho phép quản lý người dùng",
     canManageRooms: "Cho phép quản lý phòng chat",
+    canManageReports: "Cho phép quản lý báo cáo",
     canManageAnnouncements: "Cho phép quản lý thông báo",
     canToggleMaintenance: "Cho phép bật/tắt chế độ bảo trì"
   };
@@ -52,6 +54,7 @@ export default function ModPermissionManager() {
           "permissions.canAccessAdminPage": false,
           "permissions.canManageUsers": false,
           "permissions.canManageRooms": false,
+          "permissions.canManageReports": false,
           "permissions.canManageAnnouncements": false,
           "permissions.canToggleMaintenance": false,
         });
@@ -78,7 +81,7 @@ export default function ModPermissionManager() {
       title: "Avatar",
       dataIndex: "photoURL",
       key: "avatar",
-      width: 70,
+      width: 80,
       fixed: "left",
       render: (photoURL, record) => (
         <Avatar src={photoURL} size="large">{!photoURL && record.displayName?.charAt(0)?.toUpperCase()}</Avatar>

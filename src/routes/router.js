@@ -1,4 +1,4 @@
-    import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Route } from 'react-router-dom';
 import { Spin } from 'antd';
 import PrivateRoute from './privateRoute';
@@ -23,6 +23,12 @@ const Loading = () => (
     <Spin size="large" />
   </div>
 );
+
+// Helper function to extract relative path from absolute path
+// Example: "/admin/users" → "users"
+const getRelativePath = (absolutePath, basePath) => {
+  return absolutePath.replace(basePath + '/', '');
+};
 
 // Public Routes
 export const publicRoutes = [
@@ -58,7 +64,7 @@ export const userRoutes = [
   },
 ];
 
-// Admin Routes
+// Admin Routes - Using ROUTERS constants
 export const adminRoutes = {
   path: ROUTERS.ADMIN.DASHBOARD,
   element: (
@@ -78,7 +84,7 @@ export const adminRoutes = {
       ),
     },
     {
-      path: "users",
+      path: getRelativePath(ROUTERS.ADMIN.USERS, ROUTERS.ADMIN.DASHBOARD),
       element: (
         <Suspense fallback={<Loading />}>
           <UsersManager />
@@ -86,7 +92,7 @@ export const adminRoutes = {
       ),
     },
     {
-      path: "rooms",
+      path: getRelativePath(ROUTERS.ADMIN.ROOMS, ROUTERS.ADMIN.DASHBOARD),
       element: (
         <Suspense fallback={<Loading />}>
           <RoomsManager />
@@ -94,7 +100,7 @@ export const adminRoutes = {
       ),
     },
     {
-      path: "reports",
+      path: getRelativePath(ROUTERS.ADMIN.REPORTS, ROUTERS.ADMIN.DASHBOARD),
       element: (
         <Suspense fallback={<Loading />}>
           <ReportManager />
@@ -102,7 +108,7 @@ export const adminRoutes = {
       ),
     },
     {
-      path: "announcements",
+      path: getRelativePath(ROUTERS.ADMIN.ANNOUNCEMENTS, ROUTERS.ADMIN.DASHBOARD),
       element: (
         <Suspense fallback={<Loading />}>
           <AnnouncementManager />
@@ -110,7 +116,7 @@ export const adminRoutes = {
       ),
     },
     {
-      path: "settings",
+      path: getRelativePath(ROUTERS.ADMIN.SETTINGS, ROUTERS.ADMIN.DASHBOARD),
       element: (
         <Suspense fallback={<Loading />}>
           <AdminSettings />
@@ -118,7 +124,7 @@ export const adminRoutes = {
       ),
     },
     {
-      path: "mod-permissions",
+      path: getRelativePath(ROUTERS.ADMIN.MOD_PERMISSIONS, ROUTERS.ADMIN.DASHBOARD),
       element: (
         <Suspense fallback={<Loading />}>
           <ModPermissionManager />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ref, onValue, off } from 'firebase/database';
+import { ref, off } from 'firebase/database';
 import { rtdb } from '../firebase/config';
 import { getUserDocIdByUid } from '../firebase/services';
 
@@ -59,12 +59,6 @@ export function useUserStatus(uid) {
           const listeners = statusListeners.get(uid) || [];
           listeners.forEach(fn => fn(newStatus));
         };
-
-        // Listen Realtime DB
-        const unsubscribeRTDB = onValue(statusRef, (snapshot) => {
-          const data = snapshot.val();
-          updateStatus(data);
-        });
 
         // Interval để check heartbeat mỗi 5s (tăng realtime)
         const interval = setInterval(() => {

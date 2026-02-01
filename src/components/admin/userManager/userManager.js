@@ -138,6 +138,7 @@ export default function UsersManager() {
             canAccessAdminPage: true,
             canManageUsers: false,
             canManageRooms: false,
+            canManageReports: false,
             canManageAnnouncements: false,
             canToggleMaintenance: false,
           },

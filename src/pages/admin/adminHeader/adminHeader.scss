@@ -10,7 +10,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  //box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-bottom: 1px solid #e6e8eb;
   transition: all 0.3s ease;
 
@@ -26,20 +25,43 @@
   }
 
   .admin-user {
-    cursor: pointer;
     display: flex;
     align-items: center;
-    padding: 0px 12px;
+    padding: 8px 12px;
     border-radius: 12px;
     transition: all 0.3s ease;
 
-    .ant-avatar {
-      margin-right: 8px;
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
     }
 
-    span {
-      font-weight: 500;
-      color: #2f3640;
+    .ant-avatar {
+      margin-right: 5px;
+    }
+
+    .admin-profile {
+      display: flex;
+      flex-direction: column;
+      gap: 1px; 
+      
+      span {
+        padding: 0;
+        margin: 0;
+        line-height: 1.4;
+        
+        &:first-child {
+          font-weight: 500;
+          font-size: 14px;
+          color: #2f3640;
+        }
+        
+        &:last-child {
+          font-weight: 400;
+          font-size: 12px;
+          color: #8c8c8c;
+          text-transform: capitalize; 
+        }
+      }
     }
   }
 }
@@ -54,13 +76,25 @@ body.theme-dark {
     }
 
     .admin-user {
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
       .ant-avatar {
         border: none;
         box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
       }
 
-      span {
-        color: #ffffff;
+      .admin-profile {
+        span {
+          &:first-child {
+            color: #ffffff;
+          }
+          
+          &:last-child {
+            color: #b3b3b3;
+          }
+        }
       }
     }
   }

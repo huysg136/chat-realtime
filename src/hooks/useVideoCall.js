@@ -186,7 +186,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
           videoTrack.addEventListener('unmute', handleTrackChange);
 
           // Also listen for enabled property changes
-          const originalEnabled = videoTrack.enabled;
+          let originalEnabled = videoTrack.enabled;
           Object.defineProperty(videoTrack, 'enabled', {
             get: () => originalEnabled,
             set: (value) => {
@@ -327,7 +327,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
         videoCall.disconnect();
       }
     };
-  }, [uid]); // Remove selectedRoomId from dependencies
+  }, [uid]); 
 
   return {
     videoCall,

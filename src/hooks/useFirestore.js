@@ -1,5 +1,5 @@
 import React from "react";
-import { collection, query, where, orderBy, onSnapshot, limit } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/config";
 
 export const useFirestore = (collectionName, condition) => {

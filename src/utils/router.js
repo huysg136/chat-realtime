@@ -9,11 +9,11 @@ export const ROUTERS = {
 
   ADMIN: {
     DASHBOARD: `${admin_path}`,
-    USERS: `${admin_path}users`,
-    ROOMS: `${admin_path}rooms`,
-    REPORTS: `${admin_path}reports`,
-    ANNOUNCEMENTS: `${admin_path}announcements`,
-    SETTINGS: `${admin_path}settings`,
-    MOD_PERMISSIONS: `${admin_path}mod-permissions`,
+    USERS: `${admin_path}manage-users`,
+    ROOMS: `${admin_path}manage-rooms`,
+    REPORTS: `${admin_path}manage-reports`,
+    ANNOUNCEMENTS: `${admin_path}manage-announcements`,
+    SETTINGS: `${admin_path}manage-app-settings`,
+    MOD_PERMISSIONS: `${admin_path}manage-mod-permissions`,
   },
 };

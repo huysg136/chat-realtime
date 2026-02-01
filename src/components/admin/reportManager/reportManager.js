@@ -169,20 +169,16 @@ export default function ReportManager() {
     return () => unsubscribe();
   }, []);
 
-  // ==================== PERMISSION CHECK ====================
-  if (
-    !currentUser?.permissions?.canManageUsers &&
-    currentUser.role !== "admin" &&
-    currentUser.role !== "moderator"
-  ) {
-    return <NoAccess />;
-  }
+    // ==================== PERMISSION CHECK ====================
+    if (!currentUser?.permissions?.canManageReports && currentUser.role !== "admin") {
+        return <NoAccess />;
+    }
 
-  // ==================== HANDLERS ====================
-  const showDetailModal = (report) => {
-    setSelectedReport(report);
-    setDetailModalVisible(true);
-  };
+    // ==================== HANDLERS ====================
+    const showDetailModal = (report) => {
+        setSelectedReport(report);
+        setDetailModalVisible(true);
+    };
 
   const showActionModal = (report) => {
     setActionReport(report);

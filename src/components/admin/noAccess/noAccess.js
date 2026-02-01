@@ -10,7 +10,7 @@ export default function NoAccess({ message }) {
     <div className="no-access">
       <FiLock className="no-access-icon" />
       <h2>{message || "Bạn không có quyền truy cập trang này."}</h2>
-      <p>Vui lòng liên hệ quản trị viên nếu bạn nghĩ đây là lỗi.</p>
+      <p>Tài khoản của bạn hiện không có đủ quyền hạn để truy cập trang này. Vui lòng liên hệ <span style={{ fontWeight: 600 }}>admin</span> để được hỗ trợ.</p>
       <button onClick={() => navigate(-1)}>Quay lại</button>
     </div>
   );

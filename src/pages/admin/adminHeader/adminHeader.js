@@ -1,26 +1,28 @@
 import React, { useContext } from "react";
-import { Layout, Avatar, Dropdown, Space } from "antd";
+import { Layout, Avatar, Space } from "antd";
 import { AuthContext } from "../../../context/authProvider";
 import "./adminHeader.scss";
+import { useUserProfile } from "../../../hooks/useUserProfile";
 
 const { Header } = Layout;
 
 export default function AdminHeader() {
-  const { user, logout } = useContext(AuthContext);
-
-  const items = [
-    // { key: "1", label: <span onClick={logout}>Đăng xuất</span> },
-  ];
-
+  const { user } = useContext(AuthContext);
+  const { role, photoURL, displayName, loading } = useUserProfile(user.uid);
   return (
     <Header className="admin-header">
       <h2>Trang quản trị quik.id.vn</h2>
-      <Dropdown menu={{ items }}>
+      { loading ? (
+        null
+      ) : (
         <Space className="admin-user">
-          <Avatar src={user?.photoURL} />
-          <span>{user?.displayName || "Admin"}</span>
+          <Avatar src={photoURL} />
+          <div className="admin-profile">
+            <span>{displayName}</span>
+            <span>{role}</span>
+          </div>
         </Space>
-      </Dropdown>
+      )} 
     </Header>
   );
 }
