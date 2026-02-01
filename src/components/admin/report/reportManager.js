@@ -31,20 +31,19 @@ import "./reportManager.scss";
 
 const { TextArea } = Input;
 
-// ==================== CONSTANTS ====================
 const CATEGORY_COLORS = {
-  harmful: { color: "#ff4d4f", bg: "rgba(255, 77, 79, 0.15)", label: "Nguy hại" },
-  inappropriate: { color: "#ff7a45", bg: "rgba(255, 122, 69, 0.15)", label: "Không phù hợp" },
-  spam: { color: "#ffa940", bg: "rgba(255, 169, 64, 0.15)", label: "Spam" },
-  other: { color: "#8c8c8c", bg: "rgba(140, 140, 140, 0.15)", label: "Khác" },
-  safe: { color: "#52c41a", bg: "rgba(82, 196, 26, 0.15)", label: "An toàn" },
+  harmful: { color: "#cf1322", bg: "#fff1f0", label: "Nguy hại" },
+  inappropriate: { color: "#d4380d", bg: "#fff2e8", label: "Không phù hợp" },
+  spam: { color: "#d46b08", bg: "#fff7e6", label: "Spam" },
+  other: { color: "#595959", bg: "#fafafa", label: "Khác" },
+  safe: { color: "#389e0d", bg: "#f6ffed", label: "An toàn" },
 };
 
 const STATUS_COLORS = {
-  pending: { color: "#1677ff", bg: "rgba(22, 119, 255, 0.15)", label: "Chờ xử lý" },
-  urgent: { color: "#ff4d4f", bg: "rgba(255, 77, 79, 0.15)", label: "Khẩn cấp" },
-  low_priority: { color: "#8c8c8c", bg: "rgba(140, 140, 140, 0.15)", label: "Ưu tiên thấp" },
-  resolved: { color: "#52c41a", bg: "rgba(82, 196, 26, 0.15)", label: "Đã xử lý" },
+  pending: { color: "#0958d9", bg: "#e6f4ff", label: "Chờ xử lý" },
+  urgent: { color: "#cf1322", bg: "#fff1f0", label: "Khẩn cấp" },
+  low_priority: { color: "#595959", bg: "#fafafa", label: "Ưu tiên thấp" },
+  resolved: { color: "#389e0d", bg: "#f6ffed", label: "Đã xử lý" },
 };
 
 const ACTION_OPTIONS = [
@@ -53,10 +52,9 @@ const ACTION_OPTIONS = [
   { value: "reject", label: "Từ chối báo cáo (không vi phạm)" },
 ];
 
-// ⭐ NEW: Time units
 const TIME_UNITS = [
-  { value: "minutes", label: "Phút", max: 1440, min: 1 }, // Max 1 day in minutes
-  { value: "hours", label: "Giờ", max: 720, min: 1 }, // Max 30 days in hours
+  { value: "minutes", label: "Phút", max: 1440, min: 1 },
+  { value: "hours", label: "Giờ", max: 720, min: 1 },
   { value: "days", label: "Ngày", max: 365, min: 1 },
 ];
 
@@ -85,7 +83,6 @@ async function getUserDocIdByUid(uid) {
   }
 }
 
-// ⭐ NEW: Convert ban duration to milliseconds
 function getBanDurationInMs(value, unit) {
   const MS_PER_MINUTE = 60 * 1000;
   const MS_PER_HOUR = 60 * MS_PER_MINUTE;
@@ -99,11 +96,10 @@ function getBanDurationInMs(value, unit) {
     case "days":
       return value * MS_PER_DAY;
     default:
-      return value * MS_PER_DAY; // Default to days
+      return value * MS_PER_DAY;
   }
 }
 
-// ⭐ NEW: Format ban duration for display
 function formatBanDuration(value, unit) {
   const unitLabels = {
     minutes: "phút",
@@ -133,8 +129,8 @@ export default function ReportManager() {
   const [actionReport, setActionReport] = useState(null);
   const [actionType, setActionType] = useState("");
   const [actionNotes, setActionNotes] = useState("");
-  const [banDuration, setBanDuration] = useState(7); // ⭐ Renamed from banDays
-  const [banUnit, setBanUnit] = useState("days"); // ⭐ NEW: Unit selection
+  const [banDuration, setBanDuration] = useState(7);
+  const [banUnit, setBanUnit] = useState("days");
   const [submitting, setSubmitting] = useState(false);
 
   // ==================== FIRESTORE LISTENERS ====================
@@ -147,7 +143,7 @@ export default function ReportManager() {
           id: d.id,
           ...d.data(),
         }));
-        
+
         reportList.sort((a, b) => {
           if (a.status === "urgent" && b.status !== "urgent") return -1;
           if (a.status !== "urgent" && b.status === "urgent") return 1;
@@ -156,7 +152,7 @@ export default function ReportManager() {
             (a.createdAt?.toDate?.() || new Date(a.createdAt))
           );
         });
-        
+
         setReports(reportList);
         setLoading(false);
       },
@@ -169,23 +165,27 @@ export default function ReportManager() {
     return () => unsubscribe();
   }, []);
 
-    // ==================== PERMISSION CHECK ====================
-    if (!currentUser?.permissions?.canManageReports && currentUser.role !== "admin") {
-        return <NoAccess />;
-    }
+  // ==================== PERMISSION CHECK ====================
+  if (!currentUser?.permissions?.canManageReports && currentUser.role !== "admin") {
+    return <NoAccess />;
+  }
 
-    // ==================== HANDLERS ====================
-    const showDetailModal = (report) => {
-        setSelectedReport(report);
-        setDetailModalVisible(true);
-    };
+  // ==================== HANDLERS ====================
+  const showDetailModal = (report) => {
+    setSelectedReport(report);
+    setDetailModalVisible(true);
+  };
 
   const showActionModal = (report) => {
     setActionReport(report);
     setActionType("delete_only");
-    setActionNotes("");
+    setActionNotes(
+      report.aiExplanation
+        ? `${report.aiExplanation} (tham khảo từ AI)`
+        : ""
+    );
     setBanDuration(7);
-    setBanUnit("days"); // ⭐ Reset to default
+    setBanUnit("days");
     setActionModalVisible(true);
   };
 
@@ -200,7 +200,6 @@ export default function ReportManager() {
       return;
     }
 
-    // ⭐ Validate ban duration based on unit
     if (actionType === "delete_and_ban") {
       const currentUnit = TIME_UNITS.find((u) => u.value === banUnit);
       if (!banDuration || banDuration < currentUnit.min || banDuration > currentUnit.max) {
@@ -225,6 +224,7 @@ export default function ReportManager() {
             await deleteDoc(snapshot.docs[0].ref);
           }
         } catch (err) {
+          console.error(err);
         }
       }
 
@@ -242,7 +242,6 @@ export default function ReportManager() {
             if (!userDoc.empty) {
               const userData = userDoc.docs[0].data();
               const banStart = new Date();
-              // ⭐ Use helper function to calculate ban end time
               const banDurationMs = getBanDurationInMs(banDuration, banUnit);
               const banEnd = new Date(banStart.getTime() + banDurationMs);
 
@@ -257,7 +256,6 @@ export default function ReportManager() {
                 bannedBy: currentUser.uid,
                 bannedByName: currentUser.displayName,
                 reportId: actionReport.id,
-                // ⭐ Store original duration and unit
                 banDuration,
                 banUnit,
                 createdAt: new Date(),
@@ -269,8 +267,6 @@ export default function ReportManager() {
         }
       }
 
-      
-
       // 3. Update report status
       await updateDoc(doc(db, "reports", actionReport.id), {
         status: "resolved",
@@ -280,8 +276,7 @@ export default function ReportManager() {
         reviewedAt: new Date(),
         action: actionType,
         actionNotes,
-        // ⭐ Store both duration and unit
-        ...(actionType === "delete_and_ban" && { 
+        ...(actionType === "delete_and_ban" && {
           banDuration,
           banUnit,
           banDurationFormatted: formatBanDuration(banDuration, banUnit),
@@ -289,13 +284,14 @@ export default function ReportManager() {
         updatedAt: new Date(),
       });
 
+      // 4. Send email notification
       try {
         const emailResponse = await fetch('https://chat-realtime-be.vercel.app/api/reports/notify', {
-            method: 'POST',
-            headers: {
+          method: 'POST',
+          headers: {
             'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+          },
+          body: JSON.stringify({
             reporterEmail: actionReport.reportedByEmail,
             reporterName: actionReport.reportedByName,
             messageText: actionReport.messageText,
@@ -304,22 +300,18 @@ export default function ReportManager() {
             reason: actionNotes,
             reportDate: formatTimestamp(actionReport.createdAt),
             ...(actionType === "delete_and_ban" && {
-                banDuration,
-                banUnit,
+              banDuration,
+              banUnit,
             }),
-            }),
+          }),
         });
 
-        const emailResult = await emailResponse.json();
-        
-        if (emailResult.success) {
-        } else {
-        }
-        } catch (emailError) {
-        // Không hiện lỗi cho user vì đã xử lý báo cáo thành công
-        }
+        await emailResponse.json();
+      } catch (emailError) {
+        console.error(emailError);
+      }
 
-      // 4. Success message
+      // 5. Success message
       if (actionType === "delete_and_ban") {
         toast.success(`Đã xóa tin nhắn và cấm chat ${formatBanDuration(banDuration, banUnit)}`);
       } else if (actionType === "delete_only") {
@@ -413,8 +405,8 @@ export default function ReportManager() {
         return (
           <div className="category-cell">
             <Tag
-              color={categoryConfig.color}
               style={{
+                color: categoryConfig.color,
                 background: categoryConfig.bg,
                 border: "none",
                 fontWeight: 500,
@@ -451,8 +443,8 @@ export default function ReportManager() {
                     confidence >= 85
                       ? "#ff4d4f"
                       : confidence >= 60
-                      ? "#ffa940"
-                      : "#52c41a",
+                        ? "#ffa940"
+                        : "#52c41a",
                   borderRadius: 3,
                 }}
               />
@@ -472,8 +464,8 @@ export default function ReportManager() {
         const statusConfig = STATUS_COLORS[record.status] || STATUS_COLORS.pending;
         return (
           <Tag
-            color={statusConfig.color}
             style={{
+              color: statusConfig.color,
               background: statusConfig.bg,
               border: "none",
               fontWeight: 500,
@@ -501,12 +493,19 @@ export default function ReportManager() {
               <FiEye size={14} /> Chi tiết
             </button>
 
-            {!isResolved && (
+            {!isResolved ? (
               <button
                 className="btn-action btn-review"
                 onClick={() => showActionModal(record)}
               >
                 <FiCheck size={14} /> Xử lý
+              </button>
+            ) : (
+              <button
+                className="btn-action btn-review-again"
+                onClick={() => showActionModal(record)}
+              >
+                <FiCheck size={14} /> Xử lý lại
               </button>
             )}
 
@@ -582,29 +581,34 @@ export default function ReportManager() {
         columns={columns}
         dataSource={filteredReports}
         rowKey="id"
-        pagination={{ pageSize: 10 }}
-        scroll={{ x: 1200 }}
       />
 
-      {/* Detail Modal */}
-      {detailModalVisible && selectedReport && (
+      {/* Detail Modal - Announcement Style */}
+      {selectedReport && (
         <Modal
-          title="Chi tiết báo cáo"
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>Chi tiết báo cáo</span>
+              {selectedReport.status === 'urgent' && (
+                <Tag color="red">Khẩn cấp</Tag>
+              )}
+            </div>
+          }
           open={detailModalVisible}
-          onCancel={() => setDetailModalVisible(false)}
+          onCancel={() => {
+            setDetailModalVisible(false);
+            setSelectedReport(null);
+          }}
           footer={null}
-          width={700}
+          width={800}
+          centered
           className="report-detail-modal"
         >
           <div className="report-detail-content">
             <div className="detail-section">
-              <h4>📩 Tin nhắn</h4>
-              <p>
-                <strong>Nội dung:</strong> {selectedReport.messageText}
-              </p>
-              <p>
-                <strong>Người gửi:</strong> {selectedReport.messageDisplayName}
-              </p>
+              <h5>Tin nhắn vi phạm</h5>
+              <p><strong>Nội dung:</strong> {selectedReport.messageText}</p>
+              <p><strong>Người gửi:</strong> {selectedReport.messageDisplayName}</p>
               <p>
                 <strong>Message ID:</strong>{" "}
                 <span
@@ -620,26 +624,16 @@ export default function ReportManager() {
             </div>
 
             <div className="detail-section">
-              <h4>👤 Người báo cáo</h4>
-              <p>
-                <strong>Tên:</strong> {selectedReport.reportedByName}
-              </p>
-              <p>
-                <strong>Email:</strong> {selectedReport.reportedByEmail}
-              </p>
-              <p>
-                <strong>Lý do:</strong> {selectedReport.userReportCategoryLabel}
-              </p>
-              <p>
-                <strong>Chi tiết:</strong> {selectedReport.userReportDetails || "Không có"}
-              </p>
-              <p>
-                <strong>Số báo cáo:</strong> {selectedReport.reportCount || 1}
-              </p>
+              <h5>Người báo cáo</h5>
+              <p><strong>Tên:</strong> {selectedReport.reportedByName}</p>
+              <p><strong>Email:</strong> {selectedReport.reportedByEmail}</p>
+              <p><strong>Lý do:</strong> {selectedReport.userReportCategoryLabel}</p>
+              <p><strong>Chi tiết:</strong> {selectedReport.userReportDetails || "Không có"}</p>
+              <p><strong>Số báo cáo:</strong> {selectedReport.reportCount || 1}</p>
             </div>
 
             <div className="detail-section">
-              <h4>🤖 Phân tích AI</h4>
+              <h5>Phân tích AI</h5>
               <p>
                 <strong>Category:</strong>{" "}
                 {CATEGORY_COLORS[selectedReport.aiCategory]?.label || "Khác"}
@@ -648,34 +642,25 @@ export default function ReportManager() {
                 <strong>Confidence:</strong>{" "}
                 {((selectedReport.aiConfidence || 0) * 100).toFixed(1)}%
               </p>
-              <p>
-                <strong>Giải thích:</strong> {selectedReport.aiExplanation}
-              </p>
+              <p><strong>Giải thích:</strong> {selectedReport.aiExplanation}</p>
             </div>
 
             {selectedReport.resolved && (
               <div className="detail-section">
-                <h4>✅ Kết quả xử lý</h4>
-                <p>
-                  <strong>Xử lý bởi:</strong> {selectedReport.reviewedByName}
-                </p>
-                <p>
-                  <strong>Thời gian:</strong> {formatTimestamp(selectedReport.reviewedAt)}
-                </p>
+                <h5>Kết quả xử lý</h5>
+                <p><strong>Xử lý bởi:</strong> {selectedReport.reviewedByName}</p>
+                <p><strong>Thời gian:</strong> {formatTimestamp(selectedReport.reviewedAt)}</p>
                 <p>
                   <strong>Hành động:</strong>{" "}
                   {selectedReport.action === "delete_and_ban"
-                    ? `Xóa tin nhắn + Cấm chat ${
-                        selectedReport.banDurationFormatted || 
-                        `${selectedReport.banDays || selectedReport.banDuration} ngày`
-                      }`
+                    ? `Xóa tin nhắn + Cấm chat ${selectedReport.banDurationFormatted ||
+                    `${selectedReport.banDays || selectedReport.banDuration} ngày`
+                    }`
                     : selectedReport.action === "delete_only"
-                    ? "Xóa tin nhắn"
-                    : "Từ chối báo cáo"}
+                      ? "Xóa tin nhắn"
+                      : "Từ chối báo cáo"}
                 </p>
-                <p>
-                  <strong>Ghi chú:</strong> {selectedReport.actionNotes || "N/A"}
-                </p>
+                <p><strong>Ghi chú:</strong> {selectedReport.actionNotes || "N/A"}</p>
               </div>
             )}
           </div>
@@ -690,10 +675,10 @@ export default function ReportManager() {
           onCancel={() => setActionModalVisible(false)}
           footer={null}
           width={550}
+          centered
           className="action-modal"
         >
           <div className="action-content">
-            {/* Quick Info */}
             <div className="quick-info">
               <p>
                 <strong>Tin nhắn:</strong> {truncateText(actionReport.messageText, 80)}
@@ -707,7 +692,6 @@ export default function ReportManager() {
               </p>
             </div>
 
-            {/* Action Selection */}
             <div className="action-selection" style={{ marginTop: 16 }}>
               <label style={{ fontWeight: 600, marginBottom: 8, display: "block" }}>
                 Hành động: <span style={{ color: "#ff4d4f" }}>*</span>
@@ -727,7 +711,6 @@ export default function ReportManager() {
               </Radio.Group>
             </div>
 
-            {/* ⭐ Ban Duration Input (only if delete_and_ban) */}
             {actionType === "delete_and_ban" && (
               <div className="ban-duration-input" style={{ marginTop: 16 }}>
                 <label style={{ fontWeight: 600, marginBottom: 8, display: "block" }}>
@@ -747,7 +730,6 @@ export default function ReportManager() {
                     value={banUnit}
                     onChange={(value) => {
                       setBanUnit(value);
-                      // Reset duration to safe value when changing unit
                       const newUnit = TIME_UNITS.find((u) => u.value === value);
                       if (banDuration > newUnit.max) {
                         setBanDuration(newUnit.max);
@@ -768,7 +750,6 @@ export default function ReportManager() {
               </div>
             )}
 
-            {/* Action Notes */}
             <div className="action-notes" style={{ marginTop: 16 }}>
               <label style={{ fontWeight: 600, marginBottom: 8, display: "block" }}>
                 Ghi chú xử lý: <span style={{ color: "#ff4d4f" }}>*</span>
@@ -787,7 +768,6 @@ export default function ReportManager() {
               />
             </div>
 
-            {/* Actions */}
             <div className="modal-actions" style={{ marginTop: 20 }}>
               <button
                 className="btn-cancel"
@@ -797,9 +777,8 @@ export default function ReportManager() {
                 <IoIosCloseCircleOutline size={18} /> Hủy
               </button>
               <button
-                className={`btn-submit ${
-                  actionType === "reject" ? "reject" : "approve"
-                }`}
+                className={`btn-submit ${actionType === "reject" ? "reject" : "approve"
+                  }`}
                 onClick={handleActionSubmit}
                 disabled={!actionType || !actionNotes.trim() || submitting}
               >

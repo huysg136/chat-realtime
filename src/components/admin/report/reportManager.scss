@@ -1,3 +1,6 @@
+@use "sass:map";
+@import "../../../style/theme";
+
 .report-manager {
   .filters {
     display: flex;
@@ -32,7 +35,7 @@
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
-    .ant-table-thead > tr > th {
+    .ant-table-thead>tr>th {
       background: #f5f6fa;
       font-weight: 600;
       color: #2f3640;
@@ -40,17 +43,17 @@
       padding: 12px 16px;
     }
 
-    .ant-table-tbody > tr > td {
+    .ant-table-tbody>tr>td {
       border-bottom: 1px solid #e6e8eb;
       padding: 12px 16px;
       vertical-align: top;
     }
 
-    .ant-table-tbody > tr:nth-child(odd) {
+    .ant-table-tbody>tr:nth-child(odd) {
       background: #fff;
     }
 
-    .ant-table-tbody > tr:hover > td {
+    .ant-table-tbody>tr:hover>td {
       background: rgba(24, 144, 255, 0.05);
     }
 
@@ -163,6 +166,17 @@
           cursor: not-allowed;
         }
 
+        &.btn-review {
+          background: #52c41a;
+          color: #fff;
+
+          &-again {
+            background: #ceaf01;
+            color: #fff;
+          }
+        }
+        
+
         &.btn-view {
           background: #1677ff;
           color: #fff;
@@ -187,35 +201,56 @@
   }
 }
 
-// Detail Modal
-.report-detail-modal,
-.action-modal {
-  .report-detail-content,
-  .action-content {
+// ==================== ANNOUNCEMENT STYLE DETAIL MODAL ====================
+.report-detail-modal {
+  .ant-modal-content {
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .ant-modal-header {
+    padding: 12px 24px 0px;
+    margin-bottom: 0;
+  }
+
+  .ant-modal-body {
+    padding: 0;
+  }
+
+  .report-detail-content {
+    padding: 16px 36px;
+    max-height: 70vh;
+    overflow-y: auto;
+
     .detail-section {
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 24px;
 
       &:last-child {
-        border-bottom: none;
+        margin-bottom: 0;
       }
 
-      h4 {
-        margin: 0 0 12px 0;
+      h5 {
+        margin-bottom: 12px;
         color: #2f3640;
-        font-size: 15px;
         font-weight: 600;
+        font-size: 16px;
+        border-bottom: 1px solid #f0f0f0;
+        margin: 0;
+        padding-bottom: 8px;
       }
 
       p {
         margin: 8px 0;
-        font-size: 13px;
+        font-size: 14px;
         line-height: 1.6;
+        color: #595959;
 
         strong {
           font-weight: 600;
           color: #2f3640;
+          display: inline-block;
+          min-width: 100px;
         }
 
         .copyable-text {
@@ -232,11 +267,25 @@
         }
       }
     }
+  }
+}
+
+// ==================== ACTION MODAL STYLES ====================
+.action-modal {
+  .ant-modal-body {
+    padding: 0;
+  }
+
+  .action-content {
+    padding: 12px 24px ;
+    max-height: 75vh;
+    overflow-y: auto;
 
     .quick-info {
       background: #f5f6fa;
       padding: 12px;
       border-radius: 8px;
+      margin-bottom: 16px;
 
       p {
         margin: 6px 0;
@@ -294,10 +343,11 @@
   }
 }
 
-// Dark Mode
+// ==================== DARK MODE ====================
 body.theme-dark {
   .report-manager {
     .filters {
+
       input,
       select {
         background: #27354a;
@@ -319,21 +369,21 @@ body.theme-dark {
       background: #1e293b;
       color: #e2e8f0;
 
-      .ant-table-thead > tr > th {
+      .ant-table-thead>tr>th {
         background: #27354a;
         color: #f1f5f9;
         border-bottom: 1px solid #334155;
       }
 
-      .ant-table-tbody > tr > td {
+      .ant-table-tbody>tr>td {
         border-bottom: 1px solid #334155;
       }
 
-      .ant-table-tbody > tr:nth-child(odd) {
+      .ant-table-tbody>tr:nth-child(odd) {
         background: #1e293b;
       }
 
-      .ant-table-tbody > tr:hover > td {
+      .ant-table-tbody>tr:hover>td {
         background: rgba(255, 255, 255, 0.05);
       }
 
@@ -361,29 +411,27 @@ body.theme-dark {
     }
   }
 
-  .report-detail-modal,
-  .action-modal {
+  // Dark mode for Detail Modal
+  .report-detail-modal {
     .ant-modal-content {
       background: #1e293b;
-      color: #f1f5f9;
+      border: 1px solid #334155;
+    }
 
-      .ant-modal-header {
-        background: #27354a;
-        border-bottom: 1px solid #334155;
+    .ant-modal-header {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
 
-        .ant-modal-title {
-          color: #f1f5f9;
-        }
+      .ant-modal-title {
+        color: #f1f5f9;
       }
     }
 
-    .report-detail-content,
-    .action-content {
+    .report-detail-content {
       .detail-section {
-        border-bottom: 1px solid #334155;
-
-        h4 {
+        h5 {
           color: #f1f5f9;
+          border-bottom-color: #334155;
         }
 
         p {
@@ -392,32 +440,60 @@ body.theme-dark {
           strong {
             color: #f1f5f9;
           }
-
-          .copyable-text {
-            color: #60a5fa;
-          }
         }
       }
+    }
+  }
 
+  // Dark mode for Action Modal
+  .action-modal {
+    .ant-modal-content {
+      background: map.get($theme-colors, "bg-dark-blue");
+      color: #f1f5f9;
+
+      .ant-modal-header {
+        background: transparent;
+        border-bottom: 1px solid #334155;
+      }
+
+      .ant-modal-title {
+        color: #f1f5f9;
+        font-weight: 600;
+      }
+    }
+
+    .action-content {
       .quick-info {
         background: #27354a;
         border: 1px solid #334155;
 
-        p strong {
-          color: #f1f5f9;
+        p {
+          color: #cbd5e1;
+
+          strong {
+            color: #f1f5f9;
+          }
         }
       }
 
       .ant-input,
       textarea {
-        background: #27354a;
+        background: #27354a !important;
         color: #f1f5f9;
         border: 1px solid #334155;
+
+        &::placeholder {
+          color: #64748b;
+        }
 
         &:focus,
         &:hover {
           border-color: #3b82f6;
         }
+      }
+
+      .ant-radio-wrapper {
+        color: #e2e8f0;
       }
 
       .modal-actions {

@@ -365,7 +365,6 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
       centered
       width={520}
       className="report-modal"
-      destroyOnClose
     >
       <div className="report-scrollable">
         <div className="report-content">
@@ -417,13 +416,6 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
               className="details-textarea"
               disabled={submitting}
             />
-          </div>
-
-          {/* Warning */}
-          <div className="warning-box">
-            <p>
-              ⚠️ <strong>Lưu ý:</strong> Báo cáo sai sự thật có thể dẫn đến hạn chế tài khoản.
-            </p>
           </div>
         </div>
       </div>
