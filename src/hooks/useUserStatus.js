@@ -4,8 +4,9 @@ import { rtdb } from '../firebase/config';
 import { getUserDocIdByUid } from '../firebase/services';
 
 const userStatusMap = new Map();
+const rawDataMap = new Map(); // 🔥 Store raw RTDB data
 const listenersMap = new Map();
-const statusListeners = new Map(); // uid => array of setStatus functions
+const statusListeners = new Map();
 
 export function useUserStatus(uid) {
   const [status, setStatus] = useState(null);
@@ -36,51 +37,48 @@ export function useUserStatus(uid) {
 
         const statusRef = ref(rtdb, `userStatuses/${userDocId}`);
 
-        const updateStatus = (data) => {
+        const calculateStatus = (data) => {
           const now = Date.now();
-          let isOnline;
+          let isOnline = false;
 
-          if (!data) {
-            isOnline = false;
-          } else if (data.isOnline === true) {
-            // Check heartbeat - nếu quá 60s thì offline
+          if (data) {
+            // 🔥 Chỉ check heartbeat - offline nếu > 60s không có heartbeat
             const lastHeartbeat = data.lastHeartbeat || data.lastOnline || 0;
             isOnline = (now - lastHeartbeat) < 60000;
-          } else {
-            isOnline = false;
           }
 
-          const newStatus = {
+          return {
             lastOnline: data?.lastOnline ? new Date(data.lastOnline) : null,
             isOnline,
           };
+        };
 
+        const broadcastStatus = (newStatus) => {
           userStatusMap.set(uid, newStatus);
           const listeners = statusListeners.get(uid) || [];
           listeners.forEach(fn => fn(newStatus));
         };
 
-        // 🔥 FIX: Thêm onValue để lắng nghe thay đổi từ RTDB
+        // 🔥 onValue: lắng nghe thay đổi từ RTDB
         const unsubscribeOnValue = onValue(statusRef, (snapshot) => {
           const data = snapshot.val();
-          updateStatus(data);
+          rawDataMap.set(uid, data); // 🔥 Lưu raw data
+          const newStatus = calculateStatus(data);
+          broadcastStatus(newStatus);
         });
 
-        // Interval để check heartbeat mỗi 5s
+        // Interval: chỉ re-check heartbeat timeout, không ghi đè raw data
         const interval = setInterval(() => {
-          const currentData = userStatusMap.get(uid);
-          if (currentData) {
-            updateStatus({
-              lastHeartbeat: currentData.lastOnline ? currentData.lastOnline.getTime() : 0,
-              lastOnline: currentData.lastOnline ? currentData.lastOnline.getTime() : null,
-              isOnline: currentData.isOnline,
-            });
+          const rawData = rawDataMap.get(uid);
+          if (rawData) {
+            const newStatus = calculateStatus(rawData);
+            broadcastStatus(newStatus);
           }
-        }, 5000);
+        }, 10000); // Check mỗi 10s
 
         listenersMap.set(uid, () => {
           off(statusRef);
-          unsubscribeOnValue(); // 🔥 Cleanup onValue listener
+          unsubscribeOnValue();
           clearInterval(interval);
         });
       };
@@ -89,7 +87,6 @@ export function useUserStatus(uid) {
     }
 
     return () => {
-      // remove setStatus khỏi listeners
       const listeners = statusListeners.get(uid) || [];
       const index = listeners.indexOf(setStatus);
       if (index > -1) listeners.splice(index, 1);
@@ -101,6 +98,7 @@ export function useUserStatus(uid) {
           unsubscribe();
           listenersMap.delete(uid);
           userStatusMap.delete(uid);
+          rawDataMap.delete(uid); // 🔥 Cleanup raw data
         }
       }
     };
@@ -109,10 +107,11 @@ export function useUserStatus(uid) {
   return status;
 }
 
-// Cleanup listeners khi cần
 export function cleanupUserStatusListeners() {
   listenersMap.forEach(unsubscribe => unsubscribe());
   listenersMap.clear();
   userStatusMap.clear();
+  rawDataMap.clear();
   statusListeners.clear();
 }
+
