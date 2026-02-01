@@ -41,7 +41,7 @@ function safeParseAIJson(raw) {
   const firstBrace = cleaned.indexOf("{");
   const lastBrace = cleaned.lastIndexOf("}");
   if (firstBrace === -1 || lastBrace === -1) return null;
-  
+
   try {
     return JSON.parse(cleaned.slice(firstBrace, lastBrace + 1));
   } catch {
@@ -50,43 +50,43 @@ function safeParseAIJson(raw) {
 }
 
 function normalizeModeration(result, messageLength) {
-  let confidence = typeof result?.confidence === "number" 
-    ? Math.max(0, Math.min(1, result.confidence)) 
+  let confidence = typeof result?.confidence === "number"
+    ? Math.max(0, Math.min(1, result.confidence))
     : 0.5;
-  
+
   let category = typeof result?.category === "string" ? result.category : "other";
-  
+
   // ⭐ VALIDATION: Tin nhắn ngắn (<10 ký tự) không thể có confidence cao
   if (messageLength < 10 && confidence > 0.6) {
     confidence = 0.3;
     category = "safe";
   }
-  
+
   // ⭐ VALIDATION: Category "safe" phải có confidence thấp
   if (category === "safe" && confidence > 0.5) {
     confidence = 0.2;
   }
-  
+
   // ⭐ VALIDATION: Spam với confidence cao phải có dấu hiệu rõ ràng
   if (category === "spam" && confidence > 0.8) {
     const explanation = result?.explanation || "";
-    const hasSpamIndicators = 
-      explanation.includes("quảng cáo") || 
+    const hasSpamIndicators =
+      explanation.includes("quảng cáo") ||
       explanation.includes("link") ||
       explanation.includes("số điện thoại");
-    
+
     if (!hasSpamIndicators) {
       confidence = Math.min(0.65, confidence);
     }
   }
-  
+
   return {
     confidence,
-    category: ["harmful", "inappropriate", "spam", "other", "safe"].includes(category) 
-      ? category 
+    category: ["harmful", "inappropriate", "spam", "other", "safe"].includes(category)
+      ? category
       : "other",
-    explanation: typeof result?.explanation === "string" 
-      ? result.explanation 
+    explanation: typeof result?.explanation === "string"
+      ? result.explanation
       : "Cần xem xét thủ công.",
   };
 }
@@ -262,16 +262,35 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
       let status = "pending"; // Chờ xem xét
       let needsUrgent = false;
 
-      if (moderationResult.category === "harmful" && moderationResult.confidence >= 0.85) {
-        status = "urgent"; // Cần xử lý gấp
-        needsUrgent = true;
-      } else if (moderationResult.confidence < 0.5 || moderationResult.category === "safe") {
-        status = "low_priority"; // Ưu tiên thấp
-      }
+      // Auto-resolution fields
+      let resolved = false;
+      let action = null;
+      let actionNotes = null;
+      let reviewedBy = null;
+      let reviewedByName = null;
+      let reviewedAt = null;
 
-      // Nếu nhiều người báo cáo → Ưu tiên cao hơn
-      if (reportCount >= 3 && status !== "urgent") {
-        status = "pending"; // Đưa lên pending
+      if (moderationResult.category === "harmful" && moderationResult.confidence >= 0.85) {
+        // status = "urgent"; // REMOVED: Simplify statuses
+        needsUrgent = true;
+      } else if (moderationResult.category === "safe") {
+        // ⭐ AUTO-REJECT: Nếu AI xác định an toàn -> Tự động từ chối
+        status = "resolved";
+        resolved = true;
+        action = "reject";
+        actionNotes = moderationResult.explanation;
+        reviewedBy = "system_ai";
+        reviewedByName = "AI System";
+        reviewedAt = new Date();
+      }
+      // else if (moderationResult.confidence < 0.5) {
+      //   status = "low_priority"; // REMOVED: Simplify statuses
+      // }
+
+      // Nếu nhiều người báo cáo → Ưu tiên cao hơn (chỉ nếu chưa resolved)
+      if (!resolved && reportCount >= 3) {
+        // status = "pending"; // Already pending
+        needsUrgent = true;
       }
 
       // 5. Create report document (SIMPLE)
@@ -304,10 +323,18 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         reportCount,
         needsUrgent,
 
+        // Resolution Info (if auto-resolved)
+        resolved,
+        videoResolved: resolved, // sync
+        action,
+        actionNotes,
+        reviewedBy,
+        reviewedByName,
+        reviewedAt,
+
         // Timestamps
         createdAt: new Date(),
         updatedAt: new Date(),
-        resolved: false,
       };
 
       // 6. Add to Firestore
@@ -318,22 +345,40 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         await updateDocument("reports", existingReports[0].id, {
           reportCount,
           updatedAt: new Date(),
-          // Escalate if ≥3 reports
-          ...(reportCount >= 3 && status !== "urgent"
+          // Escalate if ≥3 reports (only if not already resolved)
+          ...(!resolved && reportCount >= 3
             ? {
-                status: "pending",
-                needsUrgent: true,
-              }
+              needsUrgent: true,
+            }
             : {}),
         });
       }
 
-      // 8. Show toast
-      if (needsUrgent) {
-        toast.error("Báo cáo nghiêm trọng! Đang được xem xét ngay lập tức.");
-      } else {
-        toast.success("Báo cáo đã được ghi nhận. Cảm ơn bạn đã góp ý.");
+      // 8. Send Email if Auto-Resolved
+      if (resolved) {
+        try {
+          fetch('https://chat-realtime-be.vercel.app/api/reports/notify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              reporterEmail: currentUser?.email,
+              reporterName: currentUser?.displayName,
+              messageText: messageText,
+              action: "reject",
+              adminName: "AI System", // System handled it
+              reason: actionNotes,
+              reportDate: new Date().toLocaleString("vi-VN"),
+            }),
+          }).catch(console.error); // Fire and forget
+        } catch (e) {
+          console.error("Auto-reply email error", e);
+        }
       }
+
+      // 9. Show toast
+      toast.success("Báo cáo đã được ghi nhận. Cảm ơn bạn đã góp ý.");
 
       resetForm();
       onClose?.();

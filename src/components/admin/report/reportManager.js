@@ -41,8 +41,6 @@ const CATEGORY_COLORS = {
 
 const STATUS_COLORS = {
   pending: { color: "#0958d9", bg: "#e6f4ff", label: "Chờ xử lý" },
-  urgent: { color: "#cf1322", bg: "#fff1f0", label: "Khẩn cấp" },
-  low_priority: { color: "#595959", bg: "#fafafa", label: "Ưu tiên thấp" },
   resolved: { color: "#389e0d", bg: "#f6ffed", label: "Đã xử lý" },
 };
 
@@ -118,7 +116,7 @@ export default function ReportManager() {
     messageId: "",
     reportedBy: "",
     category: "",
-    status: "",
+    status: "pending",
   });
 
   // Modals
@@ -145,8 +143,8 @@ export default function ReportManager() {
         }));
 
         reportList.sort((a, b) => {
-          if (a.status === "urgent" && b.status !== "urgent") return -1;
-          if (a.status !== "urgent" && b.status === "urgent") return 1;
+          if (a.needsUrgent && !b.needsUrgent) return -1;
+          if (!a.needsUrgent && b.needsUrgent) return 1;
           return (
             (b.createdAt?.toDate?.() || new Date(b.createdAt)) -
             (a.createdAt?.toDate?.() || new Date(a.createdAt))
@@ -345,7 +343,7 @@ export default function ReportManager() {
       r.messageId?.toLowerCase().includes(filters.messageId.toLowerCase())
     )
     .filter((r) =>
-      r.reportedByName?.toLowerCase().includes(filters.reportedBy.toLowerCase())
+      r.reportedByEmail?.toLowerCase().includes(filters.reportedBy.toLowerCase())
     )
     .filter((r) => (filters.category ? r.aiCategory === filters.category : true))
     .filter((r) => (filters.status ? r.status === filters.status : true));
@@ -355,7 +353,7 @@ export default function ReportManager() {
     {
       title: "Tin nhắn",
       key: "message",
-      width: 250,
+      width: 150,
       render: (_, record) => (
         <div className="message-preview-cell">
           <div className="message-kind">
@@ -380,12 +378,12 @@ export default function ReportManager() {
     {
       title: "Người báo cáo",
       key: "reporter",
-      width: 150,
+      width: 200,
       render: (_, record) => (
         <div className="reporter-cell">
           <div className="reporter-name">
             <FiUser size={14} />
-            <span>{truncateText(record.reportedByName, 20)}</span>
+            <span>{truncateText(record.reportedByEmail, 20)}</span>
           </div>
           <div className="reporter-meta">{formatTimestamp(record.createdAt)}</div>
           {record.reportCount > 1 && (
@@ -550,7 +548,7 @@ export default function ReportManager() {
         />
         <input
           type="text"
-          placeholder="Người báo cáo..."
+          placeholder="Email người báo cáo..."
           value={filters.reportedBy}
           onChange={(e) => setFilters({ ...filters, reportedBy: e.target.value })}
         />
@@ -571,8 +569,6 @@ export default function ReportManager() {
         >
           <option value="">Tất cả trạng thái</option>
           <option value="pending">Chờ xử lý</option>
-          <option value="urgent">Khẩn cấp</option>
-          <option value="low_priority">Ưu tiên thấp</option>
           <option value="resolved">Đã xử lý</option>
         </select>
       </div>
