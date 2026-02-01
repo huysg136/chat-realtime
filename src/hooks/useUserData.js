@@ -6,7 +6,7 @@ import { getUserDocIdByUid } from "../firebase/services";
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
-export function useUserProfile(uid) {
+export function useUserData(uid) {
   const [role, setRole] = useState();
   const [displayName, setDisplayName] = useState();
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
