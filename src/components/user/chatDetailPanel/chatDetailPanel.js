@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Avatar, Input, Tooltip, Popconfirm, message } from "antd";
+import { Button, Avatar, Input, Tooltip, Popconfirm } from "antd";
 import {
   DeleteOutlined,
   CrownOutlined,
@@ -51,8 +51,8 @@ export default function ChatDetailPanel({
   const ownerEntry = rolesArray.find((r) => r.role === "owner");
   const ownerUid = ownerEntry?.uid || (selectedRoom?.members?.[0] && String(selectedRoom.members[0]));
 
-  const isOwner = currentUserRole === "owner";
-  const isCoOwner = currentUserRole === "co-owner";
+  // const isOwner = currentUserRole === "owner";
+  // const isCoOwner = currentUserRole === "co-owner";
 
   const canToggleCoOwner = (targetUid) => {
     if (currentUserRole !== "owner") return false;
@@ -213,13 +213,13 @@ export default function ChatDetailPanel({
     }
   };
 
-  const handleReport = () => {
-    toast.info("Đã gửi báo cáo (chưa thực hiện)");
-  };
+  // const handleReport = () => {
+  //   toast.info("Đã gửi báo cáo (chưa thực hiện)");
+  // };
 
-  const handleBlock = () => {
-    toast.info("Chặn người dùng (chưa thực hiện)");
-  };
+  // const handleBlock = () => {
+  //   toast.info("Chặn người dùng (chưa thực hiện)");
+  // };
 
   // const handleDeleteConversation = async () => {
   //   toast.info("Xóa đoạn chat (chưa thực hiện)");

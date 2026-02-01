@@ -6,7 +6,7 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, getAdditionalUserInfo } f
 import { useNavigate } from "react-router-dom";
 import { collection, query, where, getDoc, doc, getDocs, updateDoc, serverTimestamp } from "firebase/firestore";
 import app, { db } from "../../firebase/config";
-import { addDocument, generateKeywords, getUserDocIdByUid } from "../../firebase/services";
+import { addDocument, getUserDocIdByUid } from "../../firebase/services";
 import ReactCountryFlag from "react-country-flag";
 import "./index.scss";
 import logo_quik from "../../images/logo_quik.png";

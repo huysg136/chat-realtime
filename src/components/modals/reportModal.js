@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import { addDocument, updateDocument } from "../../firebase/services";
 import { db } from "../../firebase/config";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { askGroq } from "../../utils/AI/groqBot";
 import "./reportModal.scss";
 import { askGemini } from "../../utils/AI/geminiBot";
 

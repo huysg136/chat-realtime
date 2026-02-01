@@ -41,6 +41,7 @@ Quik combines a seamless chat interface with robust backend services.
 ### Backend & Cloud Services
 -   **Runtime**: Node.js, Express.js
 -   **Video/Voice**: Stringee SDK
+-   **Speech-to-Text**: AssemblyAI
 -   **Storage**: Cloudflare R2 (S3 Compatible)
 -   **AI Models**: Google Gemini 2.5 Flash Lite, Groq (Llama 3.1 8b)
 -   **Database**: Firebase Firestore, Realtime Database
