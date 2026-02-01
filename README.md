@@ -49,7 +49,10 @@ Quik combines a seamless chat interface with robust backend services.
 
 🔗 **Backend Repository:** [**chat-realtime-api**](https://github.com/huysg136/chat-realtime-api)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1834fbcee943c9645bf053562e833053ddfccd58
 ## 🤝 Contributing
 
 Contributions are welcome! Please fork the repo and submit a PR.
