@@ -12,6 +12,7 @@ import "./index.scss";
 import logo_quik from "../../images/logo_quik.png";
 import { toast } from "react-toastify";
 import { ROUTERS } from "../../utils/router";
+import { useTranslation } from "react-i18next";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -56,10 +57,12 @@ async function getUniqueUsername(baseUsername) {
 }
 
 export default function Login() {
-  const [lang, setLang] = useState("vi");
+  const { t, i18n } = useTranslation();
+  const [language, setLanguage] = useState(i18n.language || "vi");
   const [theme, setTheme] = useState("system");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     document.body.classList.add("theme-light");
@@ -153,39 +156,19 @@ export default function Login() {
     }
   };
 
-  const text = {
-    en: {
-      title: "Welcome Back",
-      subtitle: "Sign in to continue to Quik",
-      google: "Continue with Google",
-      privacy: "By continuing, you agree to our Terms of Service and Privacy Policy",
-      light: "Light",
-      dark: "Dark",
-      system: "System",
-    },
-    vi: {
-      title: "Chào Mừng Trở Lại",
-      subtitle: "Đăng nhập để tiếp tục sử dụng Quik",
-      google: "Tiếp tục với Google",
-      privacy: "Bằng cách tiếp tục, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi",
-      light: "Sáng",
-      dark: "Tối",
-      system: "Hệ thống",
-    },
-  };
-
   const handleChangeTheme = async (value) => {
     setTheme(value);
   };
 
   const handleChangeLang = async (value) => {
-    setLang(value);
+    setLanguage(value);
+    i18n.changeLanguage(value);
   };
 
   return (
     <div className="login-wrapper">
       <div className="lang-select">
-        <Select value={lang} onChange={handleChangeLang} style={{ width: 160 }}>
+        <Select value={language} onChange={handleChangeLang} style={{ width: 160 }}>
           <Option value="vi">
             <ReactCountryFlag
               countryCode="VN"
@@ -207,15 +190,15 @@ export default function Login() {
           <Select value={theme} onChange={handleChangeTheme} style={{ width: 160 }}>
             <Option value="light">
               <BsSunFill style={{ color: "#facc15", marginRight: 6 }} />
-              {text[lang].light}
+              {t('settings.light')}
             </Option>
             <Option value="dark">
               <BsMoonStarsFill style={{ color: "#3b82f6", marginRight: 6 }} />
-              {text[lang].dark}
+              {t('settings.dark')}
             </Option>
             <Option value="system">
               <BsLaptop style={{ color: "#6b7280", marginRight: 6 }} />
-              {text[lang].system}
+              {t('settings.system')}
             </Option>
           </Select>
         </div>
@@ -236,7 +219,7 @@ export default function Login() {
             <Title level={2} className="app-title">
               Quik
             </Title>
-            <Text className="app-subtitle">{text[lang].subtitle}</Text>
+            <Text className="app-subtitle">{t('login.subtitle')}</Text>
           </div>
 
           <div className="login-content">
@@ -250,17 +233,17 @@ export default function Login() {
                 loading={loading}
                 block
               >
-                {text[lang].google}
+                {t('login.googleBtn')}
               </Button>
             </Space>
 
-            <Text className="privacy-text">{text[lang].privacy}</Text>
+            <Text className="privacy-text">{t('login.privacy')}</Text>
           </div>
         </Col>
       </Row>
 
       <div className="footer-credit">
-        © {new Date().getFullYear()} Made by <span className="author-name">Thái Gia Huy</span> · quik.id.vn
+        © {new Date().getFullYear()} {t('login.footer')} <span className="author-name">Thái Gia Huy</span> · quik.id.vn
       </div>
     </div>
   );

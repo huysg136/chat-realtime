@@ -1,4 +1,11 @@
 {
+    "login": {
+        "title": "Chào Mừng Trở Lại",
+        "subtitle": "Đăng nhập để tiếp tục sử dụng Quik",
+        "googleBtn": "Tiếp tục với Google",
+        "privacy": "Bằng cách tiếp tục, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi",
+        "footer": "Bản quyền thuộc về"
+    },
     "settings": {
         "title": "Cài đặt",
         "menuAccount": "Tài khoản",
