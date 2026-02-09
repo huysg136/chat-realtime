@@ -21,7 +21,6 @@ import {
   FiUser,
   FiMessageSquare,
   FiCopy,
-  FiSlash,
 } from "react-icons/fi";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import NoAccess from "../noAccess/noAccess";
@@ -46,8 +45,7 @@ const STATUS_COLORS = {
 };
 
 const ACTION_OPTIONS = [
-  { value: "delete_only", label: "Chỉ xóa tin nhắn" },
-  { value: "delete_and_ban", label: "Xóa tin nhắn + Cấm chat" },
+  { value: "ban", label: "Cấm chat" },
   { value: "reject", label: "Từ chối báo cáo (không vi phạm)" },
 ];
 
@@ -57,7 +55,6 @@ const TIME_UNITS = [
   { value: "days", label: "Ngày", max: 365, min: 1 },
 ];
 
-// ==================== UTILITY FUNCTIONS ====================
 function formatTimestamp(timestamp) {
   if (!timestamp) return "N/A";
   const date = timestamp?.toDate ? timestamp.toDate() : new Date(timestamp);
@@ -101,7 +98,7 @@ function getBanDurationInMs(value, unit) {
 
 function getTimestamp(t) {
   if (!t) return 0;
-  if (t.seconds) return t.seconds; // Firestore Timestamp
+  if (t.seconds) return t.seconds; 
   if (t instanceof Date) return t.getTime() / 1000;
   if (t.toDate) return t.toDate().getTime() / 1000;
   return 0;
@@ -116,7 +113,6 @@ function formatBanDuration(value, unit) {
   return `${value} ${unitLabels[unit] || "ngày"}`;
 }
 
-// ==================== MAIN COMPONENT ====================
 export default function ReportManager() {
   const { user: currentUser } = useContext(AuthContext);
   const [reports, setReports] = useState([]);
@@ -129,10 +125,8 @@ export default function ReportManager() {
     sortBy: "newest",
   });
 
-  // Modals
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
-
   const [actionModalVisible, setActionModalVisible] = useState(false);
   const [actionReport, setActionReport] = useState(null);
   const [actionType, setActionType] = useState("");
@@ -141,7 +135,6 @@ export default function ReportManager() {
   const [banUnit, setBanUnit] = useState("days");
   const [submitting, setSubmitting] = useState(false);
 
-  // ==================== FIRESTORE LISTENERS ====================
   useEffect(() => {
     setLoading(true);
     const unsubscribe = onSnapshot(
@@ -151,15 +144,6 @@ export default function ReportManager() {
           id: d.id,
           ...d.data(),
         }));
-
-        reportList.sort((a, b) => {
-          if (a.needsUrgent && !b.needsUrgent) return -1;
-          if (!a.needsUrgent && b.needsUrgent) return 1;
-          return (
-            (b.createdAt?.toDate?.() || new Date(b.createdAt)) -
-            (a.createdAt?.toDate?.() || new Date(a.createdAt))
-          );
-        });
 
         setReports(reportList);
         setLoading(false);
@@ -173,12 +157,10 @@ export default function ReportManager() {
     return () => unsubscribe();
   }, []);
 
-  // ==================== PERMISSION CHECK ====================
   if (!currentUser?.permissions?.canManageReports && currentUser.role !== "admin") {
     return <NoAccess />;
   }
 
-  // ==================== HANDLERS ====================
   const showDetailModal = (report) => {
     setSelectedReport(report);
     setDetailModalVisible(true);
@@ -186,10 +168,10 @@ export default function ReportManager() {
 
   const showActionModal = (report) => {
     setActionReport(report);
-    setActionType("delete_only");
+    setActionType("ban");
     setActionNotes(
       report.aiExplanation
-        ? `${report.aiExplanation} (tham khảo từ AI)`
+        ? `${report.aiExplanation}`
         : ""
     );
     setBanDuration(7);
@@ -208,7 +190,7 @@ export default function ReportManager() {
       return;
     }
 
-    if (actionType === "delete_and_ban") {
+    if (actionType === "ban") {
       const currentUnit = TIME_UNITS.find((u) => u.value === banUnit);
       if (!banDuration || banDuration < currentUnit.min || banDuration > currentUnit.max) {
         toast.warning(
@@ -220,24 +202,7 @@ export default function ReportManager() {
 
     try {
       setSubmitting(true);
-
-      // 1. Delete message if needed
-      if (actionType === "delete_only" || actionType === "delete_and_ban") {
-        try {
-          const messagesRef = collection(db, "messages");
-          const q = query(messagesRef, where("id", "==", actionReport.messageId));
-          const snapshot = await getDocs(q);
-
-          if (!snapshot.empty) {
-            await deleteDoc(snapshot.docs[0].ref);
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-
-      // 2. Ban user if needed
-      if (actionType === "delete_and_ban") {
+      if (actionType === "ban") {
         try {
           const targetUid = actionReport.messageUid;
           const userDocId = await getUserDocIdByUid(targetUid);
@@ -271,11 +236,10 @@ export default function ReportManager() {
             }
           }
         } catch (err) {
-          toast.warning("Đã xóa tin nhắn nhưng không thể cấm chat người dùng");
+          toast.warning("Không thể cấm chat người dùng");
         }
       }
 
-      // 3. Update report status
       await updateDoc(doc(db, "reports", actionReport.id), {
         status: "resolved",
         resolved: true,
@@ -284,7 +248,7 @@ export default function ReportManager() {
         reviewedAt: new Date(),
         action: actionType,
         actionNotes,
-        ...(actionType === "delete_and_ban" && {
+        ...(actionType === "ban" && {
           banDuration,
           banUnit,
           banDurationFormatted: formatBanDuration(banDuration, banUnit),
@@ -292,7 +256,6 @@ export default function ReportManager() {
         updatedAt: new Date(),
       });
 
-      // 4. Send email notification
       try {
         const emailResponse = await fetch(`${API_BASE_URL}/api/reports/notify`, {
           method: 'POST',
@@ -307,7 +270,7 @@ export default function ReportManager() {
             adminName: currentUser.displayName,
             reason: actionNotes,
             reportDate: formatTimestamp(actionReport.createdAt),
-            ...(actionType === "delete_and_ban" && {
+            ...(actionType === "ban" && {
               banDuration,
               banUnit,
             }),
@@ -319,11 +282,8 @@ export default function ReportManager() {
         console.error(emailError);
       }
 
-      // 5. Success message
-      if (actionType === "delete_and_ban") {
+      if (actionType === "ban") {
         toast.success(`Đã xóa tin nhắn và cấm chat ${formatBanDuration(banDuration, banUnit)}`);
-      } else if (actionType === "delete_only") {
-        toast.success("Đã xóa tin nhắn vi phạm");
       } else {
         toast.success("Đã từ chối báo cáo");
       }
@@ -347,7 +307,6 @@ export default function ReportManager() {
     }
   };
 
-  // ==================== FILTERS ====================
   const filteredReports = reports
     .filter((r) =>
       r.messageId?.toLowerCase().includes(filters.messageId.toLowerCase())
@@ -368,7 +327,6 @@ export default function ReportManager() {
       }
     });
 
-  // ==================== TABLE COLUMNS ====================
   const columns = [
     {
       title: "Tin nhắn",
@@ -541,7 +499,6 @@ export default function ReportManager() {
     },
   ];
 
-  // ==================== RENDER ====================
   if (loading) {
     return (
       <div
@@ -607,20 +564,15 @@ export default function ReportManager() {
         pagination={{
           pageSize: 10,
           showSizeChanger: false,
-          pageSizeOptions: ['10', '20', '50', '100'],
           showTotal: (total) => `Tổng ${total} báo cáo`,
         }}
       />
 
-      {/* Detail Modal - Announcement Style */}
       {selectedReport && (
         <Modal
           title={
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span>Chi tiết báo cáo</span>
-              {selectedReport.status === 'urgent' && (
-                <Tag color="red">Khẩn cấp</Tag>
-              )}
             </div>
           }
           open={detailModalVisible}
@@ -644,7 +596,6 @@ export default function ReportManager() {
                       selectedReport.messageKind === "audio" ? "🎤 Tin nhắn thoại" : "💬 Văn bản"}
               </p>
 
-              {/* Text/Transcript content */}
               {selectedReport.messageKind === "audio" && selectedReport.messageTranscript ? (
                 <p>
                   <strong>Transcript:</strong>{" "}
@@ -656,7 +607,6 @@ export default function ReportManager() {
                 <p><strong>Nội dung:</strong> {selectedReport.messageRawText || selectedReport.messageText}</p>
               )}
 
-              {/* Media link if applicable */}
               {["picture", "video", "file", "audio"].includes(selectedReport.messageKind) && (
                 <p>
                   <strong>Link media:</strong>{" "}
@@ -715,13 +665,11 @@ export default function ReportManager() {
                 <p><strong>Thời gian:</strong> {formatTimestamp(selectedReport.reviewedAt)}</p>
                 <p>
                   <strong>Hành động:</strong>{" "}
-                  {selectedReport.action === "delete_and_ban"
-                    ? `Xóa tin nhắn + Cấm chat ${selectedReport.banDurationFormatted ||
+                  {selectedReport.action === "ban"
+                    ? `Cấm chat ${selectedReport.banDurationFormatted ||
                     `${selectedReport.banDays || selectedReport.banDuration} ngày`
                     }`
-                    : selectedReport.action === "delete_only"
-                      ? "Xóa tin nhắn"
-                      : "Từ chối báo cáo"}
+                    : "Từ chối báo cáo"}
                 </p>
                 <p><strong>Ghi chú:</strong> {selectedReport.actionNotes || "N/A"}</p>
               </div>
@@ -730,7 +678,6 @@ export default function ReportManager() {
         </Modal>
       )}
 
-      {/* Action Modal */}
       {actionModalVisible && actionReport && (
         <Modal
           title="Xử lý báo cáo vi phạm"
@@ -774,7 +721,7 @@ export default function ReportManager() {
               </Radio.Group>
             </div>
 
-            {actionType === "delete_and_ban" && (
+            {actionType === "ban" && (
               <div className="ban-duration-input" style={{ marginTop: 16 }}>
                 <label style={{ fontWeight: 600, marginBottom: 8, display: "block" }}>
                   Thời gian cấm chat: <span style={{ color: "#ff4d4f" }}>*</span>
@@ -848,14 +795,6 @@ export default function ReportManager() {
                 {submitting ? (
                   <>
                     <Spin size="small" /> Đang xử lý...
-                  </>
-                ) : actionType === "delete_and_ban" ? (
-                  <>
-                    <FiSlash size={18} /> Xóa & Cấm chat
-                  </>
-                ) : actionType === "delete_only" ? (
-                  <>
-                    <FiCheck size={18} /> Xóa tin nhắn
                   </>
                 ) : (
                   <>
