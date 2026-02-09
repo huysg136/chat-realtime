@@ -10,10 +10,11 @@ import "./leftSide.scss";
 import { AiFillMessage, AiOutlineMessage  } from "react-icons/ai";
 import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { AppContext } from '../../../context/appProvider';
-import { MdOutlineAdminPanelSettings, MdReport, MdReportProblem } from "react-icons/md";
+import { MdOutlineAdminPanelSettings, MdReportProblem } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 import { ROUTERS } from "../../../utils/router";
+import { useTranslation } from "react-i18next";
 
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
@@ -27,7 +28,7 @@ export default function LeftSide() {
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
   const userStatus = useUserStatus(user?.uid);
-
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -83,11 +84,11 @@ export default function LeftSide() {
   const menu = (
     <Menu style={{cursor: "pointer"}}>
       <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => setIsProfileVisible(true)}>
-        Hồ sơ của tôi
+        {t('leftSide.myProfile')}
       </Menu.Item>
       {(role === "admin" || (role === "moderator" && user?.permissions?.canAccessAdminPage)) && (
         <Menu.Item key="admin" icon={<MdOutlineAdminPanelSettings />} onClick={() => navigate(ROUTERS.ADMIN.DASHBOARD)}>
-          Trang quản trị
+          {t('leftSide.adminPage')}
         </Menu.Item>
       )}
       <Menu.Item 
@@ -95,13 +96,13 @@ export default function LeftSide() {
         icon={<SettingOutlined />}
         onClick={() => setIsSettingsVisible(true)}
       >
-        Cài đặt
+        {t('leftSide.settings')}
       </Menu.Item>
       {/* <Menu.Item key="saved" icon={<SaveOutlined />}>
         Đã lưu
       </Menu.Item> */}
       <Menu.Item key="reports" icon={<MdReportProblem />} onClick={() => setIsMyReportsVisible(true)}>
-        Báo cáo của tôi
+        {t('leftSide.myReport')}
       </Menu.Item>
       <Menu.Divider style={{margin: "0"}}/>
       <Menu.Item
@@ -110,7 +111,7 @@ export default function LeftSide() {
         icon={<LogoutOutlined />}
         style={{ color: "#ff4d4f", fontWeight: "500" }}
       >
-        Đăng xuất
+        {t('leftSide.logout')}
       </Menu.Item>
     </Menu>
   );

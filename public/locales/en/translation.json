@@ -6,6 +6,18 @@
         "privacy": "By continuing, you agree to our Terms of Service and Privacy Policy",
         "footer": "Made by"
     },
+    "leftSide": {
+        "myProfile": "My Profile",
+        "adminPage": "Admin Page",
+        "settings": "Settings",
+        "myReport": "My Reports",
+        "logout": "Logout"
+    },
+    "searching": {
+        "placeholder": "Search by username",
+        "message": "Messages",
+        "invitePending": "Pending Invites"
+    },
     "settings": {
         "title": "Settings",
         "menuAccount": "Account",

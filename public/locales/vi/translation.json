@@ -6,6 +6,18 @@
         "privacy": "Bằng cách tiếp tục, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi",
         "footer": "Bản quyền thuộc về"
     },
+    "leftSide": {
+        "myProfile": "Hồ sơ của tôi",
+        "adminPage": "Trang quản trị",
+        "settings": "Cài đặt",
+        "myReport": "Báo cáo của tôi",
+        "logout": "Đăng Xuất"
+    },
+    "searching": {
+        "placeholder": "Tìm kiếm theo username",
+        "message": "Tin nhắn",
+        "invitePending": "Lời mời đang chờ"
+    },
     "settings": {
         "title": "Cài đặt",
         "menuAccount": "Tài khoản",

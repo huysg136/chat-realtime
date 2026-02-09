@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Input, Button } from "antd";
-import { SearchOutlined, UserAddOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import { IoCreateOutline } from "react-icons/io5";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
@@ -8,6 +8,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import { getUserDocIdByUid } from "../../../firebase/services";
 import "./searching.scss";
+import { useTranslation } from "react-i18next";
 
 export default function Searching() {
   const { setIsAddRoomVisible, searchText, setSearchText, selectedRoomId } = useContext(AppContext);
@@ -15,6 +16,7 @@ export default function Searching() {
   const { user } = useContext(AuthContext) || {};
   const [displayName, setDisplayName] = useState("");
   const [usernameHandle, setUsernameHandle] = useState("");
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -60,12 +62,6 @@ export default function Searching() {
           {usernameHandle && <span className="username">@{usernameHandle.replace(/^@/, "")}</span>}
         </div>
         <div className="action-buttons">
-          {/* <Button
-            type="text"
-            className="add-friend-btn"
-            icon={<UserAddOutlined />}
-            // onClick={handleAddUser}
-          /> */}
           <Button
             type="text"
             className="create-btn"
@@ -78,7 +74,7 @@ export default function Searching() {
       <div className="search-wrapper">
         <Input
           className="search-input"
-          placeholder="Tìm kiếm"
+          placeholder={t('searching.placeholder')}
           prefix={<SearchOutlined className="search-icon" />}
           bordered={false}
           value={searchText}
@@ -87,12 +83,12 @@ export default function Searching() {
       </div>
 
       <div className="room-header">
-        <span className="header-1">Tin nhắn</span>
+        <span className="header-1">{t('searching.message')}</span>
         <span 
           className="header-2"
           onClick={() => setIsPendingInviteVisible(true)}
         >
-            Lời mời đang chờ
+            {t('searching.invitePending')}
         </span>
       </div>
     </div>
