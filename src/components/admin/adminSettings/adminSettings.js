@@ -21,6 +21,9 @@ import { toast } from 'react-toastify';
 import "./adminSettings.scss";
 import { AuthContext } from "../../../context/authProvider";
 import NoAccess from "../noAccess/noAccess";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 const { Title, Text, Paragraph } = Typography;
 
