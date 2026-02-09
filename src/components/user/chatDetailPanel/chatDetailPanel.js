@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import { updateDocument, addDocument } from "../../../firebase/services";
 import "./chatDetailPanel.scss";
+import { useTranslation } from "react-i18next";
 
 export default function ChatDetailPanel({
   isVisible,
@@ -30,6 +31,7 @@ export default function ChatDetailPanel({
   const [newRoomName, setNewRoomName] = useState("");
   const [roomNameLocal, setRoomNameLocal] = useState("");
   const [isSavingName, setIsSavingName] = useState(false);
+  const { t } = useTranslation();
 
   const { uid } = currentUser;
 
@@ -86,20 +88,20 @@ export default function ChatDetailPanel({
       }
 
       await updateDocument("rooms", selectedRoom.id, { roles: newRoles });
-      toast.success("Cập nhật quyền thành công");
+      toast.success(t('chatDetail.roleUpdateSuccess'));
     } catch (err) {
-      toast.error("Không thể cập nhật quyền, thử lại sau");
+      toast.error(t('chatDetail.roleUpdateError'));
     }
   };
 
   const transferOwnership = async (targetUid) => {
     if (currentUserRole !== "owner") {
-      toast.warning("Chỉ trưởng nhóm mới có thể chuyển quyền trưởng nhóm");
+      toast.warning(t('chatDetail.ownerOnly'));
       return;
     }
 
     if (String(targetUid).trim() === String(uid).trim()) {
-      toast.warning("Bạn đã là trưởng nhóm rồi");
+      toast.warning(t('chatDetail.alreadyOwner'));
       return;
     }
 
@@ -115,15 +117,15 @@ export default function ChatDetailPanel({
       }
 
       await updateDocument("rooms", selectedRoom.id, { roles: newRoles });
-      toast.success("Đã chuyển quyền trưởng nhóm thành công!");
+      toast.success(t('chatDetail.transferSuccess'));
     } catch (err) {
-      toast.error("Không thể chuyển quyền, thử lại sau");
+      toast.error(t('chatDetail.transferError'));
     }
   };
 
   const removeMember = async (targetUid) => {
     if (!canRemoveMember(targetUid)) {
-      toast.warning("Bạn không có quyền xóa thành viên này.");
+      toast.warning(t('chatDetail.removePermission'));
       return;
     }
 
@@ -153,9 +155,9 @@ export default function ChatDetailPanel({
         createdAt: new Date(),
       });
 
-      toast.success("Đã xóa thành viên");
+      toast.success(t('chatDetail.removeSuccess'));
     } catch (err) {
-      toast.error("Xóa thành viên thất bại, thử lại sau");
+      toast.error(t('chatDetail.removeError'));
     }
   };
 
@@ -175,11 +177,11 @@ export default function ChatDetailPanel({
   const saveRoomName = async () => {
     const trimmed = (newRoomName || "").trim();
     if (!trimmed) {
-      toast.warning("Tên phòng không được để trống");
+      toast.warning(t('chatDetail.emptyName'));
       return;
     }
     if (trimmed.length > 100) {
-      toast.warning("Tên phòng tối đa 100 ký tự");
+      toast.warning(t('chatDetail.nameTooLong'));
       return;
     }
 
@@ -193,25 +195,25 @@ export default function ChatDetailPanel({
       await updateDocument("rooms", selectedRoom.id, { name: trimmed });
       setRoomNameLocal(trimmed);
       setIsEditingName(false);
-      toast.success("Đã đổi tên nhóm");
+      toast.success(t('chatDetail.renameSuccess'));
     } catch (err) {
-      toast.error("Đổi tên thất bại, thử lại");
+      toast.error(t('chatDetail.renameError'));
     } finally {
       setIsSavingName(false);
     }
   };
 
-  const handleToggleNotifications = async () => {
-    const newMuted = !muted;
-    setMuted(newMuted);
-    try {
-      await updateDocument("rooms", selectedRoom.id, { muted: newMuted });
-      toast.success(newMuted ? "Đã tắt thông báo" : "Đã bật thông báo");
-    } catch (err) {
-      toast.error("Lưu cài đặt thất bại");
-      setMuted(!newMuted);
-    }
-  };
+  // const handleToggleNotifications = async () => {
+  //   const newMuted = !muted;
+  //   setMuted(newMuted);
+  //   try {
+  //     await updateDocument("rooms", selectedRoom.id, { muted: newMuted });
+  //     toast.success(newMuted ? "Đã tắt thông báo" : "Đã bật thông báo");
+  //   } catch (err) {
+  //     toast.error("Lưu cài đặt thất bại");
+  //     setMuted(!newMuted);
+  //   }
+  // };
 
   // const handleReport = () => {
   //   toast.info("Đã gửi báo cáo (chưa thực hiện)");
@@ -256,10 +258,10 @@ export default function ChatDetailPanel({
         createdAt: new Date(),
       });
 
-      toast.success("Bạn đã rời nhóm");
+      toast.success(t('chatDetail.leaveSuccess'));
       onClose?.();
     } catch (err) {
-      toast.error("Rời nhóm thất bại, thử lại sau");
+      toast.error(t('chatDetail.leaveError'));
     }
   };
 
@@ -273,8 +275,8 @@ export default function ChatDetailPanel({
       >
         <div className="chat-detail-header">
           <div className="title-area">
-            <h3>Chi tiết</h3>
-            <span className="room-type">{isPrivate ? "Riêng tư" : "Nhóm"}</span>
+            <h3>{t("chatDetail.title")}</h3>
+            <span className="room-type">{isPrivate ? t("chatDetail.private") : t("chatDetail.group")}</span>
           </div>
           {/* <button className="close-btn" onClick={onClose} aria-label="Đóng">✕</button> */}
         </div>
@@ -289,7 +291,6 @@ export default function ChatDetailPanel({
                   </Avatar>
                   <div className="overview-info">
                     <p className="name">{otherUser.displayName}</p>
-                    <p className="room-uid">ID phòng chat: {selectedRoom.id}</p>
                   </div>
                 </div>
               ) : null
@@ -304,7 +305,7 @@ export default function ChatDetailPanel({
                           value={newRoomName}
                           onChange={(e) => setNewRoomName(e.target.value)}
                           onPressEnter={saveRoomName}
-                          placeholder="Tên nhóm"
+                          placeholder={t("chatDetail.roomNamePlaceholder")}
                           autoFocus
                           style={{ minWidth: 160 }}
                           disabled={isSavingName}
@@ -324,15 +325,13 @@ export default function ChatDetailPanel({
                           <p className="name" style={{ margin: 0 }}>{roomNameLocal || selectedRoom.name}</p>
                         </Tooltip>
                         {canEditRoomName && (
-                          <Tooltip title="Đổi tên nhóm">
+                          <Tooltip title={t("chatDetail.editRoomName")}>
                             <Button className="edit-name-btn" type="text" icon={<EditOutlined />} onClick={startEditName} />
                           </Tooltip>
                         )}
                       </>
                     )}
-                  </div>
-                  <p className="room-uid">ID phòng chat: {selectedRoom.id}</p>
-                  <p className="sub">{selectedRoom.description}</p>
+                  </div>  
                 </div>
               </div>
             ) : (
@@ -384,16 +383,16 @@ export default function ChatDetailPanel({
             )}
           </div>
 
-          <div className="notification-toggle" style={{ marginTop: 12 }}>
+          {/* <div className="notification-toggle" style={{ marginTop: 12 }}>
             <label className="notification-toggle-label" style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <input type="checkbox" checked={muted} onChange={handleToggleNotifications} />
               <span>Tắt thông báo</span>
             </label>
-          </div>
+          </div> */}
 
           <div className="members-section" style={{ marginTop: 16 }}>
             <h4>
-              Thành viên 
+              {t("chatDetail.members")}
               {isPrivate ? "" : ` (${membersData.length})`}
             </h4>
             <div className="members-list">
@@ -433,7 +432,12 @@ export default function ChatDetailPanel({
                       </div>
                       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                         {canToggleCoOwner(m.uid) && (
-                          <Tooltip title={getRoleOf(m.uid) === "co-owner" ? "Thu hồi Phó nhóm" : "Bổ nhiệm Phó nhóm"}>
+                          <Tooltip 
+                            title={getRoleOf(m.uid) === "co-owner" 
+                              ? t("chatDetail.roles.revokeCoOwner") 
+                              : t("chatDetail.roles.assignCoOwner") 
+                            }
+                          >
                             <Button
                               className="toggle-coowner-btn"
                               type="text"
@@ -445,12 +449,12 @@ export default function ChatDetailPanel({
                         )}
                         {currentUserRole === "owner" && String(m.uid).trim() !== String(uid).trim() && (
                           <Popconfirm
-                            title={`Chuyển quyền trưởng nhóm cho ${m.displayName}?`}
+                            title={t("chatDetail.confirm.transferTitle", { name: m.displayName })}
                             onConfirm={() => transferOwnership(m.uid)}
-                            okText="Đồng ý"
-                            cancelText="Hủy"
+                            okText={t("chatDetail.confirm.ok")}
+                            cancelText={t("chatDetail.confirm.cancel")}
                           >
-                            <Tooltip title="Chuyển trưởng nhóm">
+                            <Tooltip title={t("chatDetail.roles.transferOwner")}>
                               <Button
                                 className="transfer-ownership-btn"
                                 type="text"
@@ -463,12 +467,18 @@ export default function ChatDetailPanel({
                         )}
                         {canRemoveMember(m.uid) && (
                           <Popconfirm
-                            title={`Xóa ${m.displayName} khỏi nhóm?`}
+                            title={t("chatDetail.confirm.removeMemberTitle", { name: m.displayName })}
                             onConfirm={() => removeMember(m.uid)}
-                            okText="Xóa"
-                            cancelText="Hủy"
+                            okText={t("chatDetail.confirm.remove")}
+                            cancelText={t("chatDetail.confirm.cancel")}
+                            okButtonProps={{ danger: true }}
                           >
-                            <Button className="remove-member-btn" type="text" icon={<DeleteOutlined />} danger />
+                            <Button 
+                              className="remove-member-btn" 
+                              type="text" 
+                              icon={<DeleteOutlined />} 
+                              danger 
+                            />
                           </Popconfirm>
                         )}
                       </div>
@@ -488,17 +498,17 @@ export default function ChatDetailPanel({
           ) : (
             <div className="chat-actions">
               {currentUserRole === "owner" ? (
-                <Tooltip title="Trưởng nhóm phải chuyển quyền cho thành viên khác trước khi rời">
-                  <button className="danger-btn" onClick={onOpenTransferModal}>Rời nhóm</button>
+                <Tooltip title={t('chatDetail.ownerHint')}>
+                  <button className="danger-btn" onClick={onOpenTransferModal}>{t('chatDetail.leaveGroup')}</button>
                 </Tooltip>
               ) : (
                 <Popconfirm
-                  title="Bạn có chắc chắn muốn rời nhóm?"
+                  title={t('chatDetail.confirm.leaveGroupTitle')}
                   onConfirm={leaveGroupDirect}
-                  okText="Rời"
-                  cancelText="Hủy"
+                  okText={t('chatDetail.confirm.leave')}
+                  cancelText={t('chatDetail.confirm.cancel')}
                 >
-                  <button className="danger-btn">Rời nhóm</button>
+                  <button className="danger-btn">{t('chatDetail.leaveGroup')}</button>
                 </Popconfirm>
               )}
             </div>

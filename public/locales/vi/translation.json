@@ -81,6 +81,48 @@
     "aiPrompt": {
         "polish": "Hãy chỉnh sửa đoạn văn sau theo các yêu cầu:\n- Giữ nguyên ý nghĩa gốc\n- Nghe tự nhiên, rõ ràng, mạch lạc\n- Sửa chính tả, viết hoa đầu câu, thêm dấu câu nếu cần\n- Không giải thích, không thêm ghi chú\n- Áp dụng giọng văn: {{tone}}\nVăn bản cần chỉnh sửa:\n{{input}}\n\nQUAN TRỌNG:\n- Nếu văn bản này không có ý nghĩa (chỉ là ký tự vô nghĩa, spam, emoji hoặc lặp lại), hãy trả về chính xác văn bản gốc mà không thêm, xóa, sửa bất cứ gì. Không giải thích gì thêm."
     },
+    "chatDetail": {
+        "title": "Chi tiết",
+        "private": "Riêng tư",
+        "group": "Nhóm",
+        "editRoomName": "Đổi tên nhóm",
+        "roomNamePlaceholder": "Tên nhóm",
+        "muteNotifications": "Tắt thông báo",
+        "members": "Thành viên",
+        "leaveGroup": "Rời nhóm",
+        "ownerHint": "Trưởng nhóm phải chuyển quyền cho thành viên khác trước khi rời",
+        "roles": {
+            "assignCoOwner": "Bổ nhiệm Phó nhóm",
+            "revokeCoOwner": "Thu hồi Phó nhóm",
+            "transferOwner": "Chuyển trưởng nhóm"
+        },
+        "confirm": {
+            "transferTitle": "Chuyển quyền trưởng nhóm cho {{name}}?",
+            "removeMemberTitle": "Xóa {{name}} khỏi nhóm?",
+            "leaveGroupTitle": "Bạn có chắc chắn muốn rời nhóm?",
+            "ok": "Đồng ý",
+            "cancel": "Hủy",
+            "remove": "Xóa",
+            "leave": "Rời"
+        },
+        "messages": {
+        "updateRoleSuccess": "Cập nhật quyền thành công",
+        "updateRoleError": "Không thể cập nhật quyền, thử lại sau",
+        "transferSuccess": "Đã chuyển quyền trưởng nhóm thành công!",
+        "transferError": "Không thể chuyển quyền, thử lại sau",
+        "ownerOnly": "Chỉ trưởng nhóm mới có thể chuyển quyền trưởng nhóm",
+        "alreadyOwner": "Bạn đã là trưởng nhóm rồi",
+        "removeSuccess": "Đã xóa thành viên",
+        "removeError": "Xóa thành viên thất bại, thử lại sau",
+        "removePermission": "Bạn không có quyền xóa thành viên này.",
+        "emptyName": "Tên phòng không được để trống",
+        "nameTooLong": "Tên phòng tối đa 100 ký tự",
+        "renameSuccess": "Đã đổi tên nhóm",
+        "renameError": "Đổi tên thất bại, thử lại",
+        "leaveSuccess": "Bạn đã rời nhóm",
+        "leaveError": "Rời nhóm thất bại, thử lại sau"
+        }
+    },
     "settings": {
         "title": "Cài đặt",
         "menuAccount": "Tài khoản",

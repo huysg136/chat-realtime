@@ -81,6 +81,48 @@
     "aiPrompt": {
         "polish": "Please edit the following text according to these requirements:\n- Keep the original meaning\n- Make it sound natural, clear, and coherent\n- Fix spelling, capitalize the start of sentences, and add punctuation if needed\n- No explanations, no extra notes\n- Apply the following tone: {{tone}}\nText to be edited:\n{{input}}\n\nIMPORTANT:\n- If this text is meaningless (meaningless characters, spam, emoji, or repetitive), return the exact original text without adding, deleting, or editing anything. Do not provide any further explanation."
     },
+    "chatDetail": {
+        "title": "Details",
+        "private": "Private",
+        "group": "Group",
+        "editRoomName": "Change group name",
+        "roomNamePlaceholder": "Group name",
+        "muteNotifications": "Mute notifications",
+        "members": "Members",
+        "leaveGroup": "Leave Group",
+        "ownerHint": "The owner must transfer ownership before leaving",
+        "roles": {
+        "assignCoOwner": "Assign Co-owner",
+        "revokeCoOwner": "Revoke Co-owner",
+        "transferOwner": "Transfer Ownership"
+        },
+        "confirm": {
+        "transferTitle": "Transfer ownership to {{name}}?",
+        "removeMemberTitle": "Remove {{name}} from group?",
+        "leaveGroupTitle": "Are you sure you want to leave the group?",
+        "ok": "Agree",
+        "cancel": "Cancel",
+        "remove": "Remove",
+        "leave": "Leave"
+        },
+        "messages": {
+        "updateRoleSuccess": "Permissions updated successfully",
+        "updateRoleError": "Failed to update permissions, try again later",
+        "transferSuccess": "Ownership transferred successfully!",
+        "transferError": "Failed to transfer ownership, try again later",
+        "ownerOnly": "Only the owner can transfer ownership",
+        "alreadyOwner": "You are already the owner",
+        "removeSuccess": "Member removed",
+        "removeError": "Failed to remove member, try again later",
+        "removePermission": "You do not have permission to remove this member.",
+        "emptyName": "Room name cannot be empty",
+        "nameTooLong": "Room name maximum 100 characters",
+        "renameSuccess": "Group name changed",
+        "renameError": "Rename failed, try again",
+        "leaveSuccess": "You have left the group",
+        "leaveError": "Failed to leave group, try again later"
+        }
+    },
     "settings": {
         "title": "Settings",
         "menuAccount": "Account",
