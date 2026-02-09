@@ -58,12 +58,12 @@ export default function ChatInput({
     setShowTonePicker(false);
 
     const toneMapping = {
-      default: t('tones.default'),
-      boss: t('tones.boss'),
-      lover: t('tones.lover'),
-      elder: t('tones.elder'),
-      friend: t('tones.friend'),
-      client: t('tones.client')
+      default: t('chatInput.tones.default'),
+      boss: t('chatInput.tones.boss'),
+      lover: t('chatInput.tones.lover'),
+      elder: t('chatInput.tones.elder'),
+      friend: t('chatInput.tones.friend'),
+      client: t('chatInput.tones.client')
     };
 
     if (!inputValue.trim()) return;
@@ -81,7 +81,7 @@ export default function ChatInput({
     try {
       setPolishing(true);
       const selectedToneDescription = toneMapping[selectedTone];
-      const prompt = t('aiPrompt.polish', {
+      const prompt = t('chatInput.aiPrompt.polish', {
         tone: selectedToneDescription,
         input: inputValue,
         interpolation: { escapeValue: false }

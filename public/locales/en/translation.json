@@ -40,14 +40,7 @@
         "emptyHint": "Send a message to start the conversation",
         "banMessage": "Oops! You are temporarily restricted from messaging until {{date}}."
     },
-    "tones": {
-        "default": "Neutral, polite, and clear tone. Maintain the original pronouns.",
-        "boss": "Formal and respectful for superiors. Use professional language and tone.",
-        "lover": "Sweet, romantic, and warm. Use intimate pronouns like 'honey', 'babe', or 'love'.",
-        "elder": "Respectful and polite for older people. Use soft and courteous language.",
-        "friend": "Natural, casual, and friendly. Use informal pronouns like 'you - me'.",
-        "client": "Professional and formal for clients or partners. Maintain a business-appropriate tone."
-    },
+    
     "chatInput": {
         "placeholder": "Type a message...",
         "replyPlaceholder": "Reply to message...",
@@ -76,11 +69,20 @@
             "lover": "Lover",
             "elder": "Elder",
             "friend": "Friend"
+        },
+        "aiPrompt": {
+            "polish": "Please edit the following text according to these requirements:\n- Keep the original meaning\n- Make it sound natural, clear, and coherent\n- Fix spelling, capitalize the start of sentences, and add punctuation if needed\n- No explanations, no extra notes\n- Apply the following tone: {{tone}}\nText to be edited:\n{{input}}\n\nIMPORTANT:\n- If this text is meaningless (meaningless characters, spam, emoji, or repetitive), return the exact original text without adding, deleting, or editing anything. Do not provide any further explanation."
+        },
+        "tones": {
+            "default": "Neutral, polite, and clear tone. Maintain the original pronouns.",
+            "boss": "Formal and respectful for superiors. Use professional language and tone.",
+            "lover": "Sweet, romantic, and warm. Use intimate pronouns like 'honey', 'babe', or 'love'.",
+            "elder": "Respectful and polite for older people. Use soft and courteous language.",
+            "friend": "Natural, casual, and friendly. Use informal pronouns like 'you - me'.",
+            "client": "Professional and formal for clients or partners. Maintain a business-appropriate tone."
         }
     },
-    "aiPrompt": {
-        "polish": "Please edit the following text according to these requirements:\n- Keep the original meaning\n- Make it sound natural, clear, and coherent\n- Fix spelling, capitalize the start of sentences, and add punctuation if needed\n- No explanations, no extra notes\n- Apply the following tone: {{tone}}\nText to be edited:\n{{input}}\n\nIMPORTANT:\n- If this text is meaningless (meaningless characters, spam, emoji, or repetitive), return the exact original text without adding, deleting, or editing anything. Do not provide any further explanation."
-    },
+    
     "chatDetail": {
         "title": "Details",
         "private": "Private",

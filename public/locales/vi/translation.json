@@ -40,14 +40,7 @@
         "emptyHint": "Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện",
         "banMessage": "Rất tiếc! Bạn tạm thời bị giới hạn nhắn tin cho đến {{date}}."
     },
-    "tones": {
-        "default": "Giọng văn trung tính, lịch sự, rõ ràng. Giữ xưng hô như trong nội dung gốc.",
-        "boss": "Nói chuyện với sếp, cấp trên. Giữ thái độ tôn trọng, lịch sự. Dùng xưng hô phù hợp như 'em - sếp'.",
-        "lover": "Viết nhẹ nhàng, tình cảm, ấm áp. Dùng đại từ thân mật như 'em – anh', 'anh – em'.",
-        "elder": "Viết lễ phép và tôn trọng với người lớn tuổi. Dùng từ nhẹ nhàng: 'dạ', 'em/con/cháu'.",
-        "friend": "Viết tự nhiên, thoải mái, gần gũi. Dùng đại từ bạn bè: 'mình – bạn', 'tớ – cậu'.",
-        "client": "Phù hợp với khách hàng hoặc đối tác. Thái độ chuyên nghiệp, lịch sự, xưng hô trang trọng."
-    },
+    
     "chatInput": {
         "placeholder": "Nhập tin nhắn...",
         "replyPlaceholder": "Trả lời tin nhắn...",
@@ -76,11 +69,20 @@
             "lover": "Người yêu",
             "elder": "Người lớn",
             "friend": "Bạn bè"
+        },
+        "aiPrompt": {
+            "polish": "Hãy chỉnh sửa đoạn văn sau theo các yêu cầu:\n- Giữ nguyên ý nghĩa gốc\n- Nghe tự nhiên, rõ ràng, mạch lạc\n- Sửa chính tả, viết hoa đầu câu, thêm dấu câu nếu cần\n- Không giải thích, không thêm ghi chú\n- Áp dụng giọng văn: {{tone}}\nVăn bản cần chỉnh sửa:\n{{input}}\n\nQUAN TRỌNG:\n- Nếu văn bản này không có ý nghĩa (chỉ là ký tự vô nghĩa, spam, emoji hoặc lặp lại), hãy trả về chính xác văn bản gốc mà không thêm, xóa, sửa bất cứ gì. Không giải thích gì thêm."
+        },
+        "tones": {
+            "default": "Giọng văn trung tính, lịch sự, rõ ràng. Giữ xưng hô như trong nội dung gốc.",
+            "boss": "Nói chuyện với sếp, cấp trên. Giữ thái độ tôn trọng, lịch sự. Dùng xưng hô phù hợp như 'em - sếp'.",
+            "lover": "Viết nhẹ nhàng, tình cảm, ấm áp. Dùng đại từ thân mật như 'em – anh', 'anh – em'.",
+            "elder": "Viết lễ phép và tôn trọng với người lớn tuổi. Dùng từ nhẹ nhàng: 'dạ', 'em/con/cháu'.",
+            "friend": "Viết tự nhiên, thoải mái, gần gũi. Dùng đại từ bạn bè: 'mình – bạn', 'tớ – cậu'.",
+            "client": "Phù hợp với khách hàng hoặc đối tác. Thái độ chuyên nghiệp, lịch sự, xưng hô trang trọng."
         }
     },
-    "aiPrompt": {
-        "polish": "Hãy chỉnh sửa đoạn văn sau theo các yêu cầu:\n- Giữ nguyên ý nghĩa gốc\n- Nghe tự nhiên, rõ ràng, mạch lạc\n- Sửa chính tả, viết hoa đầu câu, thêm dấu câu nếu cần\n- Không giải thích, không thêm ghi chú\n- Áp dụng giọng văn: {{tone}}\nVăn bản cần chỉnh sửa:\n{{input}}\n\nQUAN TRỌNG:\n- Nếu văn bản này không có ý nghĩa (chỉ là ký tự vô nghĩa, spam, emoji hoặc lặp lại), hãy trả về chính xác văn bản gốc mà không thêm, xóa, sửa bất cứ gì. Không giải thích gì thêm."
-    },
+    
     "chatDetail": {
         "title": "Chi tiết",
         "private": "Riêng tư",
