@@ -15,6 +15,8 @@ import { askGroq } from "../../../utils/AI/groqBot";
 import { uploadToR2 } from "../../../utils/uploadToR2"; 
 import { validateFile } from "../../../utils/fileValidation";
 import "./chatInput.scss";
+import { useTranslation } from "react-i18next";
+import { FaMagic } from "react-icons/fa";
 
 const getVisibleFor = (selectedRoom) => {
   if (!selectedRoom) return [];
@@ -47,7 +49,8 @@ export default function ChatInput({
   const visibleFor = getVisibleFor(selectedRoom);
   const [polishing, setPolishing] = useState(false);
   const [showTonePicker, setShowTonePicker] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0); // THÊM STATE
+  const [uploadProgress, setUploadProgress] = useState(0); 
+  const { t } = useTranslation(); 
 
   const handleInputChange = (e) => setInputValue(e.target.value);
 
@@ -55,12 +58,12 @@ export default function ChatInput({
     setShowTonePicker(false);
 
     const toneMapping = {
-      default: `Giọng văn trung tính, lịch sự, rõ ràng. Giữ xưng hô như trong nội dung gốc.`,
-      boss: `Nói chuyện với sếp, cấp trên. Giữ thái độ tôn trọng, lịch sự. Dùng xưng hô phù hợp như "em - sếp".`,
-      lover: `Viết nhẹ nhàng, tình cảm, ấm áp. Dùng đại từ thân mật như "em – anh", "anh – em".`,
-      elder: `Viết lễ phép và tôn trọng với người lớn tuổi. Dùng từ nhẹ nhàng: "dạ", "em/con/cháu".`,
-      friend: `Viết tự nhiên, thoải mái, gần gũi. Dùng đại từ bạn bè: "mình – bạn", "tớ – cậu".`,
-      client: `Phù hợp với khách hàng hoặc đối tác. Thái độ chuyên nghiệp, lịch sự, xưng hô trang trọng.`
+      default: t('tones.default'),
+      boss: t('tones.boss'),
+      lover: t('tones.lover'),
+      elder: t('tones.elder'),
+      friend: t('tones.friend'),
+      client: t('tones.client')
     };
 
     if (!inputValue.trim()) return;
@@ -71,26 +74,18 @@ export default function ChatInput({
     };
 
     if (!isMeaningful(inputValue)) {
-      toast.info("Nội dung không đủ ý nghĩa để cải thiện");
+      toast.info(t('notifications.insignificantText'));
       return;
     }
 
     try {
       setPolishing(true);
-
-      const prompt = `
-        Hãy chỉnh sửa đoạn văn sau theo các yêu cầu:
-        - Giữ nguyên ý nghĩa gốc
-        - Nghe tự nhiên, rõ ràng, mạch lạc
-        - Sửa chính tả, viết hoa đầu câu, thêm dấu câu nếu cần
-        - Không giải thích, không thêm ghi chú
-        - Áp dụng giọng văn: ${toneMapping[selectedTone]}
-        Văn bản cần chỉnh sửa:
-        ${inputValue}
-
-        QUAN TRỌNG:
-          - Nếu văn bản này không có ý nghĩa (chỉ là ký tự vô nghĩa, spam, emoji hoặc lặp lại), hãy trả về chính xác văn bản gốc mà không thêm, xóa, sửa bất cứ gì. Không giải thích gì thêm.
-      `;
+      const selectedToneDescription = toneMapping[selectedTone];
+      const prompt = t('aiPrompt.polish', {
+        tone: selectedToneDescription,
+        input: inputValue,
+        interpolation: { escapeValue: false }
+      });
 
       const polishedText = await askGemini(prompt);
       const cleanedText = polishedText.replace(/\n+/g, " ").trim();
@@ -99,7 +94,7 @@ export default function ChatInput({
         setInputValue(cleanedText);
       }
     } catch (err) {
-      toast.error("Không thể cải thiện 🫠");
+      toast.error(t('notifications.improveError'));
     } finally {
       setPolishing(false);
     }
@@ -196,7 +191,7 @@ export default function ChatInput({
         recorder.start();
         setIsRecording(true);
       } catch (err) {
-        toast.error("Không thể truy cập microphone");
+        toast.error(t('notifications.micError'));
       }
     }
   };
@@ -288,7 +283,7 @@ export default function ChatInput({
             break;
           } else if (poll.data.status === "error") {
             transcriptText = "";
-            toast.error("Chuyển giọng nói thành text thất bại");
+            toast.error(t('notifications.transcriptionError'));
             break;
           } else {
             await new Promise((r) => setTimeout(r, 3000));
@@ -323,7 +318,7 @@ export default function ChatInput({
         },
       });
     } catch (err) {
-      toast.error("Gửi tin nhắn thoại thất bại");
+      toast.error(t('notifications.voiceError'));
       console.error(err);
     } finally {
       setSendingVoice(false);
@@ -400,11 +395,11 @@ export default function ChatInput({
             });
           })
           .catch((err) => {
-            toast.error("Bot không trả lời được 🫠");
+            toast.error(t('notifications.botError'));
           });
       }
     } catch (err) {
-      toast.error("Gửi tin nhắn thất bại");
+      toast.error(t('notifications.sendError'));
     } finally {
       setSending(false);
       setTimeout(() => inputRef.current?.focus(), 10);
@@ -428,26 +423,26 @@ export default function ChatInput({
                   case "picture":
                     return (
                       <>
-                        🖼️ [Hình ảnh]
+                        {t('chatInput.media.picture')}
                         {replyTo.fileName ? ` (${replyTo.fileName})` : ""}
                       </>
                     );
                   case "video":
                     return (
                       <>
-                        🎬 [Video]
+                        {t('chatInput.media.video')}
                         {replyTo.fileName ? ` (${replyTo.fileName})` : ""}
                       </>
                     );
                   case "file":
                     return (
                       <>
-                        📎 [Tệp]
+                        {t('chatInput.media.file')}
                         {replyTo.fileName ? ` (${replyTo.fileName})` : ""}
                       </>
                     );
                   case "audio":
-                    return <>🎤 [Tin nhắn thoại]</>;
+                    return <>🎤 {t('chatInput.media.voice')}</>;
                   default:
                     return replyTo.decryptedText;
                 }
@@ -495,7 +490,7 @@ export default function ChatInput({
           onChange={handleInputChange}
           onPressEnter={handleOnSubmit}
           placeholder={
-            replyTo ? "Trả lời tin nhắn..." : "Nhập tin nhắn..."
+            replyTo ? t('chatInput.replyPlaceholder') : t('chatInput.placeholder')
           }
           bordered={false}
           autoComplete="off"
@@ -506,44 +501,44 @@ export default function ChatInput({
             {showTonePicker && (
               <div className="tone-picker">
                 <p style={{ fontWeight: "bold", marginBottom: 5 }}>
-                  Chọn giọng văn:
+                  {t('chatInput.selectTone')}
                 </p>
 
                 <div
                   className="tone-option"
                   onClick={() => handleSelectTone("default")}
                 >
-                  Mặc định
+                  {t('chatInput.tonesLabel.default')}
                 </div>
                 <div
                   className="tone-option"
                   onClick={() => handleSelectTone("boss")}
                 >
-                  Sếp
+                  {t('chatInput.tonesLabel.boss')}
                 </div>
                 <div
                   className="tone-option"
                   onClick={() => handleSelectTone("client")}
                 >
-                  Đối tác
+                  {t('chatInput.tonesLabel.client')}
                 </div>
                 <div
                   className="tone-option"
                   onClick={() => handleSelectTone("lover")}
                 >
-                  Người yêu
+                  {t('chatInput.tonesLabel.lover')}
                 </div>
                 <div
                   className="tone-option"
                   onClick={() => handleSelectTone("elder")}
                 >
-                  Người lớn
+                  {t('chatInput.tonesLabel.elder')}
                 </div>
                 <div
                   className="tone-option"
                   onClick={() => handleSelectTone("friend")}
                 >
-                  Bạn bè
+                  {t('chatInput.tonesLabel.friend')}
                 </div>
               </div>
             )}
@@ -553,9 +548,9 @@ export default function ChatInput({
               onClick={() => setShowTonePicker(!showTonePicker)}
               disabled={polishing || sending}
               className={`polish-btn ${polishing ? "loading" : ""}`}
-              title="Chọn giọng văn để cải thiện"
+              title={t('chatInput.polishHint')}
             >
-              {polishing ? <div className="spinner" /> : "✨"}
+              {polishing ? <div className="spinner" /> : <FaMagic />}
             </Button>
             <Button
               type="text"
@@ -563,7 +558,7 @@ export default function ChatInput({
               loading={sending}
               className="send-btn"
             >
-              Gửi
+              {t('chatInput.send')}
             </Button>
           </>
         )}

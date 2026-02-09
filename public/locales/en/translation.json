@@ -40,6 +40,47 @@
         "emptyHint": "Send a message to start the conversation",
         "banMessage": "Oops! You are temporarily restricted from messaging until {{date}}."
     },
+    "tones": {
+        "default": "Neutral, polite, and clear tone. Maintain the original pronouns.",
+        "boss": "Formal and respectful for superiors. Use professional language and tone.",
+        "lover": "Sweet, romantic, and warm. Use intimate pronouns like 'honey', 'babe', or 'love'.",
+        "elder": "Respectful and polite for older people. Use soft and courteous language.",
+        "friend": "Natural, casual, and friendly. Use informal pronouns like 'you - me'.",
+        "client": "Professional and formal for clients or partners. Maintain a business-appropriate tone."
+    },
+    "chatInput": {
+        "placeholder": "Type a message...",
+        "replyPlaceholder": "Reply to message...",
+        "replyTo": "Replying to {{name}}:",
+        "send": "Send",
+        "selectTone": "Select tone:",
+        "polishHint": "Select tone to improve",
+        "insignificantText": "Content is not meaningful enough to improve",
+        "improveError": "Could not improve 🫠",
+        "botError": "The bot is unable to respond 🫠",
+        "uploadError": "File upload failed",
+        "micError": "Cannot access microphone",
+        "voiceError": "Voice message failed",
+        "transcriptionError": "Speech to text conversion failed",
+        "sendError": "Failed to send message",
+        "media": {
+            "picture": "🖼️ [Image]",
+            "video": "🎬 [Video]",
+            "file": "📎 [File]",
+            "voice": "🎤 [Voice message]"
+        },
+        "tonesLabel": {
+            "default": "Default",
+            "boss": "Boss",
+            "client": "Client",
+            "lover": "Lover",
+            "elder": "Elder",
+            "friend": "Friend"
+        }
+    },
+    "aiPrompt": {
+        "polish": "Please edit the following text according to these requirements:\n- Keep the original meaning\n- Make it sound natural, clear, and coherent\n- Fix spelling, capitalize the start of sentences, and add punctuation if needed\n- No explanations, no extra notes\n- Apply the following tone: {{tone}}\nText to be edited:\n{{input}}\n\nIMPORTANT:\n- If this text is meaningless (meaningless characters, spam, emoji, or repetitive), return the exact original text without adding, deleting, or editing anything. Do not provide any further explanation."
+    },
     "settings": {
         "title": "Settings",
         "menuAccount": "Account",

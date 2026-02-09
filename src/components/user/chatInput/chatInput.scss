@@ -200,6 +200,7 @@
   }
 
   .polish-btn {
+    color: #0084ff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -217,8 +218,9 @@
     transition: all 0.2s ease;
 
     &:hover {
-      background: #f0f2f5;
+      background: #f0f2f5 !important;
       transform: scale(1.05);
+      color: #0067c8 !important;
     }
 
     &:disabled {
