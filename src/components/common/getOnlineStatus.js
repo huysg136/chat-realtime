@@ -2,7 +2,7 @@ import { differenceInMinutes, differenceInHours, differenceInDays } from "date-f
 
 export function getOnlineStatus(lastOnline, t) {
   if (!lastOnline) {
-    return { text: t('status.activeLongAgo') };
+    return { text: t('chatWindow.status.activeLongAgo') };
   }
 
   const lastDate = lastOnline.toDate ? lastOnline.toDate() : new Date(lastOnline);
@@ -14,28 +14,28 @@ export function getOnlineStatus(lastOnline, t) {
 
   // Đang hoạt động (< 1 phút)
   if (minutesDiff < 1) {
-    return { text: t('status.activeNow') };
+    return { text: t('chatWindow.status.activeNow') };
   }
 
   // Trong vòng 24 giờ
   if (hoursDiff < 24) {
     if (minutesDiff < 60) {
-      return { text: t('status.activeMinutes', { count: minutesDiff }) };
+      return { text: t('chatWindow.status.activeMinutes', { count: minutesDiff }) };
     } else {
-      return { text: t('status.activeHours', { count: hoursDiff }) };
+      return { text: t('chatWindow.status.activeHours', { count: hoursDiff }) };
     }
   }
 
   // Hoạt động hôm qua
   if (daysDiff === 1) {
-    return { text: t('status.activeYesterday') };
+    return { text: t('chatWindow.status.activeYesterday') };
   }
 
   // Trong vòng 7 ngày
   if (daysDiff <= 7) {
-    return { text: t('status.activeDays', { count: daysDiff }) };
+    return { text: t('chatWindow.status.activeDays', { count: daysDiff }) };
   }
 
   // Mặc định
-  return { text: t('status.activeLongAgo') };
+  return { text: t('chatWindow.status.activeLongAgo') };
 }

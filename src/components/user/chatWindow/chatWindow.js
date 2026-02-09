@@ -396,11 +396,11 @@ export default function ChatWindow({onToggleDetail}) {
               ? `${membersData.length} ${t('chatWindow.members')}`
               : otherUserStatus
                 ? (otherUserStatus.isOnline && otherUser?.showOnlineStatus && user?.showOnlineStatus)
-                  ? t('status.activeNow')
+                  ? t('chatWindow.status.activeNow')
                   : (otherUser?.showOnlineStatus && user?.showOnlineStatus)
                   ? getOnlineStatus(otherUserStatus.lastOnline, t).text
                   : null
-                : t('status.activeLongAgo')
+                : t('chatWindow.status.activeLongAgo')
             }
           </span>
         </div>
@@ -431,10 +431,10 @@ export default function ChatWindow({onToggleDetail}) {
                 }
                 title={
                   videoCallState.isInitializing 
-                    ? t('videoCall.initializing')
+                    ? t('chatWindow.videoCall.initializing')
                     : !videoCallState.videoCall || !videoCallState.videoCall.isConnected()
-                    ? t('videoCall.connecting')
-                    : t('videoCall.callTitle')
+                    ? t('chatWindow.videoCall.connecting')
+                    : t('chatWindow.videoCall.callTitle')
                 }
               />
             )}
@@ -477,7 +477,7 @@ export default function ChatWindow({onToggleDetail}) {
             <div style={{ textAlign: "center", padding: "10px" }}>
               <Spin indicator={<LoadingOutlined spin />} />
               <span style={{ marginLeft: "8px", color: "#999" }}>
-                {t('chat.loadingMessages')}
+                {t('chatWindow.chat.loadingMessages')}
               </span>
             </div>
           )}
@@ -485,7 +485,7 @@ export default function ChatWindow({onToggleDetail}) {
           {!loadingMore && hasMore && sortedMessages.length >= MESSAGES_PER_PAGE && (
             <div style={{ textAlign: "center", padding: "10px" }}>
               <span style={{ color: "#999", fontSize: "12px" }}>
-                {t('chat.scrollMore')}
+                {t('chatWindow.chat.scrollMore')}
               </span>
             </div>
           )}
@@ -567,7 +567,7 @@ export default function ChatWindow({onToggleDetail}) {
         {banInfo ? (
           <div className="ban-message">
             <p>
-              {t('chat.banMessage', { 
+              {t('chatWindow.chat.banMessage', { 
                 date: format(banInfo.banEnd, dateFormat, { locale: currentLocale }) 
               })}
             </p>

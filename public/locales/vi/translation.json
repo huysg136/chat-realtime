@@ -19,27 +19,28 @@
         "invitePending": "Lời mời đang chờ"
     },
     "chatWindow": {
-        "members": "thành viên"
+        "members": "thành viên",
+        "status": {
+            "activeNow": "Đang hoạt động",
+            "activeYesterday": "Hoạt động hôm qua",
+            "activeLongAgo": "Hoạt động lâu rồi",
+            "activeMinutes": "Hoạt động {{count}} phút trước",
+            "activeHours": "Hoạt động {{count}} giờ trước",
+            "activeDays": "Hoạt động {{count}} ngày trước"
+        },
+        "videoCall": {
+            "initializing": "Đang khởi tạo...",
+            "connecting": "Đang kết nối...",
+            "callTitle": "Gọi video"
+        },
+        "chat": {
+            "loadingMessages": "Đang tải tin nhắn...",
+            "scrollMore": "Cuộn lên để xem thêm tin nhắn",
+            "emptyHint": "Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện",
+            "banMessage": "Rất tiếc! Bạn tạm thời bị giới hạn nhắn tin cho đến {{date}}."
+        }
     },
-    "status": {
-        "activeNow": "Đang hoạt động",
-        "activeYesterday": "Hoạt động hôm qua",
-        "activeLongAgo": "Hoạt động lâu rồi",
-        "activeMinutes": "Hoạt động {{count}} phút trước",
-        "activeHours": "Hoạt động {{count}} giờ trước",
-        "activeDays": "Hoạt động {{count}} ngày trước"
-    },
-    "videoCall": {
-        "initializing": "Đang khởi tạo...",
-        "connecting": "Đang kết nối...",
-        "callTitle": "Gọi video"
-    },
-    "chat": {
-        "loadingMessages": "Đang tải tin nhắn...",
-        "scrollMore": "Cuộn lên để xem thêm tin nhắn",
-        "emptyHint": "Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện",
-        "banMessage": "Rất tiếc! Bạn tạm thời bị giới hạn nhắn tin cho đến {{date}}."
-    },
+    
     
     "chatInput": {
         "placeholder": "Nhập tin nhắn...",
