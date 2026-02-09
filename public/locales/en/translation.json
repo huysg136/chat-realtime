@@ -18,6 +18,28 @@
         "message": "Messages",
         "invitePending": "Pending Invites"
     },
+    "chatWindow": {
+        "members": "members"
+    },
+    "status": {
+        "activeNow": "Active now",
+        "activeYesterday": "Active yesterday",
+        "activeLongAgo": "Last active long ago",
+        "activeMinutes": "Active {{count}} minutes ago",
+        "activeHours": "Active {{count}} hours ago",
+        "activeDays": "Active {{count}} days ago"
+    },
+    "videoCall": {
+        "initializing": "Initializing...",
+        "connecting": "Connecting...",
+        "callTitle": "Video Call"
+    },
+    "chat": {
+        "loadingMessages": "Loading messages...",
+        "scrollMore": "Scroll up to view more messages",
+        "emptyHint": "Send a message to start the conversation",
+        "banMessage": "Oops! You are temporarily restricted from messaging until {{date}}."
+    },
     "settings": {
         "title": "Settings",
         "menuAccount": "Account",

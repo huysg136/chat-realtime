@@ -10,7 +10,7 @@ import {
 } from "@ant-design/icons";
 import 'react-toastify/dist/ReactToastify.css';
 import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import { vi, enUS } from "date-fns/locale";
 import { onSnapshot, collection, query, where, orderBy, limit, startAfter, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import Message from "../message/message";
@@ -23,6 +23,7 @@ import { getOnlineStatus } from "../../common/getOnlineStatus";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 import VideoCallOverlay from "../../../components/user/videoCallOverlay/videoCallOverlay";
 import "./chatWindow.scss";
+import { useTranslation } from "react-i18next";
 
 const MESSAGES_PER_PAGE = 20;
 
@@ -75,6 +76,9 @@ export default function ChatWindow({onToggleDetail}) {
   const otherUser = contextOtherUser;
 
   const otherUserStatus = useUserStatus(otherUser?.uid);
+  const { t, i18n } = useTranslation();
+  const currentLocale = i18n.language === 'vi' ? vi : enUS;
+  const dateFormat = i18n.language === 'vi' ? "HH:mm dd/MM/yyyy" : "hh:mm a MM/dd/yyyy";
 
   useEffect(() => {
     setReplyTo(null);
@@ -389,14 +393,14 @@ export default function ChatWindow({onToggleDetail}) {
           </p>
           <span className="header__description">
             {(!isPrivate)
-              ? `${membersData.length} thành viên`
+              ? `${membersData.length} ${t('chatWindow.members')}`
               : otherUserStatus
                 ? (otherUserStatus.isOnline && otherUser?.showOnlineStatus && user?.showOnlineStatus)
-                  ? "Đang hoạt động" 
+                  ? t('status.activeNow')
                   : (otherUser?.showOnlineStatus && user?.showOnlineStatus)
-                  ? getOnlineStatus(otherUserStatus.lastOnline).text
+                  ? getOnlineStatus(otherUserStatus.lastOnline, t).text
                   : null
-                : "Hoạt động lâu rồi"
+                : t('status.activeLongAgo')
             }
           </span>
         </div>
@@ -420,13 +424,17 @@ export default function ChatWindow({onToggleDetail}) {
                 type="text"
                 icon={<VideoCameraOutlined />}
                 onClick={videoCallState.handleVideoCall}
-                disabled={!videoCallState.videoCall || !videoCallState.videoCall.isConnected() || videoCallState.isInitializing}
+                disabled={
+                  !videoCallState.videoCall || 
+                  !videoCallState.videoCall.isConnected() || 
+                  videoCallState.isInitializing
+                }
                 title={
                   videoCallState.isInitializing 
-                    ? 'Đang khởi tạo...'
+                    ? t('videoCall.initializing')
                     : !videoCallState.videoCall || !videoCallState.videoCall.isConnected()
-                    ? 'Đang kết nối...'
-                    : 'Gọi video'
+                    ? t('videoCall.connecting')
+                    : t('videoCall.callTitle')
                 }
               />
             )}
@@ -454,7 +462,6 @@ export default function ChatWindow({onToggleDetail}) {
             justifyContent: "center",
           }}
           onClick={scrollToBottom}
-          aria-label="Cuộn xuống cuối"
         >
           <FaAngleDoubleDown size={20} />
         </Button>
@@ -469,13 +476,17 @@ export default function ChatWindow({onToggleDetail}) {
           {loadingMore && (
             <div style={{ textAlign: "center", padding: "10px" }}>
               <Spin indicator={<LoadingOutlined spin />} />
-              <span style={{ marginLeft: "8px", color: "#999" }}>Đang tải tin nhắn...</span>
+              <span style={{ marginLeft: "8px", color: "#999" }}>
+                {t('chat.loadingMessages')}
+              </span>
             </div>
           )}
 
           {!loadingMore && hasMore && sortedMessages.length >= MESSAGES_PER_PAGE && (
             <div style={{ textAlign: "center", padding: "10px" }}>
-              <span style={{ color: "#999", fontSize: "12px" }}>Cuộn lên để xem thêm tin nhắn</span>
+              <span style={{ color: "#999", fontSize: "12px" }}>
+                {t('chat.scrollMore')}
+              </span>
             </div>
           )}
 
@@ -508,7 +519,7 @@ export default function ChatWindow({onToggleDetail}) {
                 </p>
               </Tooltip>
               <p className="empty-info">{selectedRoom.description || "Quik"}</p>
-              <p className="empty-hint">Hãy gửi tin nhắn để bắt đầu cuộc trò chuyện</p>
+              <p className="empty-hint">{t('chat.emptyHint')}</p>
             </div>
           ) : (
             sortedMessages.map((msg, index) => {
@@ -555,7 +566,11 @@ export default function ChatWindow({onToggleDetail}) {
 
         {banInfo ? (
           <div className="ban-message">
-            <p>Rất tiếc! Bạn tạm thời bị giới hạn nhắn tin cho đến {format(banInfo.banEnd, "HH:mm dd/MM/yyyy", { locale: vi })}.</p>
+            <p>
+              {t('chat.banMessage', { 
+                date: format(banInfo.banEnd, dateFormat, { locale: currentLocale }) 
+              })}
+            </p>
           </div>
         ) : (
           <ChatInput
