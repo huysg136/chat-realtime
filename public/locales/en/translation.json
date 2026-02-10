@@ -14,7 +14,7 @@
         "logout": "Logout"
     },
     "searching": {
-        "placeholder": "Search by username",
+        "placeholder": "Search by Quik ID",
         "message": "Messages",
         "invitePending": "Pending Invites"
     },
@@ -125,6 +125,31 @@
         "leaveError": "Failed to leave group, try again later"
         }
     },
+    "profile": {
+        "title": "My Profile",
+        "quikId": "Quik ID",
+        "displayName": "Display Name",
+        "email": "Email",
+        "noUsername": "no Quik ID yet",
+        "noName": "No name yet",
+        "btnSave": "Save",
+        "btnCancel": "Cancel",
+        "changeLimitReach": "You have reached the limit of 5 Quik ID changes",
+        "contactSupport": "Please contact us if you need further assistance.",
+        "waitDays": "You can change Quik ID again in {{count}} days",
+        "messages": {
+            "nameEmpty": "Display name cannot be empty",
+            "nameSuccess": "Display name updated successfully",
+            "usernameEmpty": "Quik ID cannot be empty",
+            "usernameDuplicate": "Quik ID already exists, please choose another one",
+            "usernameWait": "You can only change it again after {{count}} days.",
+            "usernameLimit": "You have reached the limit of 5 changes.",
+            "usernameSuccess": "Quik ID updated successfully!",
+            "avatarSuccess": "Avatar changed successfully!",
+            "avatarError": "Please select an image file",
+            "generalError": "An error occurred"
+        }
+        },
     "settings": {
         "title": "Settings",
         "menuAccount": "Account",
@@ -143,6 +168,10 @@
         "allowOnlineStatusDesc": {
             "on": "People can see you are online.",
             "off": "People won't see that you are online."
+        },
+        "errors": {
+            "accountNotFound": "Account not found",
+            "saveFailed": "Failed to save settings"
         }
     }
 }

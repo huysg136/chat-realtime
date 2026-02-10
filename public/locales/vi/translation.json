@@ -14,7 +14,7 @@
         "logout": "Đăng Xuất"
     },
     "searching": {
-        "placeholder": "Tìm kiếm theo username",
+        "placeholder": "Tìm kiếm theo Quik ID",
         "message": "Tin nhắn",
         "invitePending": "Lời mời đang chờ"
     },
@@ -126,6 +126,31 @@
         "leaveError": "Rời nhóm thất bại, thử lại sau"
         }
     },
+    "profile": {
+        "title": "Hồ sơ của tôi",
+        "quikId": "Quik ID",
+        "displayName": "Tên hiển thị",
+        "email": "Email",
+        "noUsername": "chưa có Quik ID",
+        "noName": "Chưa có tên",
+        "btnSave": "Lưu",
+        "btnCancel": "Hủy",
+        "changeLimitReach": "Bạn đã đạt giới hạn 5 lần đổi Quik ID",
+        "contactSupport": "Vui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ thêm.",
+        "waitDays": "Có thể đổi lại Quik ID sau {{count}} ngày",
+        "messages": {
+            "nameEmpty": "Tên hiển thị không được để trống",
+            "nameSuccess": "Cập nhật tên hiển thị thành công",
+            "usernameEmpty": "Quik ID không được để trống",
+            "usernameDuplicate": "Quik ID đã tồn tại, vui lòng chọn ID khác",
+            "usernameWait": "Bạn chỉ có thể đổi lại sau {{count}} ngày nữa.",
+            "usernameLimit": "Bạn đã đạt giới hạn 5 lần đổi Quik ID.",
+            "usernameSuccess": "Cập nhật Quik ID thành công!",
+            "avatarSuccess": "Đổi ảnh đại diện thành công!",
+            "avatarError": "Vui lòng chọn file ảnh",
+            "generalError": "Đã có lỗi xảy ra"
+        }
+        },
     "settings": {
         "title": "Cài đặt",
         "menuAccount": "Tài khoản",
@@ -144,6 +169,10 @@
         "allowOnlineStatusDesc": {
             "on": "Mọi người có thể thấy bạn đang trực tuyến.",
             "off": "Mọi người sẽ không thấy bạn đang trực tuyến."
+        },
+        "errors": {
+            "accountNotFound": "Không tìm thấy tài khoản",
+            "saveFailed": "Lưu cài đặt thất bại"
         }
     }
 }

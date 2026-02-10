@@ -74,13 +74,13 @@ export default function SettingsModal() {
     try {
       const docId = await getUserDocIdByUid(user.uid);
       if (!docId) {
-        toast.error("Không tìm thấy tài khoản");
+        toast.error(t('settings.errors.accountNotFound'));
         return;
       }
       await updateDocument("users", docId, updates);
       setUser((prev) => ({ ...prev, ...updates }));
     } catch (error) {
-      toast.error("Lưu cài đặt thất bại");
+      toast.error(t('settings.errors.saveFailed'));
     }
   };
 

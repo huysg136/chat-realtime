@@ -12,6 +12,7 @@ import { FiAlertTriangle, FiXCircle } from "react-icons/fi";
 import { uploadToR2 } from '../../utils/uploadToR2';
 import { validateFile } from '../../utils/fileValidation';
 import "./profileModal.scss";
+import { useTranslation } from 'react-i18next';
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 const MAX_USERNAME_LENGTH = 20;
@@ -34,6 +35,7 @@ export default function ProfileModal() {
   const nameInputRef = useRef(null);
   const usernameInputRef = useRef(null);
   const fileInputRef = useRef(null);
+  const { t } = useTranslation();
 
   // Chuẩn hóa username: liền, không dấu, chỉ a-z0-9, tối đa 20 ký tự
   const formatUsername = (name) => {
@@ -80,7 +82,7 @@ export default function ProfileModal() {
 
   const handleSaveName = async () => {
     if (!displayName.trim()) {
-      toast.error('Tên hiển thị không được để trống');
+      toast.error(t('profile.messages.nameEmpty'));
       return;
     }
     setLoading(true);
@@ -92,19 +94,19 @@ export default function ProfileModal() {
       await updateDocument("users", docId, { displayName: trimmedName });
       setUser(prev => ({ ...prev, displayName: trimmedName }));
       setIsEditingName(false);
-      toast.success('Cập nhật tên hiển thị thành công');
+      toast.success(t('profile.messages.nameUpdateSuccess'));
     } catch (error) {
-      toast.error('Lỗi khi cập nhật tên hiển thị');
+      toast.error(t('profile.messages.generalError'));
     } finally {
       setLoading(false);
     }
   };
 
-  // 🆕 Giới hạn đổi username: 1 lần / 30 ngày, tối đa 5 lần
+  // giới hạn đổi username: 1 lần / 30 ngày, tối đa 5 lần
   const handleSaveUsername = async () => {
     const formatted = formatUsername(username);
     if (!formatted) {
-      toast.error('Quik ID không được để trống');
+      toast.error(t('profile.messages.usernameEmpty'));
       return;
     }
 
@@ -115,7 +117,7 @@ export default function ProfileModal() {
       const querySnapshot = await getDocs(q);
       const isDuplicate = querySnapshot.docs.some(doc => doc.data().uid !== user.uid);
       if (isDuplicate) {
-        toast.error('Quik ID đã tồn tại, vui lòng chọn ID khác');
+        toast.error(t('profile.messages.usernameDuplicate'));
         setLoading(false);
         return;
       }
@@ -123,16 +125,17 @@ export default function ProfileModal() {
       // Kiểm tra giới hạn đổi
       const nowUTC = new Date().toISOString();
       if (lastChange) {
+        // eslint-disable-next-line no-use-before-define
         const lastChange = new Date(lastChange);
         const diffDays = Math.floor((new Date(nowUTC) - lastChange) / (1000 * 60 * 60 * 24));
         if (diffDays < 30) {
-          toast.warning(`Bạn chỉ có thể đổi lại sau ${30 - diffDays} ngày nữa.`);
+          toast.warning(t('profile.messages.usernameWait', { count: 30 - diffDays }));
           setLoading(false);
           return;
         }
       }
       if (changeCount >= 5) {
-        toast.error('Bạn đã đạt giới hạn 5 lần đổi Quik ID.');
+        toast.error(t('profile.messages.usernameLimit'));
         setLoading(false);
         return;
       }
@@ -153,9 +156,9 @@ export default function ProfileModal() {
       setUser(prev => ({ ...prev, username: formatted }));
 
       setIsEditingUsername(false);
-      toast.success('Cập nhật Quik ID thành công!');
+      toast.success(t('profile.messages.usernameSuccess'));
     } catch (error) {
-      toast.error('Lỗi khi cập nhật Quik ID');
+      toast.error(t('profile.messages.generalError'));
     } finally {
       setLoading(false);
     }
@@ -174,15 +177,13 @@ export default function ProfileModal() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file (optional)
     if (!validateFile(file)) {
       e.target.value = null;
       return;
     }
 
-    // Chỉ cho phép upload ảnh
     if (!file.type.startsWith('image/')) {
-      toast.error('Vui lòng chọn file ảnh');
+      toast.error(t('profile.messages.avatarError'));
       e.target.value = null;
       return;
     }
@@ -198,10 +199,9 @@ export default function ProfileModal() {
       await updateDocument("users", docId, { photoURL: avatarUrl });
       setUser((prev) => ({ ...prev, photoURL: avatarUrl }));
 
-      toast.success("Đổi ảnh đại diện thành công!");
+      toast.success(t('profile.messages.avatarSuccess'));
     } catch (err) {
-      console.error('Upload avatar error:', err);
-      toast.error("Upload ảnh thất bại");
+      toast.error(t('profile.messages.generalError'));
     } finally {
       setUploadingAvatar(false);
       e.target.value = null;
@@ -218,7 +218,7 @@ export default function ProfileModal() {
 
   return (
     <Modal
-      title="Hồ sơ của tôi"
+      title={t('profile.title')}
       open={isProfileVisible}
       onCancel={handleCancel}
       footer={null}
@@ -257,7 +257,6 @@ export default function ProfileModal() {
           />
         </div>
 
-        {/* Username */}
         <div style={{ marginBottom: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
             <span style={{ fontWeight: '600', marginRight: '8px' }}>Quik ID</span>
@@ -292,13 +291,13 @@ export default function ProfileModal() {
                 loading={loading}
                 disabled={formatUsername(username) === (user?.username || '')}
               >
-                Lưu
+                {t('profile.btnSave')}
               </Button>
-              <Button onClick={() => setIsEditingUsername(false)}>Hủy</Button>
+              <Button onClick={() => setIsEditingUsername(false)}>{t('profile.btnCancel')}</Button>
             </div>
           ) : (
             <div style={{ fontSize: '14px' }}>
-              @{username || 'chưa có username'}
+              @{username || t('profile.noUsername')}
             </div>
           )}
 
@@ -319,11 +318,11 @@ export default function ProfileModal() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <FiXCircle size={16} />
                   <span>
-                    Bạn đã đạt giới hạn <b>5 lần đổi Quik ID</b>
+                    {t('profile.changeLimitReach')}
                   </span>
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 400, opacity: 0.9, color: '#ff7875', }}>
-                  Vui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ thêm.
+                  {t('profile.contactSupport')}
                 </div>
               </div>
             ) : (
@@ -338,35 +337,19 @@ export default function ProfileModal() {
                     }}
                   >
                     <FiAlertTriangle size={14} />
-                    <span>Có thể đổi lại Quik ID sau <b>{getDaysLeft()} ngày</b></span>
+                    <span>{t('profile.waitDays', { count: getDaysLeft() })}</span>
                   </div>
                 ) : (
                   null
                 )}
-                {/* <div
-                  style={{
-                    color: '#555',
-                    fontSize: 12,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    marginLeft: 2,
-                  }}
-                >
-                  <FiRefreshCcw size={14} />
-                  <span>
-                    Số lần đổi còn lại: <b>{5 - changeCount}</b> / 5
-                  </span>
-                </div> */}
               </>
             )}
           </div>
         </div>
 
-        {/* Display Name */}
         <div style={{ marginBottom: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
-            <span style={{ fontWeight: '600', marginRight: '8px' }}>Tên hiển thị</span>
+            <span style={{ fontWeight: '600', marginRight: '8px' }}>{t('profile.displayName')}</span>
             {!isEditingName && (
               <Button
                 type="text"
@@ -398,18 +381,17 @@ export default function ProfileModal() {
                 loading={loading}
                 disabled={displayName.trim() === (user?.displayName || '').trim()}
               >
-                Lưu
+                {t('profile.btnSave')}
               </Button>
-              <Button onClick={() => setIsEditingName(false)}>Hủy</Button>
+              <Button onClick={() => setIsEditingName(false)}>{t('profile.btnCancel')}</Button>
             </div>
           ) : (
-            <div style={{ fontSize: '14px' }}>{displayName || 'Chưa có tên'}</div>
+            <div style={{ fontSize: '14px' }}>{displayName || t('profile.noName')}</div>
           )}
         </div>
 
-        {/* Email */}
         <div>
-          <div style={{ fontWeight: '600', marginBottom: '2px' }}>Email</div>
+          <div style={{ fontWeight: '600', marginBottom: '2px' }}>{t('profile.email')}</div>
           <div style={{ fontSize: '14px' }}>{user?.email}</div>
         </div>
       </Card>
