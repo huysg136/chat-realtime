@@ -9,7 +9,6 @@ import { db } from "../../../firebase/config";
 import { getUserDocIdByUid } from "../../../firebase/services";
 import "./searching.scss";
 import { useTranslation } from "react-i18next";
-import { MdVerified } from "react-icons/md";
 import UserBadge from "../../common/userBadge";
 
 export default function Searching() {
@@ -19,7 +18,6 @@ export default function Searching() {
   const [displayName, setDisplayName] = useState("");
   const [usernameHandle, setUsernameHandle] = useState("");
   const { t } = useTranslation();
-  const isAdminOrMod = ["admin", "moderator"].includes(user.role);
 
   useEffect(() => {
     if (!user?.uid) return;

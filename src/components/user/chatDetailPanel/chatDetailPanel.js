@@ -27,6 +27,7 @@ export default function ChatDetailPanel({
   onClose,
   onOpenTransferModal,
 }) {
+  // eslint-disable-next-line no-unused-vars
   const [muted, setMuted] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [newRoomName, setNewRoomName] = useState("");

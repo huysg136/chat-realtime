@@ -13,7 +13,6 @@ import { uploadToR2 } from '../../utils/uploadToR2';
 import { validateFile } from '../../utils/fileValidation';
 import "./profileModal.scss";
 import { useTranslation } from 'react-i18next';
-import UserBadge from '../common/userBadge';
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 const MAX_USERNAME_LENGTH = 20;
