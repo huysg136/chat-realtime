@@ -13,6 +13,7 @@ import CircularAvatarGroup from "../../common/circularAvatarGroup";
 import { updateDocument, addDocument } from "../../../firebase/services";
 import "./chatDetailPanel.scss";
 import { useTranslation } from "react-i18next";
+import UserBadge from "../../common/userBadge";
 
 export default function ChatDetailPanel({
   isVisible,
@@ -278,7 +279,6 @@ export default function ChatDetailPanel({
             <h3>{t("chatDetail.title")}</h3>
             <span className="room-type">{isPrivate ? t("chatDetail.private") : t("chatDetail.group")}</span>
           </div>
-          {/* <button className="close-btn" onClick={onClose} aria-label="Đóng">✕</button> */}
         </div>
 
         <div className="chat-detail-content">
@@ -290,8 +290,12 @@ export default function ChatDetailPanel({
                     {(otherUser.displayName || "?").charAt(0).toUpperCase()}
                   </Avatar>
                   <div className="overview-info">
-                    <p className="name">{otherUser.displayName}</p>
+                    <div className="name">
+                      {otherUser.displayName}
+                      <UserBadge role={otherUser.role}/>
+                    </div>
                   </div>
+                  
                 </div>
               ) : null
             ) : selectedRoom.avatar ? (
@@ -376,8 +380,6 @@ export default function ChatDetailPanel({
                       </>
                     )}
                   </div>
-                  {/* <p className="room-uid">ID phòng chat: {selectedRoom.id}</p>
-                  <p className="sub">{selectedRoom.description}</p> */}
                 </div>
               </div>
             )}
@@ -404,7 +406,10 @@ export default function ChatDetailPanel({
                     </Avatar>
                     <div className="member-info">
                       <Tooltip title={otherUser.displayName}>
-                        <p className="member-name" style={{ margin: 0 }}>{otherUser.displayName}</p>
+                        <div className="member-name" style={{ margin: 0 }}>
+                          {otherUser.displayName}
+                          <UserBadge role={otherUser.role}/>
+                        </div>
                       </Tooltip>
                       <p style={{ fontSize: 12, color: "gray", margin: 0 }}>@{otherUser.username}</p>
                     </div>
@@ -423,7 +428,10 @@ export default function ChatDetailPanel({
                       <div className="member-info">
                         <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 0 }}>
                           <Tooltip title={m.displayName}>
-                            <p className="member-name" style={{ margin: 0 }}>{m.displayName}</p>
+                            <div className="member-name" style={{ margin: 0 }}>
+                              {m.displayName}
+                              <UserBadge role={m.role}/>
+                            </div>
                           </Tooltip>
                           {isMemberOwner && <FaKey color="gold" />}
                           {isMemberCoOwner && <FaKey color="silver" />}

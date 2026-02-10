@@ -13,6 +13,7 @@ import { uploadToR2 } from '../../utils/uploadToR2';
 import { validateFile } from '../../utils/fileValidation';
 import "./profileModal.scss";
 import { useTranslation } from 'react-i18next';
+import UserBadge from '../common/userBadge';
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 const MAX_USERNAME_LENGTH = 20;
@@ -349,7 +350,9 @@ export default function ProfileModal() {
 
         <div style={{ marginBottom: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
-            <span style={{ fontWeight: '600', marginRight: '8px' }}>{t('profile.displayName')}</span>
+            <span style={{ fontWeight: '600', marginRight: '8px' }}>
+              {t('profile.displayName')}
+            </span>
             {!isEditingName && (
               <Button
                 type="text"

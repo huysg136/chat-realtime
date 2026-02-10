@@ -8,6 +8,7 @@ import { doc, onSnapshot, setDoc, updateDoc, getDoc, collection, query, where, g
 import { db } from "../../../firebase/config";
 import "./roomList.scss";
 import { useUserStatus } from "../../../hooks/useUserStatus";
+import UserBadge from "../../common/userBadge";
 
 export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomId }) {
   const { user } = useContext(AuthContext);
@@ -180,9 +181,14 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
       <div className="room-info">
         <p className="room-name">
           {isGroup && <TeamOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />}
-          {isPrivate
-            ? membersData.find((u) => u.uid !== user?.uid)?.displayName || "No Name"
-            : room.name || "No Name"}
+          {isPrivate ? (
+            <span>
+              {membersData.find((u) => u.uid !== user?.uid)?.displayName || "No Name"}
+              <UserBadge role={otherUser?.role} />
+            </span>
+          ) : (
+            room.name || "No Name"
+          )}
         </p>
         {room.lastMessage ? (
           <p className="last-message">

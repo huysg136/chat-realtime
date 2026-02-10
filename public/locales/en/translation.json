@@ -20,6 +20,8 @@
     },
     "chatWindow": {
         "members": "members",
+        "welcomeTitle": "Your Messages",
+        "welcomeDescription": "Send private photos and messages to friends",
         "status": {
             "activeNow": "Active now",
             "activeYesterday": "Active yesterday",

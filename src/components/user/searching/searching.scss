@@ -15,16 +15,23 @@
 
     .username-wrapper {
       display: flex;
-      flex-direction: column; // hiển thị displayName trên, username dưới
+      flex-direction: column; 
       padding: 4px 8px 4px 4px;
       border-radius: 6px;
       transition: background-color 0.2s;
 
-      .display-name {
-        font-size: 16px;
-        font-weight: 600;
-        color: #000;
-        line-height: 1.2;
+      .display-name-wrapper {
+        .display-name {
+          font-size: 16px;
+          font-weight: 600;
+          color: #000;
+          line-height: 1.2;
+        }
+
+        .verified-icon {
+          color: #1877F2;
+          margin-top: auto;
+        }
       }
 
       .username {

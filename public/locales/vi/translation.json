@@ -20,6 +20,8 @@
     },
     "chatWindow": {
         "members": "thành viên",
+        "welcomeTitle": "Tin nhắn của bạn",
+        "welcomeDescription": "Gửi ảnh và tin nhắn riêng tư cho bạn bè",
         "status": {
             "activeNow": "Đang hoạt động",
             "activeYesterday": "Hoạt động hôm qua",

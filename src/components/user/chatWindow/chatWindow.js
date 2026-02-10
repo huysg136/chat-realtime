@@ -24,6 +24,7 @@ import { useUserStatus } from "../../../hooks/useUserStatus";
 import VideoCallOverlay from "../../../components/user/videoCallOverlay/videoCallOverlay";
 import "./chatWindow.scss";
 import { useTranslation } from "react-i18next";
+import UserBadge from "../../common/userBadge";
 
 const MESSAGES_PER_PAGE = 20;
 
@@ -325,8 +326,8 @@ export default function ChatWindow({onToggleDetail}) {
       <div className="chat-window no-room">
         <div className="welcome-screen">
           <MessageOutlined />
-          <h2>Tin nhắn của bạn</h2>
-          <p>Gửi ảnh và tin nhắn riêng tư cho bạn bè</p>
+          <h2>{t('chatWindow.welcomeTitle')}</h2>
+          <p>{t('chatWindow.welcomeDescription')}</p>
         </div>
       </div>
     );
@@ -347,6 +348,7 @@ export default function ChatWindow({onToggleDetail}) {
               <div style={{ position: "relative", display: "inline-block" }}>
                 <Avatar src={otherUser.photoURL} size={40}>
                   {(otherUser.displayName || "?").charAt(0).toUpperCase()}
+                  <UserBadge role={otherUser.role}/>
                 </Avatar>
                 {otherUserStatus?.lastOnline && (() => {
                   return (
@@ -390,6 +392,7 @@ export default function ChatWindow({onToggleDetail}) {
         <div className="header__info">
           <p className="header__title">
             {isPrivate ? otherUser?.displayName || selectedRoom.name : selectedRoom.name}
+            <UserBadge role={isPrivate ? otherUser?.role : null}/>
           </p>
           <span className="header__description">
             {(!isPrivate)
