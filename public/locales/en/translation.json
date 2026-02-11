@@ -221,7 +221,7 @@
                 "max": "20 MB"
             }
         },
-        "payment_note": "Automatic payment is currently supported in Vietnam. For other regions, please contact Admin for manual processing."
+        "payment_note": "• Plan duration: 1 month (30 days)\n• Automatic payment is supported in Vietnam only. Please contact Admin for manual payment if you are in another region."
     },
     "settings": {
         "title": "Settings",

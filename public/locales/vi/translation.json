@@ -221,7 +221,7 @@
                 "max": "20 MB"
             }
         },
-        "payment_note": "Hiện tại chỉ hỗ trợ thanh toán tự động ở khu vực Việt Nam. Nếu bạn không ở khu vực này, vui lòng liên hệ Admin để thanh toán thủ công."
+        "payment_note": "• Thời hạn gói: 1 tháng (30 ngày)\n• Hiện tại chỉ hỗ trợ thanh toán tự động tại Việt Nam. Khu vực khác vui lòng liên hệ Admin để thanh toán thủ công."
     },
     "settings": {
         "title": "Cài đặt",

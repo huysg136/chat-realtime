@@ -309,6 +309,7 @@
       font-size: 13px;
       line-height: 1.5;
       color: #1e40af;
+      white-space: pre-line;
     }
   }
 
@@ -391,8 +392,12 @@
       background: #1f2937;
       border-color: rgba(255, 255, 255, 0.1);
 
+      .select-btn {
+        color: #f3f4f6;
+      }
+
       .plan-title {
-        color: #9ca3af;
+        color: #ffffff;
       }
 
       .plan-price {
@@ -483,6 +488,7 @@
 
       .note-text {
         color: #a5b4fc;
+        white-space: pre-line;
       }
     }
   }
