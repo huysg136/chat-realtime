@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 import { ROUTERS } from "../../../utils/router";
 import { useTranslation } from "react-i18next";
-import { IoDiamond } from "react-icons/io5";
+import { FaMoneyBillWave } from "react-icons/fa";
 import { checkProUser } from "../../../utils/checkPro";
 
 
@@ -106,10 +106,10 @@ export default function LeftSide() {
       </Menu.Item>
       <Menu.Item
         key="upgrade-plan"
-        icon={<IoDiamond size={16} />}
+        icon={<FaMoneyBillWave />}
         onClick={() => setIsUpgradePlanVisible(true)}
       >
-        {t('leftSide.upgradePro')}
+        {t('leftSide.upgradePlan')}
       </Menu.Item>
       <Menu.Divider style={{margin: "0"}}/>
       <Menu.Item

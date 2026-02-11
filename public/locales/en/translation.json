@@ -12,7 +12,7 @@
         "settings": "Settings",
         "myReport": "My Reports",
         "logout": "Logout",
-        "upgradePro": "Upgrade to Pro"
+        "upgradePlan": "Billing Plans"
     },
     "searching": {
         "placeholder": "Search by Quik ID",
