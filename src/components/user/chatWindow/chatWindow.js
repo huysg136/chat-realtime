@@ -25,6 +25,7 @@ import VideoCallOverlay from "../../../components/user/videoCallOverlay/videoCal
 import "./chatWindow.scss";
 import { useTranslation } from "react-i18next";
 import UserBadge from "../../common/userBadge";
+import { isPresetColor } from "antd/es/_util/colors";
 
 const MESSAGES_PER_PAGE = 20;
 
@@ -346,10 +347,7 @@ export default function ChatWindow({onToggleDetail}) {
           {isPrivate ? (
             otherUser ? (
               <div style={{ position: "relative", display: "inline-block" }}>
-                <Avatar src={otherUser.photoURL} size={40}>
-                  {(otherUser.displayName || "?").charAt(0).toUpperCase()}
-                  <UserBadge role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/>
-                </Avatar>
+                <Avatar src={otherUser.photoURL} size={40} />
                 {otherUserStatus?.lastOnline && (() => {
                   return (
                     <>
@@ -391,8 +389,8 @@ export default function ChatWindow({onToggleDetail}) {
 
         <div className="header__info">
           <p className="header__title">
-            {isPrivate ? otherUser?.displayName || selectedRoom.name : selectedRoom.name}
-            <UserBadge role={isPrivate ? otherUser?.role : null} premiumLevel={isPrivate ? otherUser?.premiumLevel : null} premiumUntil={isPrivate ? otherUser?.premiumUntil : null}/>
+            {}
+            <UserBadge displayName={isPrivate ? otherUser?.displayName || selectedRoom.name : selectedRoom.name} role={isPrivate ? otherUser?.role : null} premiumLevel={isPrivate ? otherUser?.premiumLevel : null} premiumUntil={isPrivate ? otherUser?.premiumUntil : null} size={16}/>
           </p>
           <span className="header__description">
             {(!isPrivate)

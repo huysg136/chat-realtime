@@ -16,7 +16,7 @@ import { useUserStatus } from "../../../hooks/useUserStatus";
 import { ROUTERS } from "../../../utils/router";
 import { useTranslation } from "react-i18next";
 import { IoDiamond } from "react-icons/io5";
-import { checkProUser } from "../../../utils/permissions";
+import { checkProUser } from "../../../utils/checkPro";
 
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
@@ -25,7 +25,7 @@ export default function LeftSide() {
   const [active, setActive] = useState("message");
   const [role, setRole] = useState("");
   const { user, logout } = useContext(AuthContext);
-  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible } = useContext(AppContext);
+  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradeProVisible } = useContext(AppContext);
   const displayName = user?.displayName;
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
@@ -110,7 +110,7 @@ export default function LeftSide() {
             key="upgrade-pro"
             className="upgrade-pro-item"
             icon={<IoDiamond size={16} />}
-            // onClick={() => setIsUpgradeModalVisible(true)}
+            onClick={() => setIsUpgradeProVisible(true)}
           >
             {t('leftSide.upgradePro')}
           </Menu.Item>

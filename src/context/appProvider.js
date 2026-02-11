@@ -20,6 +20,7 @@ export default function AppProvider({ children }) {
   const [theme, setTheme] = useState("system");
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(false);
+  const [isUpgradeProVisible, setIsUpgradeProVisible] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
   const location = useLocation();
 
@@ -175,6 +176,8 @@ export default function AppProvider({ children }) {
         setIsMyReportsVisible,
         isPendingInviteVisible,
         setIsPendingInviteVisible,
+        isUpgradeProVisible, 
+        setIsUpgradeProVisible,
         searchText,
         setSearchText,
         theme,

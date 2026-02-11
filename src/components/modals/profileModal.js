@@ -14,7 +14,7 @@ import { validateFile } from '../../utils/fileValidation';
 import "./profileModal.scss";
 import { useTranslation } from 'react-i18next';
 import { IoDiamond } from 'react-icons/io5';
-import { checkProUser } from '../../utils/permissions';
+import { checkProUser } from "../../utils/checkPro";
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 const MAX_USERNAME_LENGTH = 20;

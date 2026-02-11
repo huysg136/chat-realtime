@@ -97,7 +97,7 @@ export default function AuthProvider({ children }) {
             const userData = userSnap.exists() ? userSnap.data() : {};
             const currentTime = new Date();
             const premiumUntilDate = userData.premiumUntil?.toDate ? userData.premiumUntil.toDate() : userData.premiumUntil;
-            if (userData.premiumLevel === 'pro' && premiumUntilDate && premiumUntilDate < currentTime) {
+            if ((userData.premiumLevel === 'pro' || userData.premiumLevel === "max") && premiumUntilDate && premiumUntilDate < currentTime) {
               try {
                 await updateDocument("users", userDocId, { premiumLevel: 'free' });
               } catch (error) {

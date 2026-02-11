@@ -182,8 +182,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
           {isGroup && <TeamOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />}
           {isPrivate ? (
             <span>
-              {membersData.find((u) => u.uid !== user?.uid)?.displayName || "No Name"}
-              <UserBadge role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/>
+              <UserBadge displayName={membersData.find((u) => u.uid !== user?.uid)?.displayName || "No Name"} role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/>
             </span>
           ) : (
             room.name || "No Name"

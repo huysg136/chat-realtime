@@ -293,7 +293,7 @@ export default function ChatDetailPanel({
                   <div className="overview-info">
                     <div className="name">
                       {otherUser.displayName}
-                      <UserBadge role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/>
+                      {/* <UserBadge displayName={otherUser.displayName} role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil} size={16}/> */}
                     </div>
                   </div>
                   
@@ -409,7 +409,7 @@ export default function ChatDetailPanel({
                       <Tooltip title={otherUser.displayName}>
                         <div className="member-name" style={{ margin: 0 }}>
                           {otherUser.displayName}
-                          <UserBadge role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/>
+                          {/* <UserBadge displayName={otherUser.displayName} role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/> */}
                         </div>
                       </Tooltip>
                       <p style={{ fontSize: 12, color: "gray", margin: 0 }}>@{otherUser.username}</p>
@@ -431,7 +431,7 @@ export default function ChatDetailPanel({
                           <Tooltip title={m.displayName}>
                             <div className="member-name" style={{ margin: 0 }}>
                               {m.displayName}
-                              {/* <UserBadge role={m.role} premiumLevel={m.premiumLevel}/> */}
+                              {/* <UserBadge displayName={m.displayName} role={m.role} premiumLevel={m.premiumLevel} premiumUntil={m.premiumUntil}/> */}
                             </div>
                           </Tooltip>
                           {isMemberOwner && <FaKey color="gold" />}

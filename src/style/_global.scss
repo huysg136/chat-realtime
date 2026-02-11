@@ -48,6 +48,114 @@ html, body {
   }
 }
 
+
+// luxyry name gold shimmer effect
+@keyframes gold-wave {
+  0% { background-position: -100% -100%; }
+  100% { background-position: 200% 200%; }
+}
+
+.text-luxury-gold {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  background: linear-gradient(
+    135deg,
+    #b8962e 0%,
+    #d4af37 35%,
+    #f6e27f 45%,
+    #d4af37 55%,
+    #b8962e 70%,
+    #b8962e 100%
+  );
+  background-size: 300% 300%;
+  background-position: 0% 0%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gold-wave 8s linear infinite;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.theme-dark {
+  .text-luxury-gold {
+    background: linear-gradient(
+      135deg,
+    #b8962e 0%,
+    #d4af37 35%,
+    #f6e27f 45%,
+    #d4af37 55%,
+    #b8962e 70%,
+    #b8962e 100%
+    );
+    background-size: 300% 300%;
+    background-position: 0% 0%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gold-wave 8s linear infinite;
+    text-shadow: 0 0 6px rgba(255, 215, 0, 0.15);
+  }
+}
+
+// luxury name silver shimmer effect
+@keyframes silver-wave {
+  0%   { background-position: -120% -120%; }
+  100% { background-position: 220% 220%; }
+}
+
+.text-luxury-silver {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  background: linear-gradient(
+    135deg,
+    #6f7276 0%,    
+    #9ea1a6 30%,    
+    #e3e6ea 45%,  
+    #9ea1a6 60%,
+    #6f7276 80%,
+    #6f7276 100%
+  );
+  background-size: 300% 300%;
+  background-position: 0% 0%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: silver-wave 8s linear infinite;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.08);
+  -webkit-font-smoothing: antialiased;
+}
+
+
+body.theme-dark {
+  .text-luxury-silver {
+    background: linear-gradient(
+      135deg,
+      #6b7280 0%,
+      #9ca3af 35%,
+      #e5e7eb 45%,
+      #9ca3af 55%,
+      #6b7280 70%,
+      #6b7280 100%
+    );
+    background-size: 300% 300%;
+    background-position: 0% 0%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: silver-wave 8s linear infinite;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.12);
+  }
+}
+
+.icon-max-shimmer {
+  display: flex;
+  align-items: center;
+  filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.5));
+  flex-shrink: 0; 
+}
+
 body.theme-dark {
   .copyable .copy-icon {
     color: #cbd5e1;
