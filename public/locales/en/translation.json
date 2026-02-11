@@ -43,7 +43,6 @@
             "banMessage": "Oops! You are temporarily restricted from messaging until {{date}}."
         }
     },
-    
     "chatInput": {
         "placeholder": "Type a message...",
         "replyPlaceholder": "Reply to message...",
@@ -85,7 +84,6 @@
             "client": "Professional and formal for clients or partners. Maintain a business-appropriate tone."
         }
     },
-    
     "chatDetail": {
         "title": "Details",
         "private": "Private",
@@ -97,9 +95,9 @@
         "leaveGroup": "Leave Group",
         "ownerHint": "The owner must transfer ownership before leaving",
         "roles": {
-        "assignCoOwner": "Assign Co-owner",
-        "revokeCoOwner": "Revoke Co-owner",
-        "transferOwner": "Transfer Ownership"
+            "assignCoOwner": "Assign Co-owner",
+            "revokeCoOwner": "Revoke Co-owner",
+            "transferOwner": "Transfer Ownership"
         },
         "confirm": {
             "transferTitle": "Transfer ownership to {{name}}?",
@@ -160,7 +158,71 @@
             "avatarError": "Please select an image file",
             "generalError": "An error occurred"
         }
+    },
+    "upgrade_modal": {
+        "title": "Upgrade Your Account",
+        "table_header": {
+            "feature": "Features",
+            "free": "Free",
+            "pro": "Pro",
+            "max": "Max"
         },
+        "plans": {
+            "free": {
+                "title": "Standard",
+                "label": "Basic",
+                "price": "$0"
+            },
+            "pro": {
+                "title": "Pro",
+                "label": "Popular Choice",
+                "price": "$3.9"
+            },
+            "max": {
+                "title": "Max",
+                "label": "Best Value",
+                "price": "$4.9"
+            },
+            "hot_badge": "HOT",
+            "vip_badge": "ULTIMATE",
+            "current": "Current Plan",
+            "select": "Choose Plan",
+            "upgrade_vip": "GO ULTIMATE"
+        },
+        "features": {
+            "chat_anonymous": {
+                "name": "Anonymous Chat",
+                "desc": "Connect with strangers instantly.",
+                "pro": "3 per day",
+                "max": "Unlimited"
+            },
+            "ai_support": {
+                "name": "AI Support Bot",
+                "desc": "Powered by advanced AI technology. (@bot)",
+                "pro": "GPT-3.5 (Basic)",
+                "max": "GPT-4o (Premium)"
+            },
+            "perks": {
+                "name": "Identity Perks",
+                "desc": "Stand out with exclusive badges.",
+                "free": "Default Name",
+                "pro": "Silver Name",
+                "max": "Gold Name"
+            },
+            "ghost_mode": {
+                "name": "Ghost Mode",
+                "desc": "Hide Online status."
+            },
+            "file_limit": {
+                "name": "File Upload Limit",
+                "desc": "Send larger videos and documents.",
+                "free": "5 MB",
+                "pro": "10 MB",
+                "max": "20 MB"
+            }
+        },
+        "payment_note": "Automatic payment is currently supported in Vietnam. For other regions, please contact Admin for manual processing."
+    },
     "settings": {
         "title": "Settings",
         "menuAccount": "Account",

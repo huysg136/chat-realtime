@@ -25,7 +25,7 @@ export default function LeftSide() {
   const [active, setActive] = useState("message");
   const [role, setRole] = useState("");
   const { user, logout } = useContext(AuthContext);
-  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradeProVisible } = useContext(AppContext);
+  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible } = useContext(AppContext);
   const displayName = user?.displayName;
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
@@ -104,18 +104,13 @@ export default function LeftSide() {
       <Menu.Item key="reports" icon={<MdReportProblem />} onClick={() => setIsMyReportsVisible(true)}>
         {t('leftSide.myReport')}
       </Menu.Item>
-      {
-        !isProUser && (
-          <Menu.Item
-            key="upgrade-pro"
-            className="upgrade-pro-item"
-            icon={<IoDiamond size={16} />}
-            onClick={() => setIsUpgradeProVisible(true)}
-          >
-            {t('leftSide.upgradePro')}
-          </Menu.Item>
-        )
-      }
+      <Menu.Item
+        key="upgrade-plan"
+        icon={<IoDiamond size={16} />}
+        onClick={() => setIsUpgradePlanVisible(true)}
+      >
+        {t('leftSide.upgradePro')}
+      </Menu.Item>
       <Menu.Divider style={{margin: "0"}}/>
       <Menu.Item
         key="logout"

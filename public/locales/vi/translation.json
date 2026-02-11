@@ -43,8 +43,6 @@
             "banMessage": "Rất tiếc! Bạn tạm thời bị giới hạn nhắn tin cho đến {{date}}."
         }
     },
-    
-    
     "chatInput": {
         "placeholder": "Nhập tin nhắn...",
         "replyPlaceholder": "Trả lời tin nhắn...",
@@ -86,7 +84,6 @@
             "client": "Phù hợp với khách hàng hoặc đối tác. Thái độ chuyên nghiệp, lịch sự, xưng hô trang trọng."
         }
     },
-    
     "chatDetail": {
         "title": "Chi tiết",
         "private": "Riêng tư",
@@ -112,21 +109,21 @@
             "leave": "Rời"
         },
         "messages": {
-        "updateRoleSuccess": "Cập nhật quyền thành công",
-        "updateRoleError": "Không thể cập nhật quyền, thử lại sau",
-        "transferSuccess": "Đã chuyển quyền trưởng nhóm thành công!",
-        "transferError": "Không thể chuyển quyền, thử lại sau",
-        "ownerOnly": "Chỉ trưởng nhóm mới có thể chuyển quyền trưởng nhóm",
-        "alreadyOwner": "Bạn đã là trưởng nhóm rồi",
-        "removeSuccess": "Đã xóa thành viên",
-        "removeError": "Xóa thành viên thất bại, thử lại sau",
-        "removePermission": "Bạn không có quyền xóa thành viên này.",
-        "emptyName": "Tên phòng không được để trống",
-        "nameTooLong": "Tên phòng tối đa 100 ký tự",
-        "renameSuccess": "Đã đổi tên nhóm",
-        "renameError": "Đổi tên thất bại, thử lại",
-        "leaveSuccess": "Bạn đã rời nhóm",
-        "leaveError": "Rời nhóm thất bại, thử lại sau"
+            "updateRoleSuccess": "Cập nhật quyền thành công",
+            "updateRoleError": "Không thể cập nhật quyền, thử lại sau",
+            "transferSuccess": "Đã chuyển quyền trưởng nhóm thành công!",
+            "transferError": "Không thể chuyển quyền, thử lại sau",
+            "ownerOnly": "Chỉ trưởng nhóm mới có thể chuyển quyền trưởng nhóm",
+            "alreadyOwner": "Bạn đã là trưởng nhóm rồi",
+            "removeSuccess": "Đã xóa thành viên",
+            "removeError": "Xóa thành viên thất bại, thử lại sau",
+            "removePermission": "Bạn không có quyền xóa thành viên này.",
+            "emptyName": "Tên phòng không được để trống",
+            "nameTooLong": "Tên phòng tối đa 100 ký tự",
+            "renameSuccess": "Đã đổi tên nhóm",
+            "renameError": "Đổi tên thất bại, thử lại",
+            "leaveSuccess": "Bạn đã rời nhóm",
+            "leaveError": "Rời nhóm thất bại, thử lại sau"
         }
     },
     "profile": {
@@ -161,7 +158,71 @@
             "avatarError": "Vui lòng chọn file ảnh",
             "generalError": "Đã có lỗi xảy ra"
         }
+    },
+    "upgrade_modal": {
+        "title": "Nâng cấp tài khoản",
+        "table_header": {
+            "feature": "Tính năng",
+            "free": "Free",
+            "pro": "Pro",
+            "max": "Max"
         },
+        "plans": {
+            "free": {
+                "title": "Standard",
+                "label": "Cơ bản",
+                "price": "0đ"
+            },
+            "pro": {
+                "title": "Pro",
+                "label": "Phổ thông",
+                "price": "59.000đ"
+            },
+            "max": {
+                "title": "Max",
+                "label": "Ưu đãi nhất",
+                "price": "89.000đ"
+            },
+            "hot_badge": "HOT",
+            "vip_badge": "ULTIMATE",
+            "current": "Đang sử dụng",
+            "select": "Chọn gói này",
+            "upgrade_vip": "TRẢI NGHIỆM ULTIMATE"
+        },
+        "features": {
+            "chat_anonymous": {
+                "name": "Chat ẩn danh người lạ",
+                "desc": "Kết nối bí mật, tìm kiếm bạn mới.",
+                "pro": "3 lượt/ngày",
+                "max": "Vô hạn lượt"
+            },
+            "ai_support": {
+                "name": "Công nghệ AI Support",
+                "desc": "Trợ lý ảo hỗ trợ trả lời siêu tốc. (@bot)",
+                "pro": "GPT-3.5 (Cơ bản)",
+                "max": "GPT-4o (Cao cấp)"
+            },
+            "perks": {
+                "name": "Đặc quyền nhận diện",
+                "desc": "Nổi bật nhất trong danh sách chat.",
+                "free": "Tên mặc định",
+                "pro": "Tên bạc",
+                "max": "Tên vàng"
+            },
+            "ghost_mode": {
+                "name": "Chế độ tàng hình",
+                "desc": "Ẩn online."
+            },
+            "file_limit": {
+                "name": "Giới hạn gửi file",
+                "desc": "Thoải mái gửi video HD và tài liệu lớn hơn.",
+                "free": "5 MB",
+                "pro": "10 MB",
+                "max": "20 MB"
+            }
+        },
+        "payment_note": "Hiện tại chỉ hỗ trợ thanh toán tự động ở khu vực Việt Nam. Nếu bạn không ở khu vực này, vui lòng liên hệ Admin để thanh toán thủ công."
+    },
     "settings": {
         "title": "Cài đặt",
         "menuAccount": "Tài khoản",

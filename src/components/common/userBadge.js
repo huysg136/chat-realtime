@@ -16,6 +16,7 @@ export default function UserBadge({ displayName, role, premiumLevel, premiumUnti
     alignItems: "center",
     gap: "4px",
     verticalAlign: "middle",
+    background: 'transparent',
   };
 
   return (

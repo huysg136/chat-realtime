@@ -185,9 +185,11 @@
     &.max-card {
       border-color: #f59e0b;
       background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      z-index: 2;
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
 
       &:hover {
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        box-shadow: 0 15px 35px rgba(245, 158, 11, 0.5);
       }
     }
 
@@ -304,7 +306,7 @@
 
     .note-text {
       margin: 0;
-      font-size: 11px;
+      font-size: 13px;
       line-height: 1.5;
       color: #1e40af;
     }

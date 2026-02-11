@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useContext } from 'react';
 import { AppContext } from './appProvider';
+import { AuthContext } from './authProvider';
 
 // Lazy load modals
 const AddRoomModal = lazy(() => import('../components/modals/addRoomModal'));
@@ -9,7 +10,8 @@ const PendingInvitesModal = lazy(() => import('../components/modals/pendingInvit
 const SettingsModal = lazy(() => import('../components/modals/settingsModal'));
 const AnnouncementModal = lazy(() => import('../components/modals/announcementModal'));
 const MyReportsModal = lazy(() => import('../components/modals/myReportsModal'));
-const UpgradeProModal = lazy(() => import('../components/modals/upgradeProModal'));
+const UpgradePlanModal = lazy(() => import('../components/modals/upgradePlanModal'));
+
 
 export default function ModalManager() {
     const {
@@ -20,12 +22,11 @@ export default function ModalManager() {
         isSettingsVisible,
         isAnnouncementVisible,
         isMyReportsVisible,
-        isUpgradeProVisible
+        isUpgradePlanVisible,
     } = useContext(AppContext);
-
+    const { user } = useContext(AuthContext);
     // Render nothing if no modal is active (check logic below if you want stricter control, 
     // but React lazy + conditional rendering is usually enough)
-
     return (
         <Suspense fallback={null}>
             {isAddRoomVisible && <AddRoomModal />}
@@ -35,7 +36,7 @@ export default function ModalManager() {
             {isSettingsVisible && <SettingsModal />}
             {isAnnouncementVisible && <AnnouncementModal />}
             {isMyReportsVisible && <MyReportsModal />}
-            {isUpgradeProVisible && <UpgradeProModal />}
+            {isUpgradePlanVisible && <UpgradePlanModal premiumLevel={user?.premiumLevel} />}
         </Suspense>
     );
 }
