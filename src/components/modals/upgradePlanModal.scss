@@ -67,7 +67,7 @@
   /* ──────────────── COMPARISON GRID ──────────────── */
   .comparison-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
     gap: 1px;
     background: #e5e5ec;
     border: 1px solid #e5e5ec;
@@ -96,15 +96,16 @@
     }
 
     .pro-col {
-      background: #f7f7f8;
-      color: #374151;
-      font-weight: 600;
+      color: #9d9d9d;
+    }
+
+    .lite-col {
+      color: #967f64;
     }
 
     .max-col {
       background: #fefce8;
-      color: #a16207;
-      font-weight: 600;
+      color: #d2ac31;
     }
 
     .feature-info-cell {
@@ -125,6 +126,7 @@
 
     .feature-status {
       justify-content: center;
+      text-align: center;
       font-size: 11px;
     }
 
@@ -154,12 +156,12 @@
 
   .pricing-grid {
     display: flex;
-    gap: 10px;
+    gap: 8px;
   }
 
   .price-card {
     width: 100%;
-    padding: 14px 10px;
+    padding: 14px 6px;
     text-align: center;
     position: relative;
     cursor: pointer;
@@ -178,8 +180,17 @@
     &.active {
       border-color: #9ca3af;
       background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-      transform: translateY(-4px);
+      // transform: translateY(-4px);
       box-shadow: 0 8px 20px rgba(107, 114, 128, 0.18);
+    }
+
+    &.lite-card {
+      border-color: #b08d57;
+      background: linear-gradient(135deg, #faf7f2 0%, #ffffff 100%);
+
+      &:hover {
+        border-color: #8c5e3c;
+      }
     }
 
     &.max-card {
@@ -193,6 +204,7 @@
       }
     }
 
+    .badge-lite,
     .badge-popular,
     .badge-max {
       position: absolute;
@@ -204,6 +216,12 @@
       font-weight: 700;
       border-radius: 12px;
       z-index: 5;
+    }
+
+    .badge-lite {
+      background: linear-gradient(120deg, #8c5e3c, #ccac88, #8c5e3c);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(140, 94, 60, 0.3);
     }
 
     .badge-popular {
@@ -240,6 +258,13 @@
 
       &.max-price {
         background: linear-gradient(90deg, #dc8c31 0%, #f59e0b 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      &.lite-price {
+        background: linear-gradient(90deg, #8c5e3c 0%, #b08d57 100%);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -284,6 +309,18 @@
         color: #fff !important;
       }
     }
+
+    .btn-lite {
+      background: linear-gradient(135deg, #a0785a, #b08d57);
+      border-color: #b08d57;
+      color: #fff;
+
+      &:hover {
+        background: linear-gradient(135deg, #8c5e3c, #a0785a) !important;
+        border-color: #a0785a !important;
+        color: #fff !important;
+      }
+    }
   }
 
   /* ──────────────── PAYMENT NOTE ──────────────── */
@@ -319,7 +356,7 @@
     }
 
     .ant-modal-close {
-        color: #ffffff;
+      color: #ffffff;
     }
 
     .upgrade-container {
@@ -357,6 +394,11 @@
       .pro-col {
         background: rgba(209, 213, 219, 0.1);
         color: #d1d5db;
+      }
+
+      .lite-col {
+        background: rgba(140, 94, 60, 0.05);
+        color: #ccac88;
       }
 
       .max-col {
@@ -410,6 +452,14 @@
           -webkit-text-fill-color: transparent;
           filter: drop-shadow(0 0 6px rgba(249, 168, 37, 0.3));
         }
+
+        &.lite-price {
+          background: linear-gradient(90deg, #ccac88 0%, #e2c48d 40%, #8c5e3c 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          filter: drop-shadow(0 0 5px rgba(140, 94, 60, 0.25));
+        }
       }
 
       .plan-desc {
@@ -428,6 +478,16 @@
         border-color: #9ca3af;
         box-shadow: 0 0 0 1px rgba(156, 163, 175, 0.3),
           0 8px 20px rgba(156, 163, 175, 0.12);
+      }
+
+      &.lite-card {
+        background: linear-gradient(135deg,
+            #2e2418 0%,
+            #4d3f2b 50%,
+            #1a140d 100%);
+        border-color: #8c5e3c;
+        box-shadow: 0 0 0 1px rgba(140, 94, 60, 0.3),
+          0 4px 15px rgba(140, 94, 60, 0.1);
       }
 
       &.max-card {

@@ -1,16 +1,17 @@
 * {
-  transition: 
+  transition:
     background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
     color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
     border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-body, 
+body,
 body * {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   overflow: hidden; // Ngăn body scroll
 }
@@ -51,23 +52,26 @@ html, body {
 
 // luxyry name gold shimmer effect
 @keyframes gold-wave {
-  0%   { background-position: -120% -120%; }
-  100% { background-position: 220% 220%; }
+  0% {
+    background-position: -120% -120%;
+  }
+
+  100% {
+    background-position: 220% 220%;
+  }
 }
 
 .text-luxury-gold {
   font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
-  background: linear-gradient(
-    135deg,
-    #b8962e 0%,
-    #d4af37 35%,
-    #f6e27f 45%,
-    #d4af37 55%,
-    #b8962e 70%,
-    #b8962e 100%
-  );
+  background: linear-gradient(135deg,
+      #b8962e 0%,
+      #d4af37 35%,
+      #f6e27f 45%,
+      #d4af37 55%,
+      #b8962e 70%,
+      #b8962e 100%);
   background-size: 300% 300%;
   background-position: 0% 0%;
   -webkit-background-clip: text;
@@ -75,79 +79,127 @@ html, body {
   -webkit-text-fill-color: transparent;
   animation: gold-wave 8s linear infinite;
   -webkit-font-smoothing: antialiased;
-  filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.1));
 }
 
 body.theme-dark {
   .text-luxury-gold {
-    background: linear-gradient(
-      135deg,
-    #b8962e 0%,
-    #d4af37 35%,
-    #f6e27f 45%,
-    #d4af37 55%,
-    #b8962e 70%,
-    #b8962e 100%
-    );
+    background: linear-gradient(135deg,
+        #b8962e 0%,
+        #d4af37 35%,
+        #f6e27f 45%,
+        #d4af37 55%,
+        #b8962e 70%,
+        #b8962e 100%);
     background-size: 300% 300%;
     background-position: 0% 0%;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: gold-wave 8s linear infinite;
-    text-shadow: 0 0 10px rgba(255, 191, 0, 0.35);
+    text-shadow: 0 0 6px rgba(255, 191, 0, 0.2);
   }
 }
 
 // luxury name silver shimmer effect
 @keyframes silver-wave {
-  0%   { background-position: -120% -120%; }
-  100% { background-position: 220% 220%; }
+  0% {
+    background-position: -120% -120%;
+  }
+
+  100% {
+    background-position: 220% 220%;
+  }
 }
 
 .text-luxury-silver {
   font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
-  background: linear-gradient(
-    135deg,
-    #6f7276 0%,    
-    #9ea1a6 30%,    
-    #e3e6ea 45%,  
-    #9ea1a6 60%,
-    #6f7276 80%,
-    #6f7276 100%
-  );
+  background: linear-gradient(135deg,
+      #6f7276 0%,
+      #9ea1a6 30%,
+      #e3e6ea 45%,
+      #9ea1a6 60%,
+      #6f7276 80%,
+      #6f7276 100%);
   background-size: 300% 300%;
   background-position: 0% 0%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: silver-wave 8s linear infinite;
-  text-shadow: 0 1px 1px rgba(0,0,0,0.08);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
   -webkit-font-smoothing: antialiased;
 }
 
 
 body.theme-dark {
   .text-luxury-silver {
-    background: linear-gradient(
-      135deg,
-      #6b7280 0%,
-      #9ca3af 35%,
-      #e5e7eb 45%,
-      #9ca3af 55%,
-      #6b7280 70%,
-      #6b7280 100%
-    );
+    background: linear-gradient(135deg,
+        #6b7280 0%,
+        #9ca3af 35%,
+        #e5e7eb 45%,
+        #9ca3af 55%,
+        #6b7280 70%,
+        #6b7280 100%);
     background-size: 300% 300%;
     background-position: 0% 0%;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: silver-wave 8s linear infinite;
-    text-shadow: 0 0 6px rgba(255, 255, 255, 0.12);
-    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.25));
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+  }
+}
+
+// luxury name bronze shimmer effect
+@keyframes bronze-wave {
+  0% {
+    background-position: -120% -120%;
+  }
+
+  100% {
+    background-position: 220% 220%;
+  }
+}
+
+.text-luxury-bronze {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  background: linear-gradient(135deg,
+      #7a4a2a 0%, 
+      #a67c52 35%, 
+      #d4a383 45%, 
+      #a67c52 55%,
+      #7a4a2a 70%,
+      #7a4a2a 100%);
+  background-size: 300% 300%;
+  background-position: 0% 0%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: bronze-wave 8s linear infinite;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+  -webkit-font-smoothing: antialiased;
+}
+
+body.theme-dark {
+  .text-luxury-bronze {
+    background: linear-gradient(135deg,
+        #8c5e3c 0%,
+        #a0785a 35%,
+        #d4b595 45%,
+        #a0785a 55%,
+        #8c5e3c 70%,
+        #8c5e3c 100%);
+    background-size: 300% 300%;
+    background-position: 0% 0%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: bronze-wave 8s linear infinite;
+    text-shadow: 0 0 6px rgba(212, 181, 149, 0.2);
   }
 }
 
@@ -161,8 +213,10 @@ body.theme-dark {
 *::-webkit-scrollbar {
   width: 3px !important;
 }
+
 *::-webkit-scrollbar-thumb {
-  background: #c7c7c7 !important; /* Nếu hiện màu đỏ là đã nhận, rồi mới sửa lại màu xám */
+  background: #c7c7c7 !important;
+  /* Nếu hiện màu đỏ là đã nhận, rồi mới sửa lại màu xám */
 }
 
 body.theme-dark {
@@ -173,7 +227,7 @@ body.theme-dark {
       color: #60a5fa;
     }
   }
-  
+
   .ant-dropdown-menu {
     background-color: #303030;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -263,6 +317,6 @@ body.theme-dark {
 }
 
 .small-toast {
-  font-size: 14px !important; 
+  font-size: 14px !important;
   padding: 8px 12px !important;
 }

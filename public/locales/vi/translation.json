@@ -165,24 +165,26 @@
         "table_header": {
             "feature": "Tính năng",
             "free": "Free",
+            "lite": "Lite",
             "pro": "Pro",
             "max": "Max"
         },
         "plans": {
             "free": {
-                "title": "Standard",
-                "label": "Cơ bản",
-                "price": "0đ"
+                "title": "FREE",
+                "label": "Gói Standard cơ bản"
+            },
+            "lite": {
+                "title": "LITE",
+                "label": "Tên đồng, tăng giới hạn"
             },
             "pro": {
-                "title": "Pro",
-                "label": "Phổ thông",
-                "price": "59.000đ"
+                "title": "PRO",
+                "label": "Tên bạc, mở khóa AI Support"
             },
             "max": {
-                "title": "Max",
-                "label": "Ưu đãi nhất",
-                "price": "89.000đ"
+                "title": "MAX",
+                "label": "Tên vàng, đặc quyền tối thượng"
             },
             "hot_badge": "HOT",
             "vip_badge": "ULTIMATE",
@@ -207,6 +209,7 @@
                 "name": "Đặc quyền nhận diện",
                 "desc": "Nổi bật nhất trong danh sách chat.",
                 "free": "Tên mặc định",
+                "lite": "Tên đồng",
                 "pro": "Tên bạc",
                 "max": "Tên vàng"
             },
@@ -215,11 +218,12 @@
                 "desc": "Ẩn online."
             },
             "file_limit": {
-                "name": "Giới hạn gửi file",
-                "desc": "Thoải mái gửi video HD và tài liệu lớn hơn.",
-                "free": "5 MB",
-                "pro": "10 MB",
-                "max": "20 MB"
+                "name": "Giới hạn mỗi file",
+                "desc": "Thoải mái gửi video HD và tài liệu lớn hơn."
+            },
+            "storage_quota": {
+                "name": "Không gian lưu trữ (Quota)",
+                "desc": "Tổng không gian lưu trữ file và tin nhắn."
             }
         },
         "payment_note": "• Thời hạn gói: 1 tháng (30 ngày)\n• Hiện tại chỉ hỗ trợ thanh toán tự động tại Việt Nam. Khu vực khác vui lòng liên hệ Admin để thanh toán thủ công."

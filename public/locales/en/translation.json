@@ -165,24 +165,26 @@
         "table_header": {
             "feature": "Features",
             "free": "Free",
+            "lite": "Lite",
             "pro": "Pro",
             "max": "Max"
         },
         "plans": {
             "free": {
-                "title": "Standard",
-                "label": "Basic",
-                "price": "$0"
+                "title": "FREE",
+                "label": "Standard basic plan"
+            },
+            "lite": {
+                "title": "LITE",
+                "label": "Bronze Name, Higher limit"
             },
             "pro": {
-                "title": "Pro",
-                "label": "Popular Choice",
-                "price": "$3.9"
+                "title": "PRO",
+                "label": "Silver Name, Unlock AI Support"
             },
             "max": {
-                "title": "Max",
-                "label": "Best Value",
-                "price": "$4.9"
+                "title": "MAX",
+                "label": "Gold Name, Ultimate Perks"
             },
             "hot_badge": "HOT",
             "vip_badge": "ULTIMATE",
@@ -207,6 +209,7 @@
                 "name": "Identity Perks",
                 "desc": "Stand out with exclusive badges.",
                 "free": "Default Name",
+                "lite": "Bronze Name",
                 "pro": "Silver Name",
                 "max": "Gold Name"
             },
@@ -215,11 +218,12 @@
                 "desc": "Hide Online status."
             },
             "file_limit": {
-                "name": "File Upload Limit",
-                "desc": "Send larger videos and documents.",
-                "free": "5 MB",
-                "pro": "10 MB",
-                "max": "20 MB"
+                "name": "File Limit",
+                "desc": "Send larger videos and documents."
+            },
+            "storage_quota": {
+                "name": "Storage Space (Quota)",
+                "desc": "Total storage for files and messages."
             }
         },
         "payment_note": "• Plan duration: 1 month (30 days)\n• Automatic payment is supported in Vietnam only. Please contact Admin for manual payment if you are in another region."
