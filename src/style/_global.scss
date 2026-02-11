@@ -51,8 +51,8 @@ html, body {
 
 // luxyry name gold shimmer effect
 @keyframes gold-wave {
-  0% { background-position: -100% -100%; }
-  100% { background-position: 200% 200%; }
+  0%   { background-position: -120% -120%; }
+  100% { background-position: 220% 220%; }
 }
 
 .text-luxury-gold {
@@ -75,6 +75,7 @@ html, body {
   -webkit-text-fill-color: transparent;
   animation: gold-wave 8s linear infinite;
   -webkit-font-smoothing: antialiased;
+  filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.1));
 }
 
 body.theme-dark {
@@ -94,7 +95,7 @@ body.theme-dark {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: gold-wave 8s linear infinite;
-    text-shadow: 0 0 6px rgba(255, 215, 0, 0.15);
+    text-shadow: 0 0 10px rgba(255, 191, 0, 0.35);
   }
 }
 
@@ -146,6 +147,7 @@ body.theme-dark {
     -webkit-text-fill-color: transparent;
     animation: silver-wave 8s linear infinite;
     text-shadow: 0 0 6px rgba(255, 255, 255, 0.12);
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.25));
   }
 }
 

@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Modal, Button } from "antd";
 import { AppContext } from "../../context/appProvider";
-import { IoCheckmarkCircle, IoCloseCircle, IoInformationCircle, IoFlash } from "react-icons/io5";
+import { IoCheckmarkCircle, IoCloseCircle, IoInformationCircle, IoFlash, IoDiamond } from "react-icons/io5";
 import "./upgradePlanModal.scss";
 import UserBadge from "../common/userBadge";
 import { useTranslation } from "react-i18next";
@@ -39,12 +39,12 @@ export default function UpgradeModal({ premiumLevel }) {
   const features = [
     {
       name: t('upgrade_modal.features.chat_anonymous.name'),
-      free: false, pro: t('upgrade_modal.features.chat_anonymous.pro'), max: t('upgrade_modal.features.chat_anonymous.max'),
+      free: false, pro: false, max: true,
       desc: t('upgrade_modal.features.chat_anonymous.desc')
     },
     {
       name: t('upgrade_modal.features.ai_support.name'),
-      free: false, pro: t('upgrade_modal.features.ai_support.pro'), max: t('upgrade_modal.features.ai_support.max'),
+      free: false, pro: true, max: true,
       desc: t('upgrade_modal.features.ai_support.desc')
     },
     {
@@ -52,11 +52,11 @@ export default function UpgradeModal({ premiumLevel }) {
       free: 'perk_default', pro: 'perk_silver', max: 'perk_gold',
       desc: t('upgrade_modal.features.perks.desc')
     },
-    {
-      name: t('upgrade_modal.features.ghost_mode.name'),
-      free: false, pro: true, max: true,
-      desc: t('upgrade_modal.features.ghost_mode.desc')
-    },
+    // {
+    //   name: t('upgrade_modal.features.ghost_mode.name'),
+    //   free: false, pro: true, max: true,
+    //   desc: t('upgrade_modal.features.ghost_mode.desc')
+    // },
     {
       name: t('upgrade_modal.features.file_limit.name'),
       free: t('upgrade_modal.features.file_limit.free'), pro: t('upgrade_modal.features.file_limit.pro'), max: t('upgrade_modal.features.file_limit.max'),
@@ -76,9 +76,9 @@ export default function UpgradeModal({ premiumLevel }) {
     >
       <div className="upgrade-container">
         <div className="upgrade-header">
-          {/* <div className="max-wrapper">
+          <div className="max-wrapper">
             <IoDiamond className="header-icon" />
-          </div> */}
+          </div>
           <h2>{t('upgrade_modal.title')}</h2>
         </div>
 
