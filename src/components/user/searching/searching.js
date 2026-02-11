@@ -61,7 +61,7 @@ export default function Searching() {
         <div className="username-wrapper">
           <div className="display-name-wrapper">
             <span className="display-name">{displayName}</span>
-            <UserBadge role={user.role}/>
+            <UserBadge role={user.role} premiumLevel={user.premiumLevel} premiumUntil={user.premiumUntil}/>
           </div>
           {usernameHandle && <span className="username">@{usernameHandle.replace(/^@/, "")}</span>}
         </div>

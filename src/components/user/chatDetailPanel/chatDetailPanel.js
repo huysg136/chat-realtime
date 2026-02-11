@@ -90,9 +90,9 @@ export default function ChatDetailPanel({
       }
 
       await updateDocument("rooms", selectedRoom.id, { roles: newRoles });
-      toast.success(t('chatDetail.roleUpdateSuccess'));
+      toast.success(t('chatDetail.messages.updateRoleSuccess'));
     } catch (err) {
-      toast.error(t('chatDetail.roleUpdateError'));
+      toast.error(t('chatDetail.messages.updateRoleError'));
     }
   };
 
@@ -293,7 +293,7 @@ export default function ChatDetailPanel({
                   <div className="overview-info">
                     <div className="name">
                       {otherUser.displayName}
-                      <UserBadge role={otherUser.role}/>
+                      <UserBadge role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/>
                     </div>
                   </div>
                   
@@ -409,7 +409,7 @@ export default function ChatDetailPanel({
                       <Tooltip title={otherUser.displayName}>
                         <div className="member-name" style={{ margin: 0 }}>
                           {otherUser.displayName}
-                          <UserBadge role={otherUser.role}/>
+                          <UserBadge role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/>
                         </div>
                       </Tooltip>
                       <p style={{ fontSize: 12, color: "gray", margin: 0 }}>@{otherUser.username}</p>
@@ -431,7 +431,7 @@ export default function ChatDetailPanel({
                           <Tooltip title={m.displayName}>
                             <div className="member-name" style={{ margin: 0 }}>
                               {m.displayName}
-                              <UserBadge role={m.role}/>
+                              {/* <UserBadge role={m.role} premiumLevel={m.premiumLevel}/> */}
                             </div>
                           </Tooltip>
                           {isMemberOwner && <FaKey color="gold" />}

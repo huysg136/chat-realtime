@@ -3,7 +3,7 @@ import { Avatar, Dropdown, Menu } from "antd";
 import { TeamOutlined, EllipsisOutlined, PushpinOutlined, DeleteOutlined } from "@ant-design/icons";
 import { AuthContext } from "../../../context/authProvider";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
-import { decryptMessage, getUserDocIdByUid } from "../../../firebase/services";
+import { decryptMessage } from "../../../firebase/services";
 import { doc, onSnapshot, setDoc, updateDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 import "./roomList.scss";
@@ -45,7 +45,6 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
   const sender = usersById[lmUid] || null;
   const senderName = isOwnMessage ? "Tôi" : sender?.displayName || lm.displayName || "";
 
-  const str = (v) => (v == null ? "" : String(v).trim());
   const toMs = (ts) => {
     if (!ts) return null;
     if (typeof ts === "number") return ts;
@@ -184,7 +183,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
           {isPrivate ? (
             <span>
               {membersData.find((u) => u.uid !== user?.uid)?.displayName || "No Name"}
-              <UserBadge role={otherUser?.role} />
+              <UserBadge role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/>
             </span>
           ) : (
             room.name || "No Name"

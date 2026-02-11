@@ -11,7 +11,8 @@
         "adminPage": "Admin Page",
         "settings": "Settings",
         "myReport": "My Reports",
-        "logout": "Logout"
+        "logout": "Logout",
+        "upgradePro": "Upgrade to Pro"
     },
     "searching": {
         "placeholder": "Search by Quik ID",
@@ -101,30 +102,30 @@
         "transferOwner": "Transfer Ownership"
         },
         "confirm": {
-        "transferTitle": "Transfer ownership to {{name}}?",
-        "removeMemberTitle": "Remove {{name}} from group?",
-        "leaveGroupTitle": "Are you sure you want to leave the group?",
-        "ok": "Agree",
-        "cancel": "Cancel",
-        "remove": "Remove",
-        "leave": "Leave"
+            "transferTitle": "Transfer ownership to {{name}}?",
+            "removeMemberTitle": "Remove {{name}} from group?",
+            "leaveGroupTitle": "Are you sure you want to leave the group?",
+            "ok": "Agree",
+            "cancel": "Cancel",
+            "remove": "Remove",
+            "leave": "Leave"
         },
         "messages": {
-        "updateRoleSuccess": "Permissions updated successfully",
-        "updateRoleError": "Failed to update permissions, try again later",
-        "transferSuccess": "Ownership transferred successfully!",
-        "transferError": "Failed to transfer ownership, try again later",
-        "ownerOnly": "Only the owner can transfer ownership",
-        "alreadyOwner": "You are already the owner",
-        "removeSuccess": "Member removed",
-        "removeError": "Failed to remove member, try again later",
-        "removePermission": "You do not have permission to remove this member.",
-        "emptyName": "Room name cannot be empty",
-        "nameTooLong": "Room name maximum 100 characters",
-        "renameSuccess": "Group name changed",
-        "renameError": "Rename failed, try again",
-        "leaveSuccess": "You have left the group",
-        "leaveError": "Failed to leave group, try again later"
+            "updateRoleSuccess": "Permissions updated successfully",
+            "updateRoleError": "Failed to update permissions, try again later",
+            "transferSuccess": "Ownership transferred successfully!",
+            "transferError": "Failed to transfer ownership, try again later",
+            "ownerOnly": "Only the owner can transfer ownership",
+            "alreadyOwner": "You are already the owner",
+            "removeSuccess": "Member removed",
+            "removeError": "Failed to remove member, try again later",
+            "removePermission": "You do not have permission to remove this member.",
+            "emptyName": "Room name cannot be empty",
+            "nameTooLong": "Room name maximum 100 characters",
+            "renameSuccess": "Group name changed",
+            "renameError": "Rename failed, try again",
+            "leaveSuccess": "You have left the group",
+            "leaveError": "Failed to leave group, try again later"
         }
     },
     "profile": {
@@ -139,6 +140,14 @@
         "changeLimitReach": "You have reached the limit of 5 Quik ID changes",
         "contactSupport": "Please contact us if you need further assistance.",
         "waitDays": "You can change Quik ID again in {{count}} days",
+        "membership": {
+            "title": "Membership",
+            "proPlan": "Pro Membership",
+            "freePlan": "Free Plan",
+            "expires": "Expires",
+            "lifetime": "Permanent",
+            "upgradeNow": "Upgrade Now"
+        },
         "messages": {
             "nameEmpty": "Display name cannot be empty",
             "nameSuccess": "Display name updated successfully",

@@ -13,6 +13,8 @@ import { uploadToR2 } from '../../utils/uploadToR2';
 import { validateFile } from '../../utils/fileValidation';
 import "./profileModal.scss";
 import { useTranslation } from 'react-i18next';
+import { IoDiamond } from 'react-icons/io5';
+import { checkProUser } from '../../utils/permissions';
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 const MAX_USERNAME_LENGTH = 20;
@@ -37,7 +39,13 @@ export default function ProfileModal() {
   const fileInputRef = useRef(null);
   const { t } = useTranslation();
 
-  // Chuẩn hóa username: liền, không dấu, chỉ a-z0-9, tối đa 20 ký tự
+  const isProUser = checkProUser(user);
+
+  const formatExpiryDate = (date) => {
+    if (!date) return t('profile.membership.lifetime');
+    return new Date(date).toLocaleString('vi-VN');
+  };
+
   const formatUsername = (name) => {
     return name
       .toLowerCase()
@@ -61,7 +69,6 @@ export default function ProfileModal() {
           setPhotoURL(data.photoURL || defaultAvatar);
           setLastChange(data.lastUsernameChange || null);
           setChangeCount(data.usernameChangeCount || 0);
-
           setUser(prev => ({
             ...prev,
             displayName: data.displayName,
@@ -90,7 +97,6 @@ export default function ProfileModal() {
       const trimmedName = displayName.trim();
       const docId = await getUserDocIdByUid(user.uid);
       if (!docId) return;
-
       await updateDocument("users", docId, { displayName: trimmedName });
       setUser(prev => ({ ...prev, displayName: trimmedName }));
       setIsEditingName(false);
@@ -102,7 +108,6 @@ export default function ProfileModal() {
     }
   };
 
-  // giới hạn đổi username: 1 lần / 30 ngày, tối đa 5 lần
   const handleSaveUsername = async () => {
     const formatted = formatUsername(username);
     if (!formatted) {
@@ -112,7 +117,6 @@ export default function ProfileModal() {
 
     setLoading(true);
     try {
-      // Kiểm tra username trùng
       const q = query(collection(db, "users"), where("username", "==", formatted));
       const querySnapshot = await getDocs(q);
       const isDuplicate = querySnapshot.docs.some(doc => doc.data().uid !== user.uid);
@@ -122,7 +126,6 @@ export default function ProfileModal() {
         return;
       }
 
-      // Kiểm tra giới hạn đổi
       const nowUTC = new Date().toISOString();
       if (lastChange) {
         // eslint-disable-next-line no-use-before-define
@@ -140,7 +143,6 @@ export default function ProfileModal() {
         return;
       }
 
-      // Cập nhật Firestore
       const docId = await getUserDocIdByUid(user.uid);
       if (!docId) return;
 
@@ -154,7 +156,6 @@ export default function ProfileModal() {
       setLastChange(nowUTC);
       setChangeCount((prev) => (prev || 0) + 1);
       setUser(prev => ({ ...prev, username: formatted }));
-
       setIsEditingUsername(false);
       toast.success(t('profile.messages.usernameSuccess'));
     } catch (error) {
@@ -190,15 +191,10 @@ export default function ProfileModal() {
 
     try {
       setUploadingAvatar(true);
-
-      // Upload lên R2 giống ChatInput
       const avatarUrl = await uploadToR2(file);
-
-      // Cập nhật Firestore
       const docId = await getUserDocIdByUid(user.uid);
       await updateDocument("users", docId, { photoURL: avatarUrl });
       setUser((prev) => ({ ...prev, photoURL: avatarUrl }));
-
       toast.success(t('profile.messages.avatarSuccess'));
     } catch (err) {
       toast.error(t('profile.messages.generalError'));
@@ -208,8 +204,6 @@ export default function ProfileModal() {
     }
   };
 
-
-  // Tính số ngày còn lại
   const getDaysLeft = () => {
     if (!lastChange) return 0;
     const diffDays = Math.floor((new Date() - new Date(lastChange)) / (1000 * 60 * 60 * 24));
@@ -227,13 +221,15 @@ export default function ProfileModal() {
       className="profile-modal"
     >
       <Card className="profile-card" bodyStyle={{ padding: '24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ position: 'relative', display: 'inline-block' }}>
+
+        {/* ===== AVATAR ===== */}
+        <div className="avatar-section">
+          <div className="avatar-wrapper">
             <Avatar
               size={100}
               src={photoURL || defaultAvatar}
               icon={<UserOutlined />}
-              style={{ border: '4px solid #f0f0f0' }}
+              className="avatar-img"
             />
             <Button
               type="primary"
@@ -242,7 +238,6 @@ export default function ProfileModal() {
               size="small"
               onClick={() => fileInputRef.current.click()}
               className="camera-button"
-              style={{ position: 'absolute', bottom: 0, right: 0, border: 'none' }}
               loading={uploadingAvatar}
               disabled={uploadingAvatar}
             />
@@ -252,14 +247,15 @@ export default function ProfileModal() {
             ref={fileInputRef}
             onChange={handleAvatarChange}
             accept="image/*"
-            style={{ display: 'none' }}
+            className="file-input-hidden"
             disabled={uploadingAvatar}
           />
         </div>
 
-        <div style={{ marginBottom: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
-            <span style={{ fontWeight: '600', marginRight: '8px' }}>Quik ID</span>
+        {/* ===== USERNAME (QUIK ID) ===== */}
+        <div className="field-section">
+          <div className="field-header">
+            <span className="field-label">Quik ID</span>
             {!isEditingUsername && getDaysLeft() === 0 && changeCount < 5 && (
               <Button
                 type="text"
@@ -275,15 +271,15 @@ export default function ProfileModal() {
               />
             )}
           </div>
+
           {isEditingUsername ? (
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div className="field-edit-row">
               <Input
                 ref={usernameInputRef}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onPressEnter={handleSaveUsername}
                 maxLength={MAX_USERNAME_LENGTH}
-                style={{ flex: 1 }}
               />
               <Button
                 type="primary"
@@ -293,65 +289,43 @@ export default function ProfileModal() {
               >
                 {t('profile.btnSave')}
               </Button>
-              <Button onClick={() => setIsEditingUsername(false)}>{t('profile.btnCancel')}</Button>
+              <Button onClick={() => setIsEditingUsername(false)}>
+                {t('profile.btnCancel')}
+              </Button>
             </div>
           ) : (
-            <div style={{ fontSize: '14px' }}>
+            <div className="field-value">
               @{username || t('profile.noUsername')}
             </div>
           )}
 
-          <div style={{ fontSize: 13, marginTop: 8 }}>
+          {/* Username change warnings */}
+          <div className="username-warning">
             {changeCount >= 5 ? (
-              <div
-                style={{
-                  color: '#ff4d4f', 
-                  borderRadius: 8,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                  gap: 4,
-                  fontWeight: 500,
-                  lineHeight: 1.4,
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div className="warning-limit-reached">
+                <div className="warning-limit-title">
                   <FiXCircle size={16} />
-                  <span>
-                    {t('profile.changeLimitReach')}
-                  </span>
+                  <span>{t('profile.changeLimitReach')}</span>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 400, opacity: 0.9, color: '#ff7875', }}>
+                <div className="warning-limit-sub">
                   {t('profile.contactSupport')}
                 </div>
               </div>
             ) : (
-              <>
-                {lastChange && getDaysLeft() > 0 ? (
-                  <div
-                    style={{
-                      color: '#d48806',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                    }}
-                  >
-                    <FiAlertTriangle size={14} />
-                    <span>{t('profile.waitDays', { count: getDaysLeft() })}</span>
-                  </div>
-                ) : (
-                  null
-                )}
-              </>
+              lastChange && getDaysLeft() > 0 && (
+                <div className="warning-wait">
+                  <FiAlertTriangle size={14} />
+                  <span>{t('profile.waitDays', { count: getDaysLeft() })}</span>
+                </div>
+              )
             )}
           </div>
         </div>
 
-        <div style={{ marginBottom: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px' }}>
-            <span style={{ fontWeight: '600', marginRight: '8px' }}>
-              {t('profile.displayName')}
-            </span>
+        {/* ===== DISPLAY NAME ===== */}
+        <div className="field-section">
+          <div className="field-header">
+            <span className="field-label">{t('profile.displayName')}</span>
             {!isEditingName && (
               <Button
                 type="text"
@@ -367,15 +341,15 @@ export default function ProfileModal() {
               />
             )}
           </div>
+
           {isEditingName ? (
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div className="field-edit-row">
               <Input
                 ref={nameInputRef}
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 onPressEnter={handleSaveName}
                 maxLength={50}
-                style={{ flex: 1 }}
               />
               <Button
                 type="primary"
@@ -385,17 +359,54 @@ export default function ProfileModal() {
               >
                 {t('profile.btnSave')}
               </Button>
-              <Button onClick={() => setIsEditingName(false)}>{t('profile.btnCancel')}</Button>
+              <Button onClick={() => setIsEditingName(false)}>
+                {t('profile.btnCancel')}
+              </Button>
             </div>
           ) : (
-            <div style={{ fontSize: '14px' }}>{displayName || t('profile.noName')}</div>
+            <div className="field-value">{displayName || t('profile.noName')}</div>
           )}
         </div>
 
-        <div>
-          <div style={{ fontWeight: '600', marginBottom: '2px' }}>{t('profile.email')}</div>
-          <div style={{ fontSize: '14px' }}>{user?.email}</div>
+        {/* ===== EMAIL ===== */}
+        <div className="field-section">
+          <div className="field-label">{t('profile.email')}</div>
+          <div className="field-value">{user?.email}</div>
         </div>
+
+        {/* ===== MEMBERSHIP ===== */}
+        <div className="membership-section">
+          <div className="membership-title">
+            {t('profile.membership.title')}
+            {isProUser && <IoDiamond className="pro-diamond-icon" />}
+          </div>
+
+          <div className={`membership-card ${isProUser ? 'membership-card--pro' : 'membership-card--free'}`}>
+            <div>
+              <div className={`membership-plan-name ${isProUser ? 'membership-plan-name--pro' : 'membership-plan-name--free'}`}>
+                {isProUser ? "Pro Membership" : "Free Plan"}
+              </div>
+              {isProUser && (
+                <div className="membership-expiry">
+                  {t('profile.membership.expires')}: {formatExpiryDate(user?.premiumUntil)}
+                </div>
+              )}
+            </div>
+
+            {!isProUser && (
+              <Button
+                type="primary"
+                size="small"
+                ghost
+                className="upgrade-btn"
+                onClick={() => {/* Mở Modal nâng cấp */}}
+              >
+                {t('profile.membership.upgradeNow')}
+              </Button>
+            )}
+          </div>
+        </div>
+
       </Card>
     </Modal>
   );

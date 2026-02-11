@@ -6,7 +6,7 @@ import { getFirestore, doc, onSnapshot } from "firebase/firestore";
 import { ref, set } from "firebase/database";
 import { rtdb } from "../firebase/config";
 import { Spin } from 'antd';
-import { getUserDocIdByUid } from "../firebase/services";
+import { getUserDocIdByUid, updateDocument } from "../firebase/services";
 import { ROUTERS } from '../utils/router';
 
 export const AuthContext = React.createContext();
@@ -93,14 +93,23 @@ export default function AuthProvider({ children }) {
           startHeartbeat();
 
           const userDocRef = doc(db, "users", userDocId);
-          const unsubscribeUser = onSnapshot(userDocRef, (userSnap) => {
+          const unsubscribeUser = onSnapshot(userDocRef, async (userSnap) => {
             const userData = userSnap.exists() ? userSnap.data() : {};
+            const currentTime = new Date();
+            const premiumUntilDate = userData.premiumUntil?.toDate ? userData.premiumUntil.toDate() : userData.premiumUntil;
+            if (userData.premiumLevel === 'pro' && premiumUntilDate && premiumUntilDate < currentTime) {
+              try {
+                await updateDocument("users", userDocId, { premiumLevel: 'free' });
+              } catch (error) {
+              }
+            }
             setUser({
-              ...userData,
-              displayName,
-              email,
-              photoURL,
               uid,
+              email,
+              displayName,
+              photoURL,
+              ...userData,
+              premiumUntil: userData.premiumUntil?.toDate ? userData.premiumUntil.toDate() : userData.premiumUntil,
             });
             setIsLoading(false);
             if (window.location.pathname === "/login") navigate(ROUTERS.USER.HOME);
@@ -113,7 +122,7 @@ export default function AuthProvider({ children }) {
           if (window.location.pathname === "/login") navigate(ROUTERS.USER.HOME);
         }
       } else {
-        updateStatus(false); 
+        updateStatus(false);
         currentUserDocIdRef.current = null;
         setUser(null);
         setIsLoading(false);
@@ -133,6 +142,26 @@ export default function AuthProvider({ children }) {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [navigate]);
+
+  React.useEffect(() => {
+    let interval;
+    if (user?.premiumLevel === 'pro' && user?.premiumUntil) {
+      interval = setInterval(async () => {
+        const now = new Date();
+        const premiumUntilDate = user.premiumUntil.toDate ? user.premiumUntil.toDate() : new Date(user.premiumUntil);
+        if (premiumUntilDate < now) {
+          const userDocId = await getUserDocIdByUid(user.uid);
+          if (userDocId) {
+            await updateDocument("users", userDocId, { premiumLevel: 'free' });
+          }
+        }
+      }, 60000); 
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    }
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, setUser, isLoading, logout }}>

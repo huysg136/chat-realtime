@@ -15,6 +15,8 @@ import { useNavigate } from "react-router-dom";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 import { ROUTERS } from "../../../utils/router";
 import { useTranslation } from "react-i18next";
+import { IoDiamond } from "react-icons/io5";
+import { checkProUser } from "../../../utils/permissions";
 
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
@@ -81,6 +83,7 @@ export default function LeftSide() {
     return () => unsubscribe && unsubscribe();
   }, [user]);
 
+  const isProUser = checkProUser(user);
   const menu = (
     <Menu style={{cursor: "pointer"}}>
       <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => setIsProfileVisible(true)}>
@@ -98,12 +101,21 @@ export default function LeftSide() {
       >
         {t('leftSide.settings')}
       </Menu.Item>
-      {/* <Menu.Item key="saved" icon={<SaveOutlined />}>
-        Đã lưu
-      </Menu.Item> */}
       <Menu.Item key="reports" icon={<MdReportProblem />} onClick={() => setIsMyReportsVisible(true)}>
         {t('leftSide.myReport')}
       </Menu.Item>
+      {
+        !isProUser && (
+          <Menu.Item
+            key="upgrade-pro"
+            className="upgrade-pro-item"
+            icon={<IoDiamond size={16} />}
+            // onClick={() => setIsUpgradeModalVisible(true)}
+          >
+            {t('leftSide.upgradePro')}
+          </Menu.Item>
+        )
+      }
       <Menu.Divider style={{margin: "0"}}/>
       <Menu.Item
         key="logout"

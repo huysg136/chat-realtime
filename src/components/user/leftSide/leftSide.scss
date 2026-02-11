@@ -67,6 +67,18 @@
   }
 }
 
+.upgrade-pro-item {
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  background: linear-gradient(135deg, #feffe5 0%, #ffffff 100%) !important;
+  color: #eac700 !important; 
+
+  &:hover {
+    background: linear-gradient(135deg, #feffe5 0%, #feffe5 100%) !important;
+    box-shadow: 0 2px 8px rgba(114, 46, 209, 0.15);
+  }
+}
+
 body.theme-dark {
   .sidebar {
     background-color: map.get($theme-colors, "bg-dark");
@@ -95,6 +107,16 @@ body.theme-dark {
           color: #f1f5f9;
         }
       }
+    }
+  }
+
+  .upgrade-pro-item {
+    background: linear-gradient(135deg, rgba(209, 187, 46, 0.2) 0%, rgba(35, 35, 30, 0.5) 100%) !important;
+    color: #FFD700 !important; 
+
+    &:hover {
+      background: rgba(209, 201, 46, 0.3) !important;
+      color: #FFD700 !important;
     }
   }
 }

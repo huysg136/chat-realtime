@@ -111,20 +111,27 @@ export default function Login() {
         const uniqueUsername = await getUniqueUsername(baseUsername);
         
         await addDocument("users", {
+          uid: user.uid,
           displayName: user.displayName,
           username: uniqueUsername,
           email: user.email,
-          photoURL:
-            user.photoURL ||
-            "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg",
-          uid: user.uid,
+          photoURL: user.photoURL || "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg",
           providerId: additionalUserInfo.providerId,
-          role: "user",
-          //keywords: generateKeywords(user.displayName),
+          role: "user", // admin, moderator, user
+          // quản lý gói dịch vụ
+          premiumLevel: "free", // free, pro
+          premiumUntil: null,
+          // Cấu hình cá nhân
           theme: "system",
           language: "vi",
           allowGroupInvite: true,     
-          showOnlineStatus: true,     
+          showOnlineStatus: true,
+          // quản lý định danh
+          usernameChangeCount: 0,      
+          lastUsernameChange: null,    
+          // trạng thái hệ thống
+          isBanned: false,            
+          lastOnline: new Date().toISOString(),
         });
       }
 

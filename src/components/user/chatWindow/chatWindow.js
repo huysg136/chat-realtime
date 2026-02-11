@@ -348,7 +348,7 @@ export default function ChatWindow({onToggleDetail}) {
               <div style={{ position: "relative", display: "inline-block" }}>
                 <Avatar src={otherUser.photoURL} size={40}>
                   {(otherUser.displayName || "?").charAt(0).toUpperCase()}
-                  <UserBadge role={otherUser.role}/>
+                  <UserBadge role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/>
                 </Avatar>
                 {otherUserStatus?.lastOnline && (() => {
                   return (
@@ -392,7 +392,7 @@ export default function ChatWindow({onToggleDetail}) {
         <div className="header__info">
           <p className="header__title">
             {isPrivate ? otherUser?.displayName || selectedRoom.name : selectedRoom.name}
-            <UserBadge role={isPrivate ? otherUser?.role : null}/>
+            <UserBadge role={isPrivate ? otherUser?.role : null} premiumLevel={isPrivate ? otherUser?.premiumLevel : null} premiumUntil={isPrivate ? otherUser?.premiumUntil : null}/>
           </p>
           <span className="header__description">
             {(!isPrivate)

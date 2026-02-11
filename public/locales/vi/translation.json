@@ -11,7 +11,8 @@
         "adminPage": "Trang quản trị",
         "settings": "Cài đặt",
         "myReport": "Báo cáo của tôi",
-        "logout": "Đăng Xuất"
+        "logout": "Đăng Xuất",
+        "upgradePro": "Nâng cấp lên Pro"
     },
     "searching": {
         "placeholder": "Tìm kiếm theo Quik ID",
@@ -140,6 +141,14 @@
         "changeLimitReach": "Bạn đã đạt giới hạn 5 lần đổi Quik ID",
         "contactSupport": "Vui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ thêm.",
         "waitDays": "Có thể đổi lại Quik ID sau {{count}} ngày",
+        "membership": {
+            "title": "Gói thành viên",
+            "proPlan": "Tài khoản Pro",
+            "freePlan": "Gói miễn phí",
+            "expires": "Hết hạn",
+            "lifetime": "Vĩnh viễn",
+            "upgradeNow": "Nâng cấp ngay"
+        },
         "messages": {
             "nameEmpty": "Tên hiển thị không được để trống",
             "nameSuccess": "Cập nhật tên hiển thị thành công",
