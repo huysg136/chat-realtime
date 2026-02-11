@@ -15,7 +15,10 @@
 
   .ant-modal-close {
     color: #000;
-    &:hover { color: #000; }
+
+    &:hover {
+      color: #000;
+    }
   }
 
   .ant-input {
@@ -150,13 +153,6 @@
     gap: 6px;
   }
 
-  // ===== MEMBERSHIP SECTION =====
-  .membership-section {
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid #f0f0f0;
-  }
-
   .membership-title {
     font-weight: 600;
     margin-bottom: 8px;
@@ -167,43 +163,69 @@
   }
 
   .pro-diamond-icon {
-    color: #ffd700;
+    color: #BFC1C2;
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
+  }
+
+  .max-diamond-icon {
+    color: #FFD700;
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
   }
 
   .membership-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px;
-    border-radius: 12px;
+    padding: 6px 16px;
+    border-radius: 14px;
+    transition: all 0.3s ease;
 
     &--pro {
+      background: linear-gradient(135deg, #f7f7f8 0%, #ffffff 100%);
+      border: 1px solid rgba(156, 163, 175, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    &--max {
       background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
       border: 1px solid rgba(184, 134, 11, 0.2);
+      box-shadow: 0 4px 12px rgba(184, 134, 11, 0.1);
     }
 
     &--free {
-      background: #f5f5f5;
-      border: 1px solid #e8e8e8;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
     }
   }
 
   .membership-plan-name {
-    font-weight: bold;
-    font-size: 14px;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
 
-    &--pro { color: #b8860b; }
-    &--free { color: #666; }
+    &--pro {
+      color: #374151;
+    }
+
+    &--max {
+      color: #b8860b;
+    }
+
+    &--free {
+      color: #64748b;
+    }
   }
 
   .membership-expiry {
     font-size: 12px;
-    opacity: 0.7;
-    margin-top: 2px;
+    color: #94a3b8;
+    margin-top: 1px;
+    font-weight: 500;
   }
 
   // ===== DARK MODE =====
   body.theme-dark & {
+
     .ant-modal-content,
     .ant-modal-header,
     .ant-modal-title,
@@ -215,7 +237,10 @@
 
     .ant-modal-close {
       color: #ffffff;
-      &:hover { color: #cdcdcd; }
+
+      &:hover {
+        color: #cdcdcd;
+      }
     }
 
     .ant-btn {
@@ -240,12 +265,18 @@
       border-color: rgba(255, 255, 255, 0.2);
       color: #f9fafb;
 
-      &::placeholder { color: #cecece; }
+      &::placeholder {
+        color: #cecece;
+      }
     }
 
-    .field-label { color: #f9fafb; }
+    .field-label {
+      color: #f9fafb;
+    }
 
-    .field-value { color: #d1d5db; }
+    .field-value {
+      color: #d1d5db;
+    }
 
     .membership-section {
       border-top-color: rgba(255, 255, 255, 0.1);
@@ -253,17 +284,36 @@
 
     .membership-card {
       &--free {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.08);
       }
 
       &--pro {
-        background: linear-gradient(135deg, rgba(255, 249, 230, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-        border-color: rgba(184, 134, 11, 0.3);
+        background: linear-gradient(135deg, rgba(229, 231, 235, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+        border-color: rgba(156, 163, 175, 0.2);
+        box-shadow: 0 0 15px rgba(156, 163, 175, 0.05);
+
+        .membership-plan-name--pro {
+          color: #e5e7eb;
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      &--max {
+        background: linear-gradient(135deg, rgba(184, 134, 11, 0.1) 0%, rgba(30, 30, 30, 0.95) 100%);
+        border-color: rgba(184, 134, 11, 0.4);
+        box-shadow: 0 0 20px rgba(184, 134, 11, 0.15);
+
+        .membership-plan-name--max {
+          color: #f6e27f;
+          text-shadow: 0 0 12px rgba(246, 226, 127, 0.2);
+        }
       }
     }
 
-    .membership-plan-name--free { color: #9ca3af; }
+    .membership-plan-name--free {
+      color: #9ca3af;
+    }
 
     .avatar-img {
       border-color: rgba(255, 255, 255, 0.1);

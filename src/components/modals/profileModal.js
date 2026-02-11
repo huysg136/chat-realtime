@@ -15,13 +15,14 @@ import "./profileModal.scss";
 import { useTranslation } from 'react-i18next';
 import { IoDiamond } from 'react-icons/io5';
 import { checkProUser } from "../../utils/checkPro";
+import { checkMaxUser } from "../../utils/checkMax";
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 const MAX_USERNAME_LENGTH = 20;
 
 export default function ProfileModal() {
   const { user, setUser } = useContext(AuthContext);
-  const { isProfileVisible, setIsProfileVisible } = useContext(AppContext);
+  const { isProfileVisible, setIsProfileVisible, setIsUpgradePlanVisible } = useContext(AppContext);
 
   const [displayName, setDisplayName] = useState(user?.displayName || '');
   const [username, setUsername] = useState(user?.username || '');
@@ -40,6 +41,7 @@ export default function ProfileModal() {
   const { t } = useTranslation();
 
   const isProUser = checkProUser(user);
+  const isMaxUser = checkMaxUser(user);
 
   const formatExpiryDate = (date) => {
     if (!date) return t('profile.membership.lifetime');
@@ -221,8 +223,6 @@ export default function ProfileModal() {
       className="profile-modal"
     >
       <Card className="profile-card" bodyStyle={{ padding: '24px' }}>
-
-        {/* ===== AVATAR ===== */}
         <div className="avatar-section">
           <div className="avatar-wrapper">
             <Avatar
@@ -252,7 +252,6 @@ export default function ProfileModal() {
           />
         </div>
 
-        {/* ===== USERNAME (QUIK ID) ===== */}
         <div className="field-section">
           <div className="field-header">
             <span className="field-label">Quik ID</span>
@@ -299,7 +298,6 @@ export default function ProfileModal() {
             </div>
           )}
 
-          {/* Username change warnings */}
           <div className="username-warning">
             {changeCount >= 5 ? (
               <div className="warning-limit-reached">
@@ -322,7 +320,6 @@ export default function ProfileModal() {
           </div>
         </div>
 
-        {/* ===== DISPLAY NAME ===== */}
         <div className="field-section">
           <div className="field-header">
             <span className="field-label">{t('profile.displayName')}</span>
@@ -368,45 +365,57 @@ export default function ProfileModal() {
           )}
         </div>
 
-        {/* ===== EMAIL ===== */}
         <div className="field-section">
           <div className="field-label">{t('profile.email')}</div>
           <div className="field-value">{user?.email}</div>
         </div>
 
-        {/* ===== MEMBERSHIP ===== */}
         <div className="membership-section">
           <div className="membership-title">
             {t('profile.membership.title')}
-            {isProUser && <IoDiamond className="pro-diamond-icon" />}
+            {(isProUser || isMaxUser) && (
+              <IoDiamond
+                className={isMaxUser ? "max-diamond-icon" : "pro-diamond-icon"}
+              />
+            )}
           </div>
 
-          <div className={`membership-card ${isProUser ? 'membership-card--pro' : 'membership-card--free'}`}>
+          <div className={`membership-card ${isMaxUser ? 'membership-card--max' :
+              isProUser ? 'membership-card--pro' :
+                'membership-card--free'
+            }`}>
             <div>
-              <div className={`membership-plan-name ${isProUser ? 'membership-plan-name--pro' : 'membership-plan-name--free'}`}>
-                {isProUser ? "Pro Membership" : "Free Plan"}
+              <div className={`membership-plan-name ${isMaxUser ? 'membership-plan-name--max' :
+                  isProUser ? 'membership-plan-name--pro' :
+                    'membership-plan-name--free'
+                }`}>
+                {isMaxUser ? t('profile.membership.maxPlan') :
+                  isProUser ? t('profile.membership.proPlan') :
+                    t('profile.membership.freePlan')}
               </div>
-              {isProUser && (
+              {(isProUser || isMaxUser) && (
                 <div className="membership-expiry">
                   {t('profile.membership.expires')}: {formatExpiryDate(user?.premiumUntil)}
                 </div>
               )}
             </div>
 
-            {!isProUser && (
+            {!isMaxUser && (
               <Button
                 type="primary"
                 size="small"
                 ghost
                 className="upgrade-btn"
-                onClick={() => {/* Mở Modal nâng cấp */}}
+                onClick={() => {
+                  setIsProfileVisible(false);
+                  setIsUpgradePlanVisible(true);
+                }}
               >
                 {t('profile.membership.upgradeNow')}
               </Button>
             )}
           </div>
         </div>
-
       </Card>
     </Modal>
   );
