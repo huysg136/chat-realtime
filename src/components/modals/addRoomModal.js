@@ -7,6 +7,7 @@ import { db } from "../../firebase/config";
 import debounce from 'lodash/debounce';
 import { addDocument, generateAESKey } from '../../firebase/services';
 import './addRoomModal.scss';
+import UserBadge from '../common/userBadge';
 
 export default function AddRoomModal() {
   const { isAddRoomVisible, setIsAddRoomVisible, setSelectedRoomId, rooms, users } = useContext(AppContext);
@@ -88,7 +89,10 @@ export default function AddRoomModal() {
           uid: doc.data().uid,
           displayName: doc.data().displayName,
           photoURL: doc.data().photoURL,
-          username: doc.data().username || ''
+          username: doc.data().username || '',
+          premiumLevel: doc.data().premiumLevel,
+          premiumUntil: doc.data().premiumUntil,
+          role: doc.data().role
         }))
         .filter(u => u.uid !== uid && !currentMembers.includes(u.uid));
       setOptions(usersList);
@@ -126,12 +130,12 @@ export default function AddRoomModal() {
     const finalRoomName = roomName?.trim()
       ? roomName.trim().slice(0, ROOM_NAME_MAX)
       : (() => {
-          if (selectedMembers.length === 1) return selectedMembers[0].displayName.slice(0, ROOM_NAME_MAX);
-          return [user?.displayName, ...selectedMembers.map(m => m.displayName)]
-            .filter(Boolean)
-            .join(', ')
-            .slice(0, ROOM_NAME_MAX);
-        })();
+        if (selectedMembers.length === 1) return selectedMembers[0].displayName.slice(0, ROOM_NAME_MAX);
+        return [user?.displayName, ...selectedMembers.map(m => m.displayName)]
+          .filter(Boolean)
+          .join(', ')
+          .slice(0, ROOM_NAME_MAX);
+      })();
 
     if (selectedMembers.length === 1) {
       // PRIVATE CHAT
@@ -166,7 +170,7 @@ export default function AddRoomModal() {
       setSelectedRoomId(room.id);
     } else {
       // GROUP
-      const members = [uid]; 
+      const members = [uid];
       const roles = [{ uid, role: 'owner' }];
       const newRoom = { name: finalRoomName, type: 'group', members: [...members], secretKey: generateAESKey(), roles };
       const docRef = await addDocument('rooms', newRoom);
@@ -262,7 +266,10 @@ export default function AddRoomModal() {
           uid: otherUid,
           displayName: otherUser?.displayName || r.name,
           photoURL: otherUser?.photoURL || r.avatar,
-          username: otherUser?.username || ''
+          username: otherUser?.username || '',
+          premiumLevel: otherUser?.premiumLevel,
+          premiumUntil: otherUser?.premiumUntil,
+          role: otherUser?.role
         };
       });
   }, [rooms, uid, users, searchText]);
@@ -367,7 +374,7 @@ const UserItem = ({ userObj, selectedMembers, handleToggleMember, isSelected, is
   >
     <Avatar src={userObj.photoURL} size={32} style={{ marginRight: 10 }} />
     <div style={{ flex: 1 }}>
-      <div style={{ fontWeight: 500 }}>{userObj.displayName}</div>
+      <UserBadge displayName={userObj.displayName} role={userObj.role} premiumLevel={userObj.premiumLevel} premiumUntil={userObj.premiumUntil} />
       <div style={{ fontSize: 12, color: 'gray' }}>@{userObj.username}</div>
     </div>
     {isMember ? (

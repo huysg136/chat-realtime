@@ -142,6 +142,7 @@
             "title": "Membership",
             "proPlan": "Pro Membership",
             "maxPlan": "Max Membership",
+            "litePlan": "Lite Membership",
             "freePlan": "Free Plan",
             "expires": "Expires",
             "lifetime": "Permanent",

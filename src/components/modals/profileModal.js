@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { IoDiamond } from 'react-icons/io5';
 import { checkProUser } from "../../utils/checkPro";
 import { checkMaxUser } from "../../utils/checkMax";
+import { checkLiteUser } from "../../utils/checkLite";
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 const MAX_USERNAME_LENGTH = 20;
@@ -40,6 +41,7 @@ export default function ProfileModal() {
   const fileInputRef = useRef(null);
   const { t } = useTranslation();
 
+  const isLiteUser = checkLiteUser(user);
   const isProUser = checkProUser(user);
   const isMaxUser = checkMaxUser(user);
 
@@ -73,9 +75,8 @@ export default function ProfileModal() {
           setChangeCount(data.usernameChangeCount || 0);
           setUser(prev => ({
             ...prev,
-            displayName: data.displayName,
-            username: data.username,
-            photoURL: data.photoURL
+            ...data,
+            premiumUntil: data.premiumUntil?.toDate ? data.premiumUntil.toDate() : data.premiumUntil
           }));
         }
       });
@@ -381,19 +382,22 @@ export default function ProfileModal() {
           </div>
 
           <div className={`membership-card ${isMaxUser ? 'membership-card--max' :
-              isProUser ? 'membership-card--pro' :
+            isProUser ? 'membership-card--pro' :
+              isLiteUser ? 'membership-card--lite' :
                 'membership-card--free'
             }`}>
             <div>
               <div className={`membership-plan-name ${isMaxUser ? 'membership-plan-name--max' :
-                  isProUser ? 'membership-plan-name--pro' :
+                isProUser ? 'membership-plan-name--pro' :
+                  isLiteUser ? 'membership-plan-name--lite' :
                     'membership-plan-name--free'
                 }`}>
                 {isMaxUser ? t('profile.membership.maxPlan') :
                   isProUser ? t('profile.membership.proPlan') :
-                    t('profile.membership.freePlan')}
+                    isLiteUser ? t('profile.membership.litePlan') :
+                      t('profile.membership.freePlan')}
               </div>
-              {(isProUser || isMaxUser) && (
+              {(isProUser || isMaxUser || isLiteUser) && (
                 <div className="membership-expiry">
                   {t('profile.membership.expires')}: {formatExpiryDate(user?.premiumUntil)}
                 </div>

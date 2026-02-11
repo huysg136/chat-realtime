@@ -97,7 +97,7 @@ export default function AuthProvider({ children }) {
             const userData = userSnap.exists() ? userSnap.data() : {};
             const currentTime = new Date();
             const premiumUntilDate = userData.premiumUntil?.toDate ? userData.premiumUntil.toDate() : userData.premiumUntil;
-            if ((userData.premiumLevel === 'pro' || userData.premiumLevel === "max") && premiumUntilDate && premiumUntilDate < currentTime) {
+            if ((userData.premiumLevel === 'pro' || userData.premiumLevel === "max" || userData.premiumLevel === "lite") && premiumUntilDate && premiumUntilDate < currentTime) {
               try {
                 await updateDocument("users", userDocId, { premiumLevel: 'free' });
               } catch (error) {
@@ -145,7 +145,7 @@ export default function AuthProvider({ children }) {
 
   React.useEffect(() => {
     let interval;
-    if (user?.premiumLevel === 'pro' && user?.premiumUntil) {
+    if ((user?.premiumLevel === 'pro' || user?.premiumLevel === 'max' || user?.premiumLevel === 'lite') && user?.premiumUntil) {
       interval = setInterval(async () => {
         const now = new Date();
         const premiumUntilDate = user.premiumUntil.toDate ? user.premiumUntil.toDate() : new Date(user.premiumUntil);
@@ -155,7 +155,7 @@ export default function AuthProvider({ children }) {
             await updateDocument("users", userDocId, { premiumLevel: 'free' });
           }
         }
-      }, 60000); 
+      }, 60000);
     }
 
     return () => {

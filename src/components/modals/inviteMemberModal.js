@@ -7,6 +7,7 @@ import { db } from "../../firebase/config";
 import { addDocument } from '../../firebase/services';
 import debounce from 'lodash/debounce';
 import './inviteMemberModal.scss';
+import UserBadge from '../common/userBadge';
 
 export default function InviteMemberModal() {
   const { isInviteMemberVisible, setIsInviteMemberVisible, selectedRoomId, rooms, users } = useContext(AppContext);
@@ -68,7 +69,10 @@ export default function InviteMemberModal() {
           uid: doc.data().uid,
           displayName: doc.data().displayName,
           photoURL: doc.data().photoURL,
-          username: doc.data().username || ''
+          username: doc.data().username || '',
+          premiumLevel: doc.data().premiumLevel,
+          premiumUntil: doc.data().premiumUntil,
+          role: doc.data().role
         }))
         .filter(u => u.uid !== uid); // loại bỏ chính user
       setOptions(usersList);
@@ -100,7 +104,7 @@ export default function InviteMemberModal() {
     try {
       const roomRef = doc(db, "rooms", selectedRoomId);
       const roomSnap = await getDoc(roomRef);
-      if (!roomSnap.exists){
+      if (!roomSnap.exists) {
         return;
       }
       const existingMembers = roomSnap.data()?.members || [];
@@ -111,11 +115,11 @@ export default function InviteMemberModal() {
 
       for (const member of selectedMembers) {
         const fullMember = users.find(u => u.uid === member.uid) || member;
-        if (fullMember.allowGroupInvite === true){
+        if (fullMember.allowGroupInvite === true) {
           newImmediateMembers.push(fullMember.uid);
         }
         else {
-           pendingInvites.push({
+          pendingInvites.push({
             uid: fullMember.uid,
             invitedBy: user.uid,
             roomId: selectedRoomId,
@@ -125,8 +129,8 @@ export default function InviteMemberModal() {
         }
       }
 
-      let updatedMembers =  [...existingMembers];
-      if (newImmediateMembers.length > 0){
+      let updatedMembers = [...existingMembers];
+      if (newImmediateMembers.length > 0) {
         updatedMembers = Array.from(new Set([...existingMembers, ...newImmediateMembers]));
 
         await updateDoc(roomRef, {
@@ -142,10 +146,10 @@ export default function InviteMemberModal() {
           });
         }
 
-        for (const uid of newImmediateMembers){
+        for (const uid of newImmediateMembers) {
           const targetUser = users.find(u => u.uid === uid);
-          const target = { 
-            uid: targetUser.uid, name: targetUser.displayName || "Thành viên", photoURL: targetUser.photoURL || null 
+          const target = {
+            uid: targetUser.uid, name: targetUser.displayName || "Thành viên", photoURL: targetUser.photoURL || null
           };
 
           await addDocument("messages", {
@@ -173,7 +177,7 @@ export default function InviteMemberModal() {
         }
       }
 
-      for (const invite of pendingInvites){
+      for (const invite of pendingInvites) {
         try {
           const q = query(
             collection(db, "groupInvites"),
@@ -195,7 +199,7 @@ export default function InviteMemberModal() {
       setSearchText('');
       setOptions([]);
       setIsInviteMemberVisible(false);
-    } catch {}
+    } catch { }
   };
 
   const handleCancel = () => {
@@ -226,7 +230,10 @@ export default function InviteMemberModal() {
           uid: otherUid,
           displayName: otherUser?.displayName || r.name,
           photoURL: otherUser?.photoURL || r.avatar,
-          username: otherUser?.username || ''
+          username: otherUser?.username || '',
+          premiumLevel: otherUser?.premiumLevel,
+          premiumUntil: otherUser?.premiumUntil,
+          role: otherUser?.role
         };
       });
   }, [rooms, uid, users, searchText]);
@@ -326,7 +333,12 @@ const UserItem = ({ userObj, selectedMembers, handleToggleMember, isSelected, is
   >
     <Avatar src={userObj.photoURL} size={32} style={{ marginRight: 10 }} />
     <div style={{ flex: 1 }}>
-      <div style={{ fontWeight: 500 }}>{userObj.displayName}</div>
+      <UserBadge
+        displayName={userObj.displayName}
+        role={userObj.role}
+        premiumLevel={userObj.premiumLevel}
+        premiumUntil={userObj.premiumUntil}
+      />
       <div style={{ fontSize: 12, color: 'gray' }}>@{userObj.username}</div>
     </div>
     {isMember ? (

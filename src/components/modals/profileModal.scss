@@ -186,6 +186,12 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
+    &--lite {
+      background: linear-gradient(135deg, #fdf5ef 0%, #ffffff 100%);
+      border: 1px solid rgba(160, 120, 90, 0.2);
+      box-shadow: 0 2px 8px rgba(160, 120, 90, 0.05);
+    }
+
     &--max {
       background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
       border: 1px solid rgba(184, 134, 11, 0.2);
@@ -205,6 +211,10 @@
 
     &--pro {
       color: #374151;
+    }
+
+    &--lite {
+      color: #a0785a; // Bronze color
     }
 
     &--max {
@@ -296,6 +306,17 @@
         .membership-plan-name--pro {
           color: #e5e7eb;
           text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      &--lite {
+        background: linear-gradient(135deg, rgba(160, 120, 90, 0.12) 0%, rgba(30, 30, 30, 0.95) 100%);
+        border-color: rgba(160, 120, 90, 0.4);
+        box-shadow: 0 0 15px rgba(160, 120, 90, 0.1);
+
+        .membership-plan-name--lite {
+          color: #d0a080; // Softer copper for dark mode
+          text-shadow: 0 0 10px rgba(208, 160, 128, 0.2);
         }
       }
 
