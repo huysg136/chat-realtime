@@ -38,7 +38,7 @@ export default function UserBadge({ displayName, role, premiumLevel, premiumUnti
           <MdVerified size={14} style={{ color: "#1877F2" }} />
         )}
 
-        {isMaxUser ? (
+        {/* {isMaxUser ? (
           <>
             <svg width="0" height="0" style={{ position: "absolute" }}>
               <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -60,7 +60,7 @@ export default function UserBadge({ displayName, role, premiumLevel, premiumUnti
             size={14} 
             style={{ color: "#BFC1C2", filter: "drop-shadow(0 0 3px rgba(255, 255, 255, 0.6))" }} 
           />
-        ) : null}
+        ) : null} */}
       </span>
     </div>
   );
