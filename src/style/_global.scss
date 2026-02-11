@@ -156,6 +156,13 @@ body.theme-dark {
 //   flex-shrink: 0; 
 // }
 
+*::-webkit-scrollbar {
+  width: 3px !important;
+}
+*::-webkit-scrollbar-thumb {
+  background: #c7c7c7 !important; /* Nếu hiện màu đỏ là đã nhận, rồi mới sửa lại màu xám */
+}
+
 body.theme-dark {
   .copyable .copy-icon {
     color: #cbd5e1;

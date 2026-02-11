@@ -9,19 +9,6 @@
   flex-direction: column;
   transition: background 0.3s;
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #dbdbdb;
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
   // Dark theme
   body.theme-dark & {
     background: map.get($theme-colors, "bg-dark");
