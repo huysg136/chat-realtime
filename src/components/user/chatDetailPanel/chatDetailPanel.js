@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Button, Avatar, Input, Tooltip, Popconfirm } from "antd";
+import { Button, Avatar, Input, Tooltip, Popconfirm, Dropdown, Modal } from "antd";
 import {
   DeleteOutlined,
   CrownOutlined,
   EditOutlined,
   CheckOutlined,
   CloseOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
 import { FaKey } from "react-icons/fa6";
 import { toast } from 'react-toastify';
@@ -250,7 +251,7 @@ export default function ChatDetailPanel({
         uid: "system",
         roomId: selectedRoom.id,
         kind: "system",
-        action: "leave_group", 
+        action: "leave_group",
         actor: {
           uid: currentUser?.uid,
           name: currentUser?.displayName || "Người dùng",
@@ -292,11 +293,16 @@ export default function ChatDetailPanel({
                   </Avatar>
                   <div className="overview-info">
                     <div className="name">
-                      {otherUser.displayName}
-                      {/* <UserBadge displayName={otherUser.displayName} role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil} size={16}/> */}
+                      <UserBadge
+                        displayName={otherUser.displayName}
+                        role={otherUser.role}
+                        premiumLevel={otherUser.premiumLevel}
+                        premiumUntil={otherUser.premiumUntil}
+                        size={16}
+                      />
                     </div>
                   </div>
-                  
+
                 </div>
               ) : null
             ) : selectedRoom.avatar ? (
@@ -336,7 +342,7 @@ export default function ChatDetailPanel({
                         )}
                       </>
                     )}
-                  </div>  
+                  </div>
                 </div>
               </div>
             ) : (
@@ -408,8 +414,12 @@ export default function ChatDetailPanel({
                     <div className="member-info">
                       <Tooltip title={otherUser.displayName}>
                         <div className="member-name" style={{ margin: 0 }}>
-                          {otherUser.displayName}
-                          {/* <UserBadge displayName={otherUser.displayName} role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/> */}
+                          <UserBadge
+                            displayName={otherUser.displayName}
+                            role={otherUser.role}
+                            premiumLevel={otherUser.premiumLevel}
+                            premiumUntil={otherUser.premiumUntil}
+                          />
                         </div>
                       </Tooltip>
                       <p style={{ fontSize: 12, color: "gray", margin: 0 }}>@{otherUser.username}</p>
@@ -430,8 +440,12 @@ export default function ChatDetailPanel({
                         <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 0 }}>
                           <Tooltip title={m.displayName}>
                             <div className="member-name" style={{ margin: 0 }}>
-                              {m.displayName}
-                              {/* <UserBadge displayName={m.displayName} role={m.role} premiumLevel={m.premiumLevel} premiumUntil={m.premiumUntil}/> */}
+                              <UserBadge
+                                displayName={m.displayName}
+                                role={m.role}
+                                premiumLevel={m.premiumLevel}
+                                premiumUntil={m.premiumUntil}
+                              />
                             </div>
                           </Tooltip>
                           {isMemberOwner && <FaKey color="gold" />}
@@ -439,58 +453,56 @@ export default function ChatDetailPanel({
                         </div>
                         <p style={{ fontSize: 12, color: "gray", margin: 0 }}>@{m.username}</p>
                       </div>
-                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                        {canToggleCoOwner(m.uid) && (
-                          <Tooltip 
-                            title={getRoleOf(m.uid) === "co-owner" 
-                              ? t("chatDetail.roles.revokeCoOwner") 
-                              : t("chatDetail.roles.assignCoOwner") 
+                      <Dropdown
+                        menu={{
+                          items: [
+                            canToggleCoOwner(m.uid) && {
+                              key: 'toggle-co-owner',
+                              label: getRoleOf(m.uid) === "co-owner"
+                                ? t("chatDetail.roles.revokeCoOwner")
+                                : t("chatDetail.roles.assignCoOwner"),
+                              icon: <CrownOutlined />,
+                              onClick: () => toggleCoOwner(m.uid)
+                            },
+                            currentUserRole === "owner" && String(m.uid).trim() !== String(uid).trim() && {
+                              key: 'transfer-owner',
+                              label: t("chatDetail.roles.transferOwner"),
+                              icon: <CrownOutlined style={{ color: "gold" }} />,
+                              onClick: () => {
+                                Modal.confirm({
+                                  title: t("chatDetail.confirm.transferTitle", { name: m.displayName }),
+                                  okText: t("chatDetail.confirm.ok"),
+                                  cancelText: t("chatDetail.confirm.cancel"),
+                                  onOk: () => transferOwnership(m.uid)
+                                });
+                              }
+                            },
+                            canRemoveMember(m.uid) && {
+                              key: 'remove-member',
+                              label: t("chatDetail.confirm.removeMemberTitle", { name: m.displayName }),
+                              icon: <DeleteOutlined />,
+                              danger: true,
+                              onClick: () => {
+                                Modal.confirm({
+                                  title: t("chatDetail.confirm.removeMemberTitle", { name: m.displayName }),
+                                  okText: t("chatDetail.confirm.remove"),
+                                  cancelText: t("chatDetail.confirm.cancel"),
+                                  okButtonProps: { danger: true },
+                                  onOk: () => removeMember(m.uid)
+                                });
+                              }
                             }
-                          >
-                            <Button
-                              className="toggle-coowner-btn"
-                              type="text"
-                              icon={<CrownOutlined />}
-                              onClick={(e) => { e.stopPropagation(); toggleCoOwner(m.uid); }}
-                              style={{color: "silver"}}
-                            />
-                          </Tooltip>
-                        )}
-                        {currentUserRole === "owner" && String(m.uid).trim() !== String(uid).trim() && (
-                          <Popconfirm
-                            title={t("chatDetail.confirm.transferTitle", { name: m.displayName })}
-                            onConfirm={() => transferOwnership(m.uid)}
-                            okText={t("chatDetail.confirm.ok")}
-                            cancelText={t("chatDetail.confirm.cancel")}
-                          >
-                            <Tooltip title={t("chatDetail.roles.transferOwner")}>
-                              <Button
-                                className="transfer-ownership-btn"
-                                type="text"
-                                icon={<CrownOutlined />}
-                                onClick={(e) => e.stopPropagation()}
-                                style={{color: "gold"}}
-                              />
-                            </Tooltip>
-                          </Popconfirm>
-                        )}
-                        {canRemoveMember(m.uid) && (
-                          <Popconfirm
-                            title={t("chatDetail.confirm.removeMemberTitle", { name: m.displayName })}
-                            onConfirm={() => removeMember(m.uid)}
-                            okText={t("chatDetail.confirm.remove")}
-                            cancelText={t("chatDetail.confirm.cancel")}
-                            okButtonProps={{ danger: true }}
-                          >
-                            <Button 
-                              className="remove-member-btn" 
-                              type="text" 
-                              icon={<DeleteOutlined />} 
-                              danger 
-                            />
-                          </Popconfirm>
-                        )}
-                      </div>
+                          ].filter(Boolean)
+                        }}
+                        trigger={['click']}
+                      >
+                        <Button
+                          type="text"
+                          icon={<MoreOutlined />}
+                          className="member-more-btn"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </Dropdown>
                     </div>
                   );
                 })

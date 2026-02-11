@@ -284,7 +284,7 @@
           opacity: 0.5;
         }
 
-        & + .danger-btn {
+        &+.danger-btn {
           border-top: 1px solid #efefef;
         }
       }
@@ -293,9 +293,7 @@
     .edit-name-btn,
     .save-name-btn,
     .cancel-edit-btn,
-    .toggle-coowner-btn,
-    .transfer-ownership-btn,
-    .remove-member-btn {
+    .member-more-btn {
       background: transparent;
 
       &:hover {
@@ -412,11 +410,11 @@ body.theme-dark {
               font-size: 16px;
               color: #ffffff;
               line-height: 1.3;
-              white-space: nowrap;       
-              overflow: hidden;           
-              text-overflow: ellipsis;    
-              max-width: 220px;           
-              display: inline-block;   
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              max-width: 220px;
+              display: inline-block;
             }
 
             .room-uid {
@@ -577,7 +575,7 @@ body.theme-dark {
             opacity: 0.5;
           }
 
-          & + .danger-btn {
+          &+.danger-btn {
             border-top: 1px solid #787878;
           }
         }
@@ -586,9 +584,7 @@ body.theme-dark {
       .edit-name-btn,
       .save-name-btn,
       .cancel-edit-btn,
-      .toggle-coowner-btn,
-      .transfer-ownership-btn,
-      .remove-member-btn {
+      .member-more-btn {
         color: #ffffff;
         background: transparent;
 
