@@ -98,7 +98,7 @@ function getBanDurationInMs(value, unit) {
 
 function getTimestamp(t) {
   if (!t) return 0;
-  if (t.seconds) return t.seconds; 
+  if (t.seconds) return t.seconds;
   if (t instanceof Date) return t.getTime() / 1000;
   if (t.toDate) return t.toDate().getTime() / 1000;
   return 0;
@@ -319,11 +319,11 @@ export default function ReportManager() {
     .sort((a, b) => {
       const timeA = getTimestamp(a.createdAt);
       const timeB = getTimestamp(b.createdAt);
-      
+
       if (filters.sortBy === "newest") {
-        return timeB - timeA; 
+        return timeB - timeA;
       } else {
-        return timeA - timeB; 
+        return timeA - timeB;
       }
     });
 
@@ -549,17 +549,17 @@ export default function ReportManager() {
           <option value="resolved">Đã xử lý</option>
         </select>
         <select
-            value={filters.sortBy}
-            onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
-          >
-            <option value="newest">Mới nhất</option>
-            <option value="oldest">Cũ nhất</option>
-          </select>
+          value={filters.sortBy}
+          onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
+        >
+          <option value="newest">Mới nhất</option>
+          <option value="oldest">Cũ nhất</option>
+        </select>
       </div>
 
       <Table
         columns={columns}
-        dataSource={filteredReports}  
+        dataSource={filteredReports}
         rowKey="id"
         pagination={{
           pageSize: 10,

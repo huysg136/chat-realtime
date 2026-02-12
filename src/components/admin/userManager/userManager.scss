@@ -416,15 +416,11 @@
     }
   }
 
-  // Premium info
   .premium-info-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
     margin-bottom: 14px;
   }
 
-  // Premium action buttons
   .premium-actions {
     display: flex;
     gap: 8px;
@@ -448,21 +444,68 @@
     }
 
     .btn-grant {
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+
+      &:disabled, &.disabled {
+        filter: grayscale(1) opacity(0.5) !important;
+        pointer-events: none; 
+        cursor: default !important; 
+        box-shadow: none !important;
+        transform: none !important;
+      }
+
+      &:hover {
+        filter: brightness(1.2);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
       &.lite {
-        background: #b8860b;
+        background: linear-gradient(135deg, #7a4a2a 0%, #a67c52 100%);
+        &:hover { box-shadow: 0 4px 12px rgba(166, 124, 82, 0.3); }
       }
 
       &.pro {
-        background: #1677ff;
+        background: linear-gradient(135deg, #6f7276 0%, #9ea1a6 100%);
+        &:hover { box-shadow: 0 4px 12px rgba(158, 161, 166, 0.3); }
       }
 
       &.max {
-        background: #eb2f96;
+        background: linear-gradient(135deg, #b8962e 0%, #d4af37 100%);
+        &:hover { box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); }
       }
     }
 
     .btn-revoke {
-      background: #ff4d4f;
+      background: linear-gradient(135deg, #991b1b 0%, #ef4444 100%);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-left: auto;
+
+      &.disabled, &:disabled {
+        filter: grayscale(1) opacity(0.5) !important;
+        cursor: not-allowed !important;
+        pointer-events: none; 
+        box-shadow: none !important;
+        transform: none !important;
+      }
+
+      &:hover {
+        filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+      }
     }
   }
 
@@ -777,7 +820,6 @@ body.theme-dark {
     }
 
     .detail-section {
-      border-bottom-color: #1a2d40;
 
       h4 {
         color: #dedede;
@@ -837,19 +879,16 @@ body.theme-dark {
         }
 
         &.lite {
-          // Dùng dải màu Bronze
           background: linear-gradient(135deg, #7a4a2a 0%, #a67c52 100%);
           &:hover { box-shadow: 0 4px 12px rgba(166, 124, 82, 0.3); }
         }
 
         &.pro {
-          // Dùng dải màu Silver
           background: linear-gradient(135deg, #6f7276 0%, #9ea1a6 100%);
           &:hover { box-shadow: 0 4px 12px rgba(158, 161, 166, 0.3); }
         }
 
         &.max {
-          // Dùng dải màu Gold
           background: linear-gradient(135deg, #b8962e 0%, #d4af37 100%);
           &:hover { box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); }
         }

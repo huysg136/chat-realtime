@@ -16,7 +16,7 @@ export default function ModPermissionManager() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
-        permissions: {}, 
+        permissions: {},
         ...doc.data()
       }));
       setMods(data);
@@ -96,7 +96,7 @@ export default function ModPermissionManager() {
         <Space direction="vertical" size={0}>
           <strong>{name}</strong>
           <Tooltip title={record.email}>
-            <Tag color="blue" style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", padding: "0 6px"}}>
+            <Tag color="blue" style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", padding: "0 6px" }}>
               {record.email}
             </Tag>
           </Tooltip>

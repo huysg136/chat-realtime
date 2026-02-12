@@ -32,7 +32,7 @@ export default function RoomManager() {
 
   useEffect(() => {
     setLoading(true);
-    let usersLoaded = false; 
+    let usersLoaded = false;
     let roomsLoaded = false;
     const unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
       const map = {};
@@ -53,13 +53,13 @@ export default function RoomManager() {
         const formatTime = (t) =>
           t?.toDate
             ? t.toDate().toLocaleString("vi-VN", {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              })
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })
             : "N/A";
 
         const ownerUid =
@@ -67,15 +67,15 @@ export default function RoomManager() {
 
         const lastMsg = data.lastMessage
           ? (() => {
-              let text = data.lastMessage.text || "";
-              try {
-                text = decryptMessage(text, data.secretKey || "");
-                if (!text) text = "[Không thể giải mã]";
-              } catch (e) {
-                text = "[Lỗi giải mã]";
-              }
-              return `${data.lastMessage.displayName || "Ẩn danh"}: ${text}`;
-            })()
+            let text = data.lastMessage.text || "";
+            try {
+              text = decryptMessage(text, data.secretKey || "");
+              if (!text) text = "[Không thể giải mã]";
+            } catch (e) {
+              text = "[Lỗi giải mã]";
+            }
+            return `${data.lastMessage.displayName || "Ẩn danh"}: ${text}`;
+          })()
           : "Chưa có tin nhắn";
 
         return {
@@ -85,8 +85,8 @@ export default function RoomManager() {
             data.kind === "group" || data.type === "group"
               ? "Nhóm"
               : data.kind === "private" || data.type === "private"
-              ? "Riêng tư"
-              : "N/A",
+                ? "Riêng tư"
+                : "N/A",
           createdBy: data.displayName || data.createdBy || "Ẩn danh",
           ownerUid,
           members: data.members || [],
@@ -98,7 +98,7 @@ export default function RoomManager() {
         };
       });
       setRooms(roomList);
-        roomsLoaded = true;
+      roomsLoaded = true;
       if (usersLoaded && roomsLoaded) setLoading(false);
     });
 
@@ -113,16 +113,16 @@ export default function RoomManager() {
   }
 
   if (loading)
-  return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      minHeight: '400px' 
-    }}>
-      <Spin size="large" />
-    </div>
-  );
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '400px'
+      }}>
+        <Spin size="large" />
+      </div>
+    );
 
   const filteredRooms = rooms
     .filter((room) =>
@@ -217,8 +217,8 @@ export default function RoomManager() {
                 filters.membersSort === ""
                   ? "asc"
                   : filters.membersSort === "asc"
-                  ? "desc"
-                  : "";
+                    ? "desc"
+                    : "";
               setFilters({ ...filters, membersSort: nextSort });
             }}
           >
@@ -226,8 +226,8 @@ export default function RoomManager() {
             {filters.membersSort === "asc"
               ? "↑"
               : filters.membersSort === "desc"
-              ? "↓"
-              : ""}
+                ? "↓"
+                : ""}
           </button>
         </div>
         <input

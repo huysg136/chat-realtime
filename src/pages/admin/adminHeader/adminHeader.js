@@ -12,7 +12,7 @@ export default function AdminHeader() {
   return (
     <Header className="admin-header">
       <h2>Trang quản trị quik.id.vn</h2>
-      { loading ? (
+      {loading ? (
         null
       ) : (
         <Space className="admin-user">
@@ -22,7 +22,7 @@ export default function AdminHeader() {
             <span>{role}</span>
           </div>
         </Space>
-      )} 
+      )}
     </Header>
   );
 }

@@ -11,7 +11,7 @@ import { ROUTERS } from "../../../constants/router";
 const { Content } = Layout;
 
 export default function AdminLayout() {
-  
+
   const { user } = useContext(AuthContext);
   if (!user || !["admin", "moderator"].includes(user.role)) {
     return <Navigate to={ROUTERS.USER.HOME} replace />;
@@ -21,7 +21,7 @@ export default function AdminLayout() {
     <Layout className="admin-layout">
       <AdminSidebar />
       <Layout className="admin-main">
-        <AdminHeader/>
+        <AdminHeader />
         <Content className="admin-content">
           <Outlet />
         </Content>

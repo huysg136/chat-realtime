@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useContext } from "react";
 import {
   Result,
@@ -176,10 +177,10 @@ export default function MaintenancePage() {
         setExpectedResume(
           data.expectedResume
             ? dayjs(
-                data.expectedResume.toDate
-                  ? data.expectedResume.toDate()
-                  : data.expectedResume
-              ).utc()
+              data.expectedResume.toDate
+                ? data.expectedResume.toDate()
+                : data.expectedResume
+            ).utc()
             : null
         );
       }
@@ -199,15 +200,15 @@ export default function MaintenancePage() {
   const wrapperStyle =
     currentTheme === "dark"
       ? {
-          backgroundColor: "#0d1117",
-          color: "#e5e7eb",
-          transition: "all 0.3s ease",
-        }
+        backgroundColor: "#0d1117",
+        color: "#e5e7eb",
+        transition: "all 0.3s ease",
+      }
       : {
-          backgroundColor: "#f9fafb",
-          color: "#1f2937",
-          transition: "all 0.3s ease",
-        };
+        backgroundColor: "#f9fafb",
+        color: "#1f2937",
+        transition: "all 0.3s ease",
+      };
 
 
 

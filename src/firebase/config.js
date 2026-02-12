@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // Import SDKs cần thiết
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
@@ -34,8 +35,6 @@ const app = initializeApp(firebaseConfig);
 //     isTokenAutoRefreshEnabled: true,
 //   });
 // }
-
-const analytics = getAnalytics(app);
 
 // Export các service để dùng
 export const auth = getAuth(app);

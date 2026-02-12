@@ -32,7 +32,7 @@ export default function AnnouncementManager() {
   const { user: currentUser } = useContext(AuthContext);
 
   const { users } = useContext(AppContext);
-  
+
 
   useEffect(() => {
     setLoading(true);
@@ -84,16 +84,16 @@ export default function AnnouncementManager() {
   };
 
   if (loading)
-  return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      minHeight: '400px' 
-    }}>
-      <Spin size="large" />
-    </div>
-  );
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '400px'
+      }}>
+        <Spin size="large" />
+      </div>
+    );
 
   const addOrUpdate = async () => {
     if (!title.trim() || !content.trim()) {

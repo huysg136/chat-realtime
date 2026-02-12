@@ -35,7 +35,7 @@ function truncateText(text, maxLength = 50) {
 
 function getTimestamp(t) {
   if (!t) return 0;
-  if (t.seconds) return t.seconds; 
+  if (t.seconds) return t.seconds;
   if (t instanceof Date) return t.getTime() / 1000;
   if (t.toDate) return t.toDate().getTime() / 1000;
   return 0;
@@ -52,7 +52,7 @@ export default function MyReportsModal() {
     search: "",
     status: "",
     category: "",
-    sortBy: "newest", 
+    sortBy: "newest",
   });
 
   useEffect(() => {
@@ -93,11 +93,11 @@ export default function MyReportsModal() {
     .sort((a, b) => {
       const timeA = getTimestamp(a.createdAt);
       const timeB = getTimestamp(b.createdAt);
-      
+
       if (filters.sortBy === "newest") {
-        return timeB - timeA; 
+        return timeB - timeA;
       } else {
-        return timeA - timeB; 
+        return timeA - timeB;
       }
     });
 
@@ -179,11 +179,11 @@ export default function MyReportsModal() {
   ];
 
   const handleClose = () => {
-    setFilters({ 
-      search: "", 
-      status: "", 
+    setFilters({
+      search: "",
+      status: "",
       category: "",
-      sortBy: "newest" 
+      sortBy: "newest"
     });
     setIsMyReportsVisible(false);
   };
@@ -215,7 +215,7 @@ export default function MyReportsModal() {
             style={{ width: 250 }}
             allowClear
           />
-          
+
           <Select
             placeholder="Trạng thái"
             value={filters.status}
@@ -227,7 +227,7 @@ export default function MyReportsModal() {
             <Select.Option value="pending">Chờ xử lý</Select.Option>
             <Select.Option value="resolved">Đã xử lý</Select.Option>
           </Select>
-          
+
           <Select
             placeholder="Phân loại"
             value={filters.category}

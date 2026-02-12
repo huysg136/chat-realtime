@@ -35,13 +35,13 @@ export default function PendingInvitesModal() {
         const autoDeclinePromises = invites.map(async (invite) => {
           if (invite.createdAt?.toDate) {
             const createdAt = invite.createdAt.toDate();
-            const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24); 
-            if (diffDays > 30) { 
+            const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+            if (diffDays > 30) {
               await deleteDoc(doc(db, "groupInvites", invite.id));
-              return null; 
+              return null;
             }
           }
-          return invite; 
+          return invite;
         });
 
         const filteredInvites = (await Promise.all(autoDeclinePromises)).filter(Boolean);
@@ -84,10 +84,10 @@ export default function PendingInvitesModal() {
 
       const actor = { uid: uid, name: user.displayName, photoURL: user.photoURL };
       const targetUser = users.find(u => u.uid === invite.invitedBy);
-      const target = { 
-        uid: targetUser?.uid, 
-        name: targetUser?.displayName || targetUser?.username || "Unknown", 
-        photoURL: targetUser?.photoURL || null 
+      const target = {
+        uid: targetUser?.uid,
+        name: targetUser?.displayName || targetUser?.username || "Unknown",
+        photoURL: targetUser?.photoURL || null
       };
 
       await addDocument("messages", {
@@ -95,8 +95,8 @@ export default function PendingInvitesModal() {
         roomId: invite.roomId,
         kind: "system",
         action: "accept_invite",
-        actor,  
-        target,    
+        actor,
+        target,
         visibleFor: members,
         createdAt: new Date(),
       });
@@ -154,7 +154,7 @@ export default function PendingInvitesModal() {
             <div className="pending-invite-info">
               <div className="pending-invite-name">{room?.name || "Nhóm không xác định"}</div>
               <div className="pending-invite-inviter">
-                Được mời bởi <span style={{fontWeight: "500"}}>{inviter?.displayName}</span> (@{inviter?.username}) 
+                Được mời bởi <span style={{ fontWeight: "500" }}>{inviter?.displayName}</span> (@{inviter?.username})
               </div>
               <div className="pending-invite-time">
                 {invite?.createdAt?.toDate

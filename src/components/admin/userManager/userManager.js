@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { db } from "../../../firebase/config";
 import {
   collection, onSnapshot, deleteDoc, doc,
-  updateDoc, getDocs, query, where, addDoc, deleteField
+  updateDoc, addDoc, deleteField
 } from "firebase/firestore";
 import { AuthContext } from "../../../context/authProvider";
 import { toast } from "react-toastify";
@@ -18,15 +18,9 @@ import "react-toastify/dist/ReactToastify.css";
 import "./userManager.scss";
 import { formatBytes, getQuotaLimit } from "../../../utils/quota";
 import { useUserStatus } from "../../../hooks/useUserStatus";
-
-export const getUserDocIdByUid = async (uid) => {
-  try {
-    const q = query(collection(db, "users"), where("uid", "==", uid));
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) return querySnapshot.docs[0].id;
-    return null;
-  } catch { return null; }
-};
+import ReactCountryFlag from "react-country-flag";
+import { BsLaptop, BsMoonStarsFill, BsSunFill } from "react-icons/bs";
+import { getUserDocIdByUid } from "../../../firebase/services";
 
 const UserDetailStatus = ({ uid }) => {
   const status = useUserStatus(uid);
@@ -37,35 +31,42 @@ const UserDetailStatus = ({ uid }) => {
     return isNaN(d.getTime()) ? "—" : d.toLocaleString("vi-VN");
   };
 
-  if (status?.isOnline) return <span style={{ color: "#52c41a", fontWeight: 500 }}>Online</span>;
+  if (status?.isOnline) return <span style={{ color: "#52c41a", fontWeight: 500 }}>Đang hoạt động</span>;
   return <span>{formatDate(status?.lastOnline)}</span>;
 };
 
 const PREMIUM_CONFIG = {
-  free: { 
-    label: "Free", 
-    color: "#8c8c8c", 
+  free: {
+    label: "Free",
+    color: "#8c8c8c",
     bg: "rgba(140,140,140,0.1)",
-    className: "" 
+    className: ""
   },
-  lite: { 
-    label: "Lite", 
-    color: "#a67c52", 
-    bg: "rgba(166,124,82,0.1)", 
-    className: "text-luxury-bronze" 
+  lite: {
+    label: "Lite",
+    color: "#a67c52",
+    bg: "rgba(166,124,82,0.1)",
+    className: "text-luxury-bronze"
   },
-  pro: { 
-    label: "Pro", 
-    color: "#9ea1a6", 
-    bg: "rgba(158,161,166,0.1)", 
-    className: "text-luxury-silver" 
+  pro: {
+    label: "Pro",
+    color: "#9ea1a6",
+    bg: "rgba(158,161,166,0.1)",
+    className: "text-luxury-silver"
   },
-  max: { 
-    label: "Max", 
-    color: "#d4af37", 
-    bg: "rgba(212,175,55,0.1)", 
-    className: "text-luxury-gold" 
+  max: {
+    label: "Max",
+    color: "#d4af37",
+    bg: "rgba(212,175,55,0.1)",
+    className: "text-luxury-gold"
   },
+};
+
+const TIER_VALUE = {
+  free: 0,
+  lite: 1,
+  pro: 2,
+  max: 3
 };
 
 export default function UsersManager() {
@@ -189,9 +190,9 @@ export default function UsersManager() {
     const docId = await getUserDocIdByUid(targetUsr.uid);
     if (!docId) return;
     try {
-      await updateDoc(doc(db, "users", docId), { premiumLevel: "free", premiumUntil: null, quotaUsed: 0 });
+      await updateDoc(doc(db, "users", docId), { premiumLevel: "free", premiumUntil: null });
       toast.success(`Đã thu hồi premium của ${targetUsr.displayName}`);
-      setDetailUser(prev => prev ? { ...prev, premiumLevel: "free", premiumUntil: null, quotaUsed: 0 } : prev);
+      setDetailUser(prev => prev ? { ...prev, premiumLevel: "free", premiumUntil: null } : prev);
     } catch { toast.error("Thu hồi thất bại"); }
   };
 
@@ -284,7 +285,7 @@ export default function UsersManager() {
       render: (_, record) => {
         const level = record.premiumLevel;
         const cfg = PREMIUM_CONFIG[level];
-        
+
         return (
           <span className="premium-badge" style={{ background: cfg.bg }}>
             <strong className={cfg.className} style={{ fontSize: '12px', fontWeight: '500' }}>
@@ -418,7 +419,7 @@ export default function UsersManager() {
                   const cfg = PREMIUM_CONFIG[level];
                   return (
                     <span className="premium-badge" style={{ background: cfg.bg }}>
-                      <strong className={cfg.className} style={{ fontSize: '12px', fontWeight: '500'}}>
+                      <strong className={cfg.className} style={{ fontSize: '12px', fontWeight: '500' }}>
                         {cfg.label}
                       </strong>
                     </span>
@@ -436,7 +437,7 @@ export default function UsersManager() {
                 <div className="detail-row">
                   <span>UID</span>
                   <span className="copyable" onClick={() => copyText(detailUser.uid)} title={detailUser.uid}>
-                    {detailUser.uid?.slice(0, 8)}... <FiCopy size={12} />
+                    {detailUser.uid?.slice(0, 16)}... <FiCopy size={12} />
                   </span>
                 </div>
                 <div className="detail-row">
@@ -452,51 +453,89 @@ export default function UsersManager() {
                   </span>
                 </div>
                 <div className="detail-row">
-                  <span>Provider</span>
+                  <span>Nền tảng đăng nhập</span>
                   <span className="provider-tag">{detailUser.providerId || "—"}</span>
                 </div>
                 <div className="detail-row">
-                  <span>Online cuối</span>
+                  <span>Online</span>
                   <UserDetailStatus uid={detailUser.uid} />
                 </div>
                 <div className="detail-row">
                   <span>Ngôn ngữ</span>
-                  <span>{detailUser.language || "—"}</span>
+                  <span>
+                    {detailUser.language === "vi" ? (
+                      <>
+                        <ReactCountryFlag
+                          countryCode="VN"
+                          svg
+                          style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8, objectFit: 'cover' }}
+                        />
+                        Tiếng Việt
+                      </>
+                    ) : (
+                      <>
+                        <ReactCountryFlag
+                          countryCode="US"
+                          svg
+                          style={{ width: "1.3em", height: "1.3em", borderRadius: "50%", marginRight: 8, objectFit: 'cover' }}
+                        />
+                        Tiếng Anh
+                      </>
+                    )}
+                  </span>
                 </div>
                 <div className="detail-row">
                   <span>Giao diện</span>
-                  <span>{detailUser.theme || "—"}</span>
+                  <span>
+                    {detailUser.theme === "light" ? (
+                      <>
+                        <BsSunFill style={{ color: "#facc15", marginRight: 6 }} />
+                        Sáng
+                      </>
+                    ) : (
+                      detailUser.theme === "dark" ? (
+                        <>
+                          <BsMoonStarsFill style={{ color: "#3b82f6", marginRight: 6 }} />
+                          Tối
+                        </>
+                      ) : (
+                        <>
+                          <BsLaptop style={{ color: "#6b7280", marginRight: 6 }} />
+                          Theo hệ thống
+                        </>
+                      ))}
+                  </span>
                 </div>
               </div>
 
               <div className="detail-section">
                 <h4>Cài đặt & Giới hạn</h4>
                 <div className="detail-row">
-                  <span>Cho mời nhóm</span>
+                  <span>Cho phép mời vào nhóm</span>
                   <span className="bool-tag">
                     {detailUser.allowGroupInvite ? <IoCheckmarkCircle className="icon-v" /> : <IoCloseCircle className="icon-x" />}
                   </span>
                 </div>
                 <div className="detail-row">
-                  <span>Hiện online</span>
+                  <span>Bật trạng thái online</span>
                   <span className="bool-tag">
                     {detailUser.showOnlineStatus ? <IoCheckmarkCircle className="icon-v" /> : <IoCloseCircle className="icon-x" />}
                   </span>
                 </div>
                 <div className="detail-row">
-                  <span>Bị cấm chat</span>
+                  <span>Bị ấm chat</span>
                   <span className="bool-tag">
                     {detailUser.isBanned ? <IoCheckmarkCircle className="icon-v" /> : <IoCloseCircle className="icon-x" />}
                   </span>
                 </div>
                 <div className="detail-row">
-                  <span>Đổi username</span>
+                  <span>Số lần đổi Quik ID</span>
                   <span>{detailUser.usernameChangeCount || 0} lần</span>
                 </div>
                 <div className="detail-row">
-                  <span>Lần đổi cuối</span>
+                  <span>Lần đổi Quik ID cuối cùng</span>
                   <span>
-                    {formatDateShort(detailUser.lastUsernameChange) === "—" ? "Chưa đổi" : formatDateShort(detailUser.lastUsernameChange)}
+                    {formatDateShort(detailUser.lastUsernameChange) === "—" ? "—" : formatDateShort(detailUser.lastUsernameChange)}
                   </span>
                 </div>
               </div>
@@ -510,20 +549,50 @@ export default function UsersManager() {
                   <span>{(detailUser.premiumLevel || "free").toUpperCase()}</span>
                 </div>
                 <div className="detail-row">
-                  <span>Hết hạn</span>
+                  <span>Thời hạn đến</span>
                   <span>
-                    {formatDateShort(detailUser.premiumUntil)}
+                    {
+                      (detailUser.premiumUntil === null && detailUser.premiumLevel !== "free") ?
+                        "Vĩnh viễn" :
+                        (detailUser.premiumUntil !== null && detailUser.premiumLevel !== "free") ?
+                          formatDateShort(detailUser.premiumUntil)
+                          : (
+                            "—"
+                          )
+                    }
                   </span>
                 </div>
               </div>
               {currentUser.role === "admin" && (
                 <div className="premium-actions">
-                  <button className="btn-grant lite" onClick={() => handleGrantPremium(detailUser, "lite", 30)}>Cấp Lite 30 ngày</button>
-                  <button className="btn-grant pro" onClick={() => handleGrantPremium(detailUser, "pro", 30)}>Cấp Pro 30 ngày</button>
-                  <button className="btn-grant max" onClick={() => handleGrantPremium(detailUser, "max", 30)}>Cấp Max 30 ngày</button>
-                  {detailUser.premiumLevel !== "free" && (
-                    <button className="btn-revoke" onClick={() => handleRevokePremium(detailUser)}>Thu hồi Premium</button>
-                  )}
+                  <button
+                    className={`btn-grant lite ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.lite ? "disabled" : ""}`}
+                    onClick={() => handleGrantPremium(detailUser, "lite", 30)}
+                    disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.lite}
+                  >
+                    Nâng Lite 30 ngày
+                  </button>
+                  <button
+                    className={`btn-grant pro ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.pro ? "disabled" : ""}`}
+                    onClick={() => handleGrantPremium(detailUser, "pro", 30)}
+                    disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.pro}
+                  >
+                    Nâng Pro 30 ngày
+                  </button>
+                  <button
+                    className={`btn-grant max ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.max ? "disabled" : ""}`}
+                    onClick={() => handleGrantPremium(detailUser, "max", 30)}
+                    disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.max}
+                  >
+                    Nâng Max 30 ngày
+                  </button>
+                  <button
+                    className={`btn-revoke ${(detailUser.premiumLevel === "free" || !detailUser.premiumLevel) ? "disabled" : ""}`}
+                    onClick={() => handleRevokePremium(detailUser)}
+                    disabled={detailUser.premiumLevel === "free" || !detailUser.premiumLevel}
+                  >
+                    Thu hồi Premium
+                  </button>
                 </div>
               )}
             </div>

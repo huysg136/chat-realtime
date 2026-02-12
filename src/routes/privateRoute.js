@@ -5,10 +5,10 @@ import { AuthContext } from "../context/authProvider";
 import { AppContext } from "../context/appProvider";
 import { ROUTERS } from "../constants/router";
 
-export default function PrivateRoute({ 
-  children, 
-  requireAdmin = false, 
-  requirePermission = null 
+export default function PrivateRoute({
+  children,
+  requireAdmin = false,
+  requirePermission = null
 }) {
   const { user, isLoading: isAuthLoading } = useContext(AuthContext);
   const { isMaintenance } = useContext(AppContext);
@@ -29,7 +29,7 @@ export default function PrivateRoute({
 
   // Check admin/moderator BEFORE rendering children
   const isAdminOrMod = ["admin", "moderator"].includes(user.role);
-  
+
   if (requireAdmin && !isAdminOrMod) {
     return <Navigate to={ROUTERS.USER.HOME} replace />;
   }
