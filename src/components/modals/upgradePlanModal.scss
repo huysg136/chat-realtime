@@ -524,6 +524,18 @@
         }
       }
 
+      .btn-lite {
+        background: linear-gradient(135deg, #a0785a, #b08d57);
+        border-color: #b08d57;
+        color: #fff;
+
+        &:hover {
+          background: linear-gradient(135deg, #8c5e3c, #a0785a) !important;
+          border-color: #a0785a !important;
+          color: #fff !important;
+        }
+      }
+
       .btn-max {
         background: linear-gradient(135deg, #c78a20, #fbbf24, #c78a20);
         border-color: #d4a017;

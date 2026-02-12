@@ -4,6 +4,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getDatabase, connectDatabaseEmulator } from "firebase/database";
+// import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 
 // Cấu hình Firebase
 const firebaseConfig = {
@@ -19,6 +20,21 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// if (typeof window !== "undefined") {
+//   // Dòng này giúp bạn làm việc trên localhost không bị chặn
+//   // Sau này khi deploy web thật (với domain riêng), bạn có thể xóa dòng debug này
+//   if (window.location.hostname === "localhost") {
+//     // eslint-disable-next-line no-restricted-globals
+//     // self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+//   }
+
+//   initializeAppCheck(app, {
+//     provider: new ReCaptchaEnterpriseProvider('6Le372gsAAAAEwNEinmQwMcUMkPWjSL8viaPPfv'),
+//     isTokenAutoRefreshEnabled: true,
+//   });
+// }
+
 const analytics = getAnalytics(app);
 
 // Export các service để dùng

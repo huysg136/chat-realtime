@@ -28,9 +28,9 @@ function generateUsername(displayName) {
   let base = displayName
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") 
-    .replace(/đ/g, "d")             
-    .replace(/[^a-z0-9]/g, "");     
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9]/g, "");
 
   if (!base || base.length < 3) {
     base = "user" + Math.floor(Math.random() * 1000);
@@ -62,7 +62,7 @@ export default function Login() {
   const [theme, setTheme] = useState("system");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  
+
 
   useEffect(() => {
     document.body.classList.add("theme-light");
@@ -80,18 +80,18 @@ export default function Login() {
     } else {
       // System theme
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      
+
       const applySystemTheme = () => {
         root.classList.remove("theme-light", "theme-dark");
         root.classList.add(mediaQuery.matches ? "theme-dark" : "theme-light");
       };
-      
+
       // Apply initial system theme
       applySystemTheme();
-      
+
       // Listen for system theme changes
       mediaQuery.addEventListener("change", applySystemTheme);
-      
+
       // Cleanup
       return () => {
         mediaQuery.removeEventListener("change", applySystemTheme);
@@ -109,7 +109,7 @@ export default function Login() {
       if (additionalUserInfo?.isNewUser) {
         const baseUsername = generateUsername(user.displayName);
         const uniqueUsername = await getUniqueUsername(baseUsername);
-        
+
         await addDocument("users", {
           uid: user.uid,
           displayName: user.displayName,
@@ -125,24 +125,17 @@ export default function Login() {
           // Cấu hình cá nhân
           theme: "system",
           language: "vi",
-          allowGroupInvite: true,     
+          allowGroupInvite: true,
           showOnlineStatus: true,
           // quản lý định danh
-          usernameChangeCount: 0,      
-          lastUsernameChange: null,    
+          usernameChangeCount: 0,
+          lastUsernameChange: null,
           // trạng thái hệ thống
-          isBanned: false,            
-          lastOnline: new Date().toISOString(),
+          isBanned: false,
         });
       }
 
       const userDocId = await getUserDocIdByUid(user.uid);
-      if (userDocId) {
-        await updateDoc(doc(db, "users", userDocId), {
-          lastOnline: serverTimestamp()
-        });
-      }
-
       let role = "user";
       if (userDocId) {
         const userDoc = await getDoc(doc(db, "users", userDocId));

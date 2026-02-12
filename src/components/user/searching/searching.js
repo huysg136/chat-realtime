@@ -22,7 +22,7 @@ export default function Searching() {
   useEffect(() => {
     if (!user?.uid) return;
 
-    let unsubscribe = () => {};
+    let unsubscribe = () => { };
     const setupRealtime = async () => {
       const docId = await getUserDocIdByUid(user.uid);
       if (!docId) return;
@@ -37,7 +37,7 @@ export default function Searching() {
             setUsernameHandle(data.username ? `@${data.username}` : "");
           }
         },
-        (error) => {}
+        (error) => { }
       );
     };
 
@@ -60,7 +60,7 @@ export default function Searching() {
       <div className="user-header">
         <div className="username-wrapper">
           <div className="display-name-wrapper">
-            <UserBadge displayName={displayName} role={user.role} premiumLevel={user.premiumLevel} premiumUntil={user.premiumUntil} size={16}/>
+            <UserBadge displayName={displayName} role={user.role} premiumLevel={user.premiumLevel} premiumUntil={user.premiumUntil} size={16} />
           </div>
           {usernameHandle && <span className="username">@{usernameHandle.replace(/^@/, "")}</span>}
         </div>
@@ -87,11 +87,11 @@ export default function Searching() {
 
       <div className="room-header">
         <span className="header-1">{t('searching.message')}</span>
-        <span 
+        <span
           className="header-2"
           onClick={() => setIsPendingInviteVisible(true)}
         >
-            {t('searching.invitePending')}
+          {t('searching.invitePending')}
         </span>
       </div>
     </div>
