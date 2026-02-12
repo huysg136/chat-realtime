@@ -181,7 +181,7 @@ export default function ProfileModal() {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!validateFile(file)) {
+    if (!validateFile(file, user)) {
       e.target.value = null;
       return;
     }

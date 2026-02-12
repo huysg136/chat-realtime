@@ -7,7 +7,7 @@ import { ref, set } from "firebase/database";
 import { rtdb } from "../firebase/config";
 import { Spin } from 'antd';
 import { getUserDocIdByUid, updateDocument } from "../firebase/services";
-import { ROUTERS } from '../utils/router';
+import { ROUTERS } from '../constants/router';
 
 export const AuthContext = React.createContext();
 const auth = getAuth(app);

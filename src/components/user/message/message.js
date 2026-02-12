@@ -335,61 +335,36 @@ export default function Message({
   const defaultAvatar =
     "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
-  const menu = (
-    <Menu>
-      {kind !== "audio" && (
-        <>
-          {kind === "picture" ? (
-            <Menu.Item key="open-image" onClick={handleCopy} icon={<FaImage />}>
-              Mở ảnh
-            </Menu.Item>
-          ) : kind === "video" ? (
-            <Menu.Item key="open-video" onClick={handleCopy} icon={<FaVideo />}>
-              Mở video
-            </Menu.Item>
-          ) : kind === "file" ? (
-            <Menu.Item key="download" onClick={handleCopy} icon={<FaDownload />}>
-              Lưu về máy
-            </Menu.Item>
-          ) : (
-            <Menu.Item key="copy-text" onClick={handleCopy} icon={<FaRegCopy />}>
-              Copy tin nhắn
-            </Menu.Item>
-          )}
-        </>
-      )}
-      <Menu.Item key="share" onClick={handleForward} icon={<FaShareSquare />}>
-        Chia sẻ tin nhắn
-      </Menu.Item>
-
-      {/* Hide report for picture/video - AI cannot analyze visual content */}
-      {kind !== "picture" && kind !== "video" && kind !== "file" && (
-        <Menu.Item
-          key="report"
-          onClick={handleReport}
-          icon={<MdReportProblem />}
-        >
-          <span>Báo cáo</span>
-        </Menu.Item>
-      )}
-
-
-      {isOwn ? (
-        <>
-          <Menu.Divider style={{ margin: "0" }} />
-          <Menu.Item
-            key="revoke"
-            onClick={handleRevoke}
-            icon={<UndoOutlined style={{ color: "#ff4d4f" }} />}
-          >
-            <span style={{ color: "#ff4d4f", fontWeight: "500" }}>Thu hồi</span>
-          </Menu.Item>
-        </>
-      ) : (
-        null
-      )}
-    </Menu>
-  );
+  const menuItems = [
+    kind !== "audio" && {
+      key: kind === "picture" ? "open-image" : kind === "video" ? "open-video" : kind === "file" ? "download" : "copy-text",
+      icon: kind === "picture" ? <FaImage /> : kind === "video" ? <FaVideo /> : kind === "file" ? <FaDownload /> : <FaRegCopy />,
+      label: kind === "picture" ? "Mở ảnh" : kind === "video" ? "Mở video" : kind === "file" ? "Lưu về máy" : "Copy tin nhắn",
+      onClick: handleCopy,
+    },
+    {
+      key: "share",
+      icon: <FaShareSquare />,
+      label: "Chia sẻ tin nhắn",
+      onClick: handleForward,
+    },
+    kind !== "picture" && kind !== "video" && kind !== "file" && {
+      key: "report",
+      icon: <MdReportProblem />,
+      label: "Báo cáo",
+      onClick: handleReport,
+    },
+    isOwn && {
+      type: 'divider',
+      style: { margin: "0" }
+    },
+    isOwn && {
+      key: "revoke",
+      icon: <UndoOutlined style={{ color: "#ff4d4f" }} />,
+      label: <span style={{ color: "#ff4d4f", fontWeight: "500" }}>Thu hồi</span>,
+      onClick: handleRevoke,
+    }
+  ].filter(Boolean);
 
   return (
     <>
@@ -461,7 +436,7 @@ export default function Message({
                   <FaReply onClick={handleReply} />
                   {!isRevoked && (
                     <Dropdown
-                      overlay={menu}
+                      menu={{ items: menuItems }}
                       trigger={["click"]}
                       placement={isOwn ? "leftTop" : "rightTop"}
                     >

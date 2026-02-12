@@ -11,7 +11,7 @@ import ReactCountryFlag from "react-country-flag";
 import "./index.scss";
 import logo_quik from "../../images/logo_quik.png";
 import { toast } from "react-toastify";
-import { ROUTERS } from "../../utils/router";
+import { ROUTERS } from "../../constants/router"
 import { useTranslation } from "react-i18next";
 
 const { Title, Text } = Typography;
@@ -121,6 +121,7 @@ export default function Login() {
           // quản lý gói dịch vụ
           premiumLevel: "free", // free, pro
           premiumUntil: null,
+          quotaUsed: 0,
           // Cấu hình cá nhân
           theme: "system",
           language: "vi",

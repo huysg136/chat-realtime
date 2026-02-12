@@ -49,10 +49,10 @@ export default function AdminSettings() {
         setExpectedResume(
           data.expectedResume
             ? dayjs(
-                data.expectedResume.toDate
-                  ? data.expectedResume.toDate()
-                  : data.expectedResume
-              )
+              data.expectedResume.toDate
+                ? data.expectedResume.toDate()
+                : data.expectedResume
+            )
             : null
         );
 
@@ -60,10 +60,10 @@ export default function AdminSettings() {
         setActualExpectedResume(
           data.expectedResume
             ? dayjs(
-                data.expectedResume.toDate
-                  ? data.expectedResume.toDate()
-                  : data.expectedResume
-              )
+              data.expectedResume.toDate
+                ? data.expectedResume.toDate()
+                : data.expectedResume
+            )
             : null
         );
       }
@@ -128,10 +128,10 @@ export default function AdminSettings() {
               <Switch
                 checked={maintenance}
                 onChange={(checked) => {
-                    setMaintenance(checked);
-                    if (!checked) {
-                    setExpectedResume(null); 
-                    }
+                  setMaintenance(checked);
+                  if (!checked) {
+                    setExpectedResume(null);
+                  }
                 }}
                 checkedChildren="Bật"
                 unCheckedChildren="Tắt"
@@ -142,25 +142,25 @@ export default function AdminSettings() {
             <Divider />
 
             {maintenance && (
-                <>
+              <>
                 <div className="form-row">
-                    <Text strong className="form-label">
-                      <CalendarOutlined style={{ marginRight: 6, color: "#1677ff" }}/>
-                      Dự kiến mở lại:
-                      </Text>
-                    <DatePicker
+                  <Text strong className="form-label">
+                    <CalendarOutlined style={{ marginRight: 6, color: "#1677ff" }} />
+                    Dự kiến mở lại:
+                  </Text>
+                  <DatePicker
                     showTime
                     format="DD/MM/YYYY HH:mm"
                     value={expectedResume}
                     onChange={setExpectedResume}
                     style={{ flex: 1 }}
-                    />
+                  />
                 </div>
                 <Divider />
-                </>
+              </>
             )}
 
-            
+
 
             <div className="status-row">
               <Text className="status-now" strong>Trạng thái hiện tại:</Text>

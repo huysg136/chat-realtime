@@ -6,17 +6,16 @@ import { AuthContext } from "../../../context/authProvider";
 import { db } from "../../../firebase/config";
 import { getUserDocIdByUid } from "../../../firebase/services";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
-import "./leftSide.scss"; 
-import { AiFillMessage, AiOutlineMessage  } from "react-icons/ai";
+import "./leftSide.scss";
+import { AiFillMessage, AiOutlineMessage } from "react-icons/ai";
 import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { AppContext } from '../../../context/appProvider';
 import { MdOutlineAdminPanelSettings, MdReportProblem } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useUserStatus } from "../../../hooks/useUserStatus";
-import { ROUTERS } from "../../../utils/router";
+import { ROUTERS } from "../../../constants/router";
 import { useTranslation } from "react-i18next";
 import { FaMoneyBillWave } from "react-icons/fa";
-import { checkProUser } from "../../../utils/checkPro";
 
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
@@ -83,48 +82,54 @@ export default function LeftSide() {
     return () => unsubscribe && unsubscribe();
   }, [user]);
 
-  const isProUser = checkProUser(user);
-  const menu = (
-    <Menu style={{cursor: "pointer"}}>
-      <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => setIsProfileVisible(true)}>
-        {t('leftSide.myProfile')}
-      </Menu.Item>
-      {(role === "admin" || (role === "moderator" && user?.permissions?.canAccessAdminPage)) && (
-        <Menu.Item key="admin" icon={<MdOutlineAdminPanelSettings />} onClick={() => navigate(ROUTERS.ADMIN.DASHBOARD)}>
-          {t('leftSide.adminPage')}
-        </Menu.Item>
-      )}
-      <Menu.Item 
-        key="settings" 
-        icon={<SettingOutlined />}
-        onClick={() => setIsSettingsVisible(true)}
-      >
-        {t('leftSide.settings')}
-      </Menu.Item>
-      <Menu.Item key="reports" icon={<MdReportProblem />} onClick={() => setIsMyReportsVisible(true)}>
-        {t('leftSide.myReport')}
-      </Menu.Item>
-      <Menu.Item
-        key="upgrade-plan"
-        icon={<FaMoneyBillWave />}
-        onClick={() => setIsUpgradePlanVisible(true)}
-      >
-        {t('leftSide.upgradePlan')}
-      </Menu.Item>
-      <Menu.Divider style={{margin: "0"}}/>
-      <Menu.Item
-        key="logout"
-        onClick={logout}
-        icon={<LogoutOutlined />}
-        style={{ color: "#ff4d4f", fontWeight: "500" }}
-      >
-        {t('leftSide.logout')}
-      </Menu.Item>
-    </Menu>
-  );
+  const menuItems = [
+    {
+      key: "profile",
+      icon: <UserOutlined />,
+      label: t('leftSide.myProfile'),
+      onClick: () => setIsProfileVisible(true),
+    },
+    (role === "admin" || (role === "moderator" && user?.permissions?.canAccessAdminPage)) && {
+      key: "admin",
+      icon: <MdOutlineAdminPanelSettings />,
+      label: t('leftSide.adminPage'),
+      onClick: () => navigate(ROUTERS.ADMIN.DASHBOARD),
+    },
+    {
+      key: "settings",
+      icon: <SettingOutlined />,
+      label: t('leftSide.settings'),
+      onClick: () => setIsSettingsVisible(true),
+    },
+    {
+      key: "reports",
+      icon: <MdReportProblem />,
+      label: t('leftSide.myReport'),
+      onClick: () => setIsMyReportsVisible(true),
+    },
+    {
+      key: "upgrade-plan",
+      icon: <FaMoneyBillWave />,
+      label: t('leftSide.upgradePlan'),
+      onClick: () => setIsUpgradePlanVisible(true),
+    },
+    {
+      type: 'divider',
+      style: { margin: "0" }
+    },
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: t('leftSide.logout'),
+      onClick: logout,
+      danger: true,
+      style: { fontWeight: "500" }
+    }
+  ].filter(Boolean);
+
   return (
     <div className="sidebar">
-      <Dropdown overlay={menu} placement="bottomRight" trigger={["click"]}>
+      <Dropdown menu={{ items: menuItems }} placement="bottomRight" trigger={["click"]}>
         <div style={{ position: "relative", display: "inline-block" }}>
           <Avatar
             size={40}

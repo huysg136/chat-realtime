@@ -51,7 +51,7 @@ export default function ChatRoom() {
                 <LeftSide />
             </div>
 
-            <div style={{ width: '360px', flexShrink: 0 }}> 
+            <div style={{ width: '360px', flexShrink: 0 }}>
                 <SideBar />
             </div>
 
@@ -68,7 +68,7 @@ export default function ChatRoom() {
                         isVisible={true}
                         selectedRoom={selectedRoom}
                         membersData={membersData}
-                        currentUser={{ uid, displayName, photoURL }}
+                        currentUser={user}
                         currentUserRole={currentUserRole}
                         rolesArray={rolesArray}
                         isPrivate={isPrivate}

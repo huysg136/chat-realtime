@@ -22,6 +22,7 @@ export default function AppProvider({ children }) {
   const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(false);
   const [isUpgradePlanVisible, setIsUpgradePlanVisible] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
+
   const location = useLocation();
 
   const { user } = useContext(AuthContext);
@@ -34,12 +35,15 @@ export default function AppProvider({ children }) {
   }, [user?.uid]);
 
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, "config", "appStatus"), (snap) => {
+    // Sync appStatus (maintenance)
+    const unsubStatus = onSnapshot(doc(db, "config", "appStatus"), (snap) => {
       const maintenance = snap.exists() ? snap.data().maintenance : false;
       setIsMaintenance(maintenance);
     });
 
-    return () => unsub();
+    return () => {
+      unsubStatus();
+    };
   }, []);
 
   const roomsCondition = useMemo(
@@ -62,14 +66,14 @@ export default function AppProvider({ children }) {
 
   const otherUser = useMemo(() => {
     if (!selectedRoom || selectedRoom.type !== "private") return null;
-    
+
     const members = selectedRoom.members || [];
     const membersData = members
       .map((m) => (typeof m === "string" ? m : m?.uid))
       .filter(Boolean)
       .map((mid) => {
         let found = users.find((u) => String(u.uid).trim() === String(mid).trim());
-        
+
         if (!found && String(mid).trim() !== String(user?.uid).trim()) {
           return {
             uid: mid,
@@ -78,7 +82,7 @@ export default function AppProvider({ children }) {
             _isPlaceholder: true
           };
         }
-        
+
         return found;
       })
       .filter(Boolean);
@@ -89,9 +93,9 @@ export default function AppProvider({ children }) {
   }, [selectedRoom, users, user?.uid]);
 
   const videoCallState = useVideoCall(
-    user?.uid, 
-    selectedRoomId, 
-    otherUser, 
+    user?.uid,
+    selectedRoomId,
+    otherUser,
     users,
     (callerId) => {
       const callerRoom = rooms.find(room => {
@@ -102,7 +106,7 @@ export default function AppProvider({ children }) {
           return String(memberId).trim() === String(callerId).trim();
         });
       });
-      
+
       if (callerRoom && callerRoom.id !== selectedRoomId) {
         setSelectedRoomId(callerRoom.id);
       }
@@ -130,7 +134,7 @@ export default function AppProvider({ children }) {
 
       const unseenAnnouncement = announcements.find(ann => {
         const hasSeen = ann.hasSeenBy?.includes(user.uid) || false;
-        const isTargeted = ann.targetUids ? ann.targetUids.includes(user.uid) : true; 
+        const isTargeted = ann.targetUids ? ann.targetUids.includes(user.uid) : true;
         return !hasSeen && isTargeted;
       });
 
@@ -172,11 +176,11 @@ export default function AppProvider({ children }) {
         setIsProfileVisible,
         isSettingsVisible,
         setIsSettingsVisible,
-        isMyReportsVisible, 
+        isMyReportsVisible,
         setIsMyReportsVisible,
         isPendingInviteVisible,
         setIsPendingInviteVisible,
-        isUpgradePlanVisible, 
+        isUpgradePlanVisible,
         setIsUpgradePlanVisible,
         searchText,
         setSearchText,

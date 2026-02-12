@@ -34,16 +34,16 @@ function formatDate(timestamp) {
   return format(new Date(timestamp), "HH:mm dd/MM/yy", { locale: vi });
 }
 
-export default function ChatWindow({onToggleDetail}) {
-  const { 
-    users, 
-    selectedRoomId, 
+export default function ChatWindow({ onToggleDetail }) {
+  const {
+    users,
+    selectedRoomId,
     setIsInviteMemberVisible,
     videoCallState,
     selectedRoom: contextSelectedRoom,
-    otherUser: contextOtherUser 
+    otherUser: contextOtherUser
   } = useContext(AppContext);
-  
+
   const authContext = useContext(AuthContext) || {};
   const user = authContext.user || {};
   const uid = user.uid || "";
@@ -74,7 +74,7 @@ export default function ChatWindow({onToggleDetail}) {
     .filter(Boolean);
 
   const isPrivate = selectedRoom ? selectedRoom.type === "private" && membersData.length === 2 : false;
-  
+
   const otherUser = contextOtherUser;
 
   const otherUserStatus = useUserStatus(otherUser?.uid);
@@ -116,7 +116,7 @@ export default function ChatWindow({onToggleDetail}) {
       setMessages(newMessages);
       setLastDoc(lastVisible);
       setHasMore(snapshot.docs.length === MESSAGES_PER_PAGE);
-      
+
       setTimeout(() => {
         setIsInitialLoad(false);
       }, 100);
@@ -147,8 +147,8 @@ export default function ChatWindow({onToggleDetail}) {
       const decryptedText = (msg.kind === "system")
         ? (msg.text || "")
         : (selectedRoom?.secretKey
-            ? decryptMessage(msg.text || "", selectedRoom.secretKey)
-            : msg.text || "");
+          ? decryptMessage(msg.text || "", selectedRoom.secretKey)
+          : msg.text || "");
 
       return {
         ...msg,
@@ -220,7 +220,7 @@ export default function ChatWindow({onToggleDetail}) {
 
   const handleScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
-    
+
     scrollPositionRef.current = scrollTop;
 
     if (scrollHeight - scrollTop - clientHeight > 200) {
@@ -389,8 +389,8 @@ export default function ChatWindow({onToggleDetail}) {
 
         <div className="header__info">
           <p className="header__title">
-            {}
-            <UserBadge displayName={isPrivate ? otherUser?.displayName || selectedRoom.name : selectedRoom.name} role={isPrivate ? otherUser?.role : null} premiumLevel={isPrivate ? otherUser?.premiumLevel : null} premiumUntil={isPrivate ? otherUser?.premiumUntil : null} size={16}/>
+            { }
+            <UserBadge displayName={isPrivate ? otherUser?.displayName || selectedRoom.name : selectedRoom.name} role={isPrivate ? otherUser?.role : null} premiumLevel={isPrivate ? otherUser?.premiumLevel : null} premiumUntil={isPrivate ? otherUser?.premiumUntil : null} size={16} />
           </p>
           <span className="header__description">
             {(!isPrivate)
@@ -399,8 +399,8 @@ export default function ChatWindow({onToggleDetail}) {
                 ? (otherUserStatus.isOnline && otherUser?.showOnlineStatus && user?.showOnlineStatus)
                   ? t('chatWindow.status.activeNow')
                   : (otherUser?.showOnlineStatus && user?.showOnlineStatus)
-                  ? getOnlineStatus(otherUserStatus.lastOnline, t).text
-                  : null
+                    ? getOnlineStatus(otherUserStatus.lastOnline, t).text
+                    : null
                 : t('chatWindow.status.activeLongAgo')
             }
           </span>
@@ -411,7 +411,7 @@ export default function ChatWindow({onToggleDetail}) {
               <Button
                 type="text"
                 icon={<AiOutlineUsergroupAdd />}
-                onClick={() => setIsInviteMemberVisible(true)}  
+                onClick={() => setIsInviteMemberVisible(true)}
               />
             )}
             {!banInfo && !isPrivate && videoCallState && (
@@ -426,16 +426,16 @@ export default function ChatWindow({onToggleDetail}) {
                 icon={<VideoCameraOutlined />}
                 onClick={videoCallState.handleVideoCall}
                 disabled={
-                  !videoCallState.videoCall || 
-                  !videoCallState.videoCall.isConnected() || 
+                  !videoCallState.videoCall ||
+                  !videoCallState.videoCall.isConnected() ||
                   videoCallState.isInitializing
                 }
                 title={
-                  videoCallState.isInitializing 
+                  videoCallState.isInitializing
                     ? t('chatWindow.videoCall.initializing')
                     : !videoCallState.videoCall || !videoCallState.videoCall.isConnected()
-                    ? t('chatWindow.videoCall.connecting')
-                    : t('chatWindow.videoCall.callTitle')
+                      ? t('chatWindow.videoCall.connecting')
+                      : t('chatWindow.videoCall.callTitle')
                 }
               />
             )}
@@ -455,7 +455,7 @@ export default function ChatWindow({onToggleDetail}) {
           size="large"
           style={{
             position: "absolute",
-            bottom: 90, 
+            bottom: 90,
             right: 20,
             zIndex: 10,
             display: "flex",
@@ -568,15 +568,15 @@ export default function ChatWindow({onToggleDetail}) {
         {banInfo ? (
           <div className="ban-message">
             <p>
-              {t('chatWindow.chat.banMessage', { 
-                date: format(banInfo.banEnd, dateFormat, { locale: currentLocale }) 
+              {t('chatWindow.chat.banMessage', {
+                date: format(banInfo.banEnd, dateFormat, { locale: currentLocale })
               })}
             </p>
           </div>
         ) : (
           <ChatInput
             selectedRoom={selectedRoom}
-            user={{ uid, photoURL: user.photoURL, displayName: user.displayName }}
+            user={user}
             replyTo={replyTo}
             setReplyTo={setReplyTo}
             isBanned={isBanned}

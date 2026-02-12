@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { Route } from 'react-router-dom';
 import { Spin } from 'antd';
 import PrivateRoute from './privateRoute';
-import { ROUTERS } from '../utils/router';
+import { ROUTERS } from '../constants/router';
 import ReportManager from '../components/admin/report/reportManager';
 
 // Lazy load components

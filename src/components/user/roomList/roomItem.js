@@ -15,7 +15,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
   const [member, setMember] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
-  
+
   const memberUids = Array.isArray(room.members)
     ? room.members.map((m) => (typeof m === "string" ? m : m?.uid)).filter(Boolean)
     : [];
@@ -122,21 +122,28 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
         }
       }
       setSelectedRoomId(null);
-    } catch (err) {}
+    } catch (err) { }
   };
 
-  const menu = (
-    <Menu>
-      <Menu.Item key="pin" onClick={handlePin} icon={<PushpinOutlined />}>
-        {isPinned ? "Bỏ ghim đoạn chat" : "Ghim đoạn chat"}
-      </Menu.Item>
-      <Menu.Divider style={{ margin: "0" }} />
-      <Menu.Item key="delete" onClick={handleDelete} icon={<DeleteOutlined style={{ color: "#ff4d4f" }} />}>
-        <span style={{ color: "#ff4d4f", fontWeight: "500" }}>Xóa đoạn chat</span>
-      </Menu.Item>
-    </Menu>
-  );
-  
+  const menuItems = [
+    {
+      key: "pin",
+      icon: <PushpinOutlined />,
+      label: isPinned ? "Bỏ ghim đoạn chat" : "Ghim đoạn chat",
+      onClick: handlePin,
+    },
+    {
+      type: 'divider',
+      style: { margin: "0" }
+    },
+    {
+      key: "delete",
+      icon: <DeleteOutlined style={{ color: "#ff4d4f" }} />,
+      label: <span style={{ color: "#ff4d4f", fontWeight: "500" }}>Xóa đoạn chat</span>,
+      onClick: handleDelete,
+    }
+  ];
+
   return (
     <div
       className={`room-item ${selectedRoomId === room.id ? "active" : ""}`}
@@ -182,7 +189,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
           {isGroup && <TeamOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />}
           {isPrivate ? (
             <span>
-              <UserBadge displayName={membersData.find((u) => u.uid !== user?.uid)?.displayName || "No Name"} role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil}/>
+              <UserBadge displayName={membersData.find((u) => u.uid !== user?.uid)?.displayName || "No Name"} role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil} />
             </span>
           ) : (
             room.name || "No Name"
@@ -227,7 +234,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
 
       <div className="room-right">
         {isHovered ? (
-          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+          <Dropdown menu={{ items: menuItems }} trigger={["click"]} placement="bottomRight">
             <EllipsisOutlined className="more-icon" />
           </Dropdown>
         ) : (

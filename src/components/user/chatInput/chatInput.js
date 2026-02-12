@@ -9,7 +9,7 @@ import {
 import { toast } from "react-toastify";
 import axios from "axios";
 import EmojiPicker from "emoji-picker-react";
-import { addDocument, updateDocument, encryptMessage } from "../../../firebase/services";
+import { addDocument, updateDocument, encryptMessage, getUserDocIdByUid } from "../../../firebase/services";
 import { askGemini } from "../../../utils/AI/geminiBot";
 import { askGroq } from "../../../utils/AI/groqBot";
 import { uploadToR2 } from "../../../utils/uploadToR2"; 
@@ -17,6 +17,7 @@ import { validateFile } from "../../../utils/fileValidation";
 import "./chatInput.scss";
 import { useTranslation } from "react-i18next";
 import { FaMagic } from "react-icons/fa";
+import { hasEnoughQuota, increaseQuota, formatBytes, getQuotaLimit } from "../../../utils/quota";
 
 const getVisibleFor = (selectedRoom) => {
   if (!selectedRoom) return [];
@@ -104,7 +105,15 @@ export default function ChatInput({
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!validateFile(file)) {
+    if (!validateFile(file, user)) {
+      e.target.value = null;
+      return;
+    }
+
+    if (!hasEnoughQuota(user, file.size)) {
+      const limit = formatBytes(getQuotaLimit(user));
+      const used = formatBytes(user.quotaUsed || 0);
+      toast.error(`Bạn đã hết dung lượng! (${used} / ${limit}). Nâng cấp gói để tiếp tục.`);
       e.target.value = null;
       return;
     }
@@ -116,8 +125,10 @@ export default function ChatInput({
       // Upload trực tiếp lên R2
       const fileUrl = await uploadToR2(file, (progress) => {
         setUploadProgress(progress);
-        console.log(`Upload progress: ${progress}%`);
       });
+
+      const docId = await getUserDocIdByUid(user.uid);
+      await increaseQuota(docId, file.size);
 
       const kind = file.type.startsWith("image/")
         ? "picture"
@@ -154,7 +165,6 @@ export default function ChatInput({
       });
     } catch (err) {
       toast.error("Upload file thất bại");
-      console.error(err);
     } finally {
       setSendingFile(false);
       setUploadProgress(0);
@@ -197,16 +207,23 @@ export default function ChatInput({
   };
 
   const handleAudioUpload = async (audioBlob) => {
-    // Chuyển Blob thành File
+    // chuyển Blob thành File
     const audioFile = new File([audioBlob], "voice-message.wav", {
       type: "audio/wav",
     });
 
+    if (!hasEnoughQuota(user, audioFile.size)) {
+      toast.error("Bạn đã hết dung lượng! Nâng cấp gói để tiếp tục.");
+      return;
+    }
+
     try {
       setSendingVoice(true);
-
-      // Upload audio lên R2
+      // upload audio thẳng lên R2
       const audioUrl = await uploadToR2(audioFile);
+
+      const docId = await getUserDocIdByUid(user.uid);
+      await increaseQuota(docId, audioFile.size);
 
       const encryptedAudioUrl = selectedRoom.secretKey
         ? encryptMessage(audioUrl, selectedRoom.secretKey)
