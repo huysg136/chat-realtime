@@ -146,7 +146,9 @@
             "freePlan": "Free Plan",
             "expires": "Expires",
             "lifetime": "Permanent",
-            "upgradeNow": "Upgrade Now"
+            "upgradeNow": "Upgrade Now",
+            "storageQuota": "Storage Quota",
+            "usedOf": "Used {{used}} of {{limit}}"
         },
         "messages": {
             "nameEmpty": "Display name cannot be empty",

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { Modal, Avatar, Input, Button, Card } from 'antd';
+import { Modal, Avatar, Input, Button, Card, Progress } from 'antd';
 import { EditOutlined, UserOutlined, CameraOutlined } from '@ant-design/icons';
 import { AuthContext } from '../../context/authProvider';
 import { AppContext } from '../../context/appProvider';
@@ -17,6 +17,7 @@ import { IoDiamond } from 'react-icons/io5';
 import { checkProUser } from "../../utils/checkPro";
 import { checkMaxUser } from "../../utils/checkMax";
 import { checkLiteUser } from "../../utils/checkLite";
+import { getQuotaPercent, getQuotaLimit, formatBytes } from '../../utils/quota';
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 const MAX_USERNAME_LENGTH = 20;
@@ -381,43 +382,68 @@ export default function ProfileModal() {
             )}
           </div>
 
+          <div className="quota-usage-section">
+            <div className="quota-usage-header">
+              <span className="quota-usage-label">{t('profile.membership.storageQuota')}</span>
+              <span className="quota-usage-text">
+                {t('profile.membership.usedOf', {
+                  used: formatBytes(user?.quotaUsed || 0),
+                  limit: formatBytes(getQuotaLimit(user))
+                })}
+              </span>
+            </div>
+            <Progress
+              percent={getQuotaPercent(user)}
+              size="small"
+              strokeColor={
+                getQuotaPercent(user) > 80 ? '#ef4444' :
+                  getQuotaPercent(user) > 50 ? '#f59e0b' :
+                    '#10b981'
+              }
+              trailColor={undefined}
+              showInfo={true}
+              className="quota-progress"
+            />
+          </div>
+
           <div className={`membership-card ${isMaxUser ? 'membership-card--max' :
             isProUser ? 'membership-card--pro' :
               isLiteUser ? 'membership-card--lite' :
                 'membership-card--free'
             }`}>
-            <div>
-              <div className={`membership-plan-name ${isMaxUser ? 'membership-plan-name--max' :
-                isProUser ? 'membership-plan-name--pro' :
-                  isLiteUser ? 'membership-plan-name--lite' :
-                    'membership-plan-name--free'
-                }`}>
-                {isMaxUser ? t('profile.membership.maxPlan') :
-                  isProUser ? t('profile.membership.proPlan') :
-                    isLiteUser ? t('profile.membership.litePlan') :
-                      t('profile.membership.freePlan')}
-              </div>
-              {(isProUser || isMaxUser || isLiteUser) && (
-                <div className="membership-expiry">
-                  {t('profile.membership.expires')}: {formatExpiryDate(user?.premiumUntil)}
+            <div className="membership-info">
+              <div className="membership-main">
+                <div className={`membership-plan-name ${isMaxUser ? 'membership-plan-name--max' :
+                  isProUser ? 'membership-plan-name--pro' :
+                    isLiteUser ? 'membership-plan-name--lite' :
+                      'membership-plan-name--free'
+                  }`}>
+                  {isMaxUser ? t('profile.membership.maxPlan') :
+                    isProUser ? t('profile.membership.proPlan') :
+                      isLiteUser ? t('profile.membership.litePlan') :
+                        t('profile.membership.freePlan')}
                 </div>
+                {(isProUser || isMaxUser || isLiteUser) && (
+                  <div className="membership-expiry">
+                    {t('profile.membership.expires')}: {formatExpiryDate(user?.premiumUntil)}
+                  </div>
+                )}
+              </div>
+
+              {!isMaxUser && (
+                <Button
+                  type="primary"
+                  size="small"
+                  className="upgrade-btn"
+                  onClick={() => {
+                    setIsProfileVisible(false);
+                    setIsUpgradePlanVisible(true);
+                  }}
+                >
+                  {t('profile.membership.upgradeNow')}
+                </Button>
               )}
             </div>
-
-            {!isMaxUser && (
-              <Button
-                type="primary"
-                size="small"
-                ghost
-                className="upgrade-btn"
-                onClick={() => {
-                  setIsProfileVisible(false);
-                  setIsUpgradePlanVisible(true);
-                }}
-              >
-                {t('profile.membership.upgradeNow')}
-              </Button>
-            )}
           </div>
         </div>
       </Card>

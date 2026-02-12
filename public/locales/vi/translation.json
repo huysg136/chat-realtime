@@ -146,7 +146,9 @@
             "freePlan": "Gói miễn phí",
             "expires": "Hết hạn",
             "lifetime": "Vĩnh viễn",
-            "upgradeNow": "Nâng cấp ngay"
+            "upgradeNow": "Nâng cấp ngay",
+            "storageQuota": "Dung lượng lưu trữ",
+            "usedOf": "Đã dùng {{used}} trên {{limit}}"
         },
         "messages": {
             "nameEmpty": "Tên hiển thị không được để trống",

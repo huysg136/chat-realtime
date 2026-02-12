@@ -57,7 +57,21 @@
   }
 
   .upgrade-btn {
-    border-radius: 6px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 11px;
+    height: 28px;
+    padding: 0 12px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    border: none;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+      filter: brightness(1.1);
+    }
   }
 
   // ===== AVATAR SECTION =====
@@ -169,16 +183,56 @@
 
   .max-diamond-icon {
     color: #FFD700;
-    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+    filter: drop-shadow(0 0 4px rgba(255, 215, 215, 0.5));
+  }
+
+  .quota-usage-section {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 0 4px;
+
+    .quota-usage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 11px;
+    }
+
+    .quota-usage-label {
+      font-weight: 500;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .quota-usage-text {
+      color: #a1a1aa;
+    }
+
+    .quota-progress {
+      margin-bottom: 0;
+
+      .ant-progress-text {
+        font-size: 11px;
+        color: #71717a;
+        margin-left: 8px;
+      }
+
+      .ant-progress-inner {
+        height: 6px !important;
+        background-color: #f1f5f9;
+      }
+    }
   }
 
   .membership-card {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 6px 16px;
+    flex-direction: column;
+    padding: 16px;
     border-radius: 14px;
     transition: all 0.3s ease;
+    gap: 16px;
 
     &--pro {
       background: linear-gradient(135deg, #f7f7f8 0%, #ffffff 100%);
@@ -202,6 +256,13 @@
       background: #f8fafc;
       border: 1px solid #e2e8f0;
     }
+  }
+
+  .membership-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
   }
 
   .membership-plan-name {
@@ -286,6 +347,30 @@
 
     .field-value {
       color: #d1d5db;
+    }
+
+    .quota-usage-section {
+      .quota-usage-label {
+        color: #a1a1aa;
+      }
+
+      .quota-usage-text {
+        color: #71717a;
+      }
+
+      .quota-progress {
+        .ant-progress-inner {
+          background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .ant-progress-bg {
+          box-shadow: 0 0 8px currentColor;
+        }
+
+        .ant-progress-text {
+          color: #f1f5f9;
+        }
+      }
     }
 
     .membership-section {

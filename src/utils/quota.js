@@ -1,7 +1,7 @@
 import { getPremiumLevel } from "./getPremiumLevel";
 
 export const QUOTA_LIMIT = {
-  free: 0 * 1024 * 1024,          // 200 MB
+  free: 200 * 1024 * 1024,          // 200 MB
   lite: 2 * 1024 * 1024 * 1024,     // 2 GB
   pro: 10 * 1024 * 1024 * 1024,    // 10 GB
   max: 30 * 1024 * 1024 * 1024,    // 30 GB
@@ -24,6 +24,7 @@ export function hasEnoughQuota(user, fileSizeBytes) {
 export function getQuotaPercent(user) {
   const used = user.quotaUsed || 0;
   const limit = getQuotaLimit(user);
+  if (limit === 0) return 0;
   return Math.min(100, Math.round((used / limit) * 100));
 }
 
