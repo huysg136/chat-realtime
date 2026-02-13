@@ -6,22 +6,31 @@ import { ROUTERS } from '../configs/router';
 import ReportManager from '../components/admin/report/reportManager';
 import LandingPage from '../pages/user/landingPage/landingPage';
 
-// Helper to retry lazy import if chunk load error occurs
+// Helper to retry lazy import if chunk load error occurs (with reload guard)
 const lazyRetry = function (componentImport) {
   return new Promise((resolve, reject) => {
+    const storageKey = 'chunk_retry_reloaded';
+    const hasReloaded = sessionStorage.getItem(storageKey);
+
     componentImport()
       .then((component) => {
+        // Chunk loaded successfully, clear the flag
+        sessionStorage.removeItem(storageKey);
         resolve(component);
       })
       .catch((error) => {
         if (
-          error.name === 'ChunkLoadError' ||
-          error.message.includes('Loading chunk') ||
-          error.message.includes('missing')
+          !hasReloaded &&
+          (error.name === 'ChunkLoadError' ||
+            error.message?.includes('Loading chunk') ||
+            error.message?.includes('missing'))
         ) {
-          // Reload page to get new chunks
+          // First time chunk error: mark and reload
+          sessionStorage.setItem(storageKey, 'true');
           window.location.reload();
         } else {
+          // Already reloaded once or different error: don't loop
+          console.error('Chunk load failed after retry:', error);
           reject(error);
         }
       });
