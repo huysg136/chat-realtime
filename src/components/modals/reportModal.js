@@ -276,7 +276,6 @@ async function getExistingReports(messageId) {
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
-    console.error("Error fetching existing reports:", error);
     return [];
   }
 }
@@ -472,13 +471,12 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
               reporterName: currentUser?.displayName,
               messageText: messageText,
               action: "reject",
-              adminName: "AI System", // System handled it
+              adminName: "AI System", 
               reason: actionNotes,
               reportDate: new Date().toLocaleString("vi-VN"),
             }),
-          }).catch(console.error); // Fire and forget
+          }).catch(); 
         } catch (e) {
-          console.error("Auto-reply email error", e);
         }
       }
 
@@ -488,7 +486,6 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
       resetForm();
       onClose?.();
     } catch (err) {
-      console.error("Report error:", err);
       toast.error("Không thể gửi báo cáo. Vui lòng thử lại.");
     } finally {
       setSubmitting(false);

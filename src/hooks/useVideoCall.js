@@ -44,11 +44,6 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
     try {
       setIsInitializing(true);
 
-      if (!API_BASE_URL) {
-        throw new Error("REACT_APP_API_BASE_URL is not defined in .env");
-      }
-
-      console.log('Fetching token from:', `${API_BASE_URL}/api/stringee/token`);
       const tokenRes = await fetch(
         `${API_BASE_URL}/api/stringee/token?uid=${encodeURIComponent(uid)}`
       );
@@ -72,8 +67,6 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
       setVideoCall(vc);
 
     } catch (err) {
-      console.error("Video Call Error:", err);
-      // alert(`Không thể kết nối Video Call: ${err.message}\nURL: ${API_BASE_URL}`);
     } finally {
       setIsInitializing(false);
     }

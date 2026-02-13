@@ -6,50 +6,17 @@ import { ROUTERS } from '../configs/router';
 import ReportManager from '../components/admin/report/reportManager';
 import LandingPage from '../pages/user/landingPage/landingPage';
 import ChatRoom from '../pages/user/landingPage/chatRoom';
+import ExplorePage from '../components/user/explorePage/explorePage';
 
-// Helper to retry lazy import if chunk load error occurs (with reload guard)
-const lazyRetry = function (componentImport) {
-  return new Promise((resolve, reject) => {
-    const storageKey = 'chunk_retry_reloaded';
-    const hasReloaded = sessionStorage.getItem(storageKey);
-
-    componentImport()
-      .then((component) => {
-        // Chunk loaded successfully, clear the flag
-        sessionStorage.removeItem(storageKey);
-        resolve(component);
-      })
-      .catch((error) => {
-        if (
-          !hasReloaded &&
-          (error.name === 'ChunkLoadError' ||
-            error.message?.includes('Loading chunk') ||
-            error.message?.includes('missing'))
-        ) {
-          // First time chunk error: mark and reload
-          sessionStorage.setItem(storageKey, 'true');
-          window.location.reload();
-        } else {
-          // Already reloaded once or different error: don't loop
-          console.error('Chunk load failed after retry:', error);
-          reject(error);
-        }
-      });
-  });
-};
-
-// Lazy load components with retry
-// ChatRoom is imported directly (not lazy) since it's the main landing page
-const ExplorePage = lazy(() => lazyRetry(() => import('../components/user/explorePage/explorePage')));
-const Login = lazy(() => lazyRetry(() => import('../components/login')));
-const MaintenancePage = lazy(() => lazyRetry(() => import('../pages/user/maintenancePage/maintenancePage')));
-const AdminLayout = lazy(() => lazyRetry(() => import('../pages/admin/adminLayout/adminLayout')));
-const Dashboard = lazy(() => lazyRetry(() => import('../components/admin/dashboard/dashboard')));
-const UsersManager = lazy(() => lazyRetry(() => import('../components/admin/userManager/userManager')));
-const RoomsManager = lazy(() => lazyRetry(() => import('../components/admin/roomManager/roomManager')));
-const AnnouncementManager = lazy(() => lazyRetry(() => import('../components/admin/announcementManager/announcementManager')));
-const AdminSettings = lazy(() => lazyRetry(() => import('../components/admin/adminSettings/adminSettings')));
-const ModPermissionManager = lazy(() => lazyRetry(() => import('../components/admin/modPermissionManager/modPermissionManager')));
+const Login = lazy(() => import('../components/login'));
+const MaintenancePage = lazy(() => import('../pages/user/maintenancePage/maintenancePage'));
+const AdminLayout = lazy(() => import('../pages/admin/adminLayout/adminLayout'));
+const Dashboard = lazy(() => import('../components/admin/dashboard/dashboard'));
+const UsersManager = lazy(() => import('../components/admin/userManager/userManager'));
+const RoomsManager = lazy(() => import('../components/admin/roomManager/roomManager'));
+const AnnouncementManager = lazy(() => import('../components/admin/announcementManager/announcementManager'));
+const AdminSettings = lazy(() => import('../components/admin/adminSettings/adminSettings'));
+const ModPermissionManager = lazy(() => import('../components/admin/modPermissionManager/modPermissionManager'));
 
 // Loading Fallback
 const Loading = () => (
@@ -100,11 +67,7 @@ export const userRoutes = [
       },
       {
         path: getRelativePath(ROUTERS.USER.EXPLORE, "/"),
-        element: (
-          <Suspense fallback={<Loading />}>
-            <ExplorePage />
-          </Suspense>
-        ),
+        element: <ExplorePage />,
       }
     ],
   },

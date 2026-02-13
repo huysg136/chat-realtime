@@ -36,7 +36,6 @@ export const uploadToR2 = async (file, onProgress) => {
     // Trả về URL public của file
     return data.fileUrl;
   } catch (error) {
-    console.error("Upload to R2 error:", error);
     throw error;
   }
 };

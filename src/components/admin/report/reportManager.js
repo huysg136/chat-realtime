@@ -279,7 +279,6 @@ export default function ReportManager() {
 
         await emailResponse.json();
       } catch (emailError) {
-        console.error(emailError);
       }
 
       if (actionType === "ban") {

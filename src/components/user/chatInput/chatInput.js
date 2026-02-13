@@ -336,7 +336,6 @@ export default function ChatInput({
       });
     } catch (err) {
       toast.error(t('notifications.voiceError'));
-      console.error(err);
     } finally {
       setSendingVoice(false);
       setIsRecording(false);
