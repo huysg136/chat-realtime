@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Navigate } from "react-router-dom";
-import { Spin } from "antd";
+import LoadingScreen from '../components/common/loadingScreen';
 import { AuthContext } from "../context/authProvider";
 import { AppContext } from "../context/appProvider";
 import { ROUTERS } from "../configs/router";
@@ -15,11 +15,7 @@ export default function PrivateRoute({
 
   // Loading state
   if (isAuthLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Spin size="large" />
-      </div>
-    );
+    return <LoadingScreen fullScreen />;
   }
 
   // Not authenticated

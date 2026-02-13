@@ -4,7 +4,6 @@ import {
   Row,
   Col,
   Statistic,
-  Spin,
   Radio,
   Select,
 } from "antd";
@@ -33,6 +32,7 @@ import {
 import { Line, Bar } from "react-chartjs-2";
 import "./dashboard.scss";
 import { toast } from "react-toastify";
+import LoadingScreen from '../../common/loadingScreen';
 
 ChartJS.register(
   LineElement,
@@ -213,16 +213,7 @@ export default function Dashboard() {
   };
 
   if (loading)
-  return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      minHeight: '400px' 
-    }}>
-      <Spin size="large" />
-    </div>
-  );
+    return <LoadingScreen />;
 
   const growth = calcGrowth(stats.newUsersToday, stats.newUsersYesterday);
 

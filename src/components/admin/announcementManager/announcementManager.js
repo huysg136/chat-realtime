@@ -11,13 +11,14 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { Table, Button, Modal, Input, Switch, Space, Spin } from "antd";
+import { Table, Button, Modal, Input, Switch, Space } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import "./announcementManager.scss";
 import { toast } from "react-toastify";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import NoAccess from "../noAccess/noAccess";
+import LoadingScreen from "../../common/loadingScreen";
 
 export default function AnnouncementManager() {
   const [loading, setLoading] = useState(true);
@@ -84,16 +85,7 @@ export default function AnnouncementManager() {
   };
 
   if (loading)
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '400px'
-      }}>
-        <Spin size="large" />
-      </div>
-    );
+    return <LoadingScreen />;
 
   const addOrUpdate = async () => {
     if (!title.trim() || !content.trim()) {

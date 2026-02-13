@@ -13,7 +13,7 @@ import {
 import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
 import NoAccess from "../noAccess/noAccess";
 import { IoIosCloseCircleOutline } from "react-icons/io";
-import { Table, Spin } from "antd";
+import { Table } from "antd";
 import "react-toastify/dist/ReactToastify.css";
 import "./userManager.scss";
 import { formatBytes, getQuotaLimit } from "../../../utils/quota";
@@ -21,6 +21,7 @@ import { useUserStatus } from "../../../hooks/useUserStatus";
 import ReactCountryFlag from "react-country-flag";
 import { BsLaptop, BsMoonStarsFill, BsSunFill } from "react-icons/bs";
 import { getUserDocIdByUid } from "../../../firebase/services";
+import LoadingScreen from '../../common/loadingScreen';
 
 const UserDetailStatus = ({ uid }) => {
   const status = useUserStatus(uid);
@@ -343,9 +344,7 @@ export default function UsersManager() {
     },
   ];
 
-  if (loading) return (
-    <div className="loading-center"><Spin size="large" /></div>
-  );
+  if (loading) return <LoadingScreen />;
 
   return (
     <div className="user-manager">

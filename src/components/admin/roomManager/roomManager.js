@@ -5,9 +5,10 @@ import { decryptMessage } from "../../../firebase/services";
 import NoAccess from "../noAccess/noAccess";
 import { AuthContext } from "../../../context/authProvider";
 import { FiCopy } from "react-icons/fi";
-import { Table, Spin } from "antd";
+import { Table } from "antd";
 import { toast } from "react-toastify";
 import "./roomManager.scss";
+import LoadingScreen from '../../common/loadingScreen';
 
 export default function RoomManager() {
   const { user: currentUser } = useContext(AuthContext);
@@ -113,16 +114,7 @@ export default function RoomManager() {
   }
 
   if (loading)
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '400px'
-      }}>
-        <Spin size="large" />
-      </div>
-    );
+    return <LoadingScreen />;
 
   const filteredRooms = rooms
     .filter((room) =>

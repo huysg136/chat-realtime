@@ -27,6 +27,7 @@ import NoAccess from "../noAccess/noAccess";
 import { Table, Tag, Spin, Modal, Input, Radio, Space, Select } from "antd";
 import "react-toastify/dist/ReactToastify.css";
 import "./reportManager.scss";
+import LoadingScreen from '../../common/loadingScreen';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 const { TextArea } = Input;
@@ -499,18 +500,7 @@ export default function ReportManager() {
   ];
 
   if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "400px",
-        }}
-      >
-        <Spin size="large" />
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (

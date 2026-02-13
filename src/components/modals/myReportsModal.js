@@ -1,6 +1,6 @@
 // components/Modal/MyReportsModal/MyReportsModal.js
 import React, { useState, useEffect, useContext } from "react";
-import { Modal, Table, Tag, Empty, Spin, Input, Select } from "antd";
+import { Modal, Table, Tag, Empty, Input, Select } from "antd";
 import { FiMessageSquare, FiClock } from "react-icons/fi";
 import { db } from "../../firebase/config";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import "./myReportsModal.scss";
 import { AuthContext } from "../../context/authProvider";
 import { AppContext } from "../../context/appProvider";
+import LoadingScreen from '../common/loadingScreen';
 
 const STATUS_COLORS = {
   pending: { color: "#0958d9", bg: "#e6f4ff", label: "Chờ xử lý" },
@@ -255,9 +256,7 @@ export default function MyReportsModal() {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "60px 0" }}>
-            <Spin size="large" />
-          </div>
+          <LoadingScreen />
         ) : filteredReports.length === 0 ? (
           <Empty
             description="Bạn chưa có báo cáo nào"

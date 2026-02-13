@@ -1,13 +1,13 @@
 import React, { Suspense, lazy } from 'react';
 import { Route } from 'react-router-dom';
-import { Spin } from 'antd';
+import LoadingScreen from '../components/common/loadingScreen';
 import PrivateRoute from './privateRoute';
 import { ROUTERS } from '../configs/router';
 import ReportManager from '../components/admin/report/reportManager';
 import LandingPage from '../pages/user/landingPage/landingPage';
 import ChatRoom from '../pages/user/landingPage/chatRoom';
-import ExplorePage from '../components/user/explorePage/explorePage';
 
+const ExplorePage = lazy(() => import('../components/user/explorePage/explorePage'));
 const Login = lazy(() => import('../components/login'));
 const MaintenancePage = lazy(() => import('../pages/user/maintenancePage/maintenancePage'));
 const AdminLayout = lazy(() => import('../pages/admin/adminLayout/adminLayout'));
@@ -18,12 +18,7 @@ const AnnouncementManager = lazy(() => import('../components/admin/announcementM
 const AdminSettings = lazy(() => import('../components/admin/adminSettings/adminSettings'));
 const ModPermissionManager = lazy(() => import('../components/admin/modPermissionManager/modPermissionManager'));
 
-// Loading Fallback
-const Loading = () => (
-  <div className="flex justify-center items-center h-screen">
-    <Spin size="large" />
-  </div>
-);
+
 
 // Helper function to extract relative path from absolute path
 // Example: "/admin/users" → "users"
@@ -36,7 +31,7 @@ export const publicRoutes = [
   {
     path: ROUTERS.USER.LOGIN,
     element: (
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<LoadingScreen />}>
         <Login />
       </Suspense>
     ),
@@ -44,7 +39,7 @@ export const publicRoutes = [
   {
     path: ROUTERS.USER.MAINTENANCE,
     element: (
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<LoadingScreen />}>
         <MaintenancePage />
       </Suspense>
     ),
@@ -67,7 +62,11 @@ export const userRoutes = [
       },
       {
         path: getRelativePath(ROUTERS.USER.EXPLORE, "/"),
-        element: <ExplorePage />,
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <ExplorePage />
+          </Suspense>
+        ),
       }
     ],
   },
@@ -77,7 +76,7 @@ export const userRoutes = [
 export const adminRoutes = {
   path: ROUTERS.ADMIN.DASHBOARD,
   element: (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<LoadingScreen />}>
       <PrivateRoute requireAdmin requirePermission="canAccessAdminPage">
         <AdminLayout />
       </PrivateRoute>
@@ -87,7 +86,7 @@ export const adminRoutes = {
     {
       index: true,
       element: (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<LoadingScreen />}>
           <Dashboard />
         </Suspense>
       ),
@@ -95,7 +94,7 @@ export const adminRoutes = {
     {
       path: getRelativePath(ROUTERS.ADMIN.USERS, ROUTERS.ADMIN.DASHBOARD),
       element: (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<LoadingScreen />}>
           <UsersManager />
         </Suspense>
       ),
@@ -103,7 +102,7 @@ export const adminRoutes = {
     {
       path: getRelativePath(ROUTERS.ADMIN.ROOMS, ROUTERS.ADMIN.DASHBOARD),
       element: (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<LoadingScreen />}>
           <RoomsManager />
         </Suspense>
       ),
@@ -111,7 +110,7 @@ export const adminRoutes = {
     {
       path: getRelativePath(ROUTERS.ADMIN.REPORTS, ROUTERS.ADMIN.DASHBOARD),
       element: (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<LoadingScreen />}>
           <ReportManager />
         </Suspense>
       ),
@@ -119,7 +118,7 @@ export const adminRoutes = {
     {
       path: getRelativePath(ROUTERS.ADMIN.ANNOUNCEMENTS, ROUTERS.ADMIN.DASHBOARD),
       element: (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<LoadingScreen />}>
           <AnnouncementManager />
         </Suspense>
       ),
@@ -127,7 +126,7 @@ export const adminRoutes = {
     {
       path: getRelativePath(ROUTERS.ADMIN.SETTINGS, ROUTERS.ADMIN.DASHBOARD),
       element: (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<LoadingScreen />}>
           <AdminSettings />
         </Suspense>
       ),
@@ -135,7 +134,7 @@ export const adminRoutes = {
     {
       path: getRelativePath(ROUTERS.ADMIN.MOD_PERMISSIONS, ROUTERS.ADMIN.DASHBOARD),
       element: (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<LoadingScreen />}>
           <ModPermissionManager />
         </Suspense>
       ),

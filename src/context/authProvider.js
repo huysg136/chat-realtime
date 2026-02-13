@@ -5,7 +5,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore, doc, onSnapshot } from "firebase/firestore";
 import { ref, set } from "firebase/database";
 import { rtdb } from "../firebase/config";
-import { Spin } from 'antd';
+import LoadingScreen from '../components/common/loadingScreen';
 import { getUserDocIdByUid, updateDocument } from "../firebase/services";
 import { ROUTERS } from '../configs/router';
 
@@ -166,9 +166,7 @@ export default function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{ user, setUser, isLoading, logout }}>
       {isLoading ? (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-          <Spin size="large" />
-        </div>
+        <LoadingScreen fullScreen />
       ) : (
         children
       )}
