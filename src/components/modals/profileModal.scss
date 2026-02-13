@@ -175,16 +175,6 @@
     font-size: 14px;
   }
 
-  .pro-diamond-icon {
-    color: #BFC1C2;
-    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
-  }
-
-  .max-diamond-icon {
-    color: #FFD700;
-    filter: drop-shadow(0 0 4px rgba(255, 215, 215, 0.5));
-  }
-
   .quota-usage-section {
     width: 100%;
     margin-bottom: 12px;
@@ -314,8 +304,24 @@
     }
 
     .ant-btn {
-      color: #f9fafb;
-      border-color: rgba(255, 255, 255, 0.2);
+
+      &-primary {
+        color: #fff;
+        background: #1677ff;
+        &:disabled {
+          opacity: 0.5 !important;
+        }
+        border-color: rgba(255, 255, 255, 0.2) !important;
+      }
+
+      &-color-defalut {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+      }
+
+      &-icon {
+        color: #c2c2c2;
+      }
     }
 
     .camera-button,

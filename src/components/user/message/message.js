@@ -6,9 +6,8 @@ import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import MediaRenderer from "./MediaRenderer";
 import { db } from "../../../firebase/config";
-import { doc, onSnapshot, collection, query, where, getDoc } from "firebase/firestore";
+import { doc, onSnapshot, collection, query, where } from "firebase/firestore";
 import {
-  getUserDocIdByUid,
   sendMessageToRoom,
   encryptMessage,
 } from "../../../firebase/services";
@@ -50,22 +49,14 @@ const ReplyPreview = ({ replyTo, isOwn }) => {
 
     const messageRef = doc(db, "messages", replyTo.id);
 
-    getDoc(messageRef).then((docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setIsRepliedRevoked(data.isRevoked === true);
-      }
-      setLoading(false);
-    }).catch((error) => {
-      setLoading(false);
-    });
-
     const unsubscribe = onSnapshot(messageRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setIsRepliedRevoked(data.isRevoked === true);
       }
+      setLoading(false);
     }, (error) => {
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -196,40 +187,14 @@ export default function Message({
   const [isReportModalVisible, setIsReportModalVisible] = useState(false);
 
   useEffect(() => {
-    if (!uid) return;
-
-    const q = query(collection(db, "bans"), where("uid", "==", uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const bans = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        banEnd: doc.data().banEnd?.toDate ? doc.data().banEnd.toDate() : new Date(doc.data().banEnd),
-      }));
-
-      const activeBan = bans.find((ban) => ban.banEnd > new Date());
-      setBanInfo(activeBan || null);
-    });
-
-    return () => unsubscribe();
-  }, [uid]);
-
-  useEffect(() => {
-    if (!uid) return;
-    let unsubscribe = null;
-
-    getUserDocIdByUid(uid).then((docId) => {
-      if (!docId) return;
-      unsubscribe = onSnapshot(doc(db, "users", docId), (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setDisplayName(data.displayName || initialDisplayName);
-          setPhotoURL(data.photoURL || initialPhoto);
-        }
-      });
-    });
-
-    return () => unsubscribe?.();
-  }, [uid, initialDisplayName, initialPhoto]);
+    if (uid && users.length > 0) {
+      const foundUser = users.find(u => u.uid === uid);
+      if (foundUser) {
+        setDisplayName(foundUser.displayName || initialDisplayName);
+        setPhotoURL(foundUser.photoURL || initialPhoto);
+      }
+    }
+  }, [uid, users, initialDisplayName, initialPhoto]);
 
   if (kind === 'system') {
     return (

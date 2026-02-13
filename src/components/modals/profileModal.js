@@ -375,11 +375,6 @@ export default function ProfileModal() {
         <div className="membership-section">
           <div className="membership-title">
             {t('profile.membership.title')}
-            {(isProUser || isMaxUser) && (
-              <IoDiamond
-                className={isMaxUser ? "max-diamond-icon" : "pro-diamond-icon"}
-              />
-            )}
           </div>
 
           <div className="quota-usage-section">

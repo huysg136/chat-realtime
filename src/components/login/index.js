@@ -11,7 +11,7 @@ import ReactCountryFlag from "react-country-flag";
 import "./index.scss";
 import logo_quik from "../../images/logo_quik.png";
 import { toast } from "react-toastify";
-import { ROUTERS } from "../../constants/router"
+import { ROUTERS } from "../../configs/router"
 import { useTranslation } from "react-i18next";
 
 const { Title, Text } = Typography;

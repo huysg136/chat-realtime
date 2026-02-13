@@ -459,7 +459,7 @@ export default function ChatInput({
                       </>
                     );
                   case "audio":
-                    return <>🎤 {t('chatInput.media.voice')}</>;
+                    return <>{t('chatInput.media.voice')}</>;
                   default:
                     return replyTo.decryptedText;
                 }

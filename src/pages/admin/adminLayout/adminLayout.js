@@ -6,7 +6,7 @@ import AdminHeader from "../adminHeader/adminHeader";
 import "./adminLayout.scss";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/authProvider";
-import { ROUTERS } from "../../../constants/router";
+import { ROUTERS } from "../../../configs/router";
 
 const { Content } = Layout;
 

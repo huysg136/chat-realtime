@@ -13,7 +13,7 @@ import { IoMdReturnLeft } from "react-icons/io";
 import logo from "../../../images/logo_quik.png";
 import "./adminSidebar.scss";
 import { AuthContext } from "../../../context/authProvider";
-import { ROUTERS } from "../../../constants/router";
+import { ROUTERS } from "../../../configs/router";
 import { MdReportProblem } from "react-icons/md";
 
 const { Sider } = Layout;

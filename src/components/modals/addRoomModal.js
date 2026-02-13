@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { Modal, Input, Avatar, Spin, Checkbox, Button } from 'antd';
 import { AppContext } from '../../context/appProvider';
 import { AuthContext } from '../../context/authProvider';
-import { collection, query, where, orderBy, limit, getDocs, getDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, query, where, orderBy, limit, getDocs, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import debounce from 'lodash/debounce';
 import { addDocument, generateAESKey } from '../../firebase/services';
@@ -47,6 +47,7 @@ export default function AddRoomModal() {
       }
     };
     fetchCurrentMembers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAddRoomVisible, rooms, setSelectedRoomId]);
 
   // Auto-generate room name

@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { Spin } from "antd";
 import { AuthContext } from "../context/authProvider";
 import { AppContext } from "../context/appProvider";
-import { ROUTERS } from "../constants/router";
+import { ROUTERS } from "../configs/router";
 
 export default function PrivateRoute({
   children,

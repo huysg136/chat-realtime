@@ -1,27 +1,30 @@
 import { useState, useContext, useEffect } from "react";
 import { AiOutlineLogout } from "react-icons/ai";
-import { Avatar, Dropdown, Menu } from "antd";
-//import { auth } from "../../../firebase/config";
+import { Avatar, Dropdown } from "antd";
 import { AuthContext } from "../../../context/authProvider";
 import { db } from "../../../firebase/config";
 import { getUserDocIdByUid } from "../../../firebase/services";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import "./leftSide.scss";
 import { AiFillMessage, AiOutlineMessage } from "react-icons/ai";
-import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
+import { SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { AppContext } from '../../../context/appProvider';
 import { MdOutlineAdminPanelSettings, MdReportProblem } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useUserStatus } from "../../../hooks/useUserStatus";
-import { ROUTERS } from "../../../constants/router";
+import { ROUTERS } from "../../../configs/router";
 import { useTranslation } from "react-i18next";
 import { FaMoneyBillWave } from "react-icons/fa";
+import { GoHome, GoHomeFill } from "react-icons/go";
+import { FaRegUser, FaUser } from "react-icons/fa6";
+
+
 
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
 export default function LeftSide() {
-  const [active, setActive] = useState("message");
+  const [active, setActive] = useState("message"); // mốt đổi thành home
   const [role, setRole] = useState("");
   const { user, logout } = useContext(AuthContext);
   const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible } = useContext(AppContext);
@@ -85,7 +88,7 @@ export default function LeftSide() {
   const menuItems = [
     {
       key: "profile",
-      icon: <UserOutlined />,
+      icon: <FaRegUser />,
       label: t('leftSide.myProfile'),
       onClick: () => setIsProfileVisible(true),
     },
@@ -159,41 +162,35 @@ export default function LeftSide() {
 
       <div className="icon-group top">
         {/* <div
+          className={`icon-item ${active === "profile" ? "active" : ""}`}
+          // onClick={() => setActive("profile")}
+        >
+          {active === "profile" ? <FaUser /> : <FaRegUser />}
+        </div> */}
+        {/* mốt đổi lại thành HOME */}
+        <div
           className={`icon-item ${active === "home" ? "active" : ""}`}
-          // onClick={() => setActive("home")}
+          onClick={() => 
+            <>
+              {setActive("home")}
+              {navigate(ROUTERS.USER.MESSAGE)} 
+            </>
+          }
         >
           {active === "home" ? <GoHomeFill /> : <GoHome />}
-        </div> */}
-        {/* <div
-          className={`icon-item ${active === "search" ? "active" : ""}`}
-          // onClick={() => setActive("search")}
-        >
-          {active === "search" ? <HiSearch /> : <HiSearch />}
-        </div> */}
+        </div>
+        {/* mốt đổi lại thành MESSAGE */}
         <div
           className={`icon-item ${active === "message" ? "active" : ""}`}
-          onClick={() => setActive("message")}
+          onClick={() => 
+            <>
+              {setActive("message")}
+              {navigate(ROUTERS.USER.HOME)}
+            </>
+          }
         >
           {active === "message" ? <AiFillMessage /> : <AiOutlineMessage />}
         </div>
-        {/* <div
-          className={`icon-item ${active === "contacts" ? "active" : ""}`}
-          onClick={() => setActive("contacts")}
-        >
-          {active === "contacts" ? <IoPeople /> : <IoPeopleOutline />}
-        </div> */}
-        {/* <div
-          className={`icon-item ${active === "notification" ? "active" : ""}`}
-          // onClick={() => setActive("notification")}
-        >
-          {active === "notification" ? <IoNotifications /> : <IoMdNotificationsOutline />}
-        </div> */}
-        {/* <div
-          className={`icon-item ${active === "invitation" ? "active" : ""}`}
-          //onClick={() => setActive("invitation")}
-        >
-          {active === "invitation" ? <IoMailUnread /> : <IoMailUnreadOutline />}
-        </div> */}
       </div>
 
       <div className="icon-group bottom">

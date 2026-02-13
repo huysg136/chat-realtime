@@ -2,11 +2,13 @@ import React, { Suspense, lazy } from 'react';
 import { Route } from 'react-router-dom';
 import { Spin } from 'antd';
 import PrivateRoute from './privateRoute';
-import { ROUTERS } from '../constants/router';
+import { ROUTERS } from '../configs/router';
 import ReportManager from '../components/admin/report/reportManager';
+import LandingPage from '../pages/user/landingPage/landingPage';
 
 // Lazy load components
-const ChatRoom = lazy(() => import('../pages/user/landingPage/landingPage'));
+const ChatRoom = lazy(() => import('../pages/user/landingPage/chatRoom'));
+const HomePage = lazy(() => import('../components/user/homePage/homePage'))
 const Login = lazy(() => import('../components/login'));
 const MaintenancePage = lazy(() => import('../pages/user/maintenancePage/maintenancePage'));
 const AdminLayout = lazy(() => import('../pages/admin/adminLayout/adminLayout'));
@@ -50,17 +52,33 @@ export const publicRoutes = [
   },
 ];
 
-// User Routes
+// userRoutes
 export const userRoutes = [
   {
-    path: ROUTERS.USER.HOME,
+    path: "/", 
     element: (
-      <Suspense fallback={<Loading />}>
-        <PrivateRoute>
-          <ChatRoom />
-        </PrivateRoute>
-      </Suspense>
+      <PrivateRoute>
+        <LandingPage />
+      </PrivateRoute>
     ),
+    children: [
+      {
+        path: ROUTERS.USER.MESSAGE, // mốt đổi lại 2 router này
+        element: ( 
+          <Suspense fallback={<Loading />}>
+            <HomePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: ROUTERS.USER.HOME,  // mốt đổi lại 2 router này
+        element: (
+          <Suspense fallback={<Loading />}>
+            <ChatRoom />
+          </Suspense>
+        ),
+      },
+    ],
   },
 ];
 
@@ -144,7 +162,14 @@ export const renderPublicRoutes = () => {
 // Render User Routes
 export const renderUserRoutes = () => {
   return userRoutes.map((route, index) => (
-    <Route key={index} path={route.path} element={route.element} />
+    <Route key={index} path={route.path} element={route.element}>
+      {route.children && route.children.map((child, childIndex) => {
+        if (child.index) {
+          return <Route key={childIndex} index element={child.element} />;
+        }
+        return <Route key={childIndex} path={child.path} element={child.element} />;
+      })}
+    </Route>
   ));
 };
 

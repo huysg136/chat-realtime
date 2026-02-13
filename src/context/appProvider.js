@@ -22,6 +22,7 @@ export default function AppProvider({ children }) {
   const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(false);
   const [isUpgradePlanVisible, setIsUpgradePlanVisible] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
+  const [ isActiveTab, setIsActiveTab ] = useState("message");
 
   const location = useLocation();
 
@@ -166,29 +167,21 @@ export default function AppProvider({ children }) {
       value={{
         rooms,
         users,
-        isAddRoomVisible,
-        setIsAddRoomVisible,
-        selectedRoomId,
-        setSelectedRoomId,
-        isInviteMemberVisible,
-        setIsInviteMemberVisible,
-        isProfileVisible,
-        setIsProfileVisible,
-        isSettingsVisible,
-        setIsSettingsVisible,
-        isMyReportsVisible,
-        setIsMyReportsVisible,
-        isPendingInviteVisible,
-        setIsPendingInviteVisible,
-        isUpgradePlanVisible,
-        setIsUpgradePlanVisible,
+        isAddRoomVisible, setIsAddRoomVisible,
+        selectedRoomId, setSelectedRoomId,
+        isInviteMemberVisible, setIsInviteMemberVisible,
+        isProfileVisible, setIsProfileVisible,
+        isSettingsVisible, setIsSettingsVisible,
+        isMyReportsVisible, setIsMyReportsVisible,
+        isPendingInviteVisible, setIsPendingInviteVisible,
+        isUpgradePlanVisible,setIsUpgradePlanVisible,
+        isActiveTab, setIsActiveTab,
         searchText,
         setSearchText,
         theme,
         setTheme,
         isMaintenance,
-        isAnnouncementVisible,
-        setIsAnnouncementVisible,
+        isAnnouncementVisible, setIsAnnouncementVisible,
         currentAnnouncement,
         markAnnouncementAsSeen,
         videoCallState,

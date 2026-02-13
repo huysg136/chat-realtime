@@ -1,19 +1,7 @@
 import { toast } from "react-toastify";
 import { getPremiumLevel } from "./getPremiumLevel";
+import { planConfigs, FILE_SIZE_LIMIT } from "../configs/planConfigs";
 
-export const FILE_SIZE_LIMIT = {
-  free: 0 * 1024 * 1024,   // 5MB
-  lite: 10 * 1024 * 1024,   // 10MB
-  pro: 25 * 1024 * 1024,   // 25MB
-  max: 100 * 1024 * 1024,  // 100MB
-};
-
-export const FILE_SIZE_LABEL = {
-  free: "5MB",
-  lite: "10MB",
-  pro: "25MB",
-  max: "100MB",
-};
 
 // format size
 export const formatFileSize = (bytes) => {
@@ -53,7 +41,7 @@ export const validateFile = (file, user) => {
   // Kiểm tra kích thước theo plan
   const maxSize = getFileSizeLimit(user);
   const level = getPremiumLevel(user);
-  const limitLabel = FILE_SIZE_LABEL[level];
+  const limitLabel = planConfigs.fileLimits[level];
 
   if (file.size > maxSize) {
     const planLabel = {

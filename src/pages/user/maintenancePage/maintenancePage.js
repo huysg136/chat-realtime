@@ -29,7 +29,7 @@ import timezone from "dayjs/plugin/timezone";
 import { useNavigate } from "react-router-dom";
 import ReactCountryFlag from "react-country-flag";
 import "./maintenancePage.scss";
-import { ROUTERS } from "../../../constants/router";
+import { ROUTERS } from "../../../configs/router";
 
 const { Option } = Select;
 

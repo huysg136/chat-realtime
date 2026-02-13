@@ -45,11 +45,11 @@ export default function UpgradeModal({ premiumLevel }) {
   };
 
   const features = [
-    {
-      name: t('upgrade_modal.features.chat_anonymous.name'),
-      free: false, lite: false, pro: false, max: true,
-      desc: t('upgrade_modal.features.chat_anonymous.desc')
-    },
+    // {
+    //   name: t('upgrade_modal.features.chat_anonymous.name'),
+    //   free: false, lite: false, pro: false, max: true,
+    //   desc: t('upgrade_modal.features.chat_anonymous.desc')
+    // },
     {
       name: t('upgrade_modal.features.ai_support.name'),
       free: false, lite: false, pro: true, max: true,
