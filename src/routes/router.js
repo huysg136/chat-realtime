@@ -8,7 +8,7 @@ import LandingPage from '../pages/user/landingPage/landingPage';
 
 // Lazy load components
 const ChatRoom = lazy(() => import('../pages/user/landingPage/chatRoom'));
-const HomePage = lazy(() => import('../components/user/homePage/homePage'))
+const ExplorePage = lazy(() => import('../components/user/explorePage/explorePage'))
 const Login = lazy(() => import('../components/login'));
 const MaintenancePage = lazy(() => import('../pages/user/maintenancePage/maintenancePage'));
 const AdminLayout = lazy(() => import('../pages/admin/adminLayout/adminLayout'));
@@ -63,15 +63,6 @@ export const userRoutes = [
     ),
     children: [
       {
-        path: ROUTERS.USER.MESSAGE, // mốt đổi lại thành index: true
-        element: (
-          <Suspense fallback={<Loading />}>
-            <HomePage />
-          </Suspense>
-        ),
-      },
-      {
-        // path: ROUTERS.USER.HOME,  // mốt đổi lại thành ROUTERS.USER.MESSAGE
         index: true,
         element: (
           <Suspense fallback={<Loading />}>
@@ -79,6 +70,14 @@ export const userRoutes = [
           </Suspense>
         ),
       },
+      {
+        path: getRelativePath(ROUTERS.USER.EXPLORE, "/"), 
+        element: (
+          <Suspense fallback={<Loading />}>
+            <ExplorePage />
+          </Suspense>
+        ),
+      }
     ],
   },
 ];

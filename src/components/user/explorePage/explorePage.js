@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageOutlined, RocketOutlined } from '@ant-design/icons';
 import { ROUTERS } from '../../../configs/router';
-import './homePage.scss';
+import './explorePage.scss';
 import { useTranslation } from 'react-i18next';
 
 export default function HomePage() {
@@ -23,9 +23,8 @@ export default function HomePage() {
           <br />
           <span>Sắp ra mắt:</span> Hệ thống theo dõi bạn bè, bài viết và tương tác thời gian thực.
         </p>
-
         <div className="action-buttons">
-          <button className="primary-btn" onClick={() => navigate(ROUTERS.USER.HOME)}>
+          <button className="primary-btn" onClick={() => navigate(ROUTERS.USER.HOME)}> 
             <MessageOutlined className="btn-icon" />
             <span>Đi đến Nhắn tin</span>
           </button>

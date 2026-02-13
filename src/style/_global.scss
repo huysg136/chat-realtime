@@ -168,9 +168,9 @@ body.theme-dark {
   font-weight: 600;
   line-height: 1.2;
   background: linear-gradient(135deg,
-      #7a4a2a 0%, 
-      #a67c52 35%, 
-      #d4a383 45%, 
+      #7a4a2a 0%,
+      #a67c52 35%,
+      #d4a383 45%,
       #a67c52 55%,
       #7a4a2a 70%,
       #7a4a2a 100%);
@@ -245,8 +245,7 @@ body.theme-dark {
         color: #ff4d4f;
 
         &:hover {
-          background-color: rgba(255, 77, 79, 0.1);
-          color: #ff7875;
+          background-color: rgba(255, 77, 79, 0.08);
         }
       }
     }
@@ -314,9 +313,36 @@ body.theme-dark {
       background-color: #ffffff;
     }
   }
+
+  .ant-dropdown-menu-item-danger {
+    color: #ff4d4f;
+
+    &:hover {
+      background-color: rgba(255, 77, 79, 0.15) !important;
+      color: #ff7875 !important;
+
+      * {
+        color: #ff7875 !important;
+      }
+    }
+  }
 }
 
 .small-toast {
   font-size: 14px !important;
   padding: 8px 12px !important;
+}
+
+// Light Mode danger item hover
+.ant-dropdown-menu-item-danger {
+  color: #ff4d4f;
+
+  &:hover {
+    background-color: #fff1f0 !important;
+    color: #ff4d4f !important;
+
+    * {
+      color: #ff4d4f !important;
+    }
+  }
 }

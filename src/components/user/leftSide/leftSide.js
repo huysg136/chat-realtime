@@ -24,7 +24,7 @@ import { FaRegUser, FaUser } from "react-icons/fa6";
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
 export default function LeftSide() {
-  const [active, setActive] = useState("message"); // mốt đổi thành home
+  const [active, setActive] = useState("message"); 
   const [role, setRole] = useState("");
   const { user, logout } = useContext(AuthContext);
   const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible } = useContext(AppContext);
@@ -167,19 +167,17 @@ export default function LeftSide() {
         >
           {active === "profile" ? <FaUser /> : <FaRegUser />}
         </div> */}
-        {/* mốt đổi lại thành HOME */}
         <div
-          className={`icon-item ${active === "home" ? "active" : ""}`}
+          className={`icon-item ${active === "explore" ? "active" : ""}`}
           onClick={() => 
             <>
-              {setActive("home")}
-              {navigate(ROUTERS.USER.MESSAGE)} 
+              {setActive("explore")}
+              {navigate(ROUTERS.USER.EXPLORE)} 
             </>
           }
         >
           {active === "home" ? <GoHomeFill /> : <GoHome />}
         </div>
-        {/* mốt đổi lại thành MESSAGE */}
         <div
           className={`icon-item ${active === "message" ? "active" : ""}`}
           onClick={() => 

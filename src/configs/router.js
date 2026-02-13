@@ -3,7 +3,7 @@ export const admin_path = "/admin/";
 export const ROUTERS = {
   USER: {
     HOME: "/",
-    MESSAGE: "/home", // mốt đổi thành /message vì page chatRoom đang dùng tạm ROUTERS.USER.HOME
+    EXPLORE: "/explore",
     LOGIN: "/login",
     MAINTENANCE: "/maintenance",
   },
