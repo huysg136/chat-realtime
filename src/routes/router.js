@@ -5,6 +5,7 @@ import PrivateRoute from './privateRoute';
 import { ROUTERS } from '../configs/router';
 import ReportManager from '../components/admin/report/reportManager';
 import LandingPage from '../pages/user/landingPage/landingPage';
+import ChatRoom from '../pages/user/landingPage/chatRoom';
 
 // Helper to retry lazy import if chunk load error occurs (with reload guard)
 const lazyRetry = function (componentImport) {
@@ -38,7 +39,7 @@ const lazyRetry = function (componentImport) {
 };
 
 // Lazy load components with retry
-const ChatRoom = lazy(() => lazyRetry(() => import('../pages/user/landingPage/chatRoom')));
+// ChatRoom is imported directly (not lazy) since it's the main landing page
 const ExplorePage = lazy(() => lazyRetry(() => import('../components/user/explorePage/explorePage')));
 const Login = lazy(() => lazyRetry(() => import('../components/login')));
 const MaintenancePage = lazy(() => lazyRetry(() => import('../pages/user/maintenancePage/maintenancePage')));
@@ -95,11 +96,7 @@ export const userRoutes = [
     children: [
       {
         index: true,
-        element: (
-          <Suspense fallback={<Loading />}>
-            <ChatRoom />
-          </Suspense>
-        ),
+        element: <ChatRoom />,
       },
       {
         path: getRelativePath(ROUTERS.USER.EXPLORE, "/"),
