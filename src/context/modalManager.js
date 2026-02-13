@@ -1,6 +1,8 @@
 import React, { lazy, Suspense, useContext } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AppContext } from './appProvider';
 import { AuthContext } from './authProvider';
+import { ROUTERS } from '../configs/router';
 
 // Lazy load modals
 const AddRoomModal = lazy(() => import('../components/modals/addRoomModal'));
@@ -25,6 +27,12 @@ export default function ModalManager() {
         isUpgradePlanVisible,
     } = useContext(AppContext);
     const { user } = useContext(AuthContext);
+    const location = useLocation();
+
+    // Do not show any modals on the maintenance page
+    if (location.pathname === ROUTERS.USER.MAINTENANCE) {
+        return null;
+    }
     // Render nothing if no modal is active (check logic below if you want stricter control, 
     // but React lazy + conditional rendering is usually enough)
     return (
