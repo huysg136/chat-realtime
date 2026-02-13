@@ -10,7 +10,7 @@ import { AiFillMessage, AiOutlineMessage } from "react-icons/ai";
 import { SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { AppContext } from '../../../context/appProvider';
 import { MdOutlineAdminPanelSettings, MdReportProblem } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 import { ROUTERS } from "../../../configs/router";
 import { useTranslation } from "react-i18next";
@@ -24,7 +24,8 @@ import { FaRegUser, FaUser } from "react-icons/fa6";
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
 export default function LeftSide() {
-  const [active, setActive] = useState("message"); 
+  const location = useLocation();
+  const [active, setActive] = useState("message");
   const [role, setRole] = useState("");
   const { user, logout } = useContext(AuthContext);
   const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible } = useContext(AppContext);
@@ -33,6 +34,14 @@ export default function LeftSide() {
   const navigate = useNavigate();
   const userStatus = useUserStatus(user?.uid);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (location.pathname === ROUTERS.USER.EXPLORE) {
+      setActive("explore");
+    } else if (location.pathname === ROUTERS.USER.HOME) {
+      setActive("message");
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -169,18 +178,18 @@ export default function LeftSide() {
         </div> */}
         <div
           className={`icon-item ${active === "explore" ? "active" : ""}`}
-          onClick={() => 
+          onClick={() =>
             <>
               {setActive("explore")}
-              {navigate(ROUTERS.USER.EXPLORE)} 
+              {navigate(ROUTERS.USER.EXPLORE)}
             </>
           }
         >
-          {active === "home" ? <GoHomeFill /> : <GoHome />}
+          {active === "explore" ? <GoHomeFill /> : <GoHome />}
         </div>
         <div
           className={`icon-item ${active === "message" ? "active" : ""}`}
-          onClick={() => 
+          onClick={() =>
             <>
               {setActive("message")}
               {navigate(ROUTERS.USER.HOME)}
