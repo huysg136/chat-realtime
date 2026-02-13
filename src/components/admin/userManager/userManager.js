@@ -522,7 +522,7 @@ export default function UsersManager() {
                   </span>
                 </div>
                 <div className="detail-row">
-                  <span>Bị ấm chat</span>
+                  <span>Bị cấm chat</span>
                   <span className="bool-tag">
                     {detailUser.isBanned ? <IoCheckmarkCircle className="icon-v" /> : <IoCloseCircle className="icon-x" />}
                   </span>
