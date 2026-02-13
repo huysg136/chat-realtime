@@ -55,7 +55,7 @@ export const publicRoutes = [
 // userRoutes
 export const userRoutes = [
   {
-    path: "/", 
+    path: "/",
     element: (
       <PrivateRoute>
         <LandingPage />
@@ -63,15 +63,16 @@ export const userRoutes = [
     ),
     children: [
       {
-        path: ROUTERS.USER.MESSAGE, // mốt đổi lại 2 router này
-        element: ( 
+        path: ROUTERS.USER.MESSAGE, // mốt đổi lại thành index: true
+        element: (
           <Suspense fallback={<Loading />}>
             <HomePage />
           </Suspense>
         ),
       },
       {
-        path: ROUTERS.USER.HOME,  // mốt đổi lại 2 router này
+        // path: ROUTERS.USER.HOME,  // mốt đổi lại thành ROUTERS.USER.MESSAGE
+        index: true,
         element: (
           <Suspense fallback={<Loading />}>
             <ChatRoom />
