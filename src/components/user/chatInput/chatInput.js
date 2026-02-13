@@ -12,7 +12,7 @@ import EmojiPicker from "emoji-picker-react";
 import { addDocument, updateDocument, encryptMessage, getUserDocIdByUid } from "../../../firebase/services";
 import { askGemini } from "../../../utils/AI/geminiBot";
 import { askGroq } from "../../../utils/AI/groqBot";
-import { uploadToR2 } from "../../../utils/uploadToR2"; 
+import { uploadToR2 } from "../../../utils/uploadToR2";
 import { validateFile } from "../../../utils/fileValidation";
 import "./chatInput.scss";
 import { useTranslation } from "react-i18next";
@@ -50,8 +50,8 @@ export default function ChatInput({
   const visibleFor = getVisibleFor(selectedRoom);
   const [polishing, setPolishing] = useState(false);
   const [showTonePicker, setShowTonePicker] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0); 
-  const { t } = useTranslation(); 
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const { t } = useTranslation();
 
   const handleInputChange = (e) => setInputValue(e.target.value);
 
@@ -133,8 +133,8 @@ export default function ChatInput({
       const kind = file.type.startsWith("image/")
         ? "picture"
         : file.type.startsWith("video/")
-        ? "video"
-        : "file";
+          ? "video"
+          : "file";
 
       const encryptedText = selectedRoom.secretKey
         ? encryptMessage(fileUrl, selectedRoom.secretKey)
@@ -370,12 +370,12 @@ export default function ChatInput({
         visibleFor,
         replyTo: replyTo
           ? {
-              id: replyTo.id,
-              text: replyTo.decryptedText || replyTo.text || "",
-              displayName: replyTo.displayName,
-              kind: replyTo.kind,
-              fileName: replyTo.fileName || null,
-            }
+            id: replyTo.id,
+            text: replyTo.decryptedText || replyTo.text || "",
+            displayName: replyTo.displayName,
+            kind: replyTo.kind,
+            fileName: replyTo.fileName || null,
+          }
           : null,
       });
 
@@ -508,7 +508,7 @@ export default function ChatInput({
           placeholder={
             replyTo ? t('chatInput.replyPlaceholder') : t('chatInput.placeholder')
           }
-          bordered={false}
+          variant="borderless"
           autoComplete="off"
         />
 

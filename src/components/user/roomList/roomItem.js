@@ -178,7 +178,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
           </div>
         ) : (
           <CircularAvatarGroup
-            members={membersData.map((u) => ({ avatar: u.photoURL, name: u.displayName }))}
+            members={membersData.map((u) => ({ id: u.uid, avatar: u.photoURL, name: u.displayName }))}
             maxDisplay={3}
           />
         )}

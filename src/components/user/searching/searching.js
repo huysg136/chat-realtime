@@ -56,7 +56,7 @@ export default function Searching() {
           className="search-input"
           placeholder={t('searching.placeholder')}
           prefix={<SearchOutlined className="search-icon" />}
-          bordered={false}
+          variant="borderless"
           value={searchText}
           onChange={handleSearchChange}
         />
