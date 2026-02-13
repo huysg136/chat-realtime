@@ -29,7 +29,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
             resolve();
           }
         }, 100);
-        
+
         setTimeout(() => {
           clearInterval(checkInterval);
           resolve();
@@ -44,16 +44,21 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
     try {
       setIsInitializing(true);
 
+      if (!API_BASE_URL) {
+        throw new Error("REACT_APP_API_BASE_URL is not defined in .env");
+      }
+
+      console.log('Fetching token from:', `${API_BASE_URL}/api/stringee/token`);
       const tokenRes = await fetch(
         `${API_BASE_URL}/api/stringee/token?uid=${encodeURIComponent(uid)}`
       );
-      
+
       if (!tokenRes.ok) {
         throw new Error(`HTTP ${tokenRes.status}`);
       }
 
       const data = await tokenRes.json();
-      
+
       if (!data.access_token) {
         throw new Error('No access token received');
       }
@@ -63,11 +68,12 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
       const vc = new VideoCallService(data.access_token, handleIncomingCall, handleCallStateChanged);
 
       await vc.connect();
-      
+
       setVideoCall(vc);
 
     } catch (err) {
-      alert(`Không thể kết nối Video Call: ${err.message}`);
+      console.error("Video Call Error:", err);
+      // alert(`Không thể kết nối Video Call: ${err.message}\nURL: ${API_BASE_URL}`);
     } finally {
       setIsInitializing(false);
     }
@@ -75,15 +81,15 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
 
   const handleIncomingCall = async (call) => {
     let caller = users.find((u) => String(u.uid).trim() === String(call.fromNumber).trim());
-    
+
     if (!caller) {
       try {
         const { collection, query, where, getDocs } = await import('firebase/firestore');
         const { db } = await import('../firebase/config');
-        
+
         const q = query(collection(db, 'users'), where('uid', '==', call.fromNumber));
         const snapshot = await getDocs(q);
-        
+
         if (!snapshot.empty) {
           caller = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
         } else {
@@ -114,7 +120,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
   };
 
   const handleCallStateChanged = (state) => {
-    
+
     if (state.code === 1) {
       setCallStatus('calling');
     } else if (state.code === 2) {
@@ -154,7 +160,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
     }
 
     videoCall.rejectCall(incomingCall);
-    
+
     setIncomingCall(null);
     setIsInCall(false);
     setCallStatus('');
@@ -304,7 +310,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
 
   const handleToggleMute = () => {
     if (!videoCall) return;
-    
+
     const newMutedState = !isMuted;
     videoCall.setMuted(newMutedState);
     setIsMuted(newMutedState);
@@ -312,7 +318,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
 
   const handleToggleVideo = () => {
     if (!videoCall) return;
-    
+
     const newVideoState = !isVideoEnabled;
     videoCall.setVideoEnabled(newVideoState);
     setIsVideoEnabled(newVideoState);
@@ -328,7 +334,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
         videoCall.disconnect();
       }
     };
-  }, [uid]); 
+  }, [uid]);
 
   return {
     videoCall,
