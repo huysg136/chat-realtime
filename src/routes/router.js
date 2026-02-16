@@ -61,6 +61,10 @@ export const userRoutes = [
         element: <ChatRoom />,
       },
       {
+        path: ROUTERS.USER.DIRECT,
+        element: <ChatRoom />, 
+      },
+      {
         path: getRelativePath(ROUTERS.USER.EXPLORE, "/"),
         element: (
           <Suspense fallback={<LoadingScreen />}>

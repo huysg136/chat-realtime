@@ -102,7 +102,7 @@ export default function RoomList() {
             }}
             users={users}
             selectedRoomId={selectedRoomId}
-            setSelectedRoomId={setSelectedRoomId}
+            // setSelectedRoomId={setSelectedRoomId}
           />
         );
       })}

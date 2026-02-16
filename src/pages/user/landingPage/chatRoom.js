@@ -1,12 +1,13 @@
 import React, { useState, useContext, useEffect } from "react";
 import SideBar from "../../../components/user/sideBar/sideBar";
 import ChatWindow from "../../../components/user/chatWindow/chatWindow";
-import LeftSide from "../../../components/user/leftSide/leftSide";
 import ChatDetailPanel from "../../../components/user/chatDetailPanel/chatDetailPanel";
 import TransferOwnershipModal from "../../../components/modals/transferOwnershipModal";
 import IncomingCallUI from "../../../components/common/IncomingCallUI";
 import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
+import { useParams, useNavigate } from "react-router-dom";
+import { ROUTERS } from "../../../configs/router";
 
 export default function ChatRoom() {
     const [isDetailVisible, setIsDetailVisible] = useState(false);
@@ -14,7 +15,7 @@ export default function ChatRoom() {
     const [selectedTransferUid, setSelectedTransferUid] = useState(null);
     const [leavingLoading, setLeavingLoading] = useState(false);
 
-    const { rooms, users, selectedRoomId, videoCallState } = useContext(AppContext);
+    const { rooms, users, selectedRoomId, setSelectedRoomId, videoCallState } = useContext(AppContext);
     const { user = {} } = useContext(AuthContext) || {};
     const uid = user.uid || "";
 
@@ -32,6 +33,27 @@ export default function ChatRoom() {
     const otherUser = isPrivate
         ? membersData.find(m => String(m.uid).trim() !== String(uid).trim())
         : null;
+    const { roomId } = useParams();
+    const navigate = useNavigate();
+
+    useEffect (() => {
+        if (!roomId) return;
+        if (!uid) return;
+
+        if (!rooms || rooms.length === 0) return;
+        const room = rooms.find(r => r.id === roomId);
+        const isMember = room?.members?.some(m => String(m?.uid ?? m) === String(uid));
+
+        if (!room || !isMember){
+            setSelectedRoomId(null);
+            navigate(ROUTERS.USER.HOME);
+            return;
+        }
+
+        if (roomId !== selectedRoomId){
+            setSelectedRoomId(roomId);
+        }
+    },[roomId, uid, rooms, selectedRoomId, navigate, setSelectedRoomId]);
 
     useEffect(() => {
         setIsDetailVisible(false);

@@ -9,8 +9,11 @@ import { db } from "../../../firebase/config";
 import "./roomList.scss";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 import UserBadge from "../../common/userBadge";
+import { ROUTERS } from "../../../configs/router";
+import { useNavigate } from "react-router-dom";
 
 export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomId }) {
+  const navigate  = useNavigate();
   const { user } = useContext(AuthContext);
   const [member, setMember] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -87,7 +90,11 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
   }, [user?.uid, room?.id]);
 
 
-  const handleClick = () => setSelectedRoomId?.(room.id);
+  const handleClick = () => {
+    navigate(
+      ROUTERS.USER.DIRECT.replace(":roomId", room.id)
+    );
+  };
 
   const handlePin = async () => {
     if (!user?.uid) return;

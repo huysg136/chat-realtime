@@ -9,14 +9,13 @@ import "./leftSide.scss";
 import { AiFillMessage, AiOutlineMessage } from "react-icons/ai";
 import { SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { AppContext } from '../../../context/appProvider';
-import { MdOutlineAdminPanelSettings, MdReportProblem } from "react-icons/md";
+import { MdExplore, MdOutlineAdminPanelSettings, MdOutlineExplore, MdReportProblem } from "react-icons/md";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 import { ROUTERS } from "../../../configs/router";
 import { useTranslation } from "react-i18next";
 import { FaMoneyBillWave } from "react-icons/fa";
-import { GoHome, GoHomeFill } from "react-icons/go";
-import { FaRegUser, FaUser } from "react-icons/fa6";
+import { FaRegUser } from "react-icons/fa6";
 
 
 
@@ -170,23 +169,6 @@ export default function LeftSide() {
 
 
       <div className="icon-group top">
-        {/* <div
-          className={`icon-item ${active === "profile" ? "active" : ""}`}
-          // onClick={() => setActive("profile")}
-        >
-          {active === "profile" ? <FaUser /> : <FaRegUser />}
-        </div> */}
-        <div
-          className={`icon-item ${active === "explore" ? "active" : ""}`}
-          onClick={() =>
-            <>
-              {setActive("explore")}
-              {navigate(ROUTERS.USER.EXPLORE)}
-            </>
-          }
-        >
-          {active === "explore" ? <GoHomeFill /> : <GoHome />}
-        </div>
         <div
           className={`icon-item ${active === "message" ? "active" : ""}`}
           onClick={() =>
@@ -197,6 +179,17 @@ export default function LeftSide() {
           }
         >
           {active === "message" ? <AiFillMessage /> : <AiOutlineMessage />}
+        </div>
+        <div
+          className={`icon-item ${active === "explore" ? "active" : ""}`}
+          onClick={() =>
+            <>
+              {setActive("explore")}
+              {navigate(ROUTERS.USER.EXPLORE)}
+            </>
+          }
+        >
+          {active === "explore" ? <MdExplore /> : <MdOutlineExplore />}
         </div>
       </div>
 

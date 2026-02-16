@@ -42,6 +42,30 @@ export default function UserBadge({ displayName, role, premiumLevel, premiumUnti
         {isAdminOrMod && (
           <MdVerified size={14} style={{ color: "#1877F2" }} />
         )}
+
+        {/* {isMaxUser ? (
+          <>
+            <svg width="0" height="0" style={{ position: "absolute" }}>
+              <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop stopColor="#bf953f" offset="0%" />
+                <stop stopColor="#fcf6ba" offset="25%" />
+                <stop stopColor="#b38728" offset="50%" />
+                <stop stopColor="#fbf5b7" offset="75%" />
+                <stop stopColor="#aa771c" offset="100%" />
+              </linearGradient>
+            </svg>
+            <IoDiamond 
+              size={14} 
+              className="icon-max-shimmer"
+              style={{ fill: "url(#gold-gradient)" }} 
+            />
+          </>
+        ) : isProUser ? (
+          <IoDiamond 
+            size={14} 
+            style={{ color: "#BFC1C2", filter: "drop-shadow(0 0 3px rgba(255, 255, 255, 0.6))" }} 
+          />
+        ) : null} */}
       </span>
     </span>
   );

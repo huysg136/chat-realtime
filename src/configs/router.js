@@ -3,6 +3,7 @@ export const admin_path = "/admin/";
 export const ROUTERS = {
   USER: {
     HOME: "/",
+    DIRECT: "/t/:roomId",
     EXPLORE: "/explore",
     LOGIN: "/login",
     MAINTENANCE: "/maintenance",

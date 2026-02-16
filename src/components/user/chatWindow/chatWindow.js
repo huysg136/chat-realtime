@@ -25,7 +25,6 @@ import VideoCallOverlay from "../../../components/user/videoCallOverlay/videoCal
 import "./chatWindow.scss";
 import { useTranslation } from "react-i18next";
 import UserBadge from "../../common/userBadge";
-import { isPresetColor } from "antd/es/_util/colors";
 
 const MESSAGES_PER_PAGE = 20;
 

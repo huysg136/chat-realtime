@@ -158,9 +158,9 @@ export default function ChatDetailPanel({
         createdAt: new Date(),
       });
 
-      toast.success(t('chatDetail.removeSuccess'));
+      toast.success(t('chatDetail.messages.removeSuccess'));
     } catch (err) {
-      toast.error(t('chatDetail.removeError'));
+      toast.error(t('chatDetail.messages.removeError'));
     }
   };
 
