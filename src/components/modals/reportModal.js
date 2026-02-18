@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal, Input, Button, Radio, Space } from "antd";
 import { toast } from "react-toastify";
 import { addDocument, updateDocument } from "../../firebase/services";
@@ -210,7 +211,7 @@ function getMessageText(message) {
   return rawText;
 }
 
-function renderMessagePreview(message) {
+function renderMessagePreview(message, t) {
   const kind = message?.kind || "text";
   const text = message?.text || message?.decryptedText || "";
   const transcript = message?.transcript || "";
@@ -220,7 +221,7 @@ function renderMessagePreview(message) {
   if (kind === "picture") {
     return (
       <div>
-        <p>🖼️ [Hình ảnh]</p>
+        <p>🖼️ [{t('message.openImage')}]</p>
         <a href={text} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "#1890ff", wordBreak: "break-all" }}>
           {text}
         </a>
@@ -231,7 +232,7 @@ function renderMessagePreview(message) {
   if (kind === "video") {
     return (
       <div>
-        <p>🎬 [Video]</p>
+        <p>🎬 [{t('message.openVideo')}]</p>
         <a href={text} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "#1890ff", wordBreak: "break-all" }}>
           {text}
         </a>
@@ -242,7 +243,7 @@ function renderMessagePreview(message) {
   if (kind === "file") {
     return (
       <div>
-        <p>📎 [Tệp đính kèm]</p>
+        <p>📎 [{t('chatInput.media.file')}]</p>
         <a href={text} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "#1890ff", wordBreak: "break-all" }}>
           {text}
         </a>
@@ -253,7 +254,7 @@ function renderMessagePreview(message) {
   if (kind === "audio") {
     return (
       <div>
-        <p>🎤 [Tin nhắn thoại]</p>
+        <p>🎤 [{t('chatInput.media.voice')}]</p>
         {transcript && (
           <p style={{ fontSize: 12, color: "#595959", marginTop: 4, fontStyle: "italic" }}>
             Transcript: "{transcript}"
@@ -266,7 +267,7 @@ function renderMessagePreview(message) {
     );
   }
 
-  return <p>[Tin nhắn]</p>;
+  return <p>[{t('searching.message')}]</p>;
 }
 
 async function getExistingReports(messageId) {
@@ -283,14 +284,38 @@ async function getExistingReports(messageId) {
 // ==================== MAIN COMPONENT ====================
 
 export default function ReportModal({ visible, onClose, message, currentUser }) {
+  const { t } = useTranslation();
   const [reason, setReason] = useState("");
   const [details, setDetails] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [existingReportCount, setExistingReportCount] = useState(0);
 
+  const reportReasons = useMemo(() => [
+    {
+      value: "harmful",
+      label: t('report.harmful'),
+      description: t('report.harmfulDesc'),
+    },
+    {
+      value: "inappropriate",
+      label: t('report.inappropriate'),
+      description: t('report.inappropriateDesc'),
+    },
+    {
+      value: "spam",
+      label: t('report.spam'),
+      description: t('report.spamDesc'),
+    },
+    {
+      value: "other",
+      label: t('report.other'),
+      description: t('report.otherDesc'),
+    },
+  ], [t]);
+
   const reasonData = useMemo(() => {
-    return REPORT_REASONS.find((r) => r.value === reason);
-  }, [reason]);
+    return reportReasons.find((r) => r.value === reason);
+  }, [reason, reportReasons]);
 
   const resetForm = () => {
     setReason("");
@@ -313,11 +338,11 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
 
   const handleSubmit = async () => {
     if (!reason) {
-      toast.warning("Vui lòng chọn lý do báo cáo");
+      toast.warning(t('report.noReason'));
       return;
     }
     if (!message?.uid || !currentUser?.uid) {
-      toast.error("Thiếu thông tin người dùng hoặc tin nhắn.");
+      toast.error(t('report.missingInfo'));
       return;
     }
 
@@ -336,7 +361,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
       );
 
       if (alreadyReported) {
-        toast.warning("Bạn đã báo cáo tin nhắn này rồi.");
+        toast.warning(t('report.alreadyReported'));
         setSubmitting(false);
         return;
       }
@@ -355,14 +380,13 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         parsed || {
           confidence: 0.5,
           category: "other",
-          explanation: "Không thể phân tích tự động, cần xem xét thủ công",
+          explanation: t('report.aiResultManual'),
         },
         messageText.length // ⭐ Pass message length for validation
       );
 
       // 4. Determine status (SIMPLE)
-      let status = "pending"; // Chờ xem xét
-      let needsUrgent = false;
+      let status = "pending"; 
 
       // Auto-resolution fields
       let resolved = false;
@@ -372,10 +396,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
       let reviewedByName = null;
       let reviewedAt = null;
 
-      if (moderationResult.category === "harmful" && moderationResult.confidence >= 0.85) {
-        // status = "urgent"; // REMOVED: Simplify statuses
-        needsUrgent = true;
-      } else if (moderationResult.category === "safe") {
+      if (moderationResult.category === "safe") {
         // ⭐ AUTO-REJECT: Nếu AI xác định an toàn -> Tự động từ chối
         status = "resolved";
         resolved = true;
@@ -388,12 +409,6 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
       // else if (moderationResult.confidence < 0.5) {
       //   status = "low_priority"; // REMOVED: Simplify statuses
       // }
-
-      // Nếu nhiều người báo cáo → Ưu tiên cao hơn (chỉ nếu chưa resolved)
-      if (!resolved && reportCount >= 3) {
-        // status = "pending"; // Already pending
-        needsUrgent = true;
-      }
 
       // 5. Create report document (SIMPLE)
       const reportData = {
@@ -425,7 +440,6 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         // Status (SIMPLE)
         status, // pending, resolved
         reportCount,
-        needsUrgent,
 
         // Resolution Info (if auto-resolved)
         resolved,
@@ -449,12 +463,6 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         await updateDocument("reports", existingReports[0].id, {
           reportCount,
           updatedAt: new Date(),
-          // Escalate if ≥3 reports (only if not already resolved)
-          ...(!resolved && reportCount >= 3
-            ? {
-              needsUrgent: true,
-            }
-            : {}),
         });
       }
 
@@ -471,37 +479,37 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
               reporterName: currentUser?.displayName,
               messageText: messageText,
               action: "reject",
-              adminName: "AI System", 
+              adminName: "AI System",
               reason: actionNotes,
               reportDate: new Date().toLocaleString("vi-VN"),
             }),
-          }).catch(); 
+          }).catch();
         } catch (e) {
         }
       }
 
       // 9. Show toast
-      toast.success("Báo cáo đã được ghi nhận. Cảm ơn bạn đã góp ý.");
+      toast.success(t('report.success'));
 
       resetForm();
       onClose?.();
     } catch (err) {
-      toast.error("Không thể gửi báo cáo. Vui lòng thử lại.");
+      toast.error(t('report.error'));
     } finally {
       setSubmitting(false);
     }
   };
 
-  const senderName = message?.displayName || "Người dùng";
+  const senderName = message?.displayName || t('chatWindow.members');
 
   return (
     <Modal
       title={
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span>Báo cáo tin nhắn</span>
+          <span>{t('report.title')}</span>
           {existingReportCount > 0 && (
             <span style={{ fontSize: 12, color: "#ff4d4f", fontWeight: "normal" }}>
-              ({existingReportCount} người đã báo cáo)
+              {t('report.reportedByCount', { count: existingReportCount })}
             </span>
           )}
         </div>
@@ -518,15 +526,15 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
           {/* Message Preview */}
           <div className="message-preview">
             <div className="preview-label">
-              Tin nhắn từ: <span className="sender-name">{senderName}</span>
+              {t('report.messageFrom')} <span className="sender-name">{senderName}</span>
             </div>
-            <div className="preview-box">{renderMessagePreview(message)}</div>
+            <div className="preview-box">{renderMessagePreview(message, t)}</div>
           </div>
 
           {/* Reason Selection */}
           <div className="reason-section">
             <div className="section-label">
-              Lý do báo cáo: <span className="required">*</span>
+              {t('report.reasonLabel')} <span className="required">*</span>
             </div>
 
             <Radio.Group
@@ -536,7 +544,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
               disabled={submitting}
             >
               <Space direction="vertical" style={{ width: "100%" }}>
-                {REPORT_REASONS.map((r) => (
+                {reportReasons.map((r) => (
                   <Radio key={r.value} value={r.value} className="reason-radio">
                     <div>
                       <div style={{ fontWeight: 500 }}>{r.label}</div>
@@ -552,10 +560,10 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
 
           {/* Additional Details */}
           <div className="details-section">
-            <div className="section-label">Chi tiết bổ sung (tùy chọn):</div>
+            <div className="section-label">{t('report.detailsLabel')}</div>
             <TextArea
               rows={4}
-              placeholder="Mô tả thêm về vi phạm (nếu có)..."
+              placeholder={t('report.detailsPlaceholder')}
               value={details}
               onChange={(e) => setDetails(e.target.value)}
               maxLength={500}
@@ -570,7 +578,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
       {/* Footer */}
       <div className="report-footer">
         <Button onClick={handleCancel} disabled={submitting} className="cancel-button">
-          Hủy
+          {t('report.btnCancel')}
         </Button>
         <Button
           type="primary"
@@ -580,7 +588,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
           disabled={!reason || submitting}
           className="submit-button"
         >
-          {submitting ? "Đang gửi..." : "Gửi báo cáo"}
+          {submitting ? t('report.submitting') : t('report.btnSubmit')}
         </Button>
       </div>
     </Modal>

@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, Input, Avatar, Spin, Checkbox, Button } from 'antd';
 import { AppContext } from '../../context/appProvider';
 import { AuthContext } from '../../context/authProvider';
@@ -11,6 +12,7 @@ import UserBadge from '../common/userBadge';
 
 export default function InviteMemberModal() {
   const { isInviteMemberVisible, setIsInviteMemberVisible, selectedRoomId, rooms, users } = useContext(AppContext);
+  const { t } = useTranslation();
   const { user } = useContext(AuthContext);
   const uid = user?.uid;
 
@@ -153,7 +155,7 @@ export default function InviteMemberModal() {
         for (const uid of newImmediateMembers) {
           const targetUser = users.find(u => u.uid === uid);
           const target = {
-            uid: targetUser.uid, name: targetUser.displayName || "Thành viên", photoURL: targetUser.photoURL || null
+            uid: targetUser.uid, name: targetUser.displayName || t('chatWindow.members'), photoURL: targetUser.photoURL || null
           };
 
           await addDocument("messages", {
@@ -249,7 +251,7 @@ export default function InviteMemberModal() {
 
   return (
     <Modal
-      title="Mời thêm thành viên"
+      title={t('inviteMember.title')}
       open={isInviteMemberVisible}
       onCancel={handleCancel}
       footer={null}
@@ -259,9 +261,9 @@ export default function InviteMemberModal() {
     >
       {/* Search */}
       <div style={{ marginBottom: 10 }}>
-        <div style={{ marginBottom: 6, fontWeight: 600 }}>Tìm kiếm theo Quik ID</div>
+        <div style={{ marginBottom: 6, fontWeight: 600 }}>{t('inviteMember.searchQuikId')}</div>
         <Input
-          placeholder="Tìm kiếm người dùng theo Quik ID..."
+          placeholder={t('inviteMember.searchPlaceholder')}
           value={searchText}
           onChange={handleSearchChange}
         />
@@ -270,7 +272,7 @@ export default function InviteMemberModal() {
       {/* Header gợi ý */}
       {!searchText && (
         <div style={{ marginBottom: 6, fontWeight: 600 }}>
-          {recentChats.length > 0 ? 'Trò chuyện gần đây' : 'Gợi ý'}
+          {recentChats.length > 0 ? t('inviteMember.recentChats') : t('inviteMember.suggestions')}
         </div>
       )}
 
@@ -299,7 +301,7 @@ export default function InviteMemberModal() {
       {/* Selected Members */}
       {selectedMembers.length > 0 && (
         <div style={{ flexShrink: 0, maxHeight: 150, overflowY: 'auto', marginTop: 10, paddingRight: '10px' }}>
-          <div style={{ fontWeight: 500 }}>Đã chọn:</div>
+          <div style={{ fontWeight: 500 }}>{t('inviteMember.selected')}</div>
           {selectedMembers.map(user => (
             <UserItem
               key={user.uid}
@@ -321,38 +323,41 @@ export default function InviteMemberModal() {
         onClick={handleOk}
         style={{ marginTop: 10, flexShrink: 0 }}
       >
-        Thêm vào nhóm
+        {t('inviteMember.btnAdd')}
       </Button>
     </Modal>
   );
 }
 
 // --- User Item Component ---
-const UserItem = ({ userObj, selectedMembers, handleToggleMember, isSelected, isMember }) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      padding: '5px 0',
-      cursor: isMember ? 'not-allowed' : 'pointer',
-      opacity: isMember ? 0.5 : 1
-    }}
-    onClick={() => !isMember && handleToggleMember(userObj)}
-  >
-    <Avatar src={userObj.photoURL} size={32} style={{ marginRight: 10 }} />
-    <div style={{ flex: 1 }}>
-      <UserBadge
-        displayName={userObj.displayName}
-        role={userObj.role}
-        premiumLevel={userObj.premiumLevel}
-        premiumUntil={userObj.premiumUntil}
-      />
-      <div style={{ fontSize: 12, color: 'gray' }}>@{userObj.username}</div>
+const UserItem = ({ userObj, selectedMembers, handleToggleMember, isSelected, isMember }) => {
+  const { t } = useTranslation();
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: '5px 0',
+        cursor: isMember ? 'not-allowed' : 'pointer',
+        opacity: isMember ? 0.5 : 1
+      }}
+      onClick={() => !isMember && handleToggleMember(userObj)}
+    >
+      <Avatar src={userObj.photoURL} size={32} style={{ marginRight: 10 }} />
+      <div style={{ flex: 1 }}>
+        <UserBadge
+          displayName={userObj.displayName}
+          role={userObj.role}
+          premiumLevel={userObj.premiumLevel}
+          premiumUntil={userObj.premiumUntil}
+        />
+        <div style={{ fontSize: 12, color: 'gray' }}>@{userObj.username}</div>
+      </div>
+      {isMember ? (
+        <span style={{ fontSize: 12, color: 'gray' }}>{t('inviteMember.alreadyInGroup')}</span>
+      ) : (
+        <Checkbox checked={!!selectedMembers.find(u => u.uid === userObj.uid) || isSelected} />
+      )}
     </div>
-    {isMember ? (
-      <span style={{ fontSize: 12, color: 'gray' }}>Đã trong nhóm</span>
-    ) : (
-      <Checkbox checked={!!selectedMembers.find(u => u.uid === userObj.uid) || isSelected} />
-    )}
-  </div>
-);
+  );
+};

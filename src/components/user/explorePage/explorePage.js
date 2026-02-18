@@ -16,17 +16,17 @@ export default function HomePage() {
           <RocketOutlined className="no-access-icon" />
         </div>
 
-        <h1 className="main-title text-luxury-gold">Coming Soon</h1>
+        <h1 className="main-title text-luxury-gold">{t('explore.title')}</h1>
 
         <p className="description">
-          Không gian kết nối và chia sẻ những khoảnh khắc thú vị đang được hoàn thiện. 
+          {t('explore.description')}
           <br />
-          <span>Sắp ra mắt:</span> Hệ thống theo dõi bạn bè, bài viết và tương tác thời gian thực.
+          <span>{t('explore.comingSoon')}</span> {t('explore.comingSoonDesc')}
         </p>
         <div className="action-buttons">
-          <button className="primary-btn" onClick={() => navigate(ROUTERS.USER.HOME)}> 
+          <button className="primary-btn" onClick={() => navigate(ROUTERS.USER.HOME)}>
             <MessageOutlined className="btn-icon" />
-            <span>Đi đến Nhắn tin</span>
+            <span>{t('explore.goToMessaging')}</span>
           </button>
         </div>
 

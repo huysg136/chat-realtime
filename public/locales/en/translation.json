@@ -254,5 +254,133 @@
             "accountNotFound": "Account not found",
             "saveFailed": "Failed to save settings"
         }
+    },
+    "explore": {
+        "title": "Coming Soon",
+        "description": "A space to connect and share interesting moments is being perfected.",
+        "comingSoon": "Coming Soon:",
+        "comingSoonDesc": "Friend tracking system, posts and real-time interaction.",
+        "goToMessaging": "Go to Messaging"
+    },
+    "roomList": {
+        "you": "Me",
+        "now": "just now",
+        "secondsAgo": "{{count}} seconds ago",
+        "minutesAgo": "{{count}} minutes ago",
+        "hoursAgo": "{{count}} hours ago",
+        "yesterday": "Yesterday",
+        "noMessages": "No messages yet",
+        "pin": "Pin chat",
+        "unpin": "Unpin chat",
+        "delete": "Delete chat",
+        "confirmDelete": "Are you sure you want to delete this conversation?",
+        "revoked": "Message has been revoked"
+    },
+    "system": {
+        "addedBy": " was added by ",
+        "toGroup": " to the group",
+        "createdGroup": " created the group",
+        "removedBy": " was removed from the group by ",
+        "leftGroup": " left the group",
+        "appointedOwner": " was appointed as the group owner by ",
+        "by": " by ",
+        "appointedOwnerEnd": "",
+        "acceptedInvite": " accepted the invitation to join the group from ",
+        "systemMessage": "[System Message]"
+    },
+    "message": {
+        "copySuccess": "Message copied",
+        "shareSuccess": "Shared successfully",
+        "shareError": "Error sharing",
+        "shareErrorGeneral": "Failed to share message",
+        "openImage": "Open image",
+        "openVideo": "Open video",
+        "download": "Save to device",
+        "copy": "Copy message",
+        "share": "Share message",
+        "report": "Report",
+        "revoke": "Revoke"
+    },
+    "addRoom": {
+        "title": "New Message",
+        "groupName": "Group Name",
+        "groupNamePlaceholder": "Group name (default is selected members)",
+        "searchQuikId": "Search by Quik ID",
+        "searchPlaceholder": "Enter Quik ID...",
+        "recentChats": "Recent Chats",
+        "suggestions": "Suggestions",
+        "alreadyInGroup": "Already in group",
+        "selected": "Selected:",
+        "btnChat": "Chat",
+        "btnCreateGroup": "Create group ({{count}} people)"
+    },
+    "myReports": {
+        "title": "My Reports",
+        "loadError": "Could not load report list",
+        "reportCount": "{{count}} reports",
+        "searchPlaceholder": "Search messages...",
+        "filters": {
+            "status": "Status",
+            "category": "Category",
+            "sortBy": "Sort by"
+        },
+        "all": "All",
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "empty": "You have no reports",
+        "total": "Total {{count}} reports",
+        "status": {
+            "pending": "Pending",
+            "resolved": "Resolved"
+        },
+        "category": {
+            "harmful": "Harmful",
+            "inappropriate": "Inappropriate",
+            "spam": "Spam",
+            "other": "Other",
+            "safe": "Safe"
+        },
+        "columns": {
+            "message": "Message",
+            "reason": "Reason",
+            "time": "Time",
+            "status": "Status"
+        }
+    },
+    "inviteMember": {
+        "title": "Invite Member",
+        "searchQuikId": "Search by Quik ID",
+        "searchPlaceholder": "Search by Quik ID...",
+        "recentChats": "Recent Chats",
+        "suggestions": "Suggestions",
+        "alreadyInGroup": "Already in group",
+        "selected": "Selected:",
+        "btnAdd": "Add to group"
+    },
+    "report": {
+        "title": "Report Message",
+        "reportedByCount": "({{count}} people have reported)",
+        "messageFrom": "Message from:",
+        "reasonLabel": "Reason for reporting:",
+        "reasonPlaceholder": "Please select a reason",
+        "harmful": "🔴 Harmful Content",
+        "inappropriate": "🟠 Inappropriate",
+        "spam": "🟡 Spam / Fraud",
+        "other": "⚪ Other",
+        "harmfulDesc": "Violence, abuse, serious threats",
+        "inappropriateDesc": "18+ content, harassment, hate speech",
+        "spamDesc": "Advertising, spam, fraud, suspicious links",
+        "otherDesc": "Other reason",
+        "detailsLabel": "Additional details (optional):",
+        "detailsPlaceholder": "Describe more about the violation (if any)...",
+        "btnCancel": "Cancel",
+        "btnSubmit": "Submit Report",
+        "submitting": "Submitting...",
+        "noReason": "Please select a report reason",
+        "missingInfo": "Missing user or message information.",
+        "alreadyReported": "You have already reported this message.",
+        "aiResultManual": "Unable to analyze automatically, manual review required",
+        "success": "Report recorded. Thank you for your feedback.",
+        "error": "Could not send report. Please try again."
     }
 }

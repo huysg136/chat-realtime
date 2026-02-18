@@ -254,5 +254,133 @@
             "accountNotFound": "Không tìm thấy tài khoản",
             "saveFailed": "Lưu cài đặt thất bại"
         }
+    },
+    "explore": {
+        "title": "Coming Soon",
+        "description": "Không gian kết nối và chia sẻ những khoảnh khắc thú vị đang được hoàn thiện.",
+        "comingSoon": "Sắp ra mắt:",
+        "comingSoonDesc": "Hệ thống theo dõi bạn bè, bài viết và tương tác thời gian thực.",
+        "goToMessaging": "Đi đến Nhắn tin"
+    },
+    "roomList": {
+        "you": "Tôi",
+        "now": "vừa xong",
+        "secondsAgo": "{{count}} giây trước",
+        "minutesAgo": "{{count}} phút trước",
+        "hoursAgo": "{{count}} giờ trước",
+        "yesterday": "Hôm qua",
+        "noMessages": "Chưa có tin nhắn",
+        "pin": "Ghim đoạn chat",
+        "unpin": "Bỏ ghim đoạn chat",
+        "delete": "Xóa đoạn chat",
+        "confirmDelete": "Bạn có chắc muốn xóa đoạn hội thoại này?",
+        "revoked": "Tin nhắn đã được thu hồi"
+    },
+    "system": {
+        "addedBy": " đã được ",
+        "toGroup": " thêm vào nhóm",
+        "createdGroup": " đã tạo nhóm",
+        "removedBy": " đã bị xóa khỏi nhóm bởi ",
+        "leftGroup": " đã rời nhóm",
+        "appointedOwner": " đã được ",
+        "by": " bởi ",
+        "appointedOwnerEnd": " bổ nhiệm làm trưởng nhóm",
+        "acceptedInvite": " đã chấp nhận lời mời tham gia nhóm từ ",
+        "systemMessage": "[Tin nhắn hệ thống]"
+    },
+    "message": {
+        "copySuccess": "Đã sao chép tin nhắn",
+        "shareSuccess": "Đã chia sẻ thành công",
+        "shareError": "Lỗi khi chia sẻ",
+        "shareErrorGeneral": "Lỗi chia sẻ tin nhắn",
+        "openImage": "Mở ảnh",
+        "openVideo": "Mở video",
+        "download": "Lưu về máy",
+        "copy": "Copy tin nhắn",
+        "share": "Chia sẻ tin nhắn",
+        "report": "Báo cáo",
+        "revoke": "Thu hồi"
+    },
+    "addRoom": {
+        "title": "Tin nhắn mới",
+        "groupName": "Tên nhóm",
+        "groupNamePlaceholder": "Tên nhóm (mặc định là các thành viên được chọn)",
+        "searchQuikId": "Tìm kiếm theo Quik ID",
+        "searchPlaceholder": "Nhập Quik ID...",
+        "recentChats": "Trò chuyện gần đây",
+        "suggestions": "Gợi ý",
+        "alreadyInGroup": "Đã trong nhóm",
+        "selected": "Đã chọn:",
+        "btnChat": "Chat",
+        "btnCreateGroup": "Tạo nhóm ({{count}} người)"
+    },
+    "myReports": {
+        "title": "Báo cáo của tôi",
+        "loadError": "Không thể tải danh sách báo cáo",
+        "reportCount": "{{count}} báo cáo",
+        "searchPlaceholder": "Tìm kiếm tin nhắn...",
+        "filters": {
+            "status": "Trạng thái",
+            "category": "Phân loại",
+            "sortBy": "Sắp xếp"
+        },
+        "all": "Tất cả",
+        "newest": "Mới nhất",
+        "oldest": "Cũ nhất",
+        "empty": "Bạn chưa có báo cáo nào",
+        "total": "Tổng {{count}} báo cáo",
+        "status": {
+            "pending": "Chờ xử lý",
+            "resolved": "Đã xử lý"
+        },
+        "category": {
+            "harmful": "Nguy hại",
+            "inappropriate": "Không phù hợp",
+            "spam": "Spam",
+            "other": "Khác",
+            "safe": "An toàn"
+        },
+        "columns": {
+            "message": "Tin nhắn",
+            "reason": "Lý do báo cáo",
+            "time": "Thời gian",
+            "status": "Trạng thái"
+        }
+    },
+    "inviteMember": {
+        "title": "Mời thêm thành viên",
+        "searchQuikId": "Tìm kiếm theo Quik ID",
+        "searchPlaceholder": "Tìm kiếm người dùng theo Quik ID...",
+        "recentChats": "Trò chuyện gần đây",
+        "suggestions": "Gợi ý",
+        "alreadyInGroup": "Đã trong nhóm",
+        "selected": "Đã chọn:",
+        "btnAdd": "Thêm vào nhóm"
+    },
+    "report": {
+        "title": "Báo cáo tin nhắn",
+        "reportedByCount": "({{count}} người đã báo cáo)",
+        "messageFrom": "Tin nhắn từ:",
+        "reasonLabel": "Lý do báo cáo:",
+        "reasonPlaceholder": "Vui lòng chọn lý do báo cáo",
+        "harmful": "🔴 Nội dung nguy hại",
+        "inappropriate": "🟠 Không phù hợp",
+        "spam": "🟡 Spam / Lừa đảo",
+        "other": "⚪ Khác",
+        "harmfulDesc": "Bạo lực, xâm hại, đe dọa nghiêm trọng",
+        "inappropriateDesc": "Nội dung 18+, quấy rối, ngôn từ thù ghét",
+        "spamDesc": "Quảng cáo, spam, lừa đảo, link lạ",
+        "otherDesc": "Lý do khác",
+        "detailsLabel": "Chi tiết bổ sung (tùy chọn):",
+        "detailsPlaceholder": "Mô tả thêm về vi phạm (nếu có)...",
+        "btnCancel": "Hủy",
+        "btnSubmit": "Gửi báo cáo",
+        "submitting": "Đang gửi...",
+        "noReason": "Vui lòng chọn lý do báo cáo",
+        "missingInfo": "Thiếu thông tin người dùng hoặc tin nhắn.",
+        "alreadyReported": "Bạn đã báo cáo tin nhắn này rồi.",
+        "aiResultManual": "Không thể phân tích tự động, cần xem xét thủ công",
+        "success": "Báo cáo đã được ghi nhận. Cảm ơn bạn đã góp ý.",
+        "error": "Không thể gửi báo cáo. Vui lòng thử lại."
     }
 }

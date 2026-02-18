@@ -11,9 +11,11 @@ import { useUserStatus } from "../../../hooks/useUserStatus";
 import UserBadge from "../../common/userBadge";
 import { ROUTERS } from "../../../configs/router";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomId }) {
-  const navigate  = useNavigate();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [member, setMember] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -46,7 +48,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
   const currentUid = user?.uid ? String(user.uid).trim() : "";
   const isOwnMessage = lmUid === currentUid;
   const sender = usersById[lmUid] || null;
-  const senderName = isOwnMessage ? "Tôi" : sender?.displayName || lm.displayName || "";
+  const senderName = isOwnMessage ? t('roomList.you') : sender?.displayName || lm.displayName || "";
 
   const toMs = (ts) => {
     if (!ts) return null;
@@ -60,11 +62,11 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
     const ms = toMs(timestamp);
     if (!ms) return "";
     const diff = Math.floor((Date.now() - ms) / 1000);
-    if (diff < 10) return "vừa xong";
-    if (diff < 60) return `${diff} giây trước`;
-    if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-    if (diff < 172800) return "Hôm qua";
+    if (diff < 10) return t('roomList.now');
+    if (diff < 60) return t('roomList.secondsAgo', { count: diff });
+    if (diff < 3600) return t('roomList.minutesAgo', { count: Math.floor(diff / 60) });
+    if (diff < 86400) return t('roomList.hoursAgo', { count: Math.floor(diff / 3600) });
+    if (diff < 172800) return t('roomList.yesterday');
     const d = new Date(ms);
     return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
   };
@@ -108,7 +110,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Bạn có chắc muốn xóa đoạn hội thoại này?")) return;
+    if (!window.confirm(t('roomList.confirmDelete'))) return;
     try {
       const messagesRef = collection(db, "messages");
       const q = query(messagesRef, where("roomId", "==", room.id));
@@ -136,7 +138,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
     {
       key: "pin",
       icon: <PushpinOutlined />,
-      label: isPinned ? "Bỏ ghim đoạn chat" : "Ghim đoạn chat",
+      label: isPinned ? t('roomList.unpin') : t('roomList.pin'),
       onClick: handlePin,
     },
     {
@@ -146,7 +148,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
     {
       key: "delete",
       icon: <DeleteOutlined style={{ color: "#ff4d4f" }} />,
-      label: <span style={{ color: "#ff4d4f", fontWeight: "500" }}>Xóa đoạn chat</span>,
+      label: <span style={{ color: "#ff4d4f", fontWeight: "500" }}>{t('roomList.delete')}</span>,
       onClick: handleDelete,
     }
   ];
@@ -205,7 +207,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
         {room.lastMessage ? (
           <p className="last-message">
             {lm.isRevoked ? (
-              `${senderName}: [Tin nhắn đã được thu hồi]`
+              `${senderName}: ${t('roomList.revoked')}`
             ) : (
               <>
                 {senderName}:{" "}
@@ -220,13 +222,13 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
                     case "text":
                       return decrypted;
                     case "picture":
-                      return "🖼️ [Hình ảnh]";
+                      return t('chatInput.media.picture');
                     case "video":
-                      return "🎬 [Video]";
+                      return t('chatInput.media.video');
                     case "file":
-                      return "📎 [Tệp]";
+                      return t('chatInput.media.file');
                     case "audio":
-                      return "🎤 [Tin nhắn thoại]";
+                      return t('chatInput.media.voice');
                     default:
                       return decrypted;
                   }
@@ -235,7 +237,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
             )}
           </p>
         ) : (
-          <p className="last-message">Chưa có tin nhắn</p>
+          <p className="last-message">{t('roomList.noMessages')}</p>
         )}
       </div>
 

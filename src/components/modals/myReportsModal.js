@@ -1,6 +1,7 @@
 // components/Modal/MyReportsModal/MyReportsModal.js
 import React, { useState, useEffect, useContext } from "react";
 import { Modal, Table, Tag, Empty, Input, Select } from "antd";
+import { useTranslation } from "react-i18next";
 import { FiMessageSquare, FiClock } from "react-icons/fi";
 import { db } from "../../firebase/config";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -23,10 +24,10 @@ const CATEGORY_COLORS = {
   safe: { color: "#389e0d", bg: "#f6ffed", label: "An toàn" },
 };
 
-function formatTimestamp(timestamp) {
+function formatTimestamp(timestamp, locale = "vi-VN") {
   if (!timestamp) return "N/A";
   const date = timestamp?.toDate ? timestamp.toDate() : new Date(timestamp);
-  return date.toLocaleString("vi-VN");
+  return date.toLocaleString(locale === "vi" ? "vi-VN" : "en-US");
 }
 
 function truncateText(text, maxLength = 50) {
@@ -46,6 +47,7 @@ export default function MyReportsModal() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const { t, i18n } = useTranslation();
   const { user } = useContext(AuthContext);
   const { isMyReportsVisible, setIsMyReportsVisible } = useContext(AppContext);
 
@@ -76,7 +78,7 @@ export default function MyReportsModal() {
 
         setReports(reportList);
       } catch (err) {
-        toast.error("Không thể tải danh sách báo cáo");
+        toast.error(t('myReports.loadError'));
       } finally {
         setLoading(false);
       }
@@ -104,14 +106,14 @@ export default function MyReportsModal() {
 
   const columns = [
     {
-      title: "Tin nhắn",
+      title: t('myReports.columns.message'),
       key: "message",
       width: 200,
       render: (_, record) => (
         <div className="message-cell">
           <div className="message-kind">
             <FiMessageSquare size={14} />
-            <span>{record.messageKind || "text"}</span>
+            <span>{record.messageKind || t('searching.message')}</span>
           </div>
           <div className="message-text">
             {truncateText(record.messageText, 60)}
@@ -120,7 +122,7 @@ export default function MyReportsModal() {
       ),
     },
     {
-      title: "Lý do báo cáo",
+      title: t('myReports.columns.reason'),
       key: "reason",
       width: 150,
       render: (_, record) => {
@@ -128,7 +130,7 @@ export default function MyReportsModal() {
         return (
           <div>
             <div style={{ fontSize: 13, marginBottom: 4 }}>
-              {record.userReportCategoryLabel}
+              {t(`report.${record.userReportCategory}`) || record.userReportCategoryLabel}
             </div>
             <Tag
               style={{
@@ -138,27 +140,27 @@ export default function MyReportsModal() {
                 fontSize: 11,
               }}
             >
-              AI: {categoryConfig.label}
+              AI: {t(`myReports.category.${record.aiCategory}`) || t('myReports.category.other')}
             </Tag>
           </div>
         );
       },
     },
     {
-      title: "Thời gian",
+      title: t('myReports.columns.time'),
       key: "time",
       width: 140,
       render: (_, record) => (
         <div className="time-cell">
           <FiClock size={12} />
           <span style={{ fontSize: 12, marginLeft: 4 }}>
-            {formatTimestamp(record.createdAt)}
+            {formatTimestamp(record.createdAt, i18n.language)}
           </span>
         </div>
       ),
     },
     {
-      title: "Trạng thái",
+      title: t('myReports.columns.status'),
       key: "status",
       width: 120,
       render: (_, record) => {
@@ -172,7 +174,7 @@ export default function MyReportsModal() {
               fontWeight: 500,
             }}
           >
-            {statusConfig.label}
+            {t(`myReports.status.${record.status}`) || t('myReports.status.pending')}
           </Tag>
         );
       },
@@ -194,9 +196,9 @@ export default function MyReportsModal() {
       <Modal
         title={
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span>Báo cáo của tôi</span>
+            <span>{t('myReports.title')}</span>
             {reports.length > 0 && (
-              <Tag color="blue">{reports.length} báo cáo</Tag>
+              <Tag color="blue">{t('myReports.reportCount', { count: reports.length })}</Tag>
             )}
           </div>
         }
@@ -210,7 +212,7 @@ export default function MyReportsModal() {
       >
         <div className="reports-filters">
           <Input.Search
-            placeholder="Tìm kiếm tin nhắn..."
+            placeholder={t('myReports.searchPlaceholder')}
             value={filters.search}
             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
             style={{ width: 250 }}
@@ -218,40 +220,40 @@ export default function MyReportsModal() {
           />
 
           <Select
-            placeholder="Trạng thái"
+            placeholder={t('myReports.filters.status')}
             value={filters.status}
             onChange={(value) => setFilters({ ...filters, status: value })}
             style={{ width: 150 }}
             allowClear
           >
-            <Select.Option value="">Tất cả</Select.Option>
-            <Select.Option value="pending">Chờ xử lý</Select.Option>
-            <Select.Option value="resolved">Đã xử lý</Select.Option>
+            <Select.Option value="">{t('myReports.all')}</Select.Option>
+            <Select.Option value="pending">{t('myReports.status.pending')}</Select.Option>
+            <Select.Option value="resolved">{t('myReports.status.resolved')}</Select.Option>
           </Select>
 
           <Select
-            placeholder="Phân loại"
+            placeholder={t('myReports.filters.category')}
             value={filters.category}
             onChange={(value) => setFilters({ ...filters, category: value })}
             style={{ width: 150 }}
             allowClear
           >
-            <Select.Option value="">Tất cả</Select.Option>
-            <Select.Option value="harmful">Nguy hại</Select.Option>
-            <Select.Option value="inappropriate">Không phù hợp</Select.Option>
-            <Select.Option value="spam">Spam</Select.Option>
-            <Select.Option value="safe">An toàn</Select.Option>
-            <Select.Option value="other">Khác</Select.Option>
+            <Select.Option value="">{t('myReports.all')}</Select.Option>
+            <Select.Option value="harmful">{t('myReports.category.harmful')}</Select.Option>
+            <Select.Option value="inappropriate">{t('myReports.category.inappropriate')}</Select.Option>
+            <Select.Option value="spam">{t('myReports.category.spam')}</Select.Option>
+            <Select.Option value="safe">{t('myReports.category.safe')}</Select.Option>
+            <Select.Option value="other">{t('myReports.category.other')}</Select.Option>
           </Select>
 
           <Select
-            placeholder="Sắp xếp"
+            placeholder={t('myReports.filters.sortBy')}
             value={filters.sortBy}
             onChange={(value) => setFilters({ ...filters, sortBy: value })}
             style={{ width: 150 }}
           >
-            <Select.Option value="newest">Mới nhất</Select.Option>
-            <Select.Option value="oldest">Cũ nhất</Select.Option>
+            <Select.Option value="newest">{t('myReports.newest')}</Select.Option>
+            <Select.Option value="oldest">{t('myReports.oldest')}</Select.Option>
           </Select>
         </div>
 
@@ -259,7 +261,7 @@ export default function MyReportsModal() {
           <LoadingScreen />
         ) : filteredReports.length === 0 ? (
           <Empty
-            description="Bạn chưa có báo cáo nào"
+            description={t('myReports.empty')}
             style={{ padding: "60px 0" }}
           />
         ) : (
@@ -270,7 +272,7 @@ export default function MyReportsModal() {
             pagination={{
               pageSize: 3,
               showSizeChanger: false,
-              showTotal: (total) => `Tổng ${total} báo cáo`,
+              showTotal: (total) => t('myReports.total', { count: total }),
             }}
             scroll={{ x: 800 }}
           />

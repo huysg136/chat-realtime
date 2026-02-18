@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReactPlayer from 'react-player';
+import { useTranslation } from 'react-i18next';
 import 'react-h5-audio-player/lib/styles.css';
 import { MdAttachFile } from "react-icons/md";
 import 'react-image-lightbox/style.css';
@@ -8,18 +9,19 @@ import { SlSpeech } from "react-icons/sl";
 
 
 const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, actorUid, targetUid, users, transcript }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const [showTranscript, setShowTranscript] = useState(false); 
+  const [showTranscript, setShowTranscript] = useState(false);
   const audioRef = React.useRef(null);
 
 
   if (!content && kind !== 'system') return null;
 
   if (isRevoked) {
-    return <span className="message-text-part revoked">[Tin nhắn đã được thu hồi]</span>;
+    return <span className="message-text-part revoked">{t('roomList.revoked')}</span>;
   }
 
   if (kind === 'system') {
@@ -33,14 +35,16 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
 
     let messageContent = null;
 
-    switch(action) {
+    switch (action) {
       case 'add_member':
         messageContent = (
           <span className="system-text">
             {targetPhoto && <img src={targetPhoto} alt={targetName} className="system-avatar" />}
-            <span className="system-name">{targetName}</span> đã được
+            <span className="system-name">{targetName}</span>
+            {t('system.addedBy')}
             {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}
-            <span className="system-name">{actorName}</span> thêm vào nhóm
+            <span className="system-name">{actorName}</span>
+            {t('system.toGroup')}
           </span>
         );
         break;
@@ -48,7 +52,8 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
         messageContent = (
           <span className="system-text">
             {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}
-            <span className="system-name">{actorName}</span> đã tạo nhóm
+            <span className="system-name">{actorName}</span>
+            {t('system.createdGroup')}
           </span>
         );
         break;
@@ -56,7 +61,8 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
         messageContent = (
           <span className="system-text">
             {targetPhoto && <img src={targetPhoto} alt={targetName} className="system-avatar" />}
-            <span className="system-name">{targetName}</span> đã bị xóa khỏi nhóm bởi
+            <span className="system-name">{targetName}</span>
+            {t('system.removedBy')}
             {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}
             <span className="system-name">{actorName}</span>
           </span>
@@ -66,7 +72,8 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
         messageContent = (
           <span className="system-text">
             {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}
-            <span className="system-name">{actorName}</span> đã rời nhóm
+            <span className="system-name">{actorName}</span>
+            {t('system.leftGroup')}
           </span>
         );
         break;
@@ -74,25 +81,27 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
         messageContent = (
           <span className="system-text">
             {targetPhoto && <img src={targetPhoto} alt={targetName} className="system-avatar" />}
-            <span className="system-name">{targetName}</span> đã được
+            <span className="system-name">{targetName}</span>
+            {t('system.appointedOwner')}
             {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}
-            <span className="system-name">{actorName}</span> bổ nhiệm làm trưởng nhóm
+            <span className="system-name">{actorName}</span>
+            {t('system.appointedOwnerEnd')}
           </span>
         );
         break;
       case 'accept_invite':
         messageContent = (
           <span className="system-text">
-            {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}{" "}
-            <span className="system-name">{actorName}</span>{" "}
-            đã chấp nhận lời mời tham gia nhóm từ{" "}
-            {targetPhoto && <img src={targetPhoto} alt={targetName} className="system-avatar" />}{" "}
+            {actorPhoto && <img src={actorPhoto} alt={actorName} className="system-avatar" />}
+            <span className="system-name">{actorName}</span>
+            {t('system.acceptedInvite')}
+            {targetPhoto && <img src={targetPhoto} alt={targetName} className="system-avatar" />}
             <span className="system-name">{targetName}</span>
           </span>
         );
         break;
       default:
-        messageContent = <span className="system-text">[Tin nhắn hệ thống]</span>;
+        messageContent = <span className="system-text">{t('system.systemMessage')}</span>;
     }
 
     return (
@@ -219,12 +228,12 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
           <button className="voice-play-btn" onClick={togglePlay}>
             {isPlaying ? (
               <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <rect x="6" y="5" width="4" height="14" rx="1"/>
-                <rect x="14" y="5" width="4" height="14" rx="1"/>
+                <rect x="6" y="5" width="4" height="14" rx="1" />
+                <rect x="14" y="5" width="4" height="14" rx="1" />
               </svg>
             ) : (
               <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <path d="M8 5v14l11-7z"/>
+                <path d="M8 5v14l11-7z" />
               </svg>
             )}
           </button>
@@ -250,7 +259,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
             </button>
           )}
         </div>
-        
+
 
         {showTranscript && transcript && (
           <div className="voice-transcript">

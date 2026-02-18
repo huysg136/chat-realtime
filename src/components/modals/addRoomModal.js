@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Input, Avatar, Spin, Checkbox, Button } from 'antd';
 import { AppContext } from '../../context/appProvider';
@@ -13,6 +14,7 @@ import { ROUTERS } from '../../configs/router';
 
 export default function AddRoomModal() {
   const { isAddRoomVisible, setIsAddRoomVisible, setSelectedRoomId, rooms, users } = useContext(AppContext);
+  const { t } = useTranslation();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const uid = user?.uid;
@@ -236,7 +238,7 @@ export default function AddRoomModal() {
               actor,
               target: {
                 uid: fullMember.uid,
-                name: fullMember.displayName || "Thành viên",
+                name: fullMember.displayName || t('chatWindow.members'),
                 photoURL: fullMember.photoURL || null,
               },
               visibleFor: newRoom.members,
@@ -318,7 +320,7 @@ export default function AddRoomModal() {
 
   return (
     <Modal
-      title="Tin nhắn mới"
+      title={t('addRoom.title')}
       open={isAddRoomVisible}
       onCancel={handleCancel}
       footer={null}
@@ -329,12 +331,12 @@ export default function AddRoomModal() {
       {/* Header + Room name */}
       {selectedMembers.length > 1 && (
         <div style={{ marginBottom: 10 }}>
-          <div style={{ marginBottom: 6, fontWeight: 600 }}>Tên nhóm</div>
+          <div style={{ marginBottom: 6, fontWeight: 600 }}>{t('addRoom.groupName')}</div>
           <Input
             value={roomName}
             onChange={handleRoomNameChange}
             disabled={isPrivateSelection}
-            placeholder="Tên nhóm (mặc định là các thành viên được chọn)"
+            placeholder={t('addRoom.groupNamePlaceholder')}
             showCount
             maxLength={ROOM_NAME_MAX}
           />
@@ -343,15 +345,15 @@ export default function AddRoomModal() {
 
       {/* Search */}
       <div style={{ marginBottom: 10 }}>
-        <div style={{ marginBottom: 6, fontWeight: 600 }}>Tìm kiếm theo Quik ID</div>
-        <Input placeholder="Nhập Quik ID..." value={searchText} onChange={handleSearchChange} />
+        <div style={{ marginBottom: 6, fontWeight: 600 }}>{t('addRoom.searchQuikId')}</div>
+        <Input placeholder={t('addRoom.searchPlaceholder')} value={searchText} onChange={handleSearchChange} />
       </div>
 
       {/* User List */}
       <div style={{ flex: 1, overflowY: 'auto', paddingRight: '10px' }}>
         {!searchText && (
           <div style={{ marginBottom: 6, fontWeight: 600 }}>
-            {recentChats.length > 0 ? 'Trò chuyện gần đây' : 'Gợi ý'}
+            {recentChats.length > 0 ? t('addRoom.recentChats') : t('addRoom.suggestions')}
           </div>
         )}
         {fetching && <div style={{ display: 'flex', justifyContent: 'center', padding: 20 }}><Spin size="small" /></div>}
@@ -374,7 +376,7 @@ export default function AddRoomModal() {
       {/* Selected Members */}
       {selectedMembers.length > 0 && (
         <div style={{ flexShrink: 0, maxHeight: 150, overflowY: 'auto', marginTop: 10, paddingRight: '10px' }}>
-          <div style={{ fontWeight: 500 }}>Đã chọn:</div>
+          <div style={{ fontWeight: 500 }}>{t('addRoom.selected')}</div>
           {selectedMembers.map(member => (
             <UserItem
               key={member.uid}
@@ -396,32 +398,35 @@ export default function AddRoomModal() {
         onClick={handleOk}
         style={{ marginTop: 10, flexShrink: 0 }}
       >
-        {selectedMembers.length <= 1 ? 'Chat' : `Tạo nhóm (${selectedMembers.length + 1} người)`}
+        {selectedMembers.length <= 1 ? t('addRoom.btnChat') : t('addRoom.btnCreateGroup', { count: selectedMembers.length + 1 })}
       </Button>
     </Modal>
   );
 }
 
-const UserItem = ({ userObj, selectedMembers, handleToggleMember, isSelected, isMember }) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      padding: '5px 0',
-      cursor: isMember ? 'not-allowed' : 'pointer',
-      opacity: isMember ? 0.5 : 1
-    }}
-    onClick={() => !isMember && handleToggleMember(userObj)}
-  >
-    <Avatar src={userObj.photoURL} size={32} style={{ marginRight: 10 }} />
-    <div style={{ flex: 1 }}>
-      <UserBadge displayName={userObj.displayName} role={userObj.role} premiumLevel={userObj.premiumLevel} premiumUntil={userObj.premiumUntil} />
-      <div style={{ fontSize: 12, color: 'gray' }}>@{userObj.username}</div>
+const UserItem = ({ userObj, selectedMembers, handleToggleMember, isSelected, isMember }) => {
+  const { t } = useTranslation();
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        padding: '5px 0',
+        cursor: isMember ? 'not-allowed' : 'pointer',
+        opacity: isMember ? 0.5 : 1
+      }}
+      onClick={() => !isMember && handleToggleMember(userObj)}
+    >
+      <Avatar src={userObj.photoURL} size={32} style={{ marginRight: 10 }} />
+      <div style={{ flex: 1 }}>
+        <UserBadge displayName={userObj.displayName} role={userObj.role} premiumLevel={userObj.premiumLevel} premiumUntil={userObj.premiumUntil} />
+        <div style={{ fontSize: 12, color: 'gray' }}>@{userObj.username}</div>
+      </div>
+      {isMember ? (
+        <span style={{ fontSize: 12, color: 'gray' }}>{t('addRoom.alreadyInGroup')}</span>
+      ) : (
+        <Checkbox checked={!!selectedMembers.find(u => u.uid === userObj.uid) || isSelected} />
+      )}
     </div>
-    {isMember ? (
-      <span style={{ fontSize: 12, color: 'gray' }}>Đã trong nhóm</span>
-    ) : (
-      <Checkbox checked={!!selectedMembers.find(u => u.uid === userObj.uid) || isSelected} />
-    )}
-  </div>
-);
+  );
+};

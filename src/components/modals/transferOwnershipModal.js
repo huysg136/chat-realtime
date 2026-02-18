@@ -21,13 +21,13 @@ export default function TransferOwnershipModal({
   const ownerUid = ownerEntry?.uid || (selectedRoom?.members?.[0] && String(selectedRoom.members[0]));
 
   const transferCandidates = membersData.filter(
-    (m) => String(m.uid).trim() !== String(currentUid).trim() && 
-           String(m.uid).trim() !== String(ownerUid).trim()
+    (m) => String(m.uid).trim() !== String(currentUid).trim() &&
+      String(m.uid).trim() !== String(ownerUid).trim()
   );
 
   const handleClose = () => {
-    setSelectedTransferUid(null);  
-    onClose?.();                  
+    setSelectedTransferUid(null);
+    onClose?.();
   };
 
   const transferOwnershipAndLeave = async () => {
@@ -71,9 +71,9 @@ export default function TransferOwnershipModal({
       newRolesMap[String(selectedTransferUid).trim()] = "owner";
       delete newRolesMap[String(currentUid).trim()];
 
-      const newRoles = Object.keys(newRolesMap).map((k) => ({ 
-        uid: k, 
-        role: newRolesMap[k] 
+      const newRoles = Object.keys(newRolesMap).map((k) => ({
+        uid: k,
+        role: newRolesMap[k]
       }));
 
       const newMembers = (selectedRoom.members || []).filter(
@@ -106,7 +106,7 @@ export default function TransferOwnershipModal({
         uid: "system",
         roomId: selectedRoom.id,
         kind: "system",
-        action: "leave_group", 
+        action: "leave_group",
         actor: {
           uid: currentUser?.uid,
           name: currentUser?.displayName || "Người dùng",

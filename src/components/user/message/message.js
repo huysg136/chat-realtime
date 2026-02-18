@@ -1,4 +1,5 @@
 import React, { useMemo, useContext, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Avatar, Dropdown, Menu } from "antd";
 import { FaRegCopy, FaImage, FaDownload, FaShareSquare, FaReply, FaVideo } from "react-icons/fa";
 import { MoreOutlined, UndoOutlined } from "@ant-design/icons";
@@ -37,6 +38,7 @@ const getVisibleFor = (selectedRoom) => {
 };
 
 const ReplyPreview = ({ replyTo, isOwn }) => {
+  const { t } = useTranslation();
   const [isRepliedRevoked, setIsRepliedRevoked] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -64,9 +66,9 @@ const ReplyPreview = ({ replyTo, isOwn }) => {
 
   if (!replyTo) return null;
 
-  const renderReplyContent = () => {
+  const renderReplyContent = (t) => {
     if (isRepliedRevoked) {
-      return <p className="reply-text">[Tin nhắn đã được thu hồi]</p>;
+      return <p className="reply-text">[{t('roomList.revoked')}]</p>;
     }
 
     const kind = replyTo.kind || "text";
@@ -119,32 +121,33 @@ const ReplyPreview = ({ replyTo, isOwn }) => {
             case "video":
               return (
                 <>
-                  🎬 [Video]
+                  🎬 [{t('chatInput.media.video')}]
                   {replyTo.fileName ? ` (${replyTo.fileName})` : ""}
                 </>
               );
             case "file":
               return (
                 <>
-                  📎 [Tệp]
+                  📎 [{t('chatInput.media.file')}]
                   {replyTo.fileName ? ` (${replyTo.fileName})` : ""}
                 </>
               );
             case "audio":
             case "voice":
-              return <>🎤 [Tin nhắn thoại]</>;
+              return <>🎤 [{t('chatInput.media.voice')}]</>;
             default:
-              return text || "[Tin nhắn]";
+              return text || `[${t('searching.message')}]`;
           }
         })()}
       </p>
     );
   };
 
+
   return (
     <div className={`reply-preview-in-message ${isOwn ? "own" : ""}`}>
-      <span className="reply-label">Trả lời {replyTo.displayName}:</span>
-      {renderReplyContent()}
+      <span className="reply-label">{t('chatInput.replyTo', { name: replyTo.displayName })}</span>
+      {renderReplyContent(t)}
     </div>
   );
 };
@@ -167,6 +170,7 @@ export default function Message({
   transcript,
 }) {
   const { rooms, selectedRoomId, users } = useContext(AppContext);
+  const { t } = useTranslation();
   const authContext = useContext(AuthContext) || {};
   const user = authContext.user || {};
   const currentUid = user.uid || "";
@@ -244,7 +248,7 @@ export default function Message({
       }
       else {
         await navigator.clipboard.writeText(text);
-        toast.success("Đã sao chép tin nhắn");
+        toast.success(t('message.copySuccess'));
       }
     } catch (err) {
     }
@@ -280,12 +284,12 @@ export default function Message({
         success ? successCount++ : errorCount++;
       }
 
-      if (successCount) toast.success(`Đã chia sẻ thành công`);
-      if (errorCount) toast.error(`Lỗi khi chia sẻ`);
+      if (successCount) toast.success(t('message.shareSuccess'));
+      if (errorCount) toast.error(t('message.shareError'));
 
       setIsForwardModalVisible(false);
     } catch {
-      toast.error("Lỗi chia sẻ tin nhắn");
+      toast.error(t('message.shareErrorGeneral'));
     } finally {
       setForwarding(false);
     }
@@ -295,7 +299,7 @@ export default function Message({
     setIsReportModalVisible(true);
   }
 
-  const isRevoked = text === "[Tin nhắn đã được thu hồi]";
+  const isRevoked = text === `[${t('roomList.revoked')}]`;
   const isMediaWithoutBubble = kind === "picture" || kind === "video";
   const defaultAvatar =
     "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
@@ -304,19 +308,19 @@ export default function Message({
     kind !== "audio" && {
       key: kind === "picture" ? "open-image" : kind === "video" ? "open-video" : kind === "file" ? "download" : "copy-text",
       icon: kind === "picture" ? <FaImage /> : kind === "video" ? <FaVideo /> : kind === "file" ? <FaDownload /> : <FaRegCopy />,
-      label: kind === "picture" ? "Mở ảnh" : kind === "video" ? "Mở video" : kind === "file" ? "Lưu về máy" : "Copy tin nhắn",
+      label: kind === "picture" ? t('message.openImage') : kind === "video" ? t('message.openVideo') : kind === "file" ? t('message.download') : t('message.copy'),
       onClick: handleCopy,
     },
     {
       key: "share",
       icon: <FaShareSquare />,
-      label: "Chia sẻ tin nhắn",
+      label: t('message.share'),
       onClick: handleForward,
     },
     kind !== "picture" && kind !== "video" && kind !== "file" && {
       key: "report",
       icon: <MdReportProblem />,
-      label: "Báo cáo",
+      label: t('message.report'),
       onClick: handleReport,
     },
     isOwn && {
@@ -326,7 +330,7 @@ export default function Message({
     isOwn && {
       key: "revoke",
       icon: <UndoOutlined style={{ color: "#ff4d4f" }} />,
-      label: <span style={{ color: "#ff4d4f", fontWeight: "500" }}>Thu hồi</span>,
+      label: <span style={{ color: "#ff4d4f", fontWeight: "500" }}>{t('message.revoke')}</span>,
       onClick: handleRevoke,
     }
   ].filter(Boolean);

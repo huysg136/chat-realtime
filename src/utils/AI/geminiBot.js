@@ -9,7 +9,7 @@ export async function askGemini(prompt) {
     const res = await axios.post(
       `${API_BASE_URL}/api/ask-gemini`,
       { prompt },
-      { timeout: 30000 }    
+      { timeout: 30000 }
     );
 
     if (res?.data?.answer) return res.data.answer;

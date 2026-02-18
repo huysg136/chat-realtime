@@ -57,7 +57,7 @@ export default function VideoCallOverlay({
   const photoURL = isLoading ? null : displayUser?.photoURL;
 
   const getCallStatusText = () => {
-    switch(callStatus) {
+    switch (callStatus) {
       case 'calling': return 'Đang gọi...';
       case 'ringing': return 'Đang đổ chuông...';
       case 'connecting': return 'Đang kết nối...';
@@ -68,7 +68,7 @@ export default function VideoCallOverlay({
   };
 
   const getCallStatusIcon = () => {
-    switch(callStatus) {
+    switch (callStatus) {
       case 'calling': return <AiOutlinePhone />;
       case 'ringing': return <AiOutlineClockCircle />;
       case 'connecting': return <AiOutlineSync />;
@@ -78,7 +78,7 @@ export default function VideoCallOverlay({
 
   return (
     <div className="video-call-overlay">
-            <div className="video-call-overlay__top-bar">
+      <div className="video-call-overlay__top-bar">
         <div className="video-call-overlay__user-info">
           {isLoading ? (
             <div className="video-call-overlay__avatar-loading">
