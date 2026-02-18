@@ -89,12 +89,10 @@ const CircularAvatarGroup = ({ members, maxDisplay = 3 }) => {
             className="circle-avatar remaining-count"
             style={{
               position: "absolute",
-              left: `calc(50% + ${
-                getAvatarPosition(displayMembers.length, totalToDisplay, avatarSize).x
-              }px)`,
-              top: `calc(50% + ${
-                getAvatarPosition(displayMembers.length, totalToDisplay, avatarSize).y
-              }px)`,
+              left: `calc(50% + ${getAvatarPosition(displayMembers.length, totalToDisplay, avatarSize).x
+                }px)`,
+              top: `calc(50% + ${getAvatarPosition(displayMembers.length, totalToDisplay, avatarSize).y
+                }px)`,
               transform: "translate(-50%, -50%)",
               backgroundColor: "#bebebeff",
               color: "white",

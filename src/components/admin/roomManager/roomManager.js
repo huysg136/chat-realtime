@@ -1,14 +1,17 @@
 import { useEffect, useState, useContext } from "react";
 import { db } from "../../../firebase/config";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, arrayRemove } from "firebase/firestore";
 import { decryptMessage } from "../../../firebase/services";
 import NoAccess from "../noAccess/noAccess";
 import { AuthContext } from "../../../context/authProvider";
-import { FiCopy } from "react-icons/fi";
-import { Table } from "antd";
+import { FiCopy, FiEye, FiTrash2, FiUserMinus } from "react-icons/fi";
+import { FaKey } from "react-icons/fa6";
+import { Table, Modal, Avatar } from "antd";
 import { toast } from "react-toastify";
 import "./roomManager.scss";
 import LoadingScreen from '../../common/loadingScreen';
+import UserBadge from "../../common/userBadge";
+import CircularAvatarGroup from "../../common/circularAvatarGroup";
 
 export default function RoomManager() {
   const { user: currentUser } = useContext(AuthContext);
@@ -16,8 +19,10 @@ export default function RoomManager() {
   const [rooms, setRooms] = useState([]);
   const [uidToName, setUidToName] = useState({});
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const [deletingRoomId, setDeletingRoomId] = useState(null);
   const [filters, setFilters] = useState({
     id: "",
+    name: "",
     kind: "",
     membersSort: "",
     createdAt: "",
@@ -35,11 +40,19 @@ export default function RoomManager() {
     setLoading(true);
     let usersLoaded = false;
     let roomsLoaded = false;
+
     const unsubscribeUsers = onSnapshot(collection(db, "users"), (snap) => {
       const map = {};
       snap.docs.forEach((u) => {
         const data = u.data();
-        map[data.uid] = data.displayName || "Ẩn danh";
+        map[data.uid] = {
+          displayName: data.displayName || "Ẩn danh",
+          photoURL: data.photoURL,
+          username: data.username,
+          role: data.role,
+          premiumLevel: data.premiumLevel,
+          premiumUntil: data.premiumUntil
+        };
       });
       setUidToName(map);
       usersLoaded = true;
@@ -63,8 +76,7 @@ export default function RoomManager() {
             })
             : "N/A";
 
-        const ownerUid =
-          data.roles?.find((r) => r.role === "owner")?.uid || "Không rõ";
+        const ownerUid = data.roles?.find((r) => r.role === "owner")?.uid || "Không rõ";
 
         const lastMsg = data.lastMessage
           ? (() => {
@@ -79,16 +91,19 @@ export default function RoomManager() {
           })()
           : "Chưa có tin nhắn";
 
+        const isActive = data.updatedAt?.toDate
+          ? (new Date() - data.updatedAt.toDate()) / (1000 * 60 * 60 * 24) <= 7
+          : false;
+
         return {
           id: docSnap.id,
-          name: data.name || "Không tên",
+          name: data.name || (data.kind === "private" || data.type === "private" ? "-" : "Không tên"),
           kind:
             data.kind === "group" || data.type === "group"
               ? "Nhóm"
               : data.kind === "private" || data.type === "private"
                 ? "Riêng tư"
                 : "N/A",
-          createdBy: data.displayName || data.createdBy || "Ẩn danh",
           ownerUid,
           members: data.members || [],
           roles: data.roles || [],
@@ -96,6 +111,8 @@ export default function RoomManager() {
           updatedAt: formatTime(data.updatedAt),
           lastMessage: lastMsg,
           secretKey: data.secretKey || "",
+          isActive,
+          avatar: data.avatar || null,
         };
       });
       setRooms(roomList);
@@ -113,13 +130,69 @@ export default function RoomManager() {
     return <NoAccess />;
   }
 
-  if (loading)
-    return <LoadingScreen />;
+  if (loading) return <LoadingScreen />;
+
+  const handleDeleteRoom = (roomId) => {
+    Modal.confirm({
+      title: "Xác nhận xóa phòng",
+      content: "Bạn có chắc muốn xóa phòng này? Hành động không thể hoàn tác.",
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      zIndex: 10001,
+      onOk: async () => {
+        try {
+          await deleteDoc(doc(db, "rooms", roomId));
+          toast.success("Đã xóa phòng thành công");
+          if (selectedRoom?.id === roomId) setSelectedRoom(null);
+        } catch {
+          toast.error("Xóa phòng thất bại");
+        }
+      },
+    });
+  };
+
+  const handleKickMember = async (room, memberUid) => {
+    const memberName = uidToName[memberUid]?.displayName || memberUid;
+    Modal.confirm({
+      title: `Kick ${memberName}?`,
+      content: "Thành viên này sẽ bị xóa khỏi nhóm.",
+      okText: "Kick",
+      okType: "danger",
+      cancelText: "Hủy",
+      zIndex: 10001,
+      onOk: async () => {
+        try {
+          const roleToRemove = room.roles.find((r) => r.uid === memberUid);
+          await updateDoc(doc(db, "rooms", room.id), {
+            members: arrayRemove(memberUid),
+            roles: arrayRemove(roleToRemove),
+          });
+          setSelectedRoom((prev) =>
+            prev
+              ? {
+                ...prev,
+                members: prev.members.filter((m) => m !== memberUid),
+                roles: prev.roles.filter((r) => r.uid !== memberUid),
+              }
+              : prev
+          );
+          toast.success(`Đã kick ${memberName}`);
+        } catch {
+          toast.error("Kick thành viên thất bại");
+        }
+      },
+    });
+  };
+
+  const copyText = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.info("Đã sao chép", { autoClose: 1200 });
+  };
 
   const filteredRooms = rooms
-    .filter((room) =>
-      room.id.toLowerCase().includes(filters.id.toLowerCase())
-    )
+    .filter((room) => room.id.toLowerCase().includes(filters.id.toLowerCase()))
+    .filter((room) => room.name.toLowerCase().includes(filters.name.toLowerCase()))
     .filter((room) => (filters.kind ? room.kind === filters.kind : true))
     .filter((room) => {
       if (!filters.createdAt) return true;
@@ -133,53 +206,83 @@ export default function RoomManager() {
       return 0;
     });
 
+  const totalRooms = rooms.length;
+  const groupRooms = rooms.filter((r) => r.kind === "Nhóm").length;
+  const privateRooms = rooms.filter((r) => r.kind === "Riêng tư").length;
+
   const columns = [
     {
       title: "ID phòng",
       dataIndex: "id",
       key: "id",
+      width: 180,
       render: (uid) => (
-        <span
-          className="copyable"
-          onClick={() => {
-            navigator.clipboard.writeText(uid);
-            toast.info("Đã sao chép UID", { autoClose: 1200 });
-          }}
-        >
-          <span className="text">
-            {uid}
-          </span>
-          <FiCopy className="copy-icon" size={15} />
+        <span className="copyable" onClick={() => copyText(uid)} title={uid}>
+          <span className="text">{uid?.slice(0, 8)}...{uid?.slice(-4)}</span>
+          <FiCopy className="copy-icon" size={13} />
         </span>
+      ),
+    },
+    {
+      title: "Tên phòng",
+      dataIndex: "name",
+      key: "name",
+      width: 180,
+      render: (name) => (
+        <span title={name}>{name?.length > 20 ? name.slice(0, 20) + "..." : name}</span>
       ),
     },
     {
       title: "Loại phòng",
       dataIndex: "kind",
       key: "kind",
+      width: 110,
+      render: (kind) => (
+        <span className={`kind-tag ${kind === "Nhóm" ? "group" : "private"}`}>{kind}</span>
+      ),
     },
     {
       title: "Thành viên",
       dataIndex: "members",
       key: "members",
+      width: 100,
       render: (members) => members.length,
+    },
+    {
+      title: "Tin nhắn cuối",
+      dataIndex: "lastMessage",
+      key: "lastMessage",
+      width: 200,
+      render: (msg) => (
+        <span className="last-msg" title={msg}>
+          {msg?.length > 30 ? msg.slice(0, 30) + "..." : msg}
+        </span>
+      ),
+    },
+    {
+      title: "Cập nhật lần cuối",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      width: 160,
     },
     {
       title: "Ngày tạo",
       dataIndex: "createdAt",
       key: "createdAt",
+      width: 160,
     },
     {
       title: "Hành động",
       key: "actions",
+      width: 120,
       render: (_, record) => (
-        <div className="actions">
-          <button className="view-btn" onClick={() => setSelectedRoom(record)}>
-            👁 Xem chi tiết
+        <div className="action-btns">
+          <button className="btn-detail" onClick={() => setSelectedRoom(record)} title="Xem chi tiết">
+            <FiEye />
           </button>
-          {/* <button className="ban-btn" onClick={() => handleBan(record.id)}>
-            🚫 Ban
-          </button> */}
+          <button className="btn-delete" onClick={() => handleDeleteRoom(record.id)} title="Xóa phòng">
+            <FiTrash2 />
+          </button>
         </div>
       ),
     },
@@ -187,12 +290,35 @@ export default function RoomManager() {
 
   return (
     <div className="room-manager">
+      {/* Stats */}
+      <div className="stats-row">
+        <div className="stat-card">
+          <div className="stat-value">{totalRooms}</div>
+          <div className="stat-label">Tổng phòng</div>
+        </div>
+        <div className="stat-card group">
+          <div className="stat-value">{groupRooms}</div>
+          <div className="stat-label">Phòng nhóm</div>
+        </div>
+        <div className="stat-card private">
+          <div className="stat-value">{privateRooms}</div>
+          <div className="stat-label">Riêng tư</div>
+        </div>
+      </div>
+
+      {/* Filters */}
       <div className="filters">
         <input
           type="text"
           placeholder="ID phòng..."
           value={filters.id}
           onChange={(e) => setFilters({ ...filters, id: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Tên phòng..."
+          value={filters.name}
+          onChange={(e) => setFilters({ ...filters, name: e.target.value })}
         />
         <select
           value={filters.kind}
@@ -206,20 +332,12 @@ export default function RoomManager() {
           <button
             onClick={() => {
               const nextSort =
-                filters.membersSort === ""
-                  ? "asc"
-                  : filters.membersSort === "asc"
-                    ? "desc"
-                    : "";
+                filters.membersSort === "" ? "asc" : filters.membersSort === "asc" ? "desc" : "";
               setFilters({ ...filters, membersSort: nextSort });
             }}
           >
             Thành viên{" "}
-            {filters.membersSort === "asc"
-              ? "↑"
-              : filters.membersSort === "desc"
-                ? "↓"
-                : ""}
+            {filters.membersSort === "asc" ? "↑" : filters.membersSort === "desc" ? "↓" : ""}
           </button>
         </div>
         <input
@@ -234,42 +352,127 @@ export default function RoomManager() {
         dataSource={filteredRooms}
         rowKey="id"
         pagination={{ pageSize: 10 }}
+        scroll={{ x: 1200 }}
       />
 
+      {/* Detail Modal */}
       {selectedRoom && (
-        <div className="room-modal">
-          <div className="room-modal-content">
-            <h3>
-              {selectedRoom.kind === "Riêng tư"
-                ? "Chi tiết cuộc trò chuyện riêng tư"
-                : `Chi tiết phòng: ${selectedRoom.name}`}
-            </h3>
-            <p><strong>ID phòng:</strong> {selectedRoom.id}</p>
-            <p><strong>Loại:</strong> {selectedRoom.kind}</p>
-            {selectedRoom.kind !== "Riêng tư" && (
-              <p><strong>Chủ phòng:</strong> {uidToName[selectedRoom.ownerUid] || "Ẩn danh"}</p>
-            )}
-            {selectedRoom.kind === "Riêng tư" ? (
-              <p><strong>Người tham gia:</strong> {selectedRoom.members.map(m => uidToName[m] || m).join(" và ")}</p>
-            ) : (
-              <>
-                <p><strong>Thành viên ({selectedRoom.members.length}):</strong></p>
-                <ul>
-                  {selectedRoom.members.map((m, i) => (
-                    <li key={i}>
-                      {uidToName[m] || m}{" "}
-                      <span className="role">
-                        ({selectedRoom.roles.find((r) => r.uid === m)?.role || "member"})
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-            <p><strong>Ngày tạo:</strong> {selectedRoom.createdAt}</p>
-            <p><strong>Thời gian tin nhắn cuối:</strong> {selectedRoom.updatedAt}</p>
+        <div className="detail-modal" onClick={() => setSelectedRoom(null)}>
+          <div className="detail-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="detail-modal-header">
+              <div className="header-avatar-area">
+                {selectedRoom.kind === "Nhóm" ? (
+                  <CircularAvatarGroup
+                    members={selectedRoom.members.map((m) => ({
+                      avatar: uidToName[m]?.photoURL,
+                      name: uidToName[m]?.displayName,
+                    }))}
+                    size={64}
+                    maxDisplay={3}
+                  />
+                ) : (
+                  <Avatar size={64} icon={<FiEye />} />
+                )}
+              </div>
+              <div className="header-info">
+                <div className={`kind-tag ${selectedRoom.kind === "Nhóm" ? "group" : "private"}`}>
+                  {selectedRoom.kind}
+                </div>
+                <h3>{selectedRoom.kind === "Riêng tư" ? "Cuộc trò chuyện riêng tư" : selectedRoom.name}</h3>
+              </div>
+              <button className="btn-close-icon" onClick={() => setSelectedRoom(null)}>✕</button>
+            </div>
+
+            <div className="detail-grid">
+              <div className="detail-section">
+                <h4>Thông tin phòng</h4>
+                <div className="detail-row">
+                  <span>ID phòng</span>
+                  <span className="copyable" onClick={() => copyText(selectedRoom.id)}>
+                    {selectedRoom.id?.slice(0, 12)}... <FiCopy size={12} />
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span>Loại</span>
+                  <span>{selectedRoom.kind}</span>
+                </div>
+                {selectedRoom.kind !== "Riêng tư" && (
+                  <div className="detail-row">
+                    <span>Chủ phòng</span>
+                    <span>{uidToName[selectedRoom.ownerUid]?.displayName || "Ẩn danh"}</span>
+                  </div>
+                )}
+                <div className="detail-row">
+                  <span>Ngày tạo</span>
+                  <span>{selectedRoom.createdAt}</span>
+                </div>
+                <div className="detail-row">
+                  <span>Cập nhật lần cuối</span>
+                  <span>{selectedRoom.updatedAt}</span>
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <h4>Tin nhắn cuối</h4>
+                <div className="last-msg-full">{selectedRoom.lastMessage}</div>
+              </div>
+            </div>
+
+            <div className="detail-section detail-section--full">
+              <h4>
+                {selectedRoom.kind === "Riêng tư"
+                  ? "Người tham gia"
+                  : `Thành viên (${selectedRoom.members.length})`}
+              </h4>
+              <div className="member-list">
+                {selectedRoom.members.map((m) => {
+                  const role = selectedRoom.roles.find((r) => r.uid === m)?.role || "member";
+                  const isOwner = role === "owner";
+                  const isCoOwner = role === "co-owner";
+                  const isCurrentUser = m === currentUser.uid;
+                  const mData = uidToName[m];
+
+                  return (
+                    <div className="member-row" key={m}>
+                      <div className="member-info">
+                        <Avatar src={mData?.photoURL} size="small" style={{ marginRight: 8 }}>
+                          {mData?.displayName?.[0]?.toUpperCase()}
+                        </Avatar>
+                        <UserBadge
+                          displayName={mData?.displayName || m}
+                          role={mData?.role}
+                          premiumLevel={mData?.premiumLevel}
+                          premiumUntil={mData?.premiumUntil}
+                          size={13}
+                        />
+                        {isOwner && <FaKey size={12} color="gold" style={{ marginLeft: 6 }} />}
+                        {isCoOwner && <FaKey size={12} color="silver" style={{ marginLeft: 6 }} />}
+                      </div>
+                      {selectedRoom.kind === "Nhóm" && !isOwner && !isCurrentUser && (
+                        <button
+                          className="btn-kick"
+                          onClick={() => handleKickMember(selectedRoom, m)}
+                          title="Kick thành viên"
+                        >
+                          <FiUserMinus size={13} /> Kick
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="modal-actions">
-              <button onClick={() => setSelectedRoom(null)}>Đóng</button>
+              <button
+                className="btn-delete-room"
+                onClick={() => handleDeleteRoom(selectedRoom.id)}
+              >
+                <FiTrash2 /> Xóa phòng
+              </button>
+              <button className="btn-close" onClick={() => setSelectedRoom(null)}>
+                Đóng
+              </button>
             </div>
           </div>
         </div>
