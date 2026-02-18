@@ -519,7 +519,7 @@ export default function ChatWindow({ onToggleDetail }) {
                 </p>
               </Tooltip>
               <p className="empty-info">{selectedRoom.description || "Quik"}</p>
-              <p className="empty-hint">{t('chat.emptyHint')}</p>
+              <p className="empty-hint">{t('chatWindow.chat.emptyHint')}</p>
             </div>
           ) : (
             sortedMessages.map((msg, index) => {

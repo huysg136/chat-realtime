@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Modal, Input, Avatar, Spin, Checkbox, Button } from 'antd';
 import { AppContext } from '../../context/appProvider';
 import { AuthContext } from '../../context/authProvider';
@@ -8,10 +9,12 @@ import debounce from 'lodash/debounce';
 import { addDocument, generateAESKey } from '../../firebase/services';
 import './addRoomModal.scss';
 import UserBadge from '../common/userBadge';
+import { ROUTERS } from '../../configs/router';
 
 export default function AddRoomModal() {
   const { isAddRoomVisible, setIsAddRoomVisible, setSelectedRoomId, rooms, users } = useContext(AppContext);
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const uid = user?.uid;
 
   const [searchText, setSearchText] = useState('');
@@ -21,6 +24,7 @@ export default function AddRoomModal() {
   const [currentMembers, setCurrentMembers] = useState([]);
   const [roomName, setRoomName] = useState('');
   const [isRoomNameEdited, setIsRoomNameEdited] = useState(false);
+  const [creating, setCreating] = useState(false);
   const ROOM_NAME_MAX = 100;
 
   useEffect(() => {
@@ -35,6 +39,7 @@ export default function AddRoomModal() {
     setRoomName('');
     setIsRoomNameEdited(false);
     setCurrentMembers([]);
+    setCreating(false);
   };
 
   // Fetch current members if editing existing room (optional)
@@ -47,7 +52,7 @@ export default function AddRoomModal() {
       }
     };
     fetchCurrentMembers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAddRoomVisible, rooms, setSelectedRoomId]);
 
   // Auto-generate room name
@@ -126,88 +131,124 @@ export default function AddRoomModal() {
 
   // Handle create chat / group
   const handleOk = async () => {
+    if (creating) return;
     if (!uid || selectedMembers.length === 0) return;
 
-    const finalRoomName = roomName?.trim()
-      ? roomName.trim().slice(0, ROOM_NAME_MAX)
-      : (() => {
-        if (selectedMembers.length === 1) return selectedMembers[0].displayName.slice(0, ROOM_NAME_MAX);
-        return [user?.displayName, ...selectedMembers.map(m => m.displayName)]
-          .filter(Boolean)
-          .join(', ')
-          .slice(0, ROOM_NAME_MAX);
-      })();
+    setCreating(true);
 
-    if (selectedMembers.length === 1) {
+    try {
+      const finalRoomName = roomName?.trim()
+        ? roomName.trim().slice(0, ROOM_NAME_MAX)
+        : (() => {
+          if (selectedMembers.length === 1)
+            return selectedMembers[0].displayName.slice(0, ROOM_NAME_MAX);
+
+          return [user?.displayName, ...selectedMembers.map(m => m.displayName)]
+            .filter(Boolean)
+            .join(', ')
+            .slice(0, ROOM_NAME_MAX);
+        })();
+
       // PRIVATE CHAT
-      const otherUser = selectedMembers[0];
-      const q = query(
-        collection(db, 'rooms'),
-        where('type', '==', 'private'),
-        where('members', 'array-contains', uid),
-        limit(20)
-      );
-      const snapshot = await getDocs(q);
-      let room = null;
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        if (data.members.includes(otherUser.uid) && data.members.length === 2) {
-          room = { id: doc.id, ...data };
+      if (selectedMembers.length === 1) {
+        const otherUser = selectedMembers[0];
+
+        // key cố định cho 1–1
+        const pairKey = [uid, otherUser.uid].sort().join("_");
+
+        // tìm room theo pairKey
+        const q = query(
+          collection(db, 'rooms'),
+          where('type', '==', 'private'),
+          where('pairKey', '==', pairKey),
+          limit(1)
+        );
+
+        const snapshot = await getDocs(q);
+
+        let room;
+
+        if (!snapshot.empty) {
+          const docSnap = snapshot.docs[0];
+          room = { id: docSnap.id, ...docSnap.data() };
+        } else {
+          const roles = [
+            { uid, role: 'owner' },
+            { uid: otherUser.uid, role: 'member' }
+          ];
+
+          const newRoom = {
+            name: finalRoomName,
+            type: 'private',
+            members: [uid, otherUser.uid],
+            pairKey,
+            secretKey: generateAESKey(),
+            roles,
+            createdAt: new Date(),
+          };
+
+          const docRef = await addDocument('rooms', newRoom);
+          room = { id: docRef.id, ...newRoom };
         }
-      });
-      if (!room) {
-        const roles = [{ uid, role: 'owner' }, { uid: otherUser.uid, role: 'member' }];
+
+        setSelectedRoomId(room.id);
+        navigate(ROUTERS.USER.DIRECT.replace(':roomId', room.id));
+
+        // GROUP CHAT
+      } else {
+        const members = [uid];
+        const roles = [{ uid, role: 'owner' }];
+
         const newRoom = {
           name: finalRoomName,
-          type: 'private',
-          members: [uid, otherUser.uid],
-          avatar: otherUser.photoURL,
+          type: 'group',
+          members: [...members],
           secretKey: generateAESKey(),
-          roles
+          roles,
+          createdAt: new Date(),
         };
+
         const docRef = await addDocument('rooms', newRoom);
-        room = { id: docRef.id, ...newRoom };
-      }
-      setSelectedRoomId(room.id);
-    } else {
-      // GROUP
-      const members = [uid];
-      const roles = [{ uid, role: 'owner' }];
-      const newRoom = { name: finalRoomName, type: 'group', members: [...members], secretKey: generateAESKey(), roles };
-      const docRef = await addDocument('rooms', newRoom);
-      const actor = { uid: user.uid, name: user.displayName, photoURL: user.photoURL };
 
-      await addDocument("messages", {
-        uid: "system",
-        roomId: docRef.id,
-        kind: "system",
-        action: "create_group",
-        actor,
-        target: actor,
-        visibleFor: members,
-        createdAt: new Date(),
-      });
+        const actor = {
+          uid: user.uid,
+          name: user.displayName,
+          photoURL: user.photoURL,
+        };
 
-      for (const member of selectedMembers) {
-        const fullMember = users.find(u => u.uid === member.uid) || member;
+        await addDocument("messages", {
+          uid: "system",
+          roomId: docRef.id,
+          kind: "system",
+          action: "create_group",
+          actor,
+          target: actor,
+          visibleFor: members,
+          createdAt: new Date(),
+        });
 
-        if (fullMember.allowGroupInvite === true) {
-          newRoom.members.push(fullMember.uid);
-          roles.push({ uid: fullMember.uid, role: 'member' });
+        for (const member of selectedMembers) {
+          const fullMember = users.find(u => u.uid === member.uid) || member;
 
-          const target = { uid: fullMember.uid, name: fullMember.displayName || "Thành viên", photoURL: fullMember.photoURL || null };
-          await addDocument("messages", {
-            uid: "system",
-            roomId: docRef.id,
-            kind: "system",
-            action: "add_member",
-            actor,
-            target,
-            visibleFor: newRoom.members,
-            createdAt: new Date(),
-          });
-        } else {
-          try {
+          if (fullMember.allowGroupInvite === true) {
+            newRoom.members.push(fullMember.uid);
+            roles.push({ uid: fullMember.uid, role: 'member' });
+
+            await addDocument("messages", {
+              uid: "system",
+              roomId: docRef.id,
+              kind: "system",
+              action: "add_member",
+              actor,
+              target: {
+                uid: fullMember.uid,
+                name: fullMember.displayName || "Thành viên",
+                photoURL: fullMember.photoURL || null,
+              },
+              visibleFor: newRoom.members,
+              createdAt: new Date(),
+            });
+          } else {
             const q = query(
               collection(db, "groupInvites"),
               where("uid", "==", fullMember.uid),
@@ -215,6 +256,7 @@ export default function AddRoomModal() {
               where("status", "==", "pending"),
               limit(1)
             );
+
             const snapshot = await getDocs(q);
             if (snapshot.empty) {
               await addDocument("groupInvites", {
@@ -225,22 +267,25 @@ export default function AddRoomModal() {
                 createdAt: new Date(),
               });
             }
-          } catch (err) {
           }
         }
+
+        await updateDoc(doc(db, "rooms", docRef.id), {
+          members: newRoom.members,
+          roles,
+        });
+
+        setSelectedRoomId(docRef.id);
+        navigate(ROUTERS.USER.DIRECT.replace(':roomId', docRef.id));
       }
-
-      await updateDoc(doc(db, "rooms", docRef.id), {
-        members: newRoom.members,
-        roles
-      });
-
-      setSelectedRoomId(docRef.id);
+      resetModal();
+      setIsAddRoomVisible(false);
+    } catch (err) {
+    } finally {
+      setCreating(false);
     }
-
-    resetModal();
-    setIsAddRoomVisible(false);
   };
+
 
   const handleCancel = () => {
     resetModal();
@@ -352,7 +397,8 @@ export default function AddRoomModal() {
       <Button
         type="primary"
         block
-        disabled={selectedMembers.length === 0}
+        disabled={selectedMembers.length === 0 || creating}
+        loading={creating}
         onClick={handleOk}
         style={{ marginTop: 10, flexShrink: 0 }}
       >

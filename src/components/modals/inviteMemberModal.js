@@ -19,6 +19,7 @@ export default function InviteMemberModal() {
   const [fetching, setFetching] = useState(false);
   const [currentMembers, setCurrentMembers] = useState([]);
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [inviting, setInviting] = useState(false);
 
   // Reset modal & fetch current members
   useEffect(() => {
@@ -100,7 +101,10 @@ export default function InviteMemberModal() {
   };
 
   const handleOk = async () => {
+    if (inviting) return;
     if (!selectedRoomId || selectedMembers.length === 0) return;
+
+    setInviting(true);
     try {
       const roomRef = doc(db, "rooms", selectedRoomId);
       const roomSnap = await getDoc(roomRef);
@@ -199,7 +203,10 @@ export default function InviteMemberModal() {
       setSearchText('');
       setOptions([]);
       setIsInviteMemberVisible(false);
-    } catch { }
+    } catch {
+    } finally {
+      setInviting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -309,7 +316,8 @@ export default function InviteMemberModal() {
       <Button
         type="primary"
         block
-        disabled={selectedMembers.length === 0}
+        disabled={selectedMembers.length === 0 || inviting}
+        loading={inviting}
         onClick={handleOk}
         style={{ marginTop: 10, flexShrink: 0 }}
       >
