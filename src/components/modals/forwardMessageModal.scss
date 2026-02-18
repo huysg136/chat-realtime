@@ -64,14 +64,92 @@
     color: #000000 !important;
   }
 
-  .room-item {
+  // --- Layout Classes ---
+  .search-container {
+    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+
+  .section-label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #000000;
+  }
+
+  .rooms-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+  }
+
+  .room-item-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 4px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+
     &:hover {
       background-color: #f5f5f5 !important;
     }
+
+    &.selected {
+      background-color: #e6f7ff !important;
+    }
   }
 
-  .selected-room {
-    background-color: #e6f7ff !important;
+  .item-inner {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .room-circular-avatar-wrapper {
+    margin-right: 10px;
+  }
+
+  .item-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 12px;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .team-icon {
+    color: #8c8c8c;
+    flex-shrink: 0;
+    font-size: 13px;
+  }
+
+  .name-text {
+    font-weight: 500;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    color: #000000;
+  }
+
+  .sub-label {
+    font-size: 12px;
+    color: gray;
+  }
+
+  .submit-btn {
+    margin-top: 10px;
+    flex-shrink: 0;
   }
 
   body.theme-dark & {
@@ -147,22 +225,30 @@
       color: #f9fafb !important;
     }
 
-    .room-item {
+    .section-label {
+      color: #f9fafb;
+    }
+
+    .room-item-row {
       &:hover {
         background-color: rgba(255, 255, 255, 0.05) !important;
       }
+
+      &.selected {
+        background-color: rgba(59, 130, 246, 0.1) !important;
+      }
     }
 
-  .selected-room {
-    background-color: rgba(59, 130, 246, 0.1) !important;
-  }
+    .name-text {
+      color: #f9fafb;
+    }
 
-  .room-name {
-    color: #000000;
-  }
+    .sub-label {
+      color: #888;
+    }
 
-  .room-name {
-    color: #f9fafb;
-  }
+    div {
+      color: #f9fafb;
+    }
   }
 }

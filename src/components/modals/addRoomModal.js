@@ -172,18 +172,12 @@ export default function AddRoomModal() {
           const docSnap = snapshot.docs[0];
           room = { id: docSnap.id, ...docSnap.data() };
         } else {
-          const roles = [
-            { uid, role: 'owner' },
-            { uid: otherUser.uid, role: 'member' }
-          ];
 
           const newRoom = {
-            name: finalRoomName,
             type: 'private',
             members: [uid, otherUser.uid],
             pairKey,
             secretKey: generateAESKey(),
-            roles,
             createdAt: new Date(),
           };
 

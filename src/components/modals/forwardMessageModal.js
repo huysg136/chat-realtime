@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Modal, Input, List, Avatar, Button } from "antd";
+import { Modal, Input, Avatar, Button, Checkbox } from "antd";
 import { SearchOutlined, TeamOutlined } from "@ant-design/icons";
 import CircularAvatarGroup from "../common/circularAvatarGroup";
 import "./forwardMessageModal.scss";
@@ -18,10 +18,31 @@ export default function ForwardMessageModal({
   const [selectedRooms, setSelectedRooms] = useState([]);
 
   const filteredRooms = useMemo(() => {
-    return rooms.filter((room) =>
-      room.name.toLowerCase().includes(searchText.toLowerCase())
-    );
-  }, [rooms, searchText]);
+    const text = searchText.toLowerCase();
+    return rooms.filter((room) => {
+      // Xác định loại phòng và tên hiển thị để filter
+      const memberUids = Array.isArray(room.members)
+        ? room.members
+          .map((m) => (typeof m === "string" ? m : m?.uid))
+          .filter(Boolean)
+        : [];
+
+      const membersData = memberUids
+        .map((uid) =>
+          users.find((u) => String(u.uid).trim() === String(uid).trim())
+        )
+        .filter(Boolean);
+
+      const isPrivate = room.type === "private" && membersData.length === 2;
+
+      if (isPrivate) {
+        const otherUser = membersData.find((u) => u.uid !== currentUser?.uid);
+        return (otherUser?.displayName || "").toLowerCase().includes(text);
+      }
+
+      return (room.name || "").toLowerCase().includes(text);
+    });
+  }, [rooms, searchText, users, currentUser?.uid]);
 
   const toggleRoomSelect = (room) => {
     if (selectedRooms.some((r) => r.id === room.id)) {
@@ -44,40 +65,32 @@ export default function ForwardMessageModal({
         setSelectedRooms([]);
         onCancel?.();
       }}
-      footer={[
-        <Button key="cancel" onClick={onCancel}>
-          Hủy
-        </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          onClick={handleSubmit}
-          loading={forwarding}
-          disabled={selectedRooms.length === 0}
-        >
-          Chia sẻ ({selectedRooms.length})
-        </Button>,
-      ]}
+      footer={null}
       width={450}
+      centered
       className="forward-message-modal"
     >
-      <Input
-        placeholder="Tìm kiếm phòng..."
-        prefix={<SearchOutlined />}
-        value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
-        style={{ marginBottom: 16 }}
-      />
-      <List
-        dataSource={filteredRooms}
-        renderItem={(room) => {
+      {/* Search */}
+      <div className="search-container">
+        <div className="section-label">Tìm kiếm phòng</div>
+        <Input
+          placeholder="Tìm kiếm phòng..."
+          prefix={<SearchOutlined />}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+      </div>
+
+      {/* List */}
+      <div className="rooms-list">
+        {filteredRooms.map((room) => {
           const isSelected = selectedRooms.some((r) => r.id === room.id);
 
           // Xác định avatar hiển thị
           const memberUids = Array.isArray(room.members)
             ? room.members
-                .map((m) => (typeof m === "string" ? m : m?.uid))
-                .filter(Boolean)
+              .map((m) => (typeof m === "string" ? m : m?.uid))
+              .filter(Boolean)
             : [];
 
           const membersData = memberUids
@@ -86,19 +99,17 @@ export default function ForwardMessageModal({
             )
             .filter(Boolean);
 
-          const isPrivate =
-            room.type === "private" && membersData.length === 2;
-          const isGroup =
-            !isPrivate && (room.type === "group" || membersData.length > 1);
+          const isPrivate = room.type === "private" && membersData.length === 2;
+          const isGroup = !isPrivate && (room.type === "group" || membersData.length > 1);
 
-          let displayNameToShow = room.name;  
-
+          let displayNameToShow = room.name;
           let avatarElement = null;
+
           if (isPrivate) {
             const otherUser = membersData.find((u) => u.uid !== currentUser?.uid);
             displayNameToShow = otherUser?.displayName || room.name;
             avatarElement = (
-              <Avatar src={otherUser?.photoURL} size={40}>
+              <Avatar src={otherUser?.photoURL} size={32}>
                 {otherUser?.displayName?.charAt(0)?.toUpperCase() || "?"}
               </Avatar>
             );
@@ -111,96 +122,57 @@ export default function ForwardMessageModal({
                     name: u.displayName || "?",
                   }))}
                   maxDisplay={3}
+                  size={32}
                 />
               </div>
             );
           } else {
             avatarElement = (
-              <Avatar size={40}>
+              <Avatar size={32}>
                 {(room.name || "?").charAt(0).toUpperCase()}
               </Avatar>
             );
           }
 
           return (
-            <List.Item
+            <div
+              key={room.id}
+              className={`room-item-row ${isSelected ? 'selected' : ''}`}
               onClick={() => toggleRoomSelect(room)}
-              className={`room-item ${isSelected ? 'selected-room' : ''}`}
-              style={{
-                cursor: "pointer",
-                backgroundColor: isSelected ? "#e6f7ff" : "transparent",
-                borderRadius: 6,
-                padding: "8px 12px",
-                alignItems: "center",
-                display: "flex",
-                transition: "background 0.2s",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = isSelected ? "#e6f7ff" : "transparent")
-              }
             >
-              <div style={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0 }}>
+              <div className="item-inner">
                 {avatarElement}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    marginLeft: 16,
-                    overflow: "hidden",
-                    flex: 1,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                    }}
-                  >
+                <div className="item-info">
+                  <div className="name-wrapper">
                     {isGroup && (
-                      <TeamOutlined style={{ color: "#8c8c8c", flexShrink: 0 }} />
+                      <TeamOutlined className="team-icon" />
                     )}
-                    <span
-                      className="room-name"
-                      style={{
-                        fontWeight: 500,
-                        fontSize: 15,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        flex: 1,
-                        maxWidth: "220px",
-                      }}
-                      title={displayNameToShow}
-                    >
+                    <span className="name-text">
                       {displayNameToShow}
                     </span>
                   </div>
-                  <span
-                    style={{
-                      fontSize: 13,
-                      color: "#888",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
+                  <span className="sub-label">
                     {isPrivate ? "Riêng tư" : "Nhóm"}
                   </span>
                 </div>
               </div>
-              {isSelected && (
-                <div style={{ color: "#1890ff", fontWeight: "bold", fontSize: 18 }}>✓</div>
-              )}
-            </List.Item>
-
+              <Checkbox checked={isSelected} />
+            </div>
           );
-        }}
-        style={{ maxHeight: 300, overflowY: "auto" }}
-      />
+        })}
+      </div>
+
+      {/* Button */}
+      <Button
+        type="primary"
+        block
+        onClick={handleSubmit}
+        loading={forwarding}
+        disabled={selectedRooms.length === 0}
+        className="submit-btn"
+      >
+        Chia sẻ ({selectedRooms.length})
+      </Button>
     </Modal>
   );
 }
