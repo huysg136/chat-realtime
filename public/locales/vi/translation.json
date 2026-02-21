@@ -179,57 +179,37 @@
             },
             "lite": {
                 "title": "LITE",
-                "label": "Tên đồng, tăng giới hạn"
+                "label": "Tên Đồng, nhiều dung lượng lữu trữ hơn."
             },
             "pro": {
                 "title": "PRO",
-                "label": "Tên bạc, mở khóa AI Support"
+                "label": "Tên Bạc, nhiều dung lượng lữu trữ hơn."
             },
             "max": {
                 "title": "MAX",
-                "label": "Tên vàng, đặc quyền tối thượng"
+                "label": "Tên Vàng, dung lượng lưu trữ lớn."
             },
-            "hot_badge": "HOT",
-            "vip_badge": "ULTIMATE",
+            "basic": "Cơ bản",
+            "hot_badge": "Phổ biến",
+            "vip_badge": "Tốt nhất",
             "current": "Đang sử dụng",
-            "select": "Chọn gói này",
-            "upgrade_vip": "TRẢI NGHIỆM ULTIMATE"
+            "select": "Chọn gói này"
         },
         "features": {
-            "chat_anonymous": {
-                "name": "Chat ẩn danh người lạ",
-                "desc": "Kết nối bí mật, tìm kiếm bạn mới.",
-                "pro": "3 lượt/ngày",
-                "max": "Vô hạn lượt"
-            },
-            "ai_support": {
-                "name": "Công nghệ AI Support",
-                "desc": "Trợ lý ảo hỗ trợ trả lời siêu tốc. (@bot)",
-                "pro": "GPT-3.5 (Cơ bản)",
-                "max": "GPT-4o (Cao cấp)"
-            },
             "perks": {
                 "name": "Đặc quyền nhận diện",
-                "desc": "Nổi bật nhất trong danh sách chat.",
-                "free": "Tên mặc định",
-                "lite": "Tên đồng",
-                "pro": "Tên bạc",
-                "max": "Tên vàng"
-            },
-            "ghost_mode": {
-                "name": "Chế độ tàng hình",
-                "desc": "Ẩn online."
+                "desc": "Nổi bật nhất trong danh sách chat."
             },
             "file_limit": {
-                "name": "Giới hạn mỗi file",
+                "name": "Giới hạn gửi mỗi file",
                 "desc": "Thoải mái gửi video HD và tài liệu lớn hơn."
             },
             "storage_quota": {
-                "name": "Không gian lưu trữ (Quota)",
-                "desc": "Tổng không gian lưu trữ file và tin nhắn."
+                "name": "Không gian lưu trữ",
+                "desc": "Tổng không gian lưu trữ file, hình ảnh, video, ghi âm."
             }
         },
-        "payment_note": "• Thời hạn gói: 1 tháng (30 ngày)\n• Hiện tại chỉ hỗ trợ thanh toán tự động tại Việt Nam. Khu vực khác vui lòng liên hệ Admin để thanh toán thủ công."
+        "payment_note": "• Hiện tại chỉ hỗ trợ thanh toán tự động tại Việt Nam. Khu vực khác vui lòng liên hệ Admin để thanh toán thủ công."
     },
     "settings": {
         "title": "Cài đặt",

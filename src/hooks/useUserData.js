@@ -1,4 +1,3 @@
-// src/hooks/useUserData.js
 import { useState, useEffect } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/config";

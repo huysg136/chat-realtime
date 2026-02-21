@@ -77,7 +77,7 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gold-wave 8s linear infinite;
+  animation: gold-wave 6s linear infinite;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -95,7 +95,7 @@ body.theme-dark {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: gold-wave 8s linear infinite;
+    animation: gold-wave 6s linear infinite;
     text-shadow: 0 0 6px rgba(255, 191, 0, 0.2);
   }
 }
@@ -127,7 +127,7 @@ body.theme-dark {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: silver-wave 8s linear infinite;
+  animation: silver-wave 7s linear infinite;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
   -webkit-font-smoothing: antialiased;
 }
@@ -147,7 +147,7 @@ body.theme-dark {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: silver-wave 8s linear infinite;
+    animation: silver-wave 7s linear infinite;
     text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
   }
 }

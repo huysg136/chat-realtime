@@ -16,6 +16,9 @@ import { ROUTERS } from "../../../configs/router";
 import { useTranslation } from "react-i18next";
 import { FaMoneyBillWave } from "react-icons/fa";
 import { FaRegUser } from "react-icons/fa6";
+import { checkMaxUser } from "../../../utils/checkMax";
+import { checkProUser } from "../../../utils/checkPro";
+import { checkLiteUser } from "../../../utils/checkLite";
 
 
 
@@ -137,6 +140,8 @@ export default function LeftSide() {
       style: { fontWeight: "500" }
     }
   ].filter(Boolean);
+
+  const frameClass = checkMaxUser ? "frame-max" : checkProUser ? "frame-pro" : checkLiteUser ? "frame-lite" : "";
 
   return (
     <div className="sidebar">

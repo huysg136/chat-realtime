@@ -183,53 +183,33 @@
             },
             "pro": {
                 "title": "PRO",
-                "label": "Silver Name, Unlock AI Support"
+                "label": "Silver Name, Higher limit"
             },
             "max": {
                 "title": "MAX",
                 "label": "Gold Name, Ultimate Perks"
             },
-            "hot_badge": "HOT",
-            "vip_badge": "ULTIMATE",
+            "basic": "Basic",
+            "hot_badge": "Hot",
+            "vip_badge": "Best Price",
             "current": "Current Plan",
-            "select": "Choose Plan",
-            "upgrade_vip": "GO ULTIMATE"
+            "select": "Choose Plan"
         },
         "features": {
-            "chat_anonymous": {
-                "name": "Anonymous Chat",
-                "desc": "Connect with strangers instantly.",
-                "pro": "3 per day",
-                "max": "Unlimited"
-            },
-            "ai_support": {
-                "name": "AI Support Bot",
-                "desc": "Powered by advanced AI technology. (@bot)",
-                "pro": "GPT-3.5 (Basic)",
-                "max": "GPT-4o (Premium)"
-            },
             "perks": {
                 "name": "Identity Perks",
-                "desc": "Stand out with exclusive badges.",
-                "free": "Default Name",
-                "lite": "Bronze Name",
-                "pro": "Silver Name",
-                "max": "Gold Name"
-            },
-            "ghost_mode": {
-                "name": "Ghost Mode",
-                "desc": "Hide Online status."
+                "desc": "Stand out with exclusive badges."
             },
             "file_limit": {
                 "name": "File Limit",
                 "desc": "Send larger videos and documents."
             },
             "storage_quota": {
-                "name": "Storage Space (Quota)",
-                "desc": "Total storage for files and messages."
+                "name": "Storage Space",
+                "desc": "Total storage for files, videos, images and voices."
             }
         },
-        "payment_note": "• Plan duration: 1 month (30 days)\n• Automatic payment is supported in Vietnam only. Please contact Admin for manual payment if you are in another region."
+        "payment_note": "• Automatic payment is supported in Vietnam only. Please contact Admin for manual payment if you are in another region."
     },
     "settings": {
         "title": "Settings",

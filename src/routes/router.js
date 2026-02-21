@@ -4,8 +4,8 @@ import LoadingScreen from '../components/common/loadingScreen';
 import PrivateRoute from './privateRoute';
 import { ROUTERS } from '../configs/router';
 import ReportManager from '../components/admin/report/reportManager';
-import LandingPage from '../pages/user/landingPage/landingPage';
-import ChatRoom from '../pages/user/landingPage/chatRoom';
+import LandingPage from '../pages/user/chatPage/landingPage';
+import ChatRoom from '../pages/user/chatPage/chatRoom';
 
 const ExplorePage = lazy(() => import('../components/user/explorePage/explorePage'));
 const Login = lazy(() => import('../components/login'));
