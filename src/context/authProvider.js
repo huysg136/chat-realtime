@@ -96,7 +96,7 @@ export default function AuthProvider({ children }) {
           const unsubscribeUser = onSnapshot(userDocRef, async (userSnap) => {
             const userData = userSnap.exists() ? userSnap.data() : {};
             const currentTime = new Date();
-            const premiumUntilDate = userData.premiumUntil?.toDate ? userData.premiumUntil.toDate() : userData.premiumUntil;
+            const premiumUntilDate = userData.premiumUntil?.toDate ? userData.premiumUntil.toDate() : (userData.premiumUntil ? new Date(userData.premiumUntil) : null);
             if ((userData.premiumLevel === 'pro' || userData.premiumLevel === "max" || userData.premiumLevel === "lite") && premiumUntilDate && premiumUntilDate < currentTime) {
               try {
                 await updateDocument("users", userDocId, { premiumLevel: 'free' });
@@ -148,8 +148,8 @@ export default function AuthProvider({ children }) {
     if ((user?.premiumLevel === 'pro' || user?.premiumLevel === 'max' || user?.premiumLevel === 'lite') && user?.premiumUntil) {
       interval = setInterval(async () => {
         const now = new Date();
-        const premiumUntilDate = user.premiumUntil.toDate ? user.premiumUntil.toDate() : new Date(user.premiumUntil);
-        if (premiumUntilDate < now) {
+        const premiumUntilDate = user.premiumUntil?.toDate ? user.premiumUntil.toDate() : new Date(user.premiumUntil);
+        if (!isNaN(premiumUntilDate.getTime()) && premiumUntilDate < now) {
           const userDocId = await getUserDocIdByUid(user.uid);
           if (userDocId) {
             await updateDocument("users", userDocId, { premiumLevel: 'free' });

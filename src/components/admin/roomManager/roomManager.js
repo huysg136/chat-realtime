@@ -97,7 +97,7 @@ export default function RoomManager() {
 
         return {
           id: docSnap.id,
-          name: data.name || (data.kind === "private" || data.type === "private" ? "-" : "Không tên"),
+          name: data.name || (data.kind === "private" || data.type === "private" ? "" : "Không tên"),
           kind:
             data.kind === "group" || data.type === "group"
               ? "Nhóm"
@@ -107,8 +107,8 @@ export default function RoomManager() {
           ownerUid,
           members: data.members || [],
           roles: data.roles || [],
-          createdAt: formatTime(data.createdAt),
-          updatedAt: formatTime(data.updatedAt),
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : null,
+          updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : null,
           lastMessage: lastMsg,
           secretKey: data.secretKey || "",
           isActive,
@@ -196,9 +196,9 @@ export default function RoomManager() {
     .filter((room) => (filters.kind ? room.kind === filters.kind : true))
     .filter((room) => {
       if (!filters.createdAt) return true;
+      if (!room.createdAt) return false;
       const filterDate = new Date(filters.createdAt);
-      const roomDate = new Date(room.createdAt);
-      return isSameDate(filterDate, roomDate);
+      return isSameDate(filterDate, room.createdAt);
     })
     .sort((a, b) => {
       if (filters.membersSort === "asc") return a.members.length - b.members.length;
@@ -264,12 +264,14 @@ export default function RoomManager() {
       dataIndex: "updatedAt",
       key: "updatedAt",
       width: 160,
+      render: (date) => date ? date.toLocaleString("vi-VN") : "N/A"
     },
     {
       title: "Ngày tạo",
       dataIndex: "createdAt",
       key: "createdAt",
       width: 160,
+      render: (date) => date ? date.toLocaleString("vi-VN") : "N/A"
     },
     {
       title: "Hành động",
@@ -404,11 +406,11 @@ export default function RoomManager() {
                 )}
                 <div className="detail-row">
                   <span>Ngày tạo</span>
-                  <span>{selectedRoom.createdAt}</span>
+                  <span>{selectedRoom.createdAt ? selectedRoom.createdAt.toLocaleString("vi-VN") : "N/A"}</span>
                 </div>
                 <div className="detail-row">
                   <span>Cập nhật lần cuối</span>
-                  <span>{selectedRoom.updatedAt}</span>
+                  <span>{selectedRoom.updatedAt ? selectedRoom.updatedAt.toLocaleString("vi-VN") : "N/A"}</span>
                 </div>
               </div>
 

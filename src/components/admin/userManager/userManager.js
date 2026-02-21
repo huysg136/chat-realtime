@@ -179,7 +179,7 @@ export default function UsersManager() {
   const handleGrantPremium = async (targetUsr, level, days) => {
     const docId = await getUserDocIdByUid(targetUsr.uid);
     if (!docId) return;
-    const until = days ? new Date(Date.now() + days * 86400000).toISOString() : null;
+    const until = days ? new Date(Date.now() + days * 86400000) : null;
     try {
       await updateDoc(doc(db, "users", docId), { premiumLevel: level, premiumUntil: until });
       toast.success(`Đã cấp ${level.toUpperCase()} cho ${targetUsr.displayName}`);
