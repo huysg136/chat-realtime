@@ -3,9 +3,10 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100%;
+  min-height: 100vh;
   width: 100%;
-  background-color: #f8fafc;
+  // Sync background with Maintenance/404 page
+  background: #ffffff;
   padding: 20px;
   position: relative;
   overflow: hidden;
@@ -25,22 +26,24 @@
   .coming-soon-content {
     position: relative;
     z-index: 1;
-    max-width: 600px;
+    max-width: 700px;
     width: 100%;
     text-align: center;
     padding: 40px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border-radius: 24px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    // REMOVED CARD STYLES
+    background: transparent;
+    backdrop-filter: none;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
 
     .icon-wrapper {
       animation: float 3s ease-in-out infinite;
+      margin-bottom: 24px;
 
       .no-access-icon {
         font-size: 80px;
-        color: #3b82f6;
+        color: #1890ff;
       }
     }
 
@@ -54,10 +57,15 @@
     }
 
     .description {
-      font-size: 1rem;
+      font-size: 1.1rem;
       color: #64748b;
       line-height: 1.6;
-      margin-bottom: 30px;
+      margin-bottom: 40px;
+
+      span {
+        color: #1890ff;
+        font-weight: 700;
+      }
     }
 
     .action-buttons {
@@ -95,28 +103,28 @@
         }
       }
     }
+  }
 
-    .footer-credit {
-      position: absolute;
-      bottom: 10px;
-      left: 0;
-      width: 100%;
-      text-align: center;
-      font-size: 14px;
-      color: #999;
-      opacity: 0.8;
-      font-weight: 400;
-      user-select: none;
+  .footer-credit-fixed {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    color: #94a3b8;
+    font-weight: 400;
+    user-select: none;
+    z-index: 1;
 
-      .author-name {
-        color: #1890ff;
-        font-weight: 600;
-      }
+    .author-name {
+      color: #1890ff;
+      font-weight: 600;
+    }
 
-      @media (max-width: 480px) {
-        font-size: 10px;
-        bottom: 8px;
-      }
+    @media (max-width: 480px) {
+      font-size: 10px;
+      bottom: 12px;
     }
   }
 }
@@ -135,45 +143,63 @@
   }
 }
 
-// Dark Mode
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Dark Mode Support
 body.theme-dark {
   .home-page-container {
-    background-color: rgba(45, 45, 45, 1);
-
-    &::before {
-      background: radial-gradient(circle at center, rgba(59, 130, 246, 0.03) 0%, transparent 50%);
-    }
+    background: radial-gradient(circle at 20% 30%, #1e293b, #0d1117);
 
     .coming-soon-content {
-      background: rgba(45, 45, 45, 0.7);
-      border-color: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-
       .icon-wrapper .no-access-icon {
         color: #60a5fa;
       }
 
       .description {
         color: #94a3b8;
+
+        span {
+          color: #60a5fa;
+        }
       }
 
       .action-buttons {
         .primary-btn {
-          background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-          box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+          background: #ffffff !important;
+          color: #000000;
 
           &:hover {
-            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+            background: #f1f5f9;
           }
         }
       }
+    }
 
-      .footer-credit {
-        color: #94a3b8;
+    .footer-credit-fixed {
+      color: #64748b;
 
-        .author-name {
-          color: #3b82f6;
-        }
+      .author-name {
+        color: #60a5fa;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .home-page-container {
+    .coming-soon-content {
+      padding: 20px;
+
+      .main-title {
+        font-size: 2.5rem;
       }
     }
   }

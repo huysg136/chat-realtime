@@ -23,16 +23,17 @@ export default function HomePage() {
           <br />
           <span>{t('explore.comingSoon')}</span> {t('explore.comingSoonDesc')}
         </p>
+
         <div className="action-buttons">
           <button className="primary-btn" onClick={() => navigate(ROUTERS.USER.HOME)}>
             <MessageOutlined className="btn-icon" />
             <span>{t('explore.goToMessaging')}</span>
           </button>
         </div>
+      </div>
 
-        <div className="footer-credit">
-          © {new Date().getFullYear()} {t('login.footer')} <span className="author-name">Thái Gia Huy</span> · quik.id.vn
-        </div>
+      <div className="footer-credit-fixed">
+        © {new Date().getFullYear()} {t('login.footer')} <span className="author-name">Thai Gia Huy</span> · quik.id.vn
       </div>
     </div>
   );
