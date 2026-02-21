@@ -15,12 +15,15 @@ import "./adminSidebar.scss";
 import { AuthContext } from "../../../context/authProvider";
 import { ROUTERS } from "../../../configs/router";
 import { MdReportProblem } from "react-icons/md";
+import { AppContext } from "../../../context/appProvider";
+
 
 const { Sider } = Layout;
 
 export default function AdminSidebar() {
   const location = useLocation();
   const { user: currentUser } = useContext(AuthContext);
+  const { selectedRoomId: roomId } = useContext(AppContext);
 
   return (
     <Sider width={220} className="admin-sider">
@@ -71,7 +74,7 @@ export default function AdminSidebar() {
           {
             key: ROUTERS.USER.HOME,
             icon: <IoMdReturnLeft />,
-            label: <Link to={ROUTERS.USER.HOME}>Quay về</Link>,
+            label: <Link to={ROUTERS.USER.DIRECT.replace(":roomId", roomId)}>Quay về</Link>,
           }
         ].filter(Boolean)}
       />
