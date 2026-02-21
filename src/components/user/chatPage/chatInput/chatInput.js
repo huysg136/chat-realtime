@@ -9,15 +9,15 @@ import {
 import { toast } from "react-toastify";
 import axios from "axios";
 import EmojiPicker from "emoji-picker-react";
-import { addDocument, updateDocument, encryptMessage, getUserDocIdByUid } from "../../../firebase/services";
-import { askGemini } from "../../../utils/AI/geminiBot";
-import { askGroq } from "../../../utils/AI/groqBot";
-import { uploadToR2 } from "../../../utils/uploadToR2";
-import { validateFile } from "../../../utils/fileValidation";
+import { addDocument, updateDocument, encryptMessage, getUserDocIdByUid } from "../../../../firebase/services";
+import { askGemini } from "../../../../utils/AI/geminiBot";
+import { askGroq } from "../../../../utils/AI/groqBot";
+import { uploadToR2 } from "../../../../utils/uploadToR2";
+import { validateFile } from "../../../../utils/fileValidation";
 import "./chatInput.scss";
 import { useTranslation } from "react-i18next";
 import { FaMagic } from "react-icons/fa";
-import { hasEnoughQuota, increaseQuota, formatBytes, getQuotaLimit } from "../../../utils/quota";
+import { hasEnoughQuota, increaseQuota, formatBytes, getQuotaLimit } from "../../../../utils/quota";
 
 const getVisibleFor = (selectedRoom) => {
   if (!selectedRoom) return [];

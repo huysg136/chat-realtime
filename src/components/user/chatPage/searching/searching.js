@@ -2,11 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { Input, Button } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { IoCreateOutline } from "react-icons/io5";
-import { AppContext } from "../../../context/appProvider";
-import { AuthContext } from "../../../context/authProvider";
+import { AppContext } from "../../../../context/appProvider";
+import { AuthContext } from "../../../../context/authProvider";
 import "./searching.scss";
 import { useTranslation } from "react-i18next";
-import UserBadge from "../../common/userBadge";
+import UserBadge from "../../../common/userBadge";
 
 export default function Searching() {
   const { setIsAddRoomVisible, searchText, setSearchText, selectedRoomId } = useContext(AppContext);

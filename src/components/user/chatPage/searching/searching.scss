@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "../../../style/theme";
+@import "../../../../style/theme";
 
 .searching-panel {
   background: #ffffff; // light theme
@@ -15,7 +15,7 @@
 
     .username-wrapper {
       display: flex;
-      flex-direction: column; 
+      flex-direction: column;
       padding: 4px 8px 4px 4px;
       border-radius: 6px;
       transition: background-color 0.2s;
@@ -26,15 +26,13 @@
           font-weight: 600;
           line-height: 1.2;
 
-          background: linear-gradient(
-            135deg,
-            #b8962e 0%,
-            #d4af37 35%,
-            #f6e27f 45%,
-            #d4af37 55%,
-            #b8962e 70%,
-            #b8962e 100%
-          );
+          background: linear-gradient(135deg,
+              #b8962e 0%,
+              #d4af37 35%,
+              #f6e27f 45%,
+              #d4af37 55%,
+              #b8962e 70%,
+              #b8962e 100%);
 
           background-size: 300% 300%;
           background-position: 0% 0%;
@@ -52,6 +50,7 @@
           0% {
             background-position: -100% -100%;
           }
+
           100% {
             background-position: 200% 200%;
           }
@@ -196,6 +195,7 @@
         color: #f3d47a;
         text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
       }
+
       .username-wrapper .username {
         color: #d1d5db;
       }
@@ -218,6 +218,7 @@
 
       .ant-input {
         color: #f9fafb;
+
         &::placeholder {
           color: #d1d5db;
         }

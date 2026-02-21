@@ -11,8 +11,8 @@ import {
 import { MdCallEnd, MdVideocamOff } from "react-icons/md";
 import { LoadingOutlined } from '@ant-design/icons';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../../firebase/config';
-import { getUserDocIdByUid } from '../../../firebase/services';
+import { db } from '../../../../firebase/config';
+import { getUserDocIdByUid } from '../../../../firebase/services';
 import './videoCallOverlay.scss';
 
 export default function VideoCallOverlay({

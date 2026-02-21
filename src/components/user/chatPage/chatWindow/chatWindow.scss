@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "../../../style/theme";
+@import "../../../../style/theme";
 
 .chat-window {
   height: 100vh;
@@ -235,6 +235,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -283,6 +284,7 @@ body.theme-dark {
 
       .button-group-right .button-group-style .ant-btn {
         color: #f9fafb;
+
         .anticon {
           color: #f9fafb;
         }
@@ -308,6 +310,7 @@ body.theme-dark {
         }
 
         .empty-chat {
+
           .empty-name,
           .empty-info,
           .empty-hint {

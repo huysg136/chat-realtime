@@ -12,19 +12,19 @@ import 'react-toastify/dist/ReactToastify.css';
 import { format } from "date-fns";
 import { vi, enUS } from "date-fns/locale";
 import { onSnapshot, collection, query, where, orderBy, limit, startAfter, getDocs } from "firebase/firestore";
-import { db } from "../../../firebase/config";
+import { db } from "../../../../firebase/config";
 import Message from "../message/message";
-import CircularAvatarGroup from "../../common/circularAvatarGroup";
+import CircularAvatarGroup from "../../../common/circularAvatarGroup";
 import ChatInput from "../chatInput/chatInput";
-import { AppContext } from "../../../context/appProvider";
-import { AuthContext } from "../../../context/authProvider";
-import { updateDocument, encryptMessage, decryptMessage } from "../../../firebase/services";
-import { getOnlineStatus } from "../../common/getOnlineStatus";
-import { useUserStatus } from "../../../hooks/useUserStatus";
-import VideoCallOverlay from "../../../components/user/videoCallOverlay/videoCallOverlay";
+import { AppContext } from "../../../../context/appProvider";
+import { AuthContext } from "../../../../context/authProvider";
+import { updateDocument, encryptMessage, decryptMessage } from "../../../../firebase/services";
+import { getOnlineStatus } from "../../../common/getOnlineStatus";
+import { useUserStatus } from "../../../../hooks/useUserStatus";
+import VideoCallOverlay from "../videoCallOverlay/videoCallOverlay";
 import "./chatWindow.scss";
 import { useTranslation } from "react-i18next";
-import UserBadge from "../../common/userBadge";
+import UserBadge from "../../../common/userBadge";
 
 const MESSAGES_PER_PAGE = 20;
 

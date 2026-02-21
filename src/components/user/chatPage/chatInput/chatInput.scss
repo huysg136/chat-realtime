@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "../../../style/theme";
+@import "../../../../style/theme";
 
 .chat-input-wrapper {
   position: relative;
@@ -313,12 +313,35 @@
       transform: translateX(3px) scale(0.98);
     }
 
-    &:nth-child(2)::after { content: '✨'; margin-left: auto }
-    &:nth-child(3)::after { content: '💼'; margin-left: auto }
-    &:nth-child(4)::after { content: '📂'; margin-left: auto }
-    &:nth-child(5)::after { content: '💕'; margin-left: auto }
-    &:nth-child(6)::after { content: '🙏'; margin-left: auto }
-    &:nth-child(7)::after { content: '🤝'; margin-left: auto }
+    &:nth-child(2)::after {
+      content: '✨';
+      margin-left: auto
+    }
+
+    &:nth-child(3)::after {
+      content: '💼';
+      margin-left: auto
+    }
+
+    &:nth-child(4)::after {
+      content: '📂';
+      margin-left: auto
+    }
+
+    &:nth-child(5)::after {
+      content: '💕';
+      margin-left: auto
+    }
+
+    &:nth-child(6)::after {
+      content: '🙏';
+      margin-left: auto
+    }
+
+    &:nth-child(7)::after {
+      content: '🤝';
+      margin-left: auto
+    }
   }
 }
 
@@ -328,6 +351,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -335,19 +359,42 @@
 }
 
 @keyframes micPulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.12); opacity: 0.75; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.12);
+    opacity: 0.75;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes micWave {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(1.3); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 // ========== DARK THEME ==========

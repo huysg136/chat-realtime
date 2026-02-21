@@ -1,9 +1,9 @@
 @use "sass:map";
-@import "../../../style/theme";
+@import "../../../../style/theme";
 
 .room-list-wrapper {
-  flex: 1;      
-  min-height: 0;   
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -125,6 +125,7 @@
       .room-name {
         color: #f9fafb;
       }
+
       .last-message {
         color: #d1d5db;
       }
@@ -134,13 +135,16 @@
       .room-time {
         color: #d1d5db;
       }
+
       .more-icon {
         color: #d1d5db;
+
         &:hover {
           color: #fff;
           background-color: rgba(255, 255, 255, 0.1);
         }
       }
+
       .pin-icon.pinned {
         color: #9ca3af;
       }

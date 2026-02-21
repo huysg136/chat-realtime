@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "../../../style/theme";
+@import "../../../../style/theme";
 
 .sidebar-wrapper {
   height: 100vh;
@@ -18,8 +18,7 @@
 
 
 .rooms-wrapper {
-  flex: 1;       
-  min-height: 0;  
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
-

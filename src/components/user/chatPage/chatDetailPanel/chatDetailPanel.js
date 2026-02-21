@@ -10,11 +10,11 @@ import {
 } from "@ant-design/icons";
 import { FaKey } from "react-icons/fa6";
 import { toast } from 'react-toastify';
-import CircularAvatarGroup from "../../common/circularAvatarGroup";
-import { updateDocument, addDocument } from "../../../firebase/services";
+import CircularAvatarGroup from "../../../common/circularAvatarGroup";
+import { updateDocument, addDocument } from "../../../../firebase/services";
 import "./chatDetailPanel.scss";
 import { useTranslation } from "react-i18next";
-import UserBadge from "../../common/userBadge";
+import UserBadge from "../../../common/userBadge";
 
 export default function ChatDetailPanel({
   isVisible,

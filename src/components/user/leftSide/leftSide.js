@@ -30,7 +30,7 @@ export default function LeftSide() {
   const [active, setActive] = useState("message");
   const [role, setRole] = useState("");
   const { user, logout } = useContext(AuthContext);
-  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible } = useContext(AppContext);
+  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible, selectedRoomId: roomId } = useContext(AppContext);
   const displayName = user?.displayName;
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
@@ -141,8 +141,6 @@ export default function LeftSide() {
     }
   ].filter(Boolean);
 
-  const frameClass = checkMaxUser ? "frame-max" : checkProUser ? "frame-pro" : checkLiteUser ? "frame-lite" : "";
-
   return (
     <div className="sidebar">
       <Dropdown menu={{ items: menuItems }} placement="bottomRight" trigger={["click"]}>
@@ -179,7 +177,11 @@ export default function LeftSide() {
           onClick={() =>
             <>
               {setActive("message")}
-              {navigate(ROUTERS.USER.HOME)}
+              {
+                roomId ? 
+                navigate(ROUTERS.USER.DIRECT.replace(":roomId", roomId)) :
+                navigate(ROUTERS.USER.HOME)
+              }
             </>
           }
         >

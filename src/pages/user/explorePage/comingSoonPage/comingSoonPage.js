@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageOutlined, RocketOutlined } from '@ant-design/icons';
 import { ROUTERS } from '../../../configs/router';
-import './explorePage.scss';
+import './comingSoonPage.scss';
 import { useTranslation } from 'react-i18next';
 
 export default function HomePage() {

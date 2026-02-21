@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState, useMemo } from "react";
 import { Avatar, Dropdown, Menu } from "antd";
 import { TeamOutlined, EllipsisOutlined, PushpinOutlined, DeleteOutlined } from "@ant-design/icons";
-import { AuthContext } from "../../../context/authProvider";
-import CircularAvatarGroup from "../../common/circularAvatarGroup";
-import { decryptMessage } from "../../../firebase/services";
+import { AuthContext } from "../../../../context/authProvider";
+import CircularAvatarGroup from "../../../common/circularAvatarGroup";
+import { decryptMessage } from "../../../../firebase/services";
 import { doc, onSnapshot, setDoc, updateDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../../../firebase/config";
+import { db } from "../../../../firebase/config";
 import "./roomList.scss";
-import { useUserStatus } from "../../../hooks/useUserStatus";
-import UserBadge from "../../common/userBadge";
-import { ROUTERS } from "../../../configs/router";
+import { useUserStatus } from "../../../../hooks/useUserStatus";
+import UserBadge from "../../../common/userBadge";
+import { ROUTERS } from "../../../../configs/router";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 

@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
-import SideBar from "../../../components/user/sideBar/sideBar";
-import ChatWindow from "../../../components/user/chatWindow/chatWindow";
-import ChatDetailPanel from "../../../components/user/chatDetailPanel/chatDetailPanel";
+import SideBar from "../../../components/user/chatPage/sideBar/sideBar"
+import ChatWindow from "../../../components/user/chatPage/chatWindow/chatWindow";
+import ChatDetailPanel from "../../../components/user/chatPage/chatDetailPanel/chatDetailPanel";
 import TransferOwnershipModal from "../../../components/modals/transferOwnershipModal";
 import IncomingCallUI from "../../../components/common/IncomingCallUI";
 import { AppContext } from "../../../context/appProvider";
@@ -36,7 +36,7 @@ export default function ChatRoom() {
     const { roomId } = useParams();
     const navigate = useNavigate();
 
-    useEffect (() => {
+    useEffect(() => {
         if (!roomId) return;
         if (!uid) return;
 
@@ -44,16 +44,16 @@ export default function ChatRoom() {
         const room = rooms.find(r => r.id === roomId);
         const isMember = room?.members?.some(m => String(m?.uid ?? m) === String(uid));
 
-        if (!room || !isMember){
+        if (!room || !isMember) {
             setSelectedRoomId(null);
             navigate(ROUTERS.USER.HOME);
             return;
         }
 
-        if (roomId !== selectedRoomId){
+        if (roomId !== selectedRoomId) {
             setSelectedRoomId(roomId);
         }
-    },[roomId, uid, rooms, selectedRoomId, navigate, setSelectedRoomId]);
+    }, [roomId, uid, rooms, selectedRoomId, navigate, setSelectedRoomId]);
 
     useEffect(() => {
         setIsDetailVisible(false);

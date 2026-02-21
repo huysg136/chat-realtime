@@ -3,20 +3,20 @@ import { useTranslation } from "react-i18next";
 import { Avatar, Dropdown, Menu } from "antd";
 import { FaRegCopy, FaImage, FaDownload, FaShareSquare, FaReply, FaVideo } from "react-icons/fa";
 import { MoreOutlined, UndoOutlined } from "@ant-design/icons";
-import { AppContext } from "../../../context/appProvider";
-import { AuthContext } from "../../../context/authProvider";
+import { AppContext } from "../../../../context/appProvider";
+import { AuthContext } from "../../../../context/authProvider";
 import MediaRenderer from "./MediaRenderer";
-import { db } from "../../../firebase/config";
+import { db } from "../../../../firebase/config";
 import { doc, onSnapshot, collection, query, where } from "firebase/firestore";
 import {
   sendMessageToRoom,
   encryptMessage,
-} from "../../../firebase/services";
-import ForwardMessageModal from "../../modals/forwardMessageModal";
+} from "../../../../firebase/services";
+import ForwardMessageModal from "../../../modals/forwardMessageModal";
 import "./message.scss";
 import { toast } from "react-toastify";
 import { MdReportProblem } from "react-icons/md";
-import ReportModal from "../../modals/reportModal";
+import ReportModal from "../../../modals/reportModal";
 
 const getVisibleFor = (selectedRoom) => {
   if (!selectedRoom) return [];

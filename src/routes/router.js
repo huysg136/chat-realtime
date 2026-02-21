@@ -7,7 +7,7 @@ import ReportManager from '../components/admin/report/reportManager';
 import LandingPage from '../pages/user/chatPage/landingPage';
 import ChatRoom from '../pages/user/chatPage/chatRoom';
 
-const ExplorePage = lazy(() => import('../components/user/explorePage/explorePage'));
+const ComingSoonPage = lazy(() => import('../pages/user/comingSoonPage/comingSoonPage'));
 const Login = lazy(() => import('../components/login'));
 const MaintenancePage = lazy(() => import('../pages/user/maintenancePage/maintenancePage'));
 const AdminLayout = lazy(() => import('../pages/admin/adminLayout/adminLayout'));
@@ -68,7 +68,7 @@ export const userRoutes = [
         path: getRelativePath(ROUTERS.USER.EXPLORE, "/"),
         element: (
           <Suspense fallback={<LoadingScreen />}>
-            <ExplorePage />
+            <ComingSoonPage />
           </Suspense>
         ),
       }

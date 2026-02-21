@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState, useMemo } from "react";
-import { AppContext } from "../../../context/appProvider";
-import { AuthContext } from "../../../context/authProvider";
+import { AppContext } from "../../../../context/appProvider";
+import { AuthContext } from "../../../../context/authProvider";
 import RoomItem from "./roomItem";
-import { db } from "../../../firebase/config";
+import { db } from "../../../../firebase/config";
 import { doc, onSnapshot } from "firebase/firestore";
 import "./roomList.scss";
 
@@ -102,7 +102,7 @@ export default function RoomList() {
             }}
             users={users}
             selectedRoomId={selectedRoomId}
-            // setSelectedRoomId={setSelectedRoomId}
+          // setSelectedRoomId={setSelectedRoomId}
           />
         );
       })}
