@@ -3,8 +3,10 @@ export const checkLiteUser = (user) => {
 
     if (user.premiumLevel === "lite") {
         if (!user.premiumUntil) return true;
-        return new Date(user.premiumUntil) > new Date();
+        const expiry = user.premiumUntil.toDate ? user.premiumUntil.toDate() : new Date(user.premiumUntil);
+        return expiry > new Date();
     }
 
     return false;
 };
+

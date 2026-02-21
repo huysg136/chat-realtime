@@ -1,10 +1,11 @@
 export const checkProUser = (user) => {
   if (!user) return false;
-  
+
   if (user.premiumLevel === "pro") {
     if (!user.premiumUntil) return true;
-    return new Date(user.premiumUntil) > new Date();
+    const expiry = user.premiumUntil.toDate ? user.premiumUntil.toDate() : new Date(user.premiumUntil);
+    return expiry > new Date();
   }
-  
+
   return false;
 };
