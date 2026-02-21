@@ -74,7 +74,11 @@ export default function AdminSidebar() {
           {
             key: ROUTERS.USER.HOME,
             icon: <IoMdReturnLeft />,
-            label: <Link to={ROUTERS.USER.DIRECT.replace(":roomId", roomId)}>Quay về</Link>,
+            label: roomId ? (
+              <Link to={ROUTERS.USER.DIRECT.replace(":roomId", roomId)}>Quay về</Link>
+            ) : (
+              <Link to={ROUTERS.USER.HOME}>Quay về</Link>
+            ),
           }
         ].filter(Boolean)}
       />
