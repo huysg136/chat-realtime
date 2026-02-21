@@ -423,7 +423,7 @@ export default function MaintenancePage() {
       />
 
       <div className="footer-credit">
-        © 2025 Made by <span className="author-name">Thái Gia Huy</span> ·
+        © 2025 Copyright by <span className="author-name">Thái Gia Huy</span> ·
         quik.id.vn
       </div>
     </div>

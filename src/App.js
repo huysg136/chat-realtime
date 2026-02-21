@@ -9,7 +9,7 @@ import AuthProvider, { AuthContext } from './context/authProvider';
 import AppProvider from './context/appProvider';
 import useApplyTheme from './hooks/useApplyTheme';
 
-import { renderPublicRoutes, renderUserRoutes, renderAdminRoutes } from './routes/router';
+import { renderPublicRoutes, renderUserRoutes, renderAdminRoutes, renderNotFoundRoute } from './routes/router';
 
 import ModalManager from './context/modalManager';
 import useUserPresence from './hooks/useUserPresence';
@@ -29,6 +29,7 @@ function AppRoutes() {
       {renderPublicRoutes()}
       {renderUserRoutes()}
       {renderAdminRoutes()}
+      {renderNotFoundRoute()}
     </Routes>
   );
 }

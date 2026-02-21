@@ -1,0 +1,97 @@
+@use "sass:map";
+@import "../../style/theme";
+
+.not-found-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    // Background matched with maintenance page
+    background: radial-gradient(circle at 20% 30%, #f0f5ff, #ffffff);
+    color: #333333;
+    position: relative;
+
+    .not-found-content {
+        text-align: center;
+        padding: 40px;
+        max-width: 500px;
+    }
+
+    .not-found-code {
+        font-size: 120px;
+        font-weight: 500;
+        margin: 0;
+        line-height: 1;
+        letter-spacing: -4px;
+        color: #1890ff; // Primary blue accent
+    }
+
+    .not-found-title {
+        font-size: 28px;
+        font-weight: 800;
+        margin: 20px 0 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #2d3748;
+    }
+
+    .not-found-desc {
+        font-size: 16px;
+        color: #666666;
+        font-weight: 500;
+        line-height: 1.5;
+        margin-bottom: 40px;
+    }
+
+    .footer-credit {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 14px;
+        color: #94a3b8;
+        font-weight: 400;
+        user-select: none;
+
+        .author-name {
+            color: #1890ff;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            font-size: 10px;
+            bottom: 12px;
+        }
+    }
+}
+
+// Dark Mode Support
+body.theme-dark {
+    .not-found-container {
+        // Background matched with maintenance page dark mode
+        background: radial-gradient(circle at 20% 30%, #1e293b, #0d1117);
+        color: #f8fafc;
+
+        .not-found-code {
+            color: #60a5fa;
+        }
+
+        .not-found-title {
+            color: #f1f5f9;
+        }
+
+        .not-found-desc {
+            color: #94a3b8;
+        }
+
+        .footer-credit {
+            color: #64748b;
+
+            .author-name {
+                color: #60a5fa;
+            }
+        }
+    }
+}

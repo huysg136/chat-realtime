@@ -17,8 +17,7 @@ const RoomsManager = lazy(() => import('../components/admin/roomManager/roomMana
 const AnnouncementManager = lazy(() => import('../components/admin/announcementManager/announcementManager'));
 const AdminSettings = lazy(() => import('../components/admin/adminSettings/adminSettings'));
 const ModPermissionManager = lazy(() => import('../components/admin/modPermissionManager/modPermissionManager'));
-
-
+const NotFoundPage = lazy(() => import('../pages/notFoundPage/notFoundPage'));
 
 // Helper function to extract relative path from absolute path
 // Example: "/admin/users" → "users"
@@ -180,3 +179,15 @@ export const renderAdminRoutes = () => {
     </Route>
   );
 };
+
+// Render 404 Not Found Route (catch-all)
+export const renderNotFoundRoute = () => (
+  <Route
+    path="*"
+    element={
+      <Suspense fallback={<LoadingScreen />}>
+        <NotFoundPage />
+      </Suspense>
+    }
+  />
+);
