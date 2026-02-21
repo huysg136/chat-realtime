@@ -38,7 +38,7 @@ export default function ChatInput({
   isBanned,
   inputRef,
 }) {
-  const { uid, photoURL, displayName } = user || {};
+  const { uid, photoURL, displayName, role, premiumLevel } = user || {};
   const formRef = useRef(null);
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
@@ -439,7 +439,13 @@ export default function ChatInput({
           - Mục tiêu: Kết nối an toàn và thông minh.
           `;
         const now = new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
+        const userPlan = (premiumLevel || "free").toUpperCase();
+        const userRole = role === "admin" ? "Quản trị viên" : role === "moderator" ? "Điều hành viên" : "Người dùng";
+
         const contextPrompt = `Bạn là trợ lý AI Quik Bot. Bạn đang trò chuyện với người dùng tên là: ${displayName}.
+          - Vai trò hệ thống: ${userRole}
+          - Gói dịch vụ hiện tại: ${userPlan}
+          
           Thời gian hiện tại: ${now}
 
           THÔNG TIN HỆ THỐNG (Dùng để trả lời khi được hỏi):

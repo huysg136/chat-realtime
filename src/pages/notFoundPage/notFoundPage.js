@@ -1,10 +1,7 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ROUTERS } from '../../configs/router';
 import './notFoundPage.scss';
 
 export default function NotFoundPage() {
-    const navigate = useNavigate();
 
     return (
         <div className="not-found-container">
