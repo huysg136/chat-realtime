@@ -48,6 +48,7 @@ export default function ChatInput({
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [audioStream, setAudioStream] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [audioChunks, setAudioChunks] = useState([]);
   const visibleFor = getVisibleFor(selectedRoom);
   const [polishing, setPolishing] = useState(false);
