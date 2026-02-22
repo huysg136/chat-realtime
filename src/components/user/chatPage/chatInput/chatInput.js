@@ -7,13 +7,15 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import { toast } from "react-toastify";
-import axios from "axios";
 import EmojiPicker from "emoji-picker-react";
 import { addDocument, updateDocument, encryptMessage, getUserDocIdByUid, decryptMessage } from "../../../../firebase/services";
 import { askGemini } from "../../../../utils/AI/geminiBot";
 import { askGroq } from "../../../../utils/AI/groqBot";
 import { uploadToR2 } from "../../../../utils/uploadToR2";
 import { validateFile } from "../../../../utils/fileValidation";
+import { getToneMappings, buildPolishPrompt } from "../../../../utils/AI/tonePrompts";
+import { buildBotContextPrompt } from "../../../../utils/AI/botPrompts";
+import { transcribeAudio } from "../../../../utils/audio/audioService";
 import "./chatInput.scss";
 import { useTranslation } from "react-i18next";
 import { FaMagic } from "react-icons/fa";
@@ -28,6 +30,12 @@ const getVisibleFor = (selectedRoom) => {
     return currentMembers;
   }
   return Array.from(new Set([...selectedRoom.lastMessage.visibleFor, ...currentMembers]));
+};
+
+const isMeaningful = (text) => {
+  if (!text) return false;
+  const cleaned = text.replace(/[\p{Emoji}\p{So}\p{Sk}\p{P}\p{S}]/gu, "").trim();
+  return cleaned.length >= 2;
 };
 
 export default function ChatInput({
@@ -61,21 +69,7 @@ export default function ChatInput({
   const handleSelectTone = async (selectedTone) => {
     setShowTonePicker(false);
 
-    const toneMapping = {
-      default: t('chatInput.tones.default'),
-      boss: t('chatInput.tones.boss'),
-      lover: t('chatInput.tones.lover'),
-      elder: t('chatInput.tones.elder'),
-      friend: t('chatInput.tones.friend'),
-      client: t('chatInput.tones.client')
-    };
-
     if (!inputValue.trim()) return;
-
-    const isMeaningful = (text) => {
-      const cleaned = text.replace(/[\p{Emoji}\p{So}\p{Sk}\p{P}\p{S}]/gu, "").trim();
-      return cleaned.length >= 2;
-    };
 
     if (!isMeaningful(inputValue)) {
       toast.info(t('notifications.insignificantText'));
@@ -84,12 +78,9 @@ export default function ChatInput({
 
     try {
       setPolishing(true);
+      const toneMapping = getToneMappings(t);
       const selectedToneDescription = toneMapping[selectedTone];
-      const prompt = t('chatInput.aiPrompt.polish', {
-        tone: selectedToneDescription,
-        input: inputValue,
-        interpolation: { escapeValue: false }
-      });
+      const prompt = buildPolishPrompt(t, selectedToneDescription, inputValue);
 
       const polishedText = await askGemini(prompt);
       const cleanedText = polishedText.replace(/\n+/g, " ").trim();
@@ -232,83 +223,15 @@ export default function ChatInput({
         ? encryptMessage(audioUrl, selectedRoom.secretKey)
         : audioUrl;
 
-      const assemblyHeaders = {
-        authorization: "9ca437cbe65d4f5387e937846ec08f46",
-      };
-
-      let transcriptId = null;
       let transcriptText = "";
       let detectedLanguage = "vi";
 
-      const viRequest = {
-        audio_url: audioUrl,
-        language_code: "vi",
-        punctuate: true,
-        format_text: true,
-      };
-
-      let resVi = await axios.post(
-        "https://api.assemblyai.com/v2/transcript",
-        viRequest,
-        { headers: assemblyHeaders }
-      );
-
-      transcriptId = resVi.data.id;
-      let needFallback = false;
-
-      while (true) {
-        const poll = await axios.get(
-          `https://api.assemblyai.com/v2/transcript/${transcriptId}`,
-          { headers: assemblyHeaders }
-        );
-
-        if (poll.data.status === "completed") {
-          transcriptText = poll.data.text;
-          detectedLanguage = poll.data.language_code || "vi";
-          break;
-        } else if (poll.data.status === "error") {
-          needFallback = true;
-          break;
-        } else {
-          await new Promise((r) => setTimeout(r, 3000));
-        }
-      }
-
-      if (needFallback) {
-        const autoRequest = {
-          audio_url: audioUrl,
-          language_detection: true,
-          punctuate: true,
-          format_text: true,
-        };
-
-        const autoRes = await axios.post(
-          "https://api.assemblyai.com/v2/transcript",
-          autoRequest,
-          { headers: assemblyHeaders }
-        );
-
-        transcriptId = autoRes.data.id;
-        detectedLanguage = "auto";
-
-        while (true) {
-          const poll = await axios.get(
-            `https://api.assemblyai.com/v2/transcript/${transcriptId}`,
-            { headers: assemblyHeaders }
-          );
-
-          if (poll.data.status === "completed") {
-            transcriptText = poll.data.text;
-            detectedLanguage = poll.data.language_code || detectedLanguage;
-            break;
-          } else if (poll.data.status === "error") {
-            transcriptText = "";
-            toast.error(t('notifications.transcriptionError'));
-            break;
-          } else {
-            await new Promise((r) => setTimeout(r, 3000));
-          }
-        }
+      try {
+        const { text, languageCode } = await transcribeAudio(audioUrl);
+        transcriptText = text;
+        detectedLanguage = languageCode;
+      } catch (transcribeErr) {
+        toast.error(t('notifications.transcriptionError'));
       }
 
       await addDocument("messages", {
@@ -420,68 +343,20 @@ export default function ChatInput({
         const replyContext = replyTo
           ? `\nNgười dùng đang trả lời tin nhắn sau:\nTừ ${replyTo.displayName}: "${replyTo.decryptedText || replyTo.text}"\n`
           : "";
-        const quikInfo = `
-          THÔNG TIN VỀ QUIK:
-          - Định danh: Nền tảng nhắn tin đa phương tiện bảo mật, mã hóa đầu cuối (E2E).
-          - Website chính thức: Quik.id.vn.
-          - Tính năng chính: Nhắn tin thời gian thực, Gọi Video ổn định (Stringee), Lưu trữ đám mây tốc độ cao (Cloudflare R2), Chuyển giọng nói sang văn bản (AssemblyAI).
-          - AI Thông minh: Quik Bot hỗ trợ giải đáp (@bot) và AI Polishing (Nút icon FaMagic) giúp cải thiện văn phong theo nhiều tông giọng (Sếp, Người yêu, Bạn bè...).
-          - Quản lý Quota: Hệ thống giới hạn dung lượng lưu trữ và kích thước file gửi đi dựa trên gói dịch vụ.
 
-          CÁC GÓI DỊCH VỤ (PLANS):
-          1. FREE: 0 VNĐ, Giới hạn gửi file: 5MB, Tổng dung lượng: 100MB.
-          2. LITE: 15,000 VNĐ/tháng, Giới hạn gửi file: 25MB, Tổng dung lượng: 2GB, Tên hiển thị Bronze.
-          3. PRO (Phổ biến): 49,000 VNĐ/tháng, Giới hạn gửi file: 100MB, Tổng dung lượng: 10GB, Tên hiển thị Silver.
-          4. MAX (Vip nhất): 89,000 VNĐ/tháng, Giới hạn gửi file: 200MB, Tổng dung lượng: 30GB, Tên hiển thị Gold. 
-
-          HỖ TRỢ & LIÊN HỆ:
-          - Email: thaigiahuy6912@gmail.com
-          - Người sáng lập: Thái Gia Huy (Sinh viên năm 4 Hutech, làm việc tại TMA Solutions).
-          - Mục tiêu: Kết nối an toàn và thông minh.
-          `;
         const now = new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
         const userPlan = (premiumLevel || "free").toUpperCase();
         const userRole = role === "admin" ? "Quản trị viên" : role === "moderator" ? "Điều hành viên" : "Người dùng";
 
-        const contextPrompt = `Bạn là trợ lý AI Quik Bot. Bạn đang trò chuyện với người dùng tên là: ${displayName}.
-          - Vai trò hệ thống: ${userRole}
-          - Gói dịch vụ hiện tại: ${userPlan}
-          
-          Thời gian hiện tại: ${now}
-
-          THÔNG TIN HỆ THỐNG (Dùng để trả lời khi được hỏi):
-          ${quikInfo}
-
-          NGỮ CẢNH HỘI THOẠI (10 tin nhắn gần nhất):
-          <history>
-          ${recentMessages}
-          </history>
-
-          <target_context>
-          ${replyContext}
-          </target_context>
-
-          YÊU CẦU:
-          Phản hồi câu hỏi: "${question}" bằng tiếng Việt.
-
-          RÀNG BUỘC PHẢN HỒI:
-          1. Trả lời trực tiếp, tự nhiên như đang chat với bạn bè. 
-          2. Tuyệt đối KHÔNG dùng: "Dựa trên...", "Theo thông tin...", "Tôi hiểu là...".
-          3. ƯU TIÊN dùng kiến thức từ THÔNG TIN HỆ THỐNG nếu <history> không có dữ liệu.
-          4. Đối với câu hỏi về thời gian/thời tiết: Nhìn vào thời gian hiện tại để đưa ra nhận định thực tế.
-          5. KHÔNG giải thích suy nghĩ. Trả lời ngắn gọn dưới 3 câu.
-          6. Luôn phản hồi lịch sự nhưng không quá trịnh trọng. Hạn chế nói "không biết".
-          7. LOGIC TƯ VẤN GÓI (QUAN TRỌNG):
-          - Bảng giới hạn file: FREE=5MB, LITE=25MB, PRO=100MB, MAX=200MB
-          - Quy tắc: Chỉ gợi ý gói có giới hạn file STRICTLY >= nhu cầu người dùng
-          - Ví dụ minh họa (bắt buộc làm theo):
-            * Cần 3MB  → FREE (rẻ nhất đủ dùng)
-            * Cần 10MB → LITE (rẻ nhất đủ dùng)  
-            * Cần 26MB → PRO (LITE chỉ 25MB, không đủ)
-            * Cần 50MB → PRO (LITE chỉ 25MB, không đủ)
-            * Cần 101MB → MAX (PRO chỉ 100MB, không đủ)
-            * Cần >200MB → Không có gói nào phù hợp, cần liên hệ admin.
-          - TUYỆT ĐỐI không gợi ý nhiều gói khi chỉ có 1 gói rẻ nhất thỏa mãn.`;
+        const contextPrompt = buildBotContextPrompt({
+          displayName,
+          userRole,
+          userPlan,
+          now,
+          recentMessages,
+          replyContext,
+          question
+        });
 
         askGroq(contextPrompt)
           .then(async (reply) => {
@@ -500,6 +375,17 @@ export default function ChatInput({
               createdAt: new Date(),
               kind: "text",
               visibleFor,
+            });
+
+            await updateDocument("rooms", selectedRoom.id, {
+              lastMessage: {
+                displayName: "Quik Bot",
+                text: encryptedReply,
+                uid: "bot",
+                createdAt: new Date(),
+                kind: "text",
+                visibleFor: selectedRoom.members,
+              },
             });
           })
           .catch((err) => {
