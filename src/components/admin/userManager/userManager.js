@@ -2,7 +2,8 @@ import { useEffect, useState, useContext } from "react";
 import { db } from "../../../firebase/config";
 import {
   collection, onSnapshot, deleteDoc, doc,
-  updateDoc, addDoc, deleteField
+  updateDoc, addDoc, deleteField, getDocs,
+  query, where
 } from "firebase/firestore";
 import { AuthContext } from "../../../context/authProvider";
 import { toast } from "react-toastify";
@@ -27,6 +28,18 @@ const USER_ROLES = {
   ADMIN: "admin",
   MODERATOR: "moderator",
   USER: "user"
+};
+
+const ROLE_VALUE = {
+  [USER_ROLES.ADMIN]: 3,
+  [USER_ROLES.MODERATOR]: 2,
+  [USER_ROLES.USER]: 1
+};
+
+const toDate = (val) => {
+  if (!val) return null;
+  if (val.toDate) return val.toDate();
+  return new Date(val);
 };
 
 const UserDetailStatus = ({ uid }) => {
@@ -93,6 +106,13 @@ export default function UsersManager() {
   const [banDetail, setBanDetail] = useState(null);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [detailUser, setDetailUser] = useState(null);
+  const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [editFields, setEditFields] = useState({
+    username: "",
+    displayName: "",
+    usernameChangeCount: 0,
+    lastUsernameChange: ""
+  });
 
   useEffect(() => {
     setLoading(true);
@@ -105,6 +125,10 @@ export default function UsersManager() {
     });
     return () => { unsubUsers(); unsubBans(); };
   }, []);
+
+  useEffect(() => {
+    setIsEditingInfo(false);
+  }, [detailUser]);
 
   if (!currentUser?.permissions?.canManageUsers && currentUser.role !== "admin") return <NoAccess />;
 
@@ -128,8 +152,8 @@ export default function UsersManager() {
 
   const handleRoleChange = async (user) => {
     if (user.role === "admin") { toast.warning("Không thể đổi vai trò admin"); return; }
-    if (currentUser.role === "moderator" && (user.role === "moderator" || user.uid === currentUser.uid)) {
-      toast.warning("Moderator không được đổi vai trò moderator khác"); return;
+    if (ROLE_VALUE[currentUser.role] <= ROLE_VALUE[user.role || "user"]) {
+      toast.warning("Bạn không có quyền thay đổi vai trò của người này"); return;
     }
     const nextRole = user.role === "user" ? "moderator" : "user";
     const docId = await getUserDocIdByUid(user.uid);
@@ -185,12 +209,23 @@ export default function UsersManager() {
   const handleGrantPremium = async (targetUsr, level, days) => {
     const docId = await getUserDocIdByUid(targetUsr.uid);
     if (!docId) return;
-    const until = days ? new Date(Date.now() + days * 86400000) : null;
+
+    let until;
+    const isRenew = targetUsr.premiumLevel === level;
+
+    if (isRenew && targetUsr.premiumUntil) {
+      const currentUntil = toDate(targetUsr.premiumUntil);
+      const startFrom = currentUntil > new Date() ? currentUntil : new Date();
+      until = new Date(startFrom.getTime() + days * 86400000);
+    } else {
+      until = days ? new Date(Date.now() + days * 86400000) : null;
+    }
+
     try {
       await updateDoc(doc(db, "users", docId), { premiumLevel: level, premiumUntil: until });
-      toast.success(`Đã cấp ${level.toUpperCase()} cho ${targetUsr.displayName}`);
+      toast.success(`Đã ${isRenew ? "gia hạn" : "cấp"} ${level.toUpperCase()} cho ${targetUsr.displayName}`);
       setDetailUser(prev => prev ? { ...prev, premiumLevel: level, premiumUntil: until } : prev);
-    } catch { toast.error("Cấp premium thất bại"); }
+    } catch { toast.error(`${isRenew ? "Gia hạn" : "Cấp"} premium thất bại`); }
   };
 
   const handleRevokePremium = async (targetUsr) => {
@@ -201,6 +236,54 @@ export default function UsersManager() {
       toast.success(`Đã thu hồi premium của ${targetUsr.displayName}`);
       setDetailUser(prev => prev ? { ...prev, premiumLevel: "free", premiumUntil: null } : prev);
     } catch { toast.error("Thu hồi thất bại"); }
+  };
+
+  const handleUpdateUserInfo = async () => {
+    const docId = await getUserDocIdByUid(detailUser.uid);
+    if (!docId) return;
+
+    if (!editFields.username.trim()) {
+      toast.warning("Quik ID không được để trống");
+      return;
+    }
+
+    if (!editFields.displayName.trim()) {
+      toast.warning("Tên hiển thị không được để trống");
+      return;
+    }
+
+    if (Number(editFields.usernameChangeCount) < 0) {
+      toast.warning("Số lần đổi không được âm");
+      return;
+    }
+
+    try {
+      // Check duplicate Quik ID
+      if (editFields.username !== detailUser.username) {
+        const q = query(collection(db, "users"), where("username", "==", editFields.username));
+        const snap = await getDocs(q);
+        const exists = snap.docs.some(d => d.data().uid !== detailUser.uid);
+        if (exists) {
+          toast.warning("Quik ID này đã có người sử dụng");
+          return;
+        }
+      }
+
+      const updateData = {
+        username: editFields.username.trim(),
+        displayName: editFields.displayName.trim(),
+        usernameChangeCount: Number(editFields.usernameChangeCount),
+        lastUsernameChange: editFields.lastUsernameChange ? new Date(editFields.lastUsernameChange).toISOString() : null
+      };
+
+      await updateDoc(doc(db, "users", docId), updateData);
+      toast.success("Đã cập nhật thông tin người dùng");
+      setDetailUser(prev => ({ ...prev, ...updateData }));
+      setIsEditingInfo(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Cập nhật thất bại");
+    }
   };
 
   const copyText = (text) => {
@@ -320,9 +403,7 @@ export default function UsersManager() {
       title: "Hành động", key: "actions", width: 160,
       render: (_, record) => {
         const banInfo = getBanInfo(record.uid);
-        const canAct = currentUser.role === USER_ROLES.ADMIN
-          ? record.role !== USER_ROLES.ADMIN
-          : currentUser.role === USER_ROLES.MODERATOR && record.role === USER_ROLES.USER;
+        const canAct = ROLE_VALUE[currentUser.role] > ROLE_VALUE[record.role || "user"];
         return (
           <div className="action-btns">
             <button className="btn-detail" onClick={() => { setDetailUser(record); setIsDetailModalVisible(true); }}>
@@ -431,9 +512,29 @@ export default function UsersManager() {
                   );
                 })()}
               </div>
-              <button className="btn-close-icon" onClick={() => setIsDetailModalVisible(false)}>
-                <IoIosCloseCircleOutline size={24} />
-              </button>
+              <div className="detail-modal-actions-top">
+                {ROLE_VALUE[currentUser.role] > ROLE_VALUE[detailUser.role || "user"] && (
+                  <button
+                    className={`btn-edit-info ${isEditingInfo ? "active" : ""}`}
+                    onClick={() => {
+                      if (!isEditingInfo) {
+                        setEditFields({
+                          username: detailUser.username || "",
+                          displayName: detailUser.displayName || "",
+                          usernameChangeCount: detailUser.usernameChangeCount || 0,
+                          lastUsernameChange: detailUser.lastUsernameChange ? (typeof detailUser.lastUsernameChange === 'string' ? detailUser.lastUsernameChange.split('T')[0] : (detailUser.lastUsernameChange.toDate ? detailUser.lastUsernameChange.toDate().toISOString().split('T')[0] : "")) : ""
+                        });
+                      }
+                      setIsEditingInfo(!isEditingInfo);
+                    }}
+                  >
+                    {isEditingInfo ? "Hủy sửa" : "Sửa thông tin"}
+                  </button>
+                )}
+                <button className="btn-close-icon" onClick={() => setIsDetailModalVisible(false)}>
+                  <IoIosCloseCircleOutline size={24} />
+                </button>
+              </div>
             </div>
 
             <div className="detail-grid">
@@ -446,10 +547,32 @@ export default function UsersManager() {
                   </span>
                 </div>
                 <div className="detail-row">
+                  <span>Tên hiển thị</span>
+                  {isEditingInfo ? (
+                    <input
+                      className="edit-input"
+                      value={editFields.displayName}
+                      onChange={(e) => setEditFields({ ...editFields, displayName: e.target.value })}
+                    />
+                  ) : (
+                    <span className="copyable" onClick={() => copyText(detailUser.displayName)}>
+                      {detailUser.displayName} <FiCopy size={12} />
+                    </span>
+                  )}
+                </div>
+                <div className="detail-row">
                   <span>Quik ID</span>
-                  <span className="copyable" onClick={() => copyText(detailUser.username)}>
-                    @{detailUser.username} <FiCopy size={12} />
-                  </span>
+                  {isEditingInfo ? (
+                    <input
+                      className="edit-input"
+                      value={editFields.username}
+                      onChange={(e) => setEditFields({ ...editFields, username: e.target.value })}
+                    />
+                  ) : (
+                    <span className="copyable" onClick={() => copyText(detailUser.username)}>
+                      @{detailUser.username} <FiCopy size={12} />
+                    </span>
+                  )}
                 </div>
                 <div className="detail-row">
                   <span>Email</span>
@@ -535,14 +658,38 @@ export default function UsersManager() {
                 </div>
                 <div className="detail-row">
                   <span>Số lần đổi Quik ID</span>
-                  <span>{detailUser.usernameChangeCount || 0} lần</span>
+                  {isEditingInfo ? (
+                    <input
+                      type="number"
+                      min={0}
+                      className="edit-input"
+                      value={editFields.usernameChangeCount}
+                      onChange={(e) => setEditFields({ ...editFields, usernameChangeCount: e.target.value })}
+                    />
+                  ) : (
+                    <span>{detailUser.usernameChangeCount || 0} lần</span>
+                  )}
                 </div>
                 <div className="detail-row">
                   <span>Lần đổi Quik ID cuối cùng</span>
-                  <span>
-                    {formatDateShort(detailUser.lastUsernameChange) === "—" ? "—" : formatDateShort(detailUser.lastUsernameChange)}
-                  </span>
+                  {isEditingInfo ? (
+                    <input
+                      type="date"
+                      className="edit-input"
+                      value={editFields.lastUsernameChange}
+                      onChange={(e) => setEditFields({ ...editFields, lastUsernameChange: e.target.value })}
+                    />
+                  ) : (
+                    <span>
+                      {formatDateShort(detailUser.lastUsernameChange) === "—" ? "—" : formatDateShort(detailUser.lastUsernameChange)}
+                    </span>
+                  )}
                 </div>
+                {isEditingInfo && (
+                  <div className="edit-submit-row">
+                    <button className="btn-save-edit" onClick={handleUpdateUserInfo}>Lưu thay đổi</button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -568,39 +715,38 @@ export default function UsersManager() {
                   </span>
                 </div>
               </div>
-              {((currentUser.role === USER_ROLES.ADMIN) ||
-                (currentUser.role === USER_ROLES.MODERATOR && detailUser.role !== USER_ROLES.ADMIN)) && (
-                  <div className="premium-actions">
-                    <button
-                      className={`btn-grant lite ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.lite ? "disabled" : ""}`}
-                      onClick={() => handleGrantPremium(detailUser, "lite", 30)}
-                      disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.lite}
-                    >
-                      Nâng Lite 30 ngày
-                    </button>
-                    <button
-                      className={`btn-grant pro ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.pro ? "disabled" : ""}`}
-                      onClick={() => handleGrantPremium(detailUser, "pro", 30)}
-                      disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.pro}
-                    >
-                      Nâng Pro 30 ngày
-                    </button>
-                    <button
-                      className={`btn-grant max ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.max ? "disabled" : ""}`}
-                      onClick={() => handleGrantPremium(detailUser, "max", 30)}
-                      disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.max}
-                    >
-                      Nâng Max 30 ngày
-                    </button>
-                    <button
-                      className={`btn-revoke ${(detailUser.premiumLevel === "free" || !detailUser.premiumLevel) ? "disabled" : ""}`}
-                      onClick={() => handleRevokePremium(detailUser)}
-                      disabled={detailUser.premiumLevel === "free" || !detailUser.premiumLevel}
-                    >
-                      Thu hồi Premium
-                    </button>
-                  </div>
-                )}
+              {ROLE_VALUE[currentUser.role] > ROLE_VALUE[detailUser.role || "user"] && (
+                <div className="premium-actions">
+                  <button
+                    className={`btn-grant lite ${(detailUser.premiumLevel !== "lite" && TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.lite) ? "disabled" : ""}`}
+                    onClick={() => handleGrantPremium(detailUser, "lite", 30)}
+                    disabled={detailUser.premiumLevel !== "lite" && TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.lite}
+                  >
+                    {detailUser.premiumLevel === "lite" ? "Gia hạn Lite 30 ngày" : "Nâng Lite 30 ngày"}
+                  </button>
+                  <button
+                    className={`btn-grant pro ${(detailUser.premiumLevel !== "pro" && TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.pro) ? "disabled" : ""}`}
+                    onClick={() => handleGrantPremium(detailUser, "pro", 30)}
+                    disabled={detailUser.premiumLevel !== "pro" && TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.pro}
+                  >
+                    {detailUser.premiumLevel === "pro" ? "Gia hạn Pro 30 ngày" : "Nâng Pro 30 ngày"}
+                  </button>
+                  <button
+                    className={`btn-grant max ${(detailUser.premiumLevel !== "max" && TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.max) ? "disabled" : ""}`}
+                    onClick={() => handleGrantPremium(detailUser, "max", 30)}
+                    disabled={detailUser.premiumLevel !== "max" && TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.max}
+                  >
+                    {detailUser.premiumLevel === "max" ? "Gia hạn Max 30 ngày" : "Nâng Max 30 ngày"}
+                  </button>
+                  <button
+                    className={`btn-revoke ${(detailUser.premiumLevel === "free" || !detailUser.premiumLevel) ? "disabled" : ""}`}
+                    onClick={() => handleRevokePremium(detailUser)}
+                    disabled={detailUser.premiumLevel === "free" || !detailUser.premiumLevel}
+                  >
+                    Thu hồi Premium
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="detail-section detail-section--full">
@@ -624,7 +770,7 @@ export default function UsersManager() {
                         <span>Giới hạn: {formatBytes(limit)}</span>
                       </div>
                     </div>
-                    {currentUser.role === "admin" && (
+                    {ROLE_VALUE[currentUser.role] > ROLE_VALUE[detailUser.role || "user"] && (
                       <button className="btn-reset-quota" onClick={() => handleResetQuota(detailUser)}>
                         Reset Quota
                       </button>
@@ -641,7 +787,8 @@ export default function UsersManager() {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }
