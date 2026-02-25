@@ -23,6 +23,12 @@ import { BsLaptop, BsMoonStarsFill, BsSunFill } from "react-icons/bs";
 import { getUserDocIdByUid } from "../../../firebase/services";
 import LoadingScreen from '../../common/loadingScreen';
 
+const USER_ROLES = {
+  ADMIN: "admin",
+  MODERATOR: "moderator",
+  USER: "user"
+};
+
 const UserDetailStatus = ({ uid }) => {
   const status = useUserStatus(uid);
 
@@ -314,9 +320,9 @@ export default function UsersManager() {
       title: "Hành động", key: "actions", width: 160,
       render: (_, record) => {
         const banInfo = getBanInfo(record.uid);
-        const canAct = currentUser.role === "admin"
-          ? record.role !== "admin"
-          : currentUser.role === "moderator" && record.role === "user";
+        const canAct = currentUser.role === USER_ROLES.ADMIN
+          ? record.role !== USER_ROLES.ADMIN
+          : currentUser.role === USER_ROLES.MODERATOR && record.role === USER_ROLES.USER;
         return (
           <div className="action-btns">
             <button className="btn-detail" onClick={() => { setDetailUser(record); setIsDetailModalVisible(true); }}>
@@ -562,38 +568,39 @@ export default function UsersManager() {
                   </span>
                 </div>
               </div>
-              {currentUser.role === "admin" && (
-                <div className="premium-actions">
-                  <button
-                    className={`btn-grant lite ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.lite ? "disabled" : ""}`}
-                    onClick={() => handleGrantPremium(detailUser, "lite", 30)}
-                    disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.lite}
-                  >
-                    Nâng Lite 30 ngày
-                  </button>
-                  <button
-                    className={`btn-grant pro ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.pro ? "disabled" : ""}`}
-                    onClick={() => handleGrantPremium(detailUser, "pro", 30)}
-                    disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.pro}
-                  >
-                    Nâng Pro 30 ngày
-                  </button>
-                  <button
-                    className={`btn-grant max ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.max ? "disabled" : ""}`}
-                    onClick={() => handleGrantPremium(detailUser, "max", 30)}
-                    disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.max}
-                  >
-                    Nâng Max 30 ngày
-                  </button>
-                  <button
-                    className={`btn-revoke ${(detailUser.premiumLevel === "free" || !detailUser.premiumLevel) ? "disabled" : ""}`}
-                    onClick={() => handleRevokePremium(detailUser)}
-                    disabled={detailUser.premiumLevel === "free" || !detailUser.premiumLevel}
-                  >
-                    Thu hồi Premium
-                  </button>
-                </div>
-              )}
+              {((currentUser.role === USER_ROLES.ADMIN) ||
+                (currentUser.role === USER_ROLES.MODERATOR && detailUser.role !== USER_ROLES.ADMIN)) && (
+                  <div className="premium-actions">
+                    <button
+                      className={`btn-grant lite ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.lite ? "disabled" : ""}`}
+                      onClick={() => handleGrantPremium(detailUser, "lite", 30)}
+                      disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.lite}
+                    >
+                      Nâng Lite 30 ngày
+                    </button>
+                    <button
+                      className={`btn-grant pro ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.pro ? "disabled" : ""}`}
+                      onClick={() => handleGrantPremium(detailUser, "pro", 30)}
+                      disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.pro}
+                    >
+                      Nâng Pro 30 ngày
+                    </button>
+                    <button
+                      className={`btn-grant max ${TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.max ? "disabled" : ""}`}
+                      onClick={() => handleGrantPremium(detailUser, "max", 30)}
+                      disabled={TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.max}
+                    >
+                      Nâng Max 30 ngày
+                    </button>
+                    <button
+                      className={`btn-revoke ${(detailUser.premiumLevel === "free" || !detailUser.premiumLevel) ? "disabled" : ""}`}
+                      onClick={() => handleRevokePremium(detailUser)}
+                      disabled={detailUser.premiumLevel === "free" || !detailUser.premiumLevel}
+                    >
+                      Thu hồi Premium
+                    </button>
+                  </div>
+                )}
             </div>
 
             <div className="detail-section detail-section--full">
