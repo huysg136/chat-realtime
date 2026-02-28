@@ -715,7 +715,7 @@ export default function UsersManager() {
                   </span>
                 </div>
               </div>
-              {ROLE_VALUE[currentUser.role] > ROLE_VALUE[detailUser.role || "user"] && (
+              {ROLE_VALUE[currentUser.role] >= ROLE_VALUE[detailUser.role || "user"] && (
                 <div className="premium-actions">
                   <button
                     className={`btn-grant lite ${(detailUser.premiumLevel !== "lite" && TIER_VALUE[detailUser.premiumLevel || "free"] >= TIER_VALUE.lite) ? "disabled" : ""}`}
