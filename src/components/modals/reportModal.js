@@ -94,14 +94,12 @@ function normalizeModeration(result, messageLength) {
 }
 
 function buildModerationPrompt({ messageText, reasonLabel, details, messageKind }) {
-  // ⭐ Detect media type from prefix
   const isMediaMessage = messageText.startsWith("[Hình ảnh") ||
     messageText.startsWith("[Video") ||
     messageText.startsWith("[Tệp đính kèm") ||
     messageText.startsWith("[Tin nhắn thoại");
   const hasTranscript = messageText.includes("Transcript]:");
 
-  // ⭐ Thêm cảnh báo nếu tin nhắn ngắn (chỉ với text thường)
   let lengthWarning = "";
   if (!isMediaMessage && messageText.length < 10) {
     lengthWarning = `
@@ -114,7 +112,6 @@ function buildModerationPrompt({ messageText, reasonLabel, details, messageKind 
 `;
   }
 
-  // ⭐ Media context for AI
   let mediaContext = "";
   if (isMediaMessage) {
     mediaContext = `
@@ -189,12 +186,9 @@ function getMessageText(message) {
   const rawText = (message?.text || message?.decryptedText || "").toString();
   const transcript = message?.transcript || "";
 
-  // Voice message: use transcript for AI analysis
   if (kind === "audio" && transcript) {
     return `[Tin nhắn thoại - Transcript]: ${transcript}`;
   }
-
-  // Media types: prefix with type for AI context
   if (kind === "picture") {
     return `[Hình ảnh - Link]: ${rawText}`;
   }
@@ -281,8 +275,6 @@ async function getExistingReports(messageId) {
   }
 }
 
-// ==================== MAIN COMPONENT ====================
-
 export default function ReportModal({ visible, onClose, message, currentUser }) {
   const { t } = useTranslation();
   const [reason, setReason] = useState("");
@@ -348,11 +340,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
 
     try {
       setSubmitting(true);
-
-      // 1. Get message text
       const messageText = getMessageText(message);
-
-      // 2. Check existing reports
       const existingReports = await getExistingReports(message.id);
       const reportCount = existingReports.length + 1;
 
@@ -366,7 +354,6 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         return;
       }
 
-      // 3. AI Analysis
       const prompt = buildModerationPrompt({
         messageText,
         reasonLabel: reasonData?.label || "",
@@ -382,13 +369,11 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
           category: "other",
           explanation: t('report.aiResultManual'),
         },
-        messageText.length // ⭐ Pass message length for validation
+        messageText.length
       );
 
-      // 4. Determine status (SIMPLE)
       let status = "pending"; 
 
-      // Auto-resolution fields
       let resolved = false;
       let action = null;
       let actionNotes = null;
@@ -397,7 +382,6 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
       let reviewedAt = null;
 
       if (moderationResult.category === "safe") {
-        // ⭐ AUTO-REJECT: Nếu AI xác định an toàn -> Tự động từ chối
         status = "resolved";
         resolved = true;
         action = "reject";
@@ -406,59 +390,46 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         reviewedByName = "AI System";
         reviewedAt = new Date();
       }
-      // else if (moderationResult.confidence < 0.5) {
-      //   status = "low_priority"; // REMOVED: Simplify statuses
-      // }
 
-      // 5. Create report document (SIMPLE)
       const reportData = {
-        // Message Info
         messageId: message?.id || "",
         messageText,
-        messageRawText: message?.text || message?.decryptedText || "", // Original link/text
-        messageTranscript: message?.transcript || "", // Voice transcript if any
+        messageRawText: message?.text || message?.decryptedText || "", 
+        messageTranscript: message?.transcript || "", 
         messageUid: message?.uid,
         messageDisplayName: message?.displayName || "",
         messageKind: message?.kind || "text",
         roomId: message?.roomId || "",
 
-        // Reporter Info
         reportedBy: currentUser?.uid,
         reportedByName: currentUser?.displayName || "",
         reportedByEmail: currentUser?.email || "",
 
-        // Report Details
         userReportCategory: reason,
         userReportCategoryLabel: reasonData?.label || "",
         userReportDetails: details || "",
 
-        // AI Analysis (SIMPLE)
         aiCategory: moderationResult.category,
         aiConfidence: moderationResult.confidence,
         aiExplanation: moderationResult.explanation,
 
-        // Status (SIMPLE)
-        status, // pending, resolved
+        status,
         reportCount,
 
-        // Resolution Info (if auto-resolved)
         resolved,
-        videoResolved: resolved, // sync
+        videoResolved: resolved, 
         action,
         actionNotes,
         reviewedBy,
         reviewedByName,
         reviewedAt,
 
-        // Timestamps
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      // 6. Add to Firestore
       await addDocument("reports", reportData);
 
-      // 7. Update existing report if any
       if (existingReports.length > 0 && existingReports[0]?.id) {
         await updateDocument("reports", existingReports[0].id, {
           reportCount,
@@ -466,7 +437,6 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         });
       }
 
-      // 8. Send Email if Auto-Resolved
       if (resolved) {
         try {
           fetch(`${API_BASE_URL}/api/reports/notify`, {
@@ -487,10 +457,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         } catch (e) {
         }
       }
-
-      // 9. Show toast
       toast.success(t('report.success'));
-
       resetForm();
       onClose?.();
     } catch (err) {
@@ -523,15 +490,12 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
     >
       <div className="report-scrollable">
         <div className="report-content">
-          {/* Message Preview */}
           <div className="message-preview">
             <div className="preview-label">
               {t('report.messageFrom')} <span className="sender-name">{senderName}</span>
             </div>
             <div className="preview-box">{renderMessagePreview(message, t)}</div>
           </div>
-
-          {/* Reason Selection */}
           <div className="reason-section">
             <div className="section-label">
               {t('report.reasonLabel')} <span className="required">*</span>
@@ -558,7 +522,6 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
             </Radio.Group>
           </div>
 
-          {/* Additional Details */}
           <div className="details-section">
             <div className="section-label">{t('report.detailsLabel')}</div>
             <TextArea
@@ -575,7 +538,6 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         </div>
       </div>
 
-      {/* Footer */}
       <div className="report-footer">
         <Button onClick={handleCancel} disabled={submitting} className="cancel-button">
           {t('report.btnCancel')}
