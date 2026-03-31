@@ -35,7 +35,7 @@ Quik combines a seamless chat interface with robust backend services.
 ### Frontend
 -   **Core**: ReactJS (v18)
 -   **UI**: Ant Design, SCSS
--   **State**: Redux / Context API
+-   **State**: Context API
 -   **i18n**: i18next (Internationalization)
 
 ### Backend & Cloud Services
@@ -73,11 +73,3 @@ src/
 ---
 
 🔗 **Backend Repository:** [**chat-realtime-api**](https://github.com/huysg136/chat-realtime-api)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please fork the repo and submit a PR.
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
