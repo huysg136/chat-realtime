@@ -47,6 +47,31 @@ Quik combines a seamless chat interface with robust backend services.
 -   **Database**: Firebase Firestore, Realtime Database
 -   **Email**: Resend
 
+---
+
+## 📂 Project Structure
+
+```bash
+src/
+├── components/       # UI Components
+│   ├── admin/        # Dashboard, User, Room, and Report management
+│   ├── user/         # ChatWindow, ChatInput, and Message components
+│   ├── common/       # Shared elements (Loading, NoAccess, Layouts)
+│   └── modals/       # All interactive overlays (Profile, Settings, AI)
+├── configs/          # Route constants & general app configuration
+├── context/          # State management (Auth & App Providers)
+├── firebase/         # Firestore config and shared CRUD services
+├── hooks/            # Custom hooks (VideoCall, Firestore, Presence)
+├── i18n/             # Internationalization config (VI, EN)
+├── pages/            # Page-level components & layouts
+├── routes/           # Routing logic and PrivateRoute guards
+├── stringee/         # Direct SDK integration for Video/Voice calls
+├── style/            # Global SCSS, themes, and design tokens
+└── utils/            # Utility functions (AI, Encryption, Upload helpers)
+```
+
+---
+
 🔗 **Backend Repository:** [**chat-realtime-api**](https://github.com/huysg136/chat-realtime-api)
 
 ## 🤝 Contributing
