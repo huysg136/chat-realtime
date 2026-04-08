@@ -23,7 +23,7 @@ export default function PrivateRoute({
     return <Navigate to={ROUTERS.USER.LOGIN} replace />;
   }
 
-  // Check admin/moderator BEFORE rendering children
+  // Check admin/moderator before rendering children
   const isAdminOrMod = ["admin", "moderator"].includes(user.role);
 
   if (requireAdmin && !isAdminOrMod) {
