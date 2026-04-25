@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useMemo } from "react";
-import { Avatar, Dropdown, Menu } from "antd";
+import { Avatar, Dropdown, Menu, Skeleton } from "antd";
 import { TeamOutlined, EllipsisOutlined, PushpinOutlined, DeleteOutlined } from "@ant-design/icons";
 import { AuthContext } from "../../../../context/authProvider";
 import CircularAvatarGroup from "../../../common/circularAvatarGroup";
@@ -152,6 +152,14 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
       onClick: handleDelete,
     }
   ];
+
+  if (users.length === 0) {
+    return (
+      <div className="room-item">
+        <Skeleton avatar active paragraph={{ rows: 1, width: ['100%'] }} title={{ width: '50%' }} />
+      </div>
+    );
+  }
 
   return (
     <div

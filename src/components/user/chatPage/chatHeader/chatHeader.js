@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Button, Avatar } from "antd";
+import { Button, Avatar, Skeleton } from "antd";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { InfoCircleOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import CircularAvatarGroup from "../../../common/circularAvatarGroup";
@@ -40,6 +40,16 @@ export default function ChatHeader({ onToggleDetail, banInfo }) {
     const currentUserRole = rolesArray.find((r) => String(r.uid).trim() === String(uid).trim())?.role || "member";
     const isOwner = currentUserRole === "owner";
     const isCoOwner = currentUserRole === "co-owner";
+
+    if (users.length === 0) {
+        return (
+            <header className="chat-window__header">
+                <div style={{ display: 'flex', alignItems: 'center', width: '100%', padding: '0 20px', paddingTop: '10px' }}>
+                    <Skeleton avatar active paragraph={{ rows: 0 }} title={{ width: '150px' }} />
+                </div>
+            </header>
+        );
+    }
 
     if (!selectedRoom) return null;
 
