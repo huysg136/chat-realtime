@@ -1,11 +1,18 @@
 import React from "react";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/config";
+import { AuthContext } from "../context/authProvider";
 
 export const useFirestore = (collectionName, condition) => {
   const [documents, setDocuments] = React.useState([]);
+  const { user } = React.useContext(AuthContext);
 
   React.useEffect(() => {
+    if (!user?.uid) {
+      setDocuments([]);
+      return;
+    }
+
     let collectionRef = collection(db, collectionName);
 
     let q = query(collectionRef, orderBy("createdAt", "desc"));
@@ -34,7 +41,7 @@ export const useFirestore = (collectionName, condition) => {
     });
 
     return () => unsubscribe();
-  }, [collectionName, condition]);
+  }, [collectionName, condition, user?.uid]);
 
   return documents;
 };
