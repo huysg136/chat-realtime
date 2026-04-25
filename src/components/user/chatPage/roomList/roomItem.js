@@ -29,8 +29,8 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
     .map((uid) => users.find((u) => String(u.uid).trim() === String(uid).trim()))
     .filter(Boolean);
 
-  const isPrivate = room.type === "private" && membersData.length === 2;
-  const isGroup = !isPrivate && (room.type === "group" || membersData.length > 1);
+  const isPrivate = room.type === "private" || (room.type !== "group" && memberUids.length === 2);
+  const isGroup = room.type === "group" || (!isPrivate && memberUids.length > 2);
 
   const otherUser = isPrivate ? membersData.find((u) => u.uid !== user?.uid) : null;
   const otherUserStatus = useUserStatus(otherUser?.uid);
@@ -164,12 +164,12 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
         {isPrivate ? (
           <div style={{ position: "relative", display: "inline-block" }}>
             <Avatar
-              src={membersData.find((u) => u.uid !== user?.uid)?.photoURL}
+              src={otherUser?.photoURL}
               size={40}
             >
-              {(membersData.find((u) => u.uid !== user?.uid)?.displayName || "?").charAt(0).toUpperCase()}
+              {(otherUser?.displayName || "?").charAt(0).toUpperCase()}
             </Avatar>
-            {isPrivate && otherUserStatus?.isOnline && otherUser?.showOnlineStatus && user?.showOnlineStatus && (
+            {otherUserStatus?.isOnline && otherUser?.showOnlineStatus && user?.showOnlineStatus && (
               <span
                 style={{
                   position: "absolute",
@@ -198,7 +198,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
           {isGroup && <TeamOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />}
           {isPrivate ? (
             <span>
-              <UserBadge displayName={membersData.find((u) => u.uid !== user?.uid)?.displayName || "No Name"} role={otherUser.role} premiumLevel={otherUser.premiumLevel} premiumUntil={otherUser.premiumUntil} />
+              <UserBadge displayName={otherUser?.displayName || "..."} role={otherUser?.role} premiumLevel={otherUser?.premiumLevel} premiumUntil={otherUser?.premiumUntil} />
             </span>
           ) : (
             room.name || "No Name"
