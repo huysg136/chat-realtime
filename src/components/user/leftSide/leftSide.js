@@ -48,7 +48,7 @@ export default function LeftSide() {
       // Only reset to "message" if we are NOT currently on the friends tab
       setActive((prev) => (prev === "friends" ? "friends" : "message"));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
   useEffect(() => {
@@ -198,7 +198,11 @@ export default function LeftSide() {
             setActive("friends");
             setIsActiveTab("friends");
             // Navigate to chat page so SideBar (which contains FriendPanel) is rendered
-            navigate(ROUTERS.USER.HOME);
+            if (roomId) {
+              navigate(ROUTERS.USER.DIRECT.replace(":roomId", roomId));
+            } else {
+              navigate(ROUTERS.USER.HOME);
+            }
           }}
           title={t('friends.modalTitle')}
         >
