@@ -33,6 +33,7 @@ export default function AppProvider({ children }) {
     if (!user?.uid) {
       setSearchText("");
       setSelectedRoomId("");
+      setIsActiveTab("message");
     }
   }, [user?.uid]);
 

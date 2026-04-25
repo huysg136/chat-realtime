@@ -17,9 +17,6 @@ import { useTranslation } from "react-i18next";
 import { FaMoneyBillWave } from "react-icons/fa";
 import { FaRegUser } from "react-icons/fa6";
 import { HiUserGroup, HiOutlineUserGroup } from "react-icons/hi2";
-import { checkMaxUser } from "../../../utils/checkMax";
-import { checkProUser } from "../../../utils/checkPro";
-import { checkLiteUser } from "../../../utils/checkLite";
 import { useFriends } from "../../../hooks/useFriends";
 
 
