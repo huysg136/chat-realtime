@@ -16,9 +16,11 @@ import { ROUTERS } from "../../../configs/router";
 import { useTranslation } from "react-i18next";
 import { FaMoneyBillWave } from "react-icons/fa";
 import { FaRegUser } from "react-icons/fa6";
+import { HiUserGroup, HiOutlineUserGroup } from "react-icons/hi2";
 import { checkMaxUser } from "../../../utils/checkMax";
 import { checkProUser } from "../../../utils/checkPro";
 import { checkLiteUser } from "../../../utils/checkLite";
+import { useFriends } from "../../../hooks/useFriends";
 
 
 
@@ -30,19 +32,23 @@ export default function LeftSide() {
   const [active, setActive] = useState("message");
   const [role, setRole] = useState("");
   const { user, logout } = useContext(AuthContext);
-  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible, selectedRoomId: roomId } = useContext(AppContext);
+  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible, selectedRoomId: roomId, isActiveTab, setIsActiveTab } = useContext(AppContext);
   const displayName = user?.displayName;
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
   const userStatus = useUserStatus(user?.uid);
   const { t } = useTranslation();
+  const { receivedRequests } = useFriends();
 
   useEffect(() => {
     if (location.pathname === ROUTERS.USER.EXPLORE) {
       setActive("explore");
-    } else if (location.pathname === ROUTERS.USER.HOME) {
-      setActive("message");
+      setIsActiveTab("explore");
+    } else if (location.pathname === ROUTERS.USER.HOME || location.pathname.startsWith("/t/")) {
+      // Only reset to "message" if we are NOT currently on the friends tab
+      setActive((prev) => (prev === "friends" ? "friends" : "message"));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
   useEffect(() => {
@@ -174,18 +180,34 @@ export default function LeftSide() {
       <div className="icon-group top">
         <div
           className={`icon-item ${active === "message" ? "active" : ""}`}
-          onClick={() =>
-            <>
-              {setActive("message")}
-              {
-                roomId ? 
-                navigate(ROUTERS.USER.DIRECT.replace(":roomId", roomId)) :
-                navigate(ROUTERS.USER.HOME)
-              }
-            </>
-          }
+          onClick={() => {
+            setActive("message");
+            setIsActiveTab("message");
+            if (roomId) {
+              navigate(ROUTERS.USER.DIRECT.replace(":roomId", roomId));
+            } else {
+              navigate(ROUTERS.USER.HOME);
+            }
+          }}
         >
           {active === "message" ? <AiFillMessage /> : <AiOutlineMessage />}
+        </div>
+        <div
+          className={`icon-item ${active === "friends" ? "active" : ""}`}
+          onClick={() => {
+            setActive("friends");
+            setIsActiveTab("friends");
+            // Navigate to chat page so SideBar (which contains FriendPanel) is rendered
+            navigate(ROUTERS.USER.HOME);
+          }}
+          title={t('friends.modalTitle')}
+        >
+          {active === "friends" ? <HiUserGroup /> : <HiOutlineUserGroup />}
+          {receivedRequests.length > 0 && (
+            <span className="nav-badge">
+              {receivedRequests.length > 9 ? "9+" : receivedRequests.length}
+            </span>
+          )}
         </div>
         <div
           className={`icon-item ${active === "explore" ? "active" : ""}`}

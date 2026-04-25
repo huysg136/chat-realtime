@@ -21,6 +21,7 @@ export default function AppProvider({ children }) {
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(false);
   const [isUpgradePlanVisible, setIsUpgradePlanVisible] = useState(false);
+  const [isFriendsVisible, setIsFriendsVisible] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
   const [ isActiveTab, setIsActiveTab ] = useState("message");
 
@@ -174,7 +175,8 @@ export default function AppProvider({ children }) {
         isSettingsVisible, setIsSettingsVisible,
         isMyReportsVisible, setIsMyReportsVisible,
         isPendingInviteVisible, setIsPendingInviteVisible,
-        isUpgradePlanVisible,setIsUpgradePlanVisible,
+        isUpgradePlanVisible, setIsUpgradePlanVisible,
+        isFriendsVisible, setIsFriendsVisible,
         isActiveTab, setIsActiveTab,
         searchText,
         setSearchText,

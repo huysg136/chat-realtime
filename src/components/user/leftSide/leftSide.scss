@@ -12,8 +12,8 @@
   box-sizing: border-box;
   border-right: 2px solid rgba(0, 0, 0, 0.1);
   transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   .user-avatar {
     margin-bottom: 10px;
@@ -43,6 +43,7 @@
     }
 
     .icon-item {
+      position: relative;
       font-size: 26px;
       color: #606060;
       cursor: pointer;
@@ -63,6 +64,22 @@
       svg {
         display: block;
       }
+
+      .nav-badge {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        height: 16px;
+        padding: 0 4px;
+        border-radius: 8px;
+        background: #ff4d4f;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 16px;
+        text-align: center;
+        pointer-events: none;
+      }
     }
   }
 }
@@ -71,7 +88,7 @@
   font-weight: 500 !important;
   transition: all 0.3s ease !important;
   background: linear-gradient(135deg, #feffe5 0%, #ffffff 100%) !important;
-  color: #eac700 !important; 
+  color: #eac700 !important;
 
   &:hover {
     background: linear-gradient(135deg, #feffe5 0%, #feffe5 100%) !important;
@@ -112,7 +129,7 @@ body.theme-dark {
 
   .upgrade-pro-item {
     background: linear-gradient(135deg, rgba(209, 187, 46, 0.2) 0%, rgba(35, 35, 30, 0.5) 100%) !important;
-    color: #FFD700 !important; 
+    color: #FFD700 !important;
 
     &:hover {
       background: rgba(209, 201, 46, 0.3) !important;

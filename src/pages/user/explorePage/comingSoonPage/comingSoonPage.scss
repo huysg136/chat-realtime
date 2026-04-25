@@ -1,3 +1,6 @@
+@use "sass:map";
+@import "../../../../style/theme";
+
 .home-page-container {
   display: flex;
   flex-direction: column;
@@ -156,7 +159,7 @@
 // Dark Mode Support
 body.theme-dark {
   .home-page-container {
-    background: radial-gradient(circle at 20% 30%, #1e293b, #0d1117);
+    background-color: map.get($theme-colors, "bg-dark");
 
     .coming-soon-content {
       .icon-wrapper .no-access-icon {
