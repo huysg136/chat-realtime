@@ -14,7 +14,7 @@ As **Quik** is currently in the **Work In Progress (WIP)** stage, we prioritize 
 We take the security of Quik seriously. If you discover a security vulnerability, please help us fix it by following these steps:
 
 1. **Do Not Open a Public Issue:** To prevent exploitation of the vulnerability, please do not report security bugs through GitHub Issues.
-2. **Contact Us:** Send a detailed report to our team at **support@quik.id.vn**.
+2. **Contact Us:** Send a detailed report to our team at **no-reply@quik.id.vn**.
 3. **What to Include:**
    - A description of the vulnerability.
    - Step-by-step instructions to reproduce the issue.

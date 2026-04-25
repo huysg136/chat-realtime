@@ -24,7 +24,7 @@ Quik combines a seamless chat interface with robust backend services.
 ### 🛡️ Admin Dashboard
 *   **Dashboard Overview**: Real-time system statistics.
 *   **User & Room Management**: Full control over accounts and chat groups.
-*   **Report System**: Automated content moderation with email notifications via **Resend** (support@quik.id.vn).
+*   **Report System**: Automated content moderation with email notifications via **Resend** (no-reply@quik.id.vn).
 *   **Announcements**: System-wide broadcast messaging.
 *   **Moderator Permissions**: Granular access control for staff.
 

@@ -133,7 +133,20 @@ export default function Login() {
           // trạng thái hệ thống
           isBanned: false,
         });
+
+        fetch(`${process.env.REACT_APP_API_BASE_URL}/api/users/new-user-notify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            displayName: user.displayName,
+            email: user.email,
+            uid: user.uid,
+            username: uniqueUsername,
+            photoURL: user.photoURL || "",
+          }),
+        }).catch(() => { });
       }
+
 
       const userDocId = await getUserDocIdByUid(user.uid);
       let role = "user";
