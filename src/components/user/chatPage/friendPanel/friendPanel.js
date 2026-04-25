@@ -5,6 +5,9 @@ import {
   SearchOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
+import { FaUserXmark } from "react-icons/fa6";
+import { FaUserMinus, FaUserCheck } from "react-icons/fa";
+import { MdCancelScheduleSend } from "react-icons/md";
 import debounce from "lodash/debounce";
 import { AppContext } from "../../../../context/appProvider";
 import { AuthContext } from "../../../../context/authProvider";
@@ -32,14 +35,11 @@ import { useTranslation } from "react-i18next";
 import UserBadge from "../../../common/userBadge";
 import FriendButton from "../../../common/friendButton";
 import "./friendPanel.scss";
-import "../../../common/friendButton.scss";
 
-// Hook detect body.theme-dark
 function useIsDarkMode() {
   const [isDark, setIsDark] = useState(() =>
     document.body.classList.contains("theme-dark")
   );
-
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setIsDark(document.body.classList.contains("theme-dark"));
@@ -47,7 +47,6 @@ function useIsDarkMode() {
     observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
     return () => observer.disconnect();
   }, []);
-
   return isDark;
 }
 
@@ -196,9 +195,12 @@ export default function FriendPanel() {
     navigate(ROUTERS.USER.DIRECT.replace(":roomId", roomId));
   };
 
-  // ── Sub-components ─────────────────────────────────────────────────────
+  // ── Tab content — inline JSX, KHÔNG dùng sub-component ────────────────
+  // Lý do: define const FriendsTab = () => ... bên trong render
+  // → mỗi re-render tạo ra function type mới
+  // → React unmount/remount toàn bộ subtree → input mất focus khi gõ
 
-  const FriendsTab = () => (
+  const friendsTabContent = (
     <>
       <Input
         className="fp-search"
@@ -234,18 +236,14 @@ export default function FriendPanel() {
                 {u?.username && <span className="fp-username">@{u.username}</span>}
               </div>
               <div className="fp-actions">
-                <Button size="small" className="fb-sent" icon={<MessageOutlined />} onClick={() => handleMessage(f.uid)}>
-                  {t("friends.message")}
-                </Button>
+                <Button size="small" className="fb-sent" icon={<MessageOutlined />} onClick={() => handleMessage(f.uid)} />
                 <Popconfirm
                   title={t("friends.unfriendConfirm")}
                   onConfirm={() => handleUnfriend(f)}
                   okText={t("friends.yes")}
                   cancelText={t("friends.no")}
                 >
-                  <Button size="small" className="fb-reject" loading={!!actionLoading[f.docId]}>
-                    {t("friends.unfriend")}
-                  </Button>
+                  <Button size="small" className="fb-reject" icon={<FaUserMinus />} loading={!!actionLoading[f.docId]} />
                 </Popconfirm>
               </div>
             </div>
@@ -255,84 +253,64 @@ export default function FriendPanel() {
     </>
   );
 
-  const ReceivedTab = () => (
-    loading ? (
-      <div className="fp-center"><Spin /></div>
-    ) : receivedRequests.length === 0 ? (
-      <Empty description={t("friends.noReceived")} image={Empty.PRESENTED_IMAGE_SIMPLE} className="fp-empty" />
-    ) : (
-      receivedRequests.map((req) => {
-        const u = resolveUser(req.fromUid);
-        return (
-          <div className="fp-item" key={req.id}>
-            <Avatar src={u?.photoURL} size={40}>
-              {(u?.displayName || "?").charAt(0).toUpperCase()}
-            </Avatar>
-            <div className="fp-info">
-              <UserBadge
-                displayName={u?.displayName || req.fromUid}
-                role={u?.role}
-                premiumLevel={u?.premiumLevel}
-                premiumUntil={u?.premiumUntil}
-              />
-              {u?.username && <span className="fp-username">@{u.username}</span>}
-            </div>
-            <div className="fp-actions fp-actions--col">
-              <Button
-                size="small"
-                className="fb-accept"
-                loading={!!actionLoading[req.id]}
-                onClick={() => handleAccept(req)}
-              >
-                {t("friends.accept")}
-              </Button>
-              <Button
-                size="small"
-                className="fb-reject"
-                loading={!!actionLoading[req.id + "_r"]}
-                onClick={() => handleReject(req)}
-              >
-                {t("friends.reject")}
-              </Button>
-            </div>
+  const receivedTabContent = loading ? (
+    <div className="fp-center"><Spin /></div>
+  ) : receivedRequests.length === 0 ? (
+    <Empty description={t("friends.noReceived")} image={Empty.PRESENTED_IMAGE_SIMPLE} className="fp-empty" />
+  ) : (
+    receivedRequests.map((req) => {
+      const u = resolveUser(req.fromUid);
+      return (
+        <div className="fp-item" key={req.id}>
+          <Avatar src={u?.photoURL} size={40}>
+            {(u?.displayName || "?").charAt(0).toUpperCase()}
+          </Avatar>
+          <div className="fp-info">
+            <UserBadge
+              displayName={u?.displayName || req.fromUid}
+              role={u?.role}
+              premiumLevel={u?.premiumLevel}
+              premiumUntil={u?.premiumUntil}
+            />
+            {u?.username && <span className="fp-username">@{u.username}</span>}
           </div>
-        );
-      })
-    )
+          <div className="fp-actions">
+            <Button size="small" className="fb-accept" loading={!!actionLoading[req.id]} icon={<FaUserCheck />} onClick={() => handleAccept(req)} />
+            <Button size="small" className="fb-reject" loading={!!actionLoading[req.id + "_r"]} icon={<FaUserXmark />} onClick={() => handleReject(req)} />
+          </div>
+        </div>
+      );
+    })
   );
 
-  const SentTab = () => (
-    loading ? (
-      <div className="fp-center"><Spin /></div>
-    ) : sentRequests.length === 0 ? (
-      <Empty description={t("friends.noSent")} image={Empty.PRESENTED_IMAGE_SIMPLE} className="fp-empty" />
-    ) : (
-      sentRequests.map((req) => {
-        const u = resolveUser(req.toUid);
-        return (
-          <div className="fp-item" key={req.id}>
-            <Avatar src={u?.photoURL} size={40}>
-              {(u?.displayName || "?").charAt(0).toUpperCase()}
-            </Avatar>
-            <div className="fp-info">
-              <UserBadge
-                displayName={u?.displayName || req.toUid}
-                role={u?.role}
-                premiumLevel={u?.premiumLevel}
-                premiumUntil={u?.premiumUntil}
-              />
-              {u?.username && <span className="fp-username">@{u.username}</span>}
-              <span className="fp-hint">{t("friends.waitingAccept")}</span>
-            </div>
-            <div className="fp-actions">
-              <Button size="small" className="fb-sent" loading={!!actionLoading[req.id]} onClick={() => handleCancelSent(req)}>
-                {t("friends.cancel")}
-              </Button>
-            </div>
+  const sentTabContent = loading ? (
+    <div className="fp-center"><Spin /></div>
+  ) : sentRequests.length === 0 ? (
+    <Empty description={t("friends.noSent")} image={Empty.PRESENTED_IMAGE_SIMPLE} className="fp-empty" />
+  ) : (
+    sentRequests.map((req) => {
+      const u = resolveUser(req.toUid);
+      return (
+        <div className="fp-item" key={req.id}>
+          <Avatar src={u?.photoURL} size={40}>
+            {(u?.displayName || "?").charAt(0).toUpperCase()}
+          </Avatar>
+          <div className="fp-info">
+            <UserBadge
+              displayName={u?.displayName || req.toUid}
+              role={u?.role}
+              premiumLevel={u?.premiumLevel}
+              premiumUntil={u?.premiumUntil}
+            />
+            {u?.username && <span className="fp-username">@{u.username}</span>}
+            <span className="fp-hint">{t("friends.waitingAccept")}</span>
           </div>
-        );
-      })
-    )
+          <div className="fp-actions">
+            <Button size="small" className="fb-reject" icon={<MdCancelScheduleSend />} loading={!!actionLoading[req.id]} onClick={() => handleCancelSent(req)} />
+          </div>
+        </div>
+      );
+    })
   );
 
   const tabItems = [
@@ -344,7 +322,7 @@ export default function FriendPanel() {
           {friends.length > 0 && <span className="fp-tab-count">{friends.length}</span>}
         </span>
       ),
-      children: <FriendsTab />,
+      children: friendsTabContent,
     },
     {
       key: "received",
@@ -353,7 +331,7 @@ export default function FriendPanel() {
           <span>{t("friends.tabReceived")}</span>
         </Badge>
       ),
-      children: <ReceivedTab />,
+      children: receivedTabContent,
     },
     {
       key: "sent",
@@ -363,12 +341,11 @@ export default function FriendPanel() {
           {sentRequests.length > 0 && <span className="fp-tab-count">{sentRequests.length}</span>}
         </span>
       ),
-      children: <SentTab />,
+      children: sentTabContent,
     },
   ];
 
   return (
-    // ── Wrap toàn bộ với ConfigProvider để Ant Design tự render dark mode ──
     <ConfigProvider
       theme={{
         algorithm: isDark ? antTheme.darkAlgorithm : antTheme.defaultAlgorithm,
@@ -380,12 +357,10 @@ export default function FriendPanel() {
     >
       <div className="friend-panel">
 
-        {/* ── Header ──────────────────────────────────────────────────────── */}
         <div className="fp-header">
           <span className="fp-title">{t("friends.modalTitle")}</span>
         </div>
 
-        {/* ── Add Friend Search Section ────────────────────────────────────── */}
         <div className="fp-add-section">
           <div className="fp-add-label">
             <UserAddOutlined style={{ marginRight: 6 }} />
@@ -432,7 +407,6 @@ export default function FriendPanel() {
           )}
         </div>
 
-        {/* ── Tabs ──────────────────────────────────────────────────────────── */}
         <Tabs
           defaultActiveKey="friends"
           items={tabItems}
