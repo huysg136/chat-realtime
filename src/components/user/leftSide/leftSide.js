@@ -38,9 +38,9 @@ export default function LeftSide() {
   const { receivedRequests } = useFriends();
 
   useEffect(() => {
-    if (location.pathname === ROUTERS.USER.EXPLORE) {
-      setActive("explore");
-      setIsActiveTab("explore");
+    if (location.pathname === ROUTERS.USER.FEED) {
+      setActive("feed");
+      setIsActiveTab("feed");
     } else if (location.pathname === ROUTERS.USER.HOME || location.pathname.startsWith("/t/")) {
       // Only reset to "message" if we are NOT currently on the friends tab
       setActive((prev) => (prev === "friends" ? "friends" : "message"));
@@ -211,15 +211,15 @@ export default function LeftSide() {
           )}
         </div>
         <div
-          className={`icon-item ${active === "explore" ? "active" : ""}`}
+          className={`icon-item ${active === "feed" ? "active" : ""}`}
           onClick={() =>
             <>
-              {setActive("explore")}
-              {navigate(ROUTERS.USER.EXPLORE)}
+              {setActive("feed")}
+              {navigate(ROUTERS.USER.FEED)}
             </>
           }
         >
-          {active === "explore" ? <MdExplore /> : <MdOutlineExplore />}
+          {active === "feed" ? <MdExplore /> : <MdOutlineExplore />}
         </div>
       </div>
 

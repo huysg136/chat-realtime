@@ -4,7 +4,7 @@ export const ROUTERS = {
   USER: {
     HOME: "/",
     DIRECT: "/t/:roomId",
-    EXPLORE: "/explore",
+    FEED: "/feed",
     LOGIN: "/login",
     MAINTENANCE: "/maintenance",
   },
