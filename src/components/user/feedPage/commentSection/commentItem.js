@@ -1,9 +1,9 @@
 import React, { useState, useContext } from "react";
-import { Avatar, Tooltip } from "antd";
-import { HeartFilled, HeartOutlined } from "@ant-design/icons";
+import { Avatar, Tooltip, Modal } from "antd";
+import { HeartFilled, HeartOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, arrayRemove, writeBatch, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../../firebase/config";
 import { AuthContext } from "../../../../context/authProvider";
 import { AppContext } from "../../../../context/appProvider";
@@ -21,6 +21,8 @@ function toTimestamp(createdAt) {
     if (createdAt instanceof Date) return createdAt;
     return new Date(createdAt);
 }
+
+const { confirm } = Modal;
 
 export default function CommentItem({ comment, postId, repliesMap = {}, rootParentId = null }) {
     const { user } = useContext(AuthContext);
@@ -50,8 +52,48 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
         }
     };
 
-    const handleDelete = async () => {
-        await deleteDocument("comments", comment.id);
+    const handleDelete = () => {
+        confirm({
+            title: 'Xóa bình luận?',
+            icon: <ExclamationCircleOutlined />,
+            content: 'Bạn có chắc chắn muốn xóa bình luận này và toàn bộ các câu trả lời liên quan không? Hành động này không thể hoàn tác.',
+            okText: 'Xóa',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk: async () => {
+                try {
+                    const batch = writeBatch(db);
+                    
+                    // Xóa chính nó
+                    batch.delete(doc(db, "comments", comment.id));
+                    
+                    // Tìm tất cả comment trong bài viết này để lọc đệ quy
+                    const q = query(collection(db, "comments"), where("postId", "==", postId));
+                    const snapshot = await getDocs(q);
+                    const allComments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                    
+                    const descendantIds = [];
+                    const findDescendants = (parentId) => {
+                        allComments.forEach(c => {
+                            if (c.parentId === parentId) {
+                                descendantIds.push(c.id);
+                                findDescendants(c.id); // Đệ quy tìm tiếp
+                            }
+                        });
+                    };
+                    findDescendants(comment.id);
+                    
+                    // Thêm các comment con vào batch xóa
+                    descendantIds.forEach(id => {
+                        batch.delete(doc(db, "comments", id));
+                    });
+                    
+                    await batch.commit();
+                } catch (error) {
+                    console.error("Xóa comment thất bại:", error);
+                }
+            }
+        });
     };
 
     return (
