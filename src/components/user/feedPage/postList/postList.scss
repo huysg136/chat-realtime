@@ -1,0 +1,87 @@
+@use "sass:map";
+@import "../../../../style/theme";
+
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  &--loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 60px 20px;
+    color: #94a3b8;
+    font-size: 14px;
+
+    .anticon {
+      font-size: 32px;
+      color: #3b82f6;
+    }
+  }
+
+  &--empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: #94a3b8;
+    animation: fadeSlideIn 0.3s ease;
+
+    &-icon {
+      font-size: 52px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #374151;
+      margin: 0 0 6px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #94a3b8;
+      margin: 0;
+    }
+  }
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body.theme-dark {
+  .post-list {
+    &--loading {
+      color: #aab0c4;
+
+      .anticon {
+        color: #60a5fa;
+      }
+    }
+
+    &--empty {
+      h3 {
+        color: #cbd5e1;
+      }
+
+      p {
+        color: #aab0c4;
+      }
+    }
+  }
+}

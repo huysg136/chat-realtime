@@ -1,0 +1,288 @@
+@use "sass:map";
+@import "../../../../style/theme";
+
+// ─── Comment Input ────────────────────────────────────────────
+.comment-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+
+  &__avatar {
+    flex-shrink: 0;
+    border: 1.5px solid rgba(0, 0, 0, 0.07);
+  }
+
+  &__box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: #f4f6f8;
+    border-radius: 20px;
+    padding: 2px;
+    transition: background 0.2s;
+
+    &:focus-within {
+      background: #eef0f4;
+    }
+  }
+
+  &__field {
+    flex: 1;
+    font-size: 13.5px !important;
+    background: transparent !important;
+    color: #1a1a1a;
+
+    input {
+      background: transparent !important;
+      color: #1a1a1a !important;
+    }
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+
+  &__send-btn {
+    color: #3b82f6 !important;
+    font-size: 16px !important;
+    animation: fadeIn 0.15s ease;
+  }
+}
+
+// ─── Comment Section ─────────────────────────────────────────
+.comment-section {
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 12px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeSlideIn 0.2s ease;
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+// ─── Comment Item ─────────────────────────────────────────────
+.comment-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+
+  &__avatar {
+    flex-shrink: 0;
+    border: 1.5px solid rgba(0, 0, 0, 0.06);
+    margin-top: 2px;
+  }
+
+  &__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__bubble {
+    background: #f4f6f8;
+    border-radius: 14px;
+    padding: 8px 12px;
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  &__name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #1a1a1a;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  &__text {
+    font-size: 13.5px;
+    color: #374151;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 4px;
+  }
+
+  &__time {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  &__action-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0;
+    transition: color 0.15s;
+
+    .anticon {
+      font-size: 13px;
+    }
+
+    &:hover {
+      color: #1890ff;
+    }
+
+    &--liked {
+      color: #ef4444 !important;
+
+      &:hover {
+        color: #dc2626 !important;
+      }
+    }
+
+    &--delete {
+      &:hover {
+        color: #ef4444;
+      }
+    }
+  }
+
+  &__toggle-replies {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: #3b82f6;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: all 0.15s;
+
+    &:hover {
+      background: rgba(59, 130, 246, 0.08);
+    }
+  }
+
+  &__replies {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 12px;
+    border-left: 2px solid rgba(0, 0, 0, 0.06);
+    margin-top: 4px;
+    animation: fadeSlideIn 0.2s ease;
+  }
+}
+
+// ─── Animations ───────────────────────────────────────────────
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+// ─── Dark Mode ───────────────────────────────────────────────
+body.theme-dark {
+  .comment-input {
+    &__avatar {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &__box {
+      background: rgba(255, 255, 255, 0.06);
+
+      &:focus-within {
+        background: rgba(255, 255, 255, 0.09);
+      }
+    }
+
+    &__field {
+      color: #e2e8f0 !important;
+
+      input {
+        color: #e2e8f0 !important;
+      }
+    }
+
+    &__send-btn {
+      color: #60a5fa !important;
+    }
+  }
+
+  .comment-section {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .comment-item {
+    &__avatar {
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &__bubble {
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    &__name {
+      color: #e2e8f0;
+    }
+
+    &__text {
+      color: #cbd5e1;
+    }
+
+    &__time {
+      color: #92a0b3;
+    }
+
+    &__action-btn {
+      color: #b5c1cf;
+
+      &:hover {
+        color: #60a5fa;
+      }
+
+      &--liked {
+        color: #ef4444 !important;
+      }
+    }
+
+    &__toggle-replies {
+      color: #60a5fa;
+
+      &:hover {
+        background: rgba(96, 165, 250, 0.1);
+      }
+    }
+
+    &__replies {
+      border-left-color: rgba(255, 255, 255, 0.08);
+    }
+  }
+}

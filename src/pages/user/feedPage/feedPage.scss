@@ -1,0 +1,71 @@
+@use "sass:map";
+@import "../../../style/theme";
+
+.feed-page {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #f0f2f5;
+  padding: 24px 16px 40px;
+  box-sizing: border-box;
+  transition: background 0.3s ease;
+
+  &__inner {
+    max-width: 620px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2px;
+  }
+
+  &__title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  // Thin scrollbar
+  &::-webkit-scrollbar {
+    width: 8px !important;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 8px !important;
+  }
+}
+
+// ─── Dark Mode ───────────────────────────────────────────────
+body.theme-dark {
+  .feed-page {
+    background: #1a1a1a;
+
+    &__title {
+      color: #e2e8f0;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// ─── Responsive ──────────────────────────────────────────────
+@media (max-width: 768px) {
+  .feed-page {
+    padding: 16px 10px 32px;
+
+    &__title {
+      font-size: 18px;
+    }
+  }
+}

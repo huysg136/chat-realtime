@@ -1,0 +1,243 @@
+@use "sass:map";
+@import "../../../../style/theme";
+
+.like-list-modal {
+  .ant-modal-content {
+    border-radius: 20px;
+    overflow: hidden;
+    padding: 0;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  }
+
+  .ant-modal-header {
+    margin-bottom: 0;
+    padding: 22px 24px 18px;
+    background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+    border-bottom: 1px solid #edf2f7;
+  }
+
+  .ant-modal-title {
+    font-weight: 700;
+    font-size: 15px;
+    text-align: center;
+    color: #1a1a2e;
+    letter-spacing: -0.2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &::before {
+      font-size: 16px;
+    }
+  }
+
+  .ant-modal-close {
+    top: 18px;
+    inset-inline-end: 18px;
+
+    .ant-modal-close-x {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #64748b;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+      }
+    }
+  }
+
+  .ant-modal-body {
+    padding: 8px 0;
+    max-height: 420px;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
+      border-radius: 10px;
+    }
+  }
+
+  .ant-list-empty-text {
+    padding: 48px 32px;
+    color: #94a3b8;
+    font-size: 14px;
+  }
+
+  .like-list-item {
+    padding: 10px 20px;
+    border-bottom: 1px solid #f8fafc;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+    animation: slideIn 0.25s ease both;
+    cursor: pointer;
+
+    @for $i from 1 through 20 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.04}s;
+      }
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: #f8faff;
+
+      .like-item-avatar {
+        transform: scale(1.06);
+      }
+    }
+
+    &:active {
+      background-color: #eef4ff;
+    }
+
+    .ant-list-item-meta {
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ant-list-item-meta-avatar {
+      margin-inline-end: 0;
+    }
+
+    .ant-list-item-meta-content {
+      flex: 1;
+    }
+
+    .ant-list-item-meta-title {
+      margin-bottom: 0;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    &__name {
+      display: inline-flex;
+      align-items: center;
+    }
+  }
+}
+
+.like-item-avatar {
+  position: relative;
+  transition: transform 0.2s ease;
+
+  .ant-avatar {
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    border: 2px solid #fff;
+    outline: 1.5px solid #e0eaff;
+  }
+
+  .like-item-heart {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg, #ff6b6b, #ef4444);
+    border-radius: 50%;
+    border: 1.5px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    line-height: 1;
+    box-shadow: 0 1px 4px rgba(239, 68, 68, 0.4);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Dark Mode ──────────────────────────────────────────
+body.theme-dark {
+  .like-list-modal {
+    .ant-modal-content {
+      background-color: #1e1f22;
+      border: 1px solid #2e2f33;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .ant-modal-header {
+      background: #1e1f22;
+      border-bottom: 1px solid #2e2f33;
+
+      .ant-modal-title {
+        color: #e4e6eb;
+      }
+    }
+
+    .ant-modal-close {
+      .ant-modal-close-x {
+        background: #2e2f33;
+        color: #94a3b8;
+
+        &:hover {
+          background: #3a3b3f;
+          color: #e4e6eb;
+        }
+      }
+    }
+
+    .ant-modal-body {
+      &::-webkit-scrollbar-thumb {
+        background: #3a3b3f;
+      }
+    }
+
+    .like-list-item {
+      border-bottom: 1px solid #26272b;
+
+      &:hover {
+        background-color: #26272b;
+      }
+
+      &:active {
+        background-color: #2e3040;
+      }
+
+      .ant-list-item-meta-title {
+        color: #e4e6eb;
+      }
+    }
+
+    .like-item-avatar {
+      .ant-avatar {
+        border-color: #2e2f33;
+        outline-color: #3a3b3f;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+      }
+    }
+
+    .ant-list-empty-text {
+      color: #6b7280;
+    }
+  }
+}

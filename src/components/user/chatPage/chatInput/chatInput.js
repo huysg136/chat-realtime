@@ -22,6 +22,8 @@ import { FaMagic } from "react-icons/fa";
 import { hasEnoughQuota, increaseQuota, formatBytes, getQuotaLimit } from "../../../../utils/quota";
 import { db } from "../../../../firebase/config";
 import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
+import 'react-image-lightbox/style.css';
+import Lightbox from 'react-image-lightbox';
 
 const getVisibleFor = (selectedRoom) => {
   if (!selectedRoom) return [];
@@ -62,6 +64,10 @@ export default function ChatInput({
   const [polishing, setPolishing] = useState(false);
   const [showTonePicker, setShowTonePicker] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState("");
+  const [fileType, setFileType] = useState("");
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const { t } = useTranslation();
 
   const handleInputChange = (e) => setInputValue(e.target.value);
@@ -95,7 +101,7 @@ export default function ChatInput({
     }
   };
 
-  const handleFileUpload = async (e) => {
+  const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -112,58 +118,19 @@ export default function ChatInput({
       return;
     }
 
-    try {
-      setSendingFile(true);
-      setUploadProgress(0);
-
-      // Upload trực tiếp lên R2
-      const fileUrl = await uploadToR2(file, (progress) => {
-        setUploadProgress(progress);
-      });
-
-      const docId = await getUserDocIdByUid(user.uid);
-      await increaseQuota(docId, file.size);
-
-      const kind = file.type.startsWith("image/")
-        ? "picture"
-        : file.type.startsWith("video/")
-          ? "video"
-          : "file";
-
-      const encryptedText = selectedRoom.secretKey
-        ? encryptMessage(fileUrl, selectedRoom.secretKey)
-        : fileUrl;
-
-      await addDocument("messages", {
-        text: encryptedText,
-        uid,
-        photoURL,
-        roomId: selectedRoom.id,
-        displayName,
-        createdAt: new Date(),
-        kind,
-        fileName: file.name,
-        visibleFor,
-      });
-
-      await updateDocument("rooms", selectedRoom.id, {
-        lastMessage: {
-          displayName,
-          text: encryptedText,
-          uid,
-          createdAt: new Date(),
-          kind,
-          fileName: file.name,
-          visibleFor: selectedRoom.members,
-        },
-      });
-    } catch (err) {
-      toast.error("Upload file thất bại");
-    } finally {
-      setSendingFile(false);
-      setUploadProgress(0);
-      e.target.value = null;
+    setSelectedFile(file);
+    const isImage = file.type.startsWith("image/");
+    const isVideo = file.type.startsWith("video/");
+    setFileType(isImage ? "picture" : isVideo ? "video" : "file");
+    
+    if (isImage || isVideo) {
+      if (filePreview) URL.revokeObjectURL(filePreview);
+      setFilePreview(URL.createObjectURL(file));
+    } else {
+      setFilePreview("");
     }
+    
+    e.target.value = null;
   };
 
   const handleVoiceButtonClick = async () => {
@@ -271,50 +238,112 @@ export default function ChatInput({
   };
 
   const handleOnSubmit = async () => {
-    if (!inputValue.trim() || !selectedRoom || !uid || sending) return;
+    if ((!inputValue.trim() && !selectedFile) || !selectedRoom || !uid || sending || sendingFile) return;
 
     setSending(true);
-    setReplyTo(null);
     const messageText = inputValue.trim();
+    const currentReplyTo = replyTo;
+    
+    setReplyTo(null);
     formRef.current?.resetFields();
     setInputValue("");
     setShowEmojiPicker(false);
+    
+    const fileToSend = selectedFile;
+    const typeToSend = fileType;
+    setSelectedFile(null);
+    setFilePreview("");
+    setFileType("");
 
     try {
-      const encryptedText = selectedRoom.secretKey
-        ? encryptMessage(messageText, selectedRoom.secretKey)
-        : messageText;
+      if (fileToSend) {
+        setSendingFile(true);
+        setUploadProgress(0);
+        
+        const fileUrl = await uploadToR2(fileToSend, (progress) => {
+          setUploadProgress(progress);
+        });
 
-      await addDocument("messages", {
-        text: encryptedText,
-        uid,
-        photoURL,
-        roomId: selectedRoom.id,
-        displayName,
-        createdAt: new Date(),
-        kind: "text",
-        visibleFor,
-        replyTo: replyTo
-          ? {
-            id: replyTo.id,
-            text: replyTo.decryptedText || replyTo.text || "",
-            displayName: replyTo.displayName,
-            kind: replyTo.kind,
-            fileName: replyTo.fileName || null,
-          }
-          : null,
-      });
+        const docId = await getUserDocIdByUid(user.uid);
+        await increaseQuota(docId, fileToSend.size);
 
-      await updateDocument("rooms", selectedRoom.id, {
-        lastMessage: {
+        const encryptedUrl = selectedRoom.secretKey
+          ? encryptMessage(fileUrl, selectedRoom.secretKey)
+          : fileUrl;
+
+        await addDocument("messages", {
+          text: encryptedUrl,
+          uid,
+          photoURL,
+          roomId: selectedRoom.id,
           displayName,
+          createdAt: new Date(),
+          kind: typeToSend,
+          fileName: fileToSend.name,
+          visibleFor,
+          replyTo: currentReplyTo
+            ? {
+              id: currentReplyTo.id,
+              text: currentReplyTo.decryptedText || currentReplyTo.text || "",
+              displayName: currentReplyTo.displayName,
+              kind: currentReplyTo.kind,
+              fileName: currentReplyTo.fileName || null,
+            }
+            : null,
+        });
+
+        await updateDocument("rooms", selectedRoom.id, {
+          lastMessage: {
+            displayName,
+            text: encryptedUrl,
+            uid,
+            createdAt: new Date(),
+            kind: typeToSend,
+            fileName: fileToSend.name,
+            visibleFor: selectedRoom.members,
+          },
+        });
+        
+        setSendingFile(false);
+        setUploadProgress(0);
+      }
+
+      if (messageText) {
+        const encryptedText = selectedRoom.secretKey
+          ? encryptMessage(messageText, selectedRoom.secretKey)
+          : messageText;
+
+        await addDocument("messages", {
           text: encryptedText,
           uid,
+          photoURL,
+          roomId: selectedRoom.id,
+          displayName,
           createdAt: new Date(),
           kind: "text",
-          visibleFor: selectedRoom.members,
-        },
-      });
+          visibleFor,
+          replyTo: (!fileToSend && currentReplyTo)
+            ? {
+              id: currentReplyTo.id,
+              text: currentReplyTo.decryptedText || currentReplyTo.text || "",
+              displayName: currentReplyTo.displayName,
+              kind: currentReplyTo.kind,
+              fileName: currentReplyTo.fileName || null,
+            }
+            : null,
+        });
+
+        await updateDocument("rooms", selectedRoom.id, {
+          lastMessage: {
+            displayName,
+            text: encryptedText,
+            uid,
+            createdAt: new Date(),
+            kind: "text",
+            visibleFor: selectedRoom.members,
+          },
+        });
+      }
 
       if (messageText.startsWith("@bot")) {
         const question = messageText.replace(/^@bot\s*/, "");
@@ -453,6 +482,48 @@ export default function ChatInput({
       )}
 
       <Form className="chat-input-form" ref={formRef}>
+        {selectedFile && (
+          <div className="file-preview-container">
+            <div className="file-preview-content">
+              {fileType === "picture" ? (
+                <>
+                  <img 
+                    src={filePreview} 
+                    alt="preview" 
+                    className="file-preview-image" 
+                    onClick={() => setIsPreviewOpen(true)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  {isPreviewOpen && (
+                    <Lightbox
+                      mainSrc={filePreview}
+                      onCloseRequest={() => setIsPreviewOpen(false)}
+                      imageTitle={selectedFile.name}
+                    />
+                  )}
+                </>
+              ) : fileType === "video" ? (
+                <video src={filePreview} className="file-preview-video" controls />
+              ) : (
+                <div className="file-preview-icon">
+                  <PaperClipOutlined />
+                  <span className="file-preview-name">{selectedFile.name}</span>
+                </div>
+              )}
+              <Button
+                type="text"
+                icon={<CloseOutlined />}
+                onClick={() => {
+                  setSelectedFile(null);
+                  setFilePreview("");
+                  setFileType("");
+                  setIsPreviewOpen(false);
+                }}
+                className="cancel-file-btn"
+              />
+            </div>
+          </div>
+        )}
         <div style={{ position: "relative" }}>
           <Button
             type="text"
@@ -490,7 +561,7 @@ export default function ChatInput({
           autoComplete="off"
         />
 
-        {inputValue.trim() && (
+        {(inputValue.trim() || selectedFile) && (
           <>
             {showTonePicker && (
               <div className="tone-picker">
@@ -557,7 +628,7 @@ export default function ChatInput({
           </>
         )}
 
-        {!inputValue.trim() && (
+        {!(inputValue.trim() || selectedFile) && (
           <div className="input-actions">
             <Button
               type="text"
