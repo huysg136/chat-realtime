@@ -1,0 +1,139 @@
+.online-friends-container {
+    width: 280px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    height: fit-content;
+    position: sticky;
+    top: 15px;
+    margin-left: 24px;
+    flex-shrink: 0;
+}
+
+body.theme-dark {
+    .online-friends-container {
+        background: #2d2d2d;
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    }
+    .online-friends-title {
+        color: #e2e8f0;
+    }
+    .online-friends-empty,
+    .online-friends-loading {
+        color: #94a3b8;
+    }
+}
+
+.online-friends-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-color, #1a1a1a);
+    margin-top: 0;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+body.theme-dark {
+    .online-friends-title {
+        border-bottom-color: rgba(255, 255, 255, 0.05);
+    }
+}
+
+.online-friends-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 480px;
+    overflow-x: hidden;
+
+    &::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.12);
+        border-radius: 10px;
+    }
+}
+
+body.theme-dark {
+    .online-friends-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+    }
+}
+
+.online-friend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.04);
+        transform: translateX(4px);
+    }
+}
+
+body.theme-dark {
+    .online-friend-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+}
+
+.online-friend-item__avatar-wrapper {
+    position: relative;
+    display: inline-flex;
+}
+
+.online-friend-item__status-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #4caf50;
+    border: 2px solid white;
+    bottom: 0;
+    right: 0;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+body.theme-dark {
+    .online-friend-item__status-dot {
+        border-color: #242526;
+    }
+}
+
+.online-friend-item__name {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    color: #1a1a1a;
+}
+
+body.theme-dark {
+    .online-friend-item__name {
+        color: #e4e6eb;
+    }
+}
+
+.online-friends-loading,
+.online-friends-empty {
+    font-size: 13px;
+    color: #8c8c8c;
+    text-align: center;
+    padding: 20px 0;
+}

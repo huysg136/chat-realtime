@@ -162,13 +162,13 @@ export default function CreatePost({ onPostCreated }) {
                 </Avatar>
                 <div className="create-post__right-side" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {isExpanded && (
-                        <div className="create-post__privacy-row" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px', marginBottom: '12px' }}>
-                            <UserBadge 
-                                displayName={user?.displayName || "Bạn"} 
-                                role={user?.role} 
-                                premiumLevel={user?.premiumLevel} 
-                                premiumUntil={user?.premiumUntil} 
-                                size={15} 
+                        <div className="create-post__privacy-row" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+                            <UserBadge
+                                displayName={user?.displayName || "Bạn"}
+                                role={user?.role}
+                                premiumLevel={user?.premiumLevel}
+                                premiumUntil={user?.premiumUntil}
+                                size={15}
                             />
                             <div style={{ background: '#f0f2f5', borderRadius: '20px', padding: '2px 4px', display: 'flex', alignItems: 'center', height: '26px' }}>
                                 <Select
