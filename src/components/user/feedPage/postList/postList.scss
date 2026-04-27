@@ -50,6 +50,53 @@
       margin: 0;
     }
   }
+
+  .feed-end-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+
+    h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 0 0 4px;
+    }
+
+    p {
+      font-size: 13px;
+      color: #65676b;
+      margin: 0 0 16px;
+    }
+
+    &__reload-btn {
+      padding: 8px 18px;
+      background: #1890ff;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+
+      &:hover {
+        background: #40a9ff;
+      }
+
+      &:active {
+        transform: scale(0.96);
+      }
+    }
+  }
 }
 
 @keyframes fadeSlideIn {
@@ -81,6 +128,27 @@ body.theme-dark {
 
       p {
         color: #aab0c4;
+      }
+    }
+
+    .feed-end-card {
+      background: #2d2d2d;
+      border-color: rgba(255, 255, 255, 0.08);
+
+      h4 {
+        color: #e4e6eb;
+      }
+
+      p {
+        color: #b0b3b8;
+      }
+
+      &__reload-btn {
+        background: #2374e1;
+
+        &:hover {
+          background: #398fff;
+        }
       }
     }
   }

@@ -166,6 +166,23 @@ export default function PostList() {
             {posts.map((post) => (
                 <PostItem key={post.id} post={post} />
             ))}
+
+            <div className="feed-end-card">
+                <h4>Bạn đã bắt kịp hết tin tức!</h4>
+                <p>Không còn bài viết nào trong {FEED_WINDOW_DAYS} ngày gần đây.</p>
+                <button className="feed-end-card__reload-btn" onClick={() => {
+                    scoreCacheRef.current = {};
+                    sortAndSet(rawPostsRef.current);
+                    const feedPage = document.querySelector('.feed-page');
+                    if (feedPage) {
+                        feedPage.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                }}>
+                    Tải lại bảng tin
+                </button>
+            </div>
         </div>
     );
 }

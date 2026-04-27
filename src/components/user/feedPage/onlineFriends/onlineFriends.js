@@ -99,7 +99,7 @@ export default function OnlineFriends() {
                         <OnlineFriendItem key={f.uid} uid={f.uid} onStatusChange={handleStatusChange} />
                     ))}
                     {!hasOnlineFriends && (
-                        <div className="online-friends-empty">Không có ai trực tuyến</div>
+                        <div className="online-friends-empty">Không có bạn bè đang hoạt động</div>
                     )}
                 </div>
             )}

@@ -12,8 +12,9 @@
 
   &__layout {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     width: 100%;
+
   }
 
   &__inner {
@@ -32,7 +33,6 @@
     position: sticky;
     top: 15px;
     height: fit-content;
-    margin-left: 96px;
   }
 
   &__header {
