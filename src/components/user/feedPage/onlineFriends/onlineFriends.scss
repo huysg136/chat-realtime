@@ -6,10 +6,6 @@
     padding: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
     height: fit-content;
-    position: sticky;
-    top: 15px;
-    margin-left: 24px;
-    flex-shrink: 0;
 }
 
 body.theme-dark {
@@ -18,9 +14,11 @@ body.theme-dark {
         border-color: rgba(255, 255, 255, 0.08);
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
     }
+
     .online-friends-title {
         color: #e2e8f0;
     }
+
     .online-friends-empty,
     .online-friends-loading {
         color: #94a3b8;

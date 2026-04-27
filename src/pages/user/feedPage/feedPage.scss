@@ -25,6 +25,16 @@
     min-width: 0;
   }
 
+  &__right-side {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    position: sticky;
+    top: 15px;
+    height: fit-content;
+    margin-left: 96px;
+  }
+
   &__header {
     display: flex;
     align-items: center;
@@ -55,7 +65,7 @@ body.theme-dark {
 
 // ─── Responsive ──────────────────────────────────────────────
 @media (max-width: 950px) {
-  .online-friends-container {
+  .feed-page__right-side {
     display: none;
   }
 }

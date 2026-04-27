@@ -1,0 +1,110 @@
+.friend-suggestions-container {
+    width: 280px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    height: fit-content;
+    flex-shrink: 0;
+}
+
+body.theme-dark {
+    .friend-suggestions-container {
+        background: #2d2d2d;
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    }
+}
+
+.friend-suggestions-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-color, #1a1a1a);
+    margin-top: 0;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+body.theme-dark {
+    .friend-suggestions-title {
+        border-bottom-color: rgba(255, 255, 255, 0.05);
+        color: #e2e8f0;
+    }
+}
+
+.friend-suggestions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.friend-suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0;
+}
+
+.friend-suggestion-item__info {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.friend-suggestion-item__name {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    color: #1a1a1a;
+}
+
+body.theme-dark {
+    .friend-suggestion-item__name {
+        color: #e4e6eb;
+    }
+}
+
+.friend-suggestion-item__username {
+    font-size: 11px;
+    color: #8c8c8c;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.theme-dark {
+    .friend-suggestion-item__username {
+        color: #94a3b8;
+    }
+}
+
+.friend-suggestion-item__action {
+    .ant-btn {
+        border-radius: 6px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.friend-suggestion-item__mutual {
+    font-size: 11px;
+    color: #1890ff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 1px;
+}
+
+body.theme-dark {
+    .friend-suggestion-item__mutual {
+        color: #60a5fa;
+    }
+}
