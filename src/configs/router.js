@@ -3,8 +3,8 @@ export const admin_path = "/admin/";
 export const ROUTERS = {
   USER: {
     HOME: "/",
-    DIRECT: "/t/:roomId",
-    FEED: "/feed",
+    DIRECT: "/direct/inbox",
+    CHAT: "/direct/t/:roomId",
     LOGIN: "/login",
     MAINTENANCE: "/maintenance",
   },

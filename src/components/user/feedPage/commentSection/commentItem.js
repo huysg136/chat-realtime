@@ -24,10 +24,10 @@ function toTimestamp(createdAt) {
 
 const { confirm } = Modal;
 
-export default function CommentItem({ comment, postId, repliesMap = {}, rootParentId = null }) {
+export default function CommentItem({ comment, postId, repliesMap = {}, rootParentId = null, isPreview = false }) {
     const { user } = useContext(AuthContext);
     const { users } = useContext(AppContext);
-    
+
     const author = users.find(u => u.uid === comment.uid) || {};
     const replies = repliesMap[comment.id] || [];
     const isLiked = (comment.likes || []).includes(user?.uid);
@@ -38,9 +38,11 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
     // Gán ID của bình luận gốc. Nếu không có rootParentId truyền vào (tức là bình luận này ở Level 1), thì nó chính là gốc.
     const currentRootId = rootParentId || comment.id;
 
-    const timeAgo = comment.createdAt
-        ? formatDistanceToNow(toTimestamp(comment.createdAt), { addSuffix: true, locale: vi })
+    let timeAgo = comment.createdAt
+        ? formatDistanceToNow(toTimestamp(comment.createdAt), { locale: vi })
         : "";
+
+    timeAgo = timeAgo.replace("khoảng ", "").replace("dưới ", "").trim();
 
     const handleLike = async () => {
         if (!user?.uid) return;
@@ -63,15 +65,15 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
             onOk: async () => {
                 try {
                     const batch = writeBatch(db);
-                    
+
                     // Xóa chính nó
                     batch.delete(doc(db, "comments", comment.id));
-                    
+
                     // Tìm tất cả comment trong bài viết này để lọc đệ quy
                     const q = query(collection(db, "comments"), where("postId", "==", postId));
                     const snapshot = await getDocs(q);
                     const allComments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                    
+
                     const descendantIds = [];
                     const findDescendants = (parentId) => {
                         allComments.forEach(c => {
@@ -82,12 +84,12 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
                         });
                     };
                     findDescendants(comment.id);
-                    
+
                     // Thêm các comment con vào batch xóa
                     descendantIds.forEach(id => {
                         batch.delete(doc(db, "comments", id));
                     });
-                    
+
                     await batch.commit();
                 } catch (error) {
                     console.error("Xóa comment thất bại:", error);
@@ -147,30 +149,36 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
                         {/* <span>{isLiked ? "Đã thích" : "Thích"}</span> */}
                     </button>
 
-                    <button
-                        className="comment-item__action-btn"
-                        onClick={() => setShowReplyInput((p) => !p)}
-                    >
-                        Trả lời
-                    </button>
+                    {isPreview ? (
+                        <span style={{ fontSize: '12px', color: '#94a3b8', marginLeft: 'auto', fontStyle: 'italic' }}>Bình luận hàng đầu</span>
+                    ) : (
+                        <>
+                            <button
+                                className="comment-item__action-btn"
+                                onClick={() => setShowReplyInput((p) => !p)}
+                            >
+                                Trả lời
+                            </button>
 
-                    {user?.uid === comment.uid && (
-                        <button className="comment-item__action-btn comment-item__action-btn--delete" onClick={handleDelete}>
-                            Xóa
-                        </button>
-                    )}
+                            {user?.uid === comment.uid && (
+                                <button className="comment-item__action-btn comment-item__action-btn--delete" onClick={handleDelete}>
+                                    Xóa
+                                </button>
+                            )}
 
-                    {replies.length > 0 && (
-                        <button
-                            className="comment-item__toggle-replies"
-                            onClick={() => setShowReplies((p) => !p)}
-                        >
-                            {showReplies ? "Ẩn" : `Xem ${replies.length} trả lời`}
-                        </button>
+                            {replies.length > 0 && (
+                                <button
+                                    className="comment-item__toggle-replies"
+                                    onClick={() => setShowReplies((p) => !p)}
+                                >
+                                    {showReplies ? "Ẩn" : `Xem ${replies.length} trả lời`}
+                                </button>
+                            )}
+                        </>
                     )}
                 </div>
 
-                {showReplyInput && (
+                {!isPreview && showReplyInput && (
                     <CommentInput
                         postId={postId}
                         parentId={currentRootId}
@@ -183,14 +191,14 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
                     />
                 )}
 
-                {showReplies && replies.length > 0 && (
+                {!isPreview && showReplies && replies.length > 0 && (
                     <div className="comment-item__replies">
                         {replies.map((reply) => (
-                            <CommentItem 
-                                key={reply.id} 
-                                comment={reply} 
-                                postId={postId} 
-                                repliesMap={repliesMap} 
+                            <CommentItem
+                                key={reply.id}
+                                comment={reply}
+                                postId={postId}
+                                repliesMap={repliesMap}
                                 rootParentId={currentRootId}
                             />
                         ))}

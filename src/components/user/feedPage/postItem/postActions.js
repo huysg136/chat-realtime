@@ -37,7 +37,7 @@ export default function PostActions({ post, showComments, onToggleComments }) {
                             onClick={() => setShowLikesModal(true)}
                             style={{ cursor: "pointer" }}
                         >
-                            <HeartFilled style={{ color: "#ef4444" }} /> {likesCount}
+                            <HeartFilled style={{ color: "#ef4444" }} /> {likesCount} lượt thích
                         </span>
                     )}
 
@@ -58,7 +58,7 @@ export default function PostActions({ post, showComments, onToggleComments }) {
                     onClick={handleLike}
                 >
                     {isLiked ? <HeartFilled /> : <HeartOutlined />}
-                    {/* <span>{isLiked ? "Đã thích" : "Thích"}</span> */}
+                    <span>{isLiked ? "Đã thích" : "Thích"}</span>
                 </button>
 
                 <button
@@ -67,14 +67,14 @@ export default function PostActions({ post, showComments, onToggleComments }) {
                     onClick={onToggleComments}
                 >
                     <MessageOutlined />
-                    {/* <span>Bình luận</span> */}
+                    <span>Bình luận</span>
                 </button>
 
-                {/* <button className="post-actions__btn" title="Chia sẻ (sắp ra mắt)">
+                <button className="post-actions__btn" title="Chia sẻ (sắp ra mắt)" disabled={true} style={{ cursor: "not-allowed" }}>
                     <ShareAltOutlined />
                     <span>Chia sẻ</span>
-                    </button> */
-                }
+                </button>
+
             </div>
 
             <LikeListModal

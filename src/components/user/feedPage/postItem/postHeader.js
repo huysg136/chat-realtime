@@ -1,8 +1,10 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
-import { Avatar, Dropdown, Tooltip, Modal, Input } from "antd";
-import { MoreOutlined, DeleteOutlined, ExclamationCircleOutlined, EditOutlined, PictureOutlined, VideoCameraOutlined, CloseOutlined } from "@ant-design/icons";
+import { Avatar, Dropdown, Tooltip, Modal, Input, Select } from "antd";
+import { MoreOutlined, DeleteOutlined, ExclamationCircleOutlined, EditOutlined, CloseOutlined } from "@ant-design/icons";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
+import { AiFillPicture } from "react-icons/ai";
+import PrivacyIcon, { PRIVACY_CONFIG } from "../../../common/privacyIcon";
 import { AuthContext } from "../../../../context/authProvider";
 import { AppContext } from "../../../../context/appProvider";
 import { deleteDocument, getUserDocIdByUid } from "../../../../firebase/services";
@@ -28,11 +30,12 @@ function toTimestamp(createdAt) {
 export default function PostHeader({ post }) {
     const { user } = useContext(AuthContext);
     const { users } = useContext(AppContext);
-    
+
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [editContent, setEditContent] = useState(post.content || "");
+    const [editPrivacy, setEditPrivacy] = useState(post.privacy || "public");
     const [isEditing, setIsEditing] = useState(false);
-    
+
     const [editSelectedFile, setEditSelectedFile] = useState(null);
     const [editFilePreview, setEditFilePreview] = useState("");
     const [editFileType, setEditFileType] = useState("");
@@ -49,9 +52,11 @@ export default function PostHeader({ post }) {
     const isOwner = user?.uid === post.uid;
     const author = users.find((u) => u.uid === post.uid) || {};
 
-    const timeAgo = post.createdAt
-        ? formatDistanceToNow(toTimestamp(post.createdAt), { addSuffix: true, locale: vi })
+    let timeAgo = post.createdAt
+        ? formatDistanceToNow(toTimestamp(post.createdAt), { locale: vi })
         : "";
+
+    timeAgo = timeAgo.replace("khoảng ", "").replace("dưới ", "").trim();
 
     const handleDelete = () => {
         confirm({
@@ -89,8 +94,8 @@ export default function PostHeader({ post }) {
 
         setEditSelectedFile(file);
         setEditFileType(file.type.startsWith("video/") ? "video" : "image");
-        setExistingMediaUrl(null); 
-        
+        setExistingMediaUrl(null);
+
         if (editFilePreview) URL.revokeObjectURL(editFilePreview);
         setEditFilePreview(URL.createObjectURL(file));
     };
@@ -133,6 +138,7 @@ export default function PostHeader({ post }) {
                 content: trimmed,
                 mediaUrl: finalMediaUrl,
                 kind: finalKind,
+                privacy: editPrivacy,
                 editedAt: new Date()
             });
             toast.success("Cập nhật bài viết thành công!");
@@ -151,6 +157,7 @@ export default function PostHeader({ post }) {
             label: "Chỉnh sửa bài viết",
             onClick: () => {
                 setEditContent(post.content || "");
+                setEditPrivacy(post.privacy || "public");
                 setExistingMediaUrl(post.mediaUrl || null);
                 setExistingMediaKind(post.kind || "text");
                 setEditSelectedFile(null);
@@ -188,9 +195,12 @@ export default function PostHeader({ post }) {
                     />
                 </span>
                 <Tooltip title={toTimestamp(post.createdAt)?.toLocaleString("vi-VN")}>
-                    <span className="post-header__time">
+                    <span className="post-header__time" style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                         {timeAgo}
                         {post.editedAt && " • (Đã chỉnh sửa)"}
+                        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                            <PrivacyIcon privacy={post.privacy || "public"} size={13} color={null} />
+                        </span>
                     </span>
                 </Tooltip>
             </div>
@@ -233,6 +243,31 @@ export default function PostHeader({ post }) {
                         </button>
                     </div>
                 )}
+                <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center' }}>
+                    <span style={{ fontSize: '13px', color: '#6b7280', marginRight: '8px' }}>Đối tượng:</span>
+                    <div style={{ background: '#f0f2f5', borderRadius: '20px', padding: '2px 4px', display: 'flex', alignItems: 'center', height: '26px' }}>
+                        <Select
+                            value={editPrivacy}
+                            onChange={setEditPrivacy}
+                            size="small"
+                            style={{ width: 125 }}
+                            bordered={false}
+                            dropdownStyle={{ borderRadius: 8 }}
+                            options={Object.entries(PRIVACY_CONFIG).map(([key, cfg]) => {
+                                const Icon = cfg.icon;
+                                return {
+                                    value: key,
+                                    label: (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <Icon size={13 + (cfg.sizeOffset || 0)} style={{ color: cfg.color }} />
+                                            <span style={{ fontSize: '13px' }}>{cfg.label}</span>
+                                        </div>
+                                    )
+                                };
+                            })}
+                        />
+                    </div>
+                </div>
                 <Input.TextArea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
@@ -247,19 +282,12 @@ export default function PostHeader({ post }) {
                         ref={fileInputRef}
                         onChange={handleFileSelect}
                     />
-                    <button 
+                    <button
                         className="create-post__action-btn"
                         onClick={() => fileInputRef.current?.click()}
                         style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}
                     >
-                        <PictureOutlined style={{ color: '#45bd62' }} /> Ảnh
-                    </button>
-                    <button 
-                        className="create-post__action-btn"
-                        onClick={() => fileInputRef.current?.click()}
-                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '8px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}
-                    >
-                        <VideoCameraOutlined style={{ color: '#f50057' }} /> Video
+                        <AiFillPicture style={{ color: '#45bd62', fontSize: '18px' }} /> <span>Ảnh/Video</span>
                     </button>
                 </div>
             </Modal>

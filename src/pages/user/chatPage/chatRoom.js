@@ -46,7 +46,7 @@ export default function ChatRoom() {
 
         if (!room || !isMember) {
             setSelectedRoomId(null);
-            navigate(ROUTERS.USER.HOME);
+            navigate(ROUTERS.USER.DIRECT);
             return;
         }
 

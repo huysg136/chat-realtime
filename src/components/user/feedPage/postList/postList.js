@@ -78,18 +78,31 @@ export default function PostList() {
         const cache = scoreCacheRef.current;
         const now = Date.now();
 
-        const scored = rawPosts.map((post) => {
-            const cached = cache[post.id];
+        const scored = rawPosts
+            .filter((post) => {
+                const isAuthor = post.uid === user.uid;
+                const isFriend = friendUids.includes(post.uid);
 
-            if (!cached) {
-                const author = currentUsers.find((u) => u.uid === post.uid) || {};
-                const score = computeScore({ post, userUid: user.uid, friendUids, author });
-                cache[post.id] = { score, cachedAt: now };
-                return { ...post, _score: score };
-            }
+                if (post.privacy === "private") {
+                    return isAuthor;
+                }
+                if (post.privacy === "friends") {
+                    return isAuthor || isFriend;
+                }
+                return true; // Default or 'public'
+            })
+            .map((post) => {
+                const cached = cache[post.id];
 
-            return { ...post, _score: cached.score };
-        });
+                if (!cached) {
+                    const author = currentUsers.find((u) => u.uid === post.uid) || {};
+                    const score = computeScore({ post, userUid: user.uid, friendUids, author });
+                    cache[post.id] = { score, cachedAt: now };
+                    return { ...post, _score: score };
+                }
+
+                return { ...post, _score: cached.score };
+            });
 
         scored.sort((a, b) => {
             if (Math.abs(b._score - a._score) > 0.001) return b._score - a._score;

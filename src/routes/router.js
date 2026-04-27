@@ -5,10 +5,9 @@ import PrivateRoute from './privateRoute';
 import { ROUTERS } from '../configs/router';
 import ReportManager from '../components/admin/report/reportManager';
 import LandingPage from '../pages/user/chatPage/landingPage';
-import ChatRoom from '../pages/user/chatPage/chatRoom';
+import FeedPage from '../pages/user/feedPage/feedPage';
 
-// const ComingSoonPage = lazy(() => import('../pages/user/feedPage/comingSoonPage/comingSoonPage'));
-const FeedPage = lazy(() => import('../pages/user/feedPage/feedPage'));
+const ChatRoom = lazy(() => import('../pages/user/chatPage/chatRoom'));
 const Login = lazy(() => import('../components/login'));
 const MaintenancePage = lazy(() => import('../pages/user/maintenancePage/maintenancePage'));
 const AdminLayout = lazy(() => import('../pages/admin/adminLayout/adminLayout'));
@@ -58,18 +57,21 @@ export const userRoutes = [
     children: [
       {
         index: true,
-        element: <ChatRoom />,
+        element: <FeedPage />,
       },
       {
-        path: ROUTERS.USER.DIRECT,
-        element: <ChatRoom />,
-      },
-      {
-        path: getRelativePath(ROUTERS.USER.FEED, "/"),
+        path: ROUTERS.USER.CHAT,
         element: (
           <Suspense fallback={<LoadingScreen />}>
-            {/* <ComingSoonPage /> */}
-            <FeedPage />
+            <ChatRoom />
+          </Suspense>
+        ),
+      },
+      {
+        path: getRelativePath(ROUTERS.USER.DIRECT, "/"),
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <ChatRoom />
           </Suspense>
         ),
       }

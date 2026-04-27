@@ -9,7 +9,7 @@ import "./leftSide.scss";
 import { AiFillMessage, AiOutlineMessage } from "react-icons/ai";
 import { SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { AppContext } from '../../../context/appProvider';
-import { MdExplore, MdOutlineAdminPanelSettings, MdOutlineExplore, MdReportProblem } from "react-icons/md";
+import { MdHome, MdOutlineAdminPanelSettings, MdOutlineHome, MdReportProblem } from "react-icons/md";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUserStatus } from "../../../hooks/useUserStatus";
 import { ROUTERS } from "../../../configs/router";
@@ -26,10 +26,10 @@ const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b
 
 export default function LeftSide() {
   const location = useLocation();
-  const [active, setActive] = useState("message");
+  const [active, setActive] = useState("home");
   const [role, setRole] = useState("");
   const { user, logout } = useContext(AuthContext);
-  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible, selectedRoomId: roomId, isActiveTab, setIsActiveTab } = useContext(AppContext);
+  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible, selectedRoomId: roomId, setSelectedRoomId, setIsActiveTab } = useContext(AppContext);
   const displayName = user?.displayName;
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
@@ -38,10 +38,10 @@ export default function LeftSide() {
   const { receivedRequests } = useFriends();
 
   useEffect(() => {
-    if (location.pathname === ROUTERS.USER.FEED) {
-      setActive("feed");
-      setIsActiveTab("feed");
-    } else if (location.pathname === ROUTERS.USER.HOME || location.pathname.startsWith("/t/")) {
+    if (location.pathname === ROUTERS.USER.HOME) {
+      setActive("home");
+      setIsActiveTab("home");
+    } else if (location.pathname === ROUTERS.USER.DIRECT || location.pathname.startsWith("/t/")) {
       // Only reset to "message" if we are NOT currently on the friends tab
       setActive((prev) => (prev === "friends" ? "friends" : "message"));
     }
@@ -176,14 +176,26 @@ export default function LeftSide() {
 
       <div className="icon-group top">
         <div
+          className={`icon-item ${active === "home" ? "active" : ""}`}
+          onClick={() =>
+            <>
+              {setActive("home")}
+              {setSelectedRoomId(null)}
+              {navigate(ROUTERS.USER.HOME)}
+            </>
+          }
+        >
+          {active === "home" ? <MdHome /> : <MdOutlineHome />}
+        </div>
+        <div
           className={`icon-item ${active === "message" ? "active" : ""}`}
           onClick={() => {
             setActive("message");
             setIsActiveTab("message");
             if (roomId) {
-              navigate(ROUTERS.USER.DIRECT.replace(":roomId", roomId));
+              navigate(ROUTERS.USER.CHAT.replace(":roomId", roomId));
             } else {
-              navigate(ROUTERS.USER.HOME);
+              navigate(ROUTERS.USER.DIRECT);
             }
           }}
         >
@@ -196,9 +208,9 @@ export default function LeftSide() {
             setIsActiveTab("friends");
             // Navigate to chat page so SideBar (which contains FriendPanel) is rendered
             if (roomId) {
-              navigate(ROUTERS.USER.DIRECT.replace(":roomId", roomId));
+              navigate(ROUTERS.USER.CHAT.replace(":roomId", roomId));
             } else {
-              navigate(ROUTERS.USER.HOME);
+              navigate(ROUTERS.USER.DIRECT);
             }
           }}
           title={t('friends.modalTitle')}
@@ -209,17 +221,6 @@ export default function LeftSide() {
               {receivedRequests.length > 9 ? "9+" : receivedRequests.length}
             </span>
           )}
-        </div>
-        <div
-          className={`icon-item ${active === "feed" ? "active" : ""}`}
-          onClick={() =>
-            <>
-              {setActive("feed")}
-              {navigate(ROUTERS.USER.FEED)}
-            </>
-          }
-        >
-          {active === "feed" ? <MdExplore /> : <MdOutlineExplore />}
         </div>
       </div>
 

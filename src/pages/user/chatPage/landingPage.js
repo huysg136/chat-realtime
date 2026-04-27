@@ -10,7 +10,7 @@ const LandingPage = () => {
       </div>
 
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        <Outlet /> 
+        <Outlet />
       </div>
     </div>
   );

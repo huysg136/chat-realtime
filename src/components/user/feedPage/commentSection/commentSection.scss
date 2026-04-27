@@ -52,12 +52,15 @@
 
 // ─── Comment Section ─────────────────────────────────────────
 .comment-section {
-  border-top: 1px solid rgba(0, 0, 0, 0.07);
-  padding: 12px 16px 16px;
+  padding: 4px 16px 8px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   animation: fadeSlideIn 0.2s ease;
+
+  &.no-section {
+    padding: 0;
+  }
 
   &__list {
     display: flex;

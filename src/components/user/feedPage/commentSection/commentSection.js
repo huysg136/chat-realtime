@@ -6,7 +6,7 @@ import CommentItem from "./commentItem";
 import CommentInput from "./commentInput";
 import "./commentSection.scss";
 
-export default function CommentSection({ postId, postAuthorUid }) {
+export default function CommentSection({ postId, postAuthorUid, isPreview = false }) {
   const [comments, setComments] = useState([]);
   const { users } = useContext(AppContext);
   const commentScoresRef = React.useRef({});
@@ -78,18 +78,31 @@ export default function CommentSection({ postId, postAuthorUid }) {
     }, {});
 
   return (
-    <div className="comment-section">
-      <CommentInput postId={postId} />
+    <div className={`comment-section ${topLevel.length > 0 ? "" : "no-section"}`}>
+      {!isPreview && <CommentInput postId={postId} />}
 
       <div className="comment-section__list">
-        {topLevel.map((comment) => (
-          <CommentItem
-            key={comment.id}
-            comment={comment}
-            postId={postId}
-            repliesMap={repliesMap}
-          />
-        ))}
+        {isPreview ? (
+          topLevel.length > 0 && (
+            <CommentItem
+              key={topLevel[0].id}
+              comment={topLevel[0]}
+              postId={postId}
+              repliesMap={repliesMap}
+              isPreview={true}
+            />
+          )
+        ) : (
+          topLevel.map((comment) => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              postId={postId}
+              repliesMap={repliesMap}
+              isPreview={false}
+            />
+          ))
+        )}
       </div>
     </div>
   );

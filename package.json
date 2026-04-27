@@ -21,6 +21,7 @@
     "i18next-browser-languagedetector": "^7.2.0",
     "i18next-http-backend": "^2.4.0",
     "lodash": "^4.17.21",
+    "lucide-react": "^1.11.0",
     "moment": "^2.30.0",
     "rc-picker": "^4.0.0",
     "react": "^18.2.0",

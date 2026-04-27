@@ -27,12 +27,12 @@ export default function PrivateRoute({
   const isAdminOrMod = ["admin", "moderator"].includes(user.role);
 
   if (requireAdmin && !isAdminOrMod) {
-    return <Navigate to={ROUTERS.USER.HOME} replace />;
+    return <Navigate to={ROUTERS.USER.DIRECT} replace />;
   }
 
   // Check specific permission
   if (requirePermission && user.role !== "admin" && !user.permissions?.[requirePermission]) {
-    return <Navigate to={ROUTERS.USER.HOME} replace />;
+    return <Navigate to={ROUTERS.USER.DIRECT} replace />;
   }
 
   // Maintenance mode (non-admin/moderator)

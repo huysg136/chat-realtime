@@ -1,12 +1,10 @@
 import React, { useState, useContext, useRef, useEffect } from "react";
-import { Avatar, Input, Button } from "antd";
-import { 
-    PictureOutlined, 
-    SmileOutlined, 
-    SendOutlined, 
-    CloseOutlined,
-    VideoCameraOutlined
-} from "@ant-design/icons";
+import { Avatar, Input, Button, Select } from "antd";
+import { SendOutlined, CloseOutlined } from "@ant-design/icons";
+import { AiFillPicture } from "react-icons/ai";
+import { MdEmojiEmotions } from "react-icons/md";
+import { FaVideo } from "react-icons/fa";
+import { PRIVACY_CONFIG } from "../../../common/privacyIcon";
 import { AuthContext } from "../../../../context/authProvider";
 import { addDocument, getUserDocIdByUid } from "../../../../firebase/services";
 import { uploadToR2 } from "../../../../utils/uploadToR2";
@@ -14,6 +12,7 @@ import { validateFile } from "../../../../utils/fileValidation";
 import { hasEnoughQuota, increaseQuota, formatBytes, getQuotaLimit } from "../../../../utils/quota";
 import { toast } from "react-toastify";
 import EmojiPicker from "emoji-picker-react";
+import UserBadge from "../../../common/userBadge";
 import "./createPost.scss";
 
 const { TextArea } = Input;
@@ -24,7 +23,8 @@ export default function CreatePost({ onPostCreated }) {
     const [content, setContent] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
-    
+    const [privacy, setPrivacy] = useState("public"); // 'public', 'friends', 'private'
+
     // File states
     const [selectedFile, setSelectedFile] = useState(null);
     const [filePreview, setFilePreview] = useState("");
@@ -33,6 +33,23 @@ export default function CreatePost({ onPostCreated }) {
 
     // Emoji states
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setIsFocused(false);
+                // click ra ngoài đóng emoji nếu có
+                setShowEmojiPicker(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     // Cleanup preview URL to prevent memory leaks
     useEffect(() => {
@@ -61,7 +78,7 @@ export default function CreatePost({ onPostCreated }) {
 
         setSelectedFile(file);
         setFileType(file.type.startsWith("video/") ? "video" : "image");
-        
+
         // Revoke old preview if exists
         if (filePreview) URL.revokeObjectURL(filePreview);
         setFilePreview(URL.createObjectURL(file));
@@ -87,13 +104,13 @@ export default function CreatePost({ onPostCreated }) {
             if (selectedFile) {
                 // Upload to R2
                 mediaUrl = await uploadToR2(selectedFile);
-                
+
                 // Increase Quota
                 const docId = await getUserDocIdByUid(user.uid);
                 if (docId) {
                     await increaseQuota(docId, selectedFile.size);
                 }
-                
+
                 kind = fileType === "video" ? "video" : "image";
             }
 
@@ -106,9 +123,11 @@ export default function CreatePost({ onPostCreated }) {
                 photoURL: user.photoURL || defaultAvatar,
                 likes: [],
                 commentsCount: 0,
+                privacy: privacy,
             });
 
             setContent("");
+            setPrivacy("public");
             handleRemoveFile();
             setShowEmojiPicker(false);
             setIsFocused(false);
@@ -129,9 +148,10 @@ export default function CreatePost({ onPostCreated }) {
     };
 
     const canSubmit = content.trim() || selectedFile;
+    const isExpanded = isFocused || selectedFile || content.trim().length > 0;
 
     return (
-        <div className={`create-post ${isFocused || selectedFile ? "create-post--focused" : ""}`}>
+        <div className={`create-post ${isExpanded ? "create-post--focused" : ""}`} ref={containerRef}>
             <div className="create-post__top">
                 <Avatar
                     size={40}
@@ -140,17 +160,54 @@ export default function CreatePost({ onPostCreated }) {
                 >
                     {!user?.photoURL && user?.displayName?.charAt(0)?.toUpperCase()}
                 </Avatar>
-                <div className="create-post__input-wrapper">
-                    <TextArea
-                        placeholder={`${user?.displayName || "Bạn"} ơi, bạn đang nghĩ gì vậy?`}
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        onFocus={() => setIsFocused(true)}
-                        onKeyDown={handleKeyDown}
-                        autoSize={{ minRows: isFocused ? 3 : 1, maxRows: 8 }}
-                        className="create-post__textarea"
-                        bordered={false}
-                    />
+                <div className="create-post__right-side" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {isExpanded && (
+                        <div className="create-post__privacy-row" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px', marginBottom: '12px' }}>
+                            <UserBadge 
+                                displayName={user?.displayName || "Bạn"} 
+                                role={user?.role} 
+                                premiumLevel={user?.premiumLevel} 
+                                premiumUntil={user?.premiumUntil} 
+                                size={15} 
+                            />
+                            <div style={{ background: '#f0f2f5', borderRadius: '20px', padding: '2px 4px', display: 'flex', alignItems: 'center', height: '26px' }}>
+                                <Select
+                                    value={privacy}
+                                    onChange={setPrivacy}
+                                    size="small"
+                                    className="create-post__privacy-select"
+                                    style={{ width: 125 }}
+                                    bordered={false}
+                                    dropdownStyle={{ borderRadius: 8 }}
+                                    getPopupContainer={() => containerRef.current}
+                                    options={Object.entries(PRIVACY_CONFIG).map(([key, cfg]) => {
+                                        const Icon = cfg.icon;
+                                        return {
+                                            value: key,
+                                            label: (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <Icon size={13 + (cfg.sizeOffset || 0)} style={{ color: cfg.color }} />
+                                                    <span style={{ fontSize: '13px' }}>{cfg.label}</span>
+                                                </div>
+                                            )
+                                        };
+                                    })}
+                                />
+                            </div>
+                        </div>
+                    )}
+                    <div className="create-post__input-wrapper">
+                        <TextArea
+                            placeholder={`${user?.displayName || "Bạn"} ơi, bạn đang nghĩ gì vậy?`}
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            onFocus={() => setIsFocused(true)}
+                            onKeyDown={handleKeyDown}
+                            autoSize={{ minRows: isFocused ? 3 : 1, maxRows: 8 }}
+                            className="create-post__textarea"
+                            bordered={false}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -162,8 +219,8 @@ export default function CreatePost({ onPostCreated }) {
                     ) : (
                         <img src={filePreview} alt="Preview" className="media-preview-element" />
                     )}
-                    <button 
-                        className="create-post__remove-media" 
+                    <button
+                        className="create-post__remove-media"
                         onClick={handleRemoveFile}
                         disabled={submitting}
                     >
@@ -175,7 +232,7 @@ export default function CreatePost({ onPostCreated }) {
             {/* Emoji Picker */}
             {showEmojiPicker && (
                 <div className="create-post__emoji-wrapper">
-                    <EmojiPicker 
+                    <EmojiPicker
                         onEmojiClick={(emojiData) => setContent(prev => prev + emojiData.emoji)}
                         width="100%"
                         height={350}
@@ -183,30 +240,42 @@ export default function CreatePost({ onPostCreated }) {
                 </div>
             )}
 
-            {(isFocused || selectedFile) && (
+            {isExpanded && (
                 <div className="create-post__bottom">
                     <div className="create-post__actions">
-                        <button 
+                        <button
+                            className="create-post__action-btn"
+                            disabled={true}
+                            style={{ opacity: 0.6, cursor: 'not-allowed' }}
+                            title="Tính năng này sắp ra mắt"
+                        >
+                            <FaVideo style={{ color: '#f50057', fontSize: '18px' }} />
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
+                                <span style={{ lineHeight: 1 }}>Video trực tiếp</span>
+                                <span style={{ fontSize: '10px', lineHeight: 1, color: '#f50057', fontWeight: 'bold' }}>Sắp ra mắt</span>
+                            </div>
+                        </button>
+                        <button
                             className={`create-post__action-btn ${selectedFile ? "active" : ""}`}
                             onClick={() => fileInputRef.current?.click()}
                             disabled={submitting}
                         >
-                            <PictureOutlined /> <span>Ảnh/Video</span>
+                            <AiFillPicture style={{ color: '#45bd62', fontSize: '18px' }} /> <span>Ảnh/Video</span>
                         </button>
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            style={{ display: 'none' }} 
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
                             accept="image/*,video/*"
                             onChange={handleFileSelect}
                         />
-                        
-                        <button 
+
+                        <button
                             className={`create-post__action-btn ${showEmojiPicker ? "active" : ""}`}
                             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                             disabled={submitting}
                         >
-                            <SmileOutlined /> <span>Cảm xúc</span>
+                            <MdEmojiEmotions style={{ color: '#ffe611ff', fontSize: '18px' }} /> <span>Cảm xúc</span>
                         </button>
                     </div>
                     <div className="create-post__submit-area">

@@ -8,7 +8,6 @@ export default function FeedPage() {
     <div className="feed-page">
       <div className="feed-page__inner">
         <div className="feed-page__header">
-          <h2 className="feed-page__title">Bảng tin</h2>
         </div>
         <CreatePost />
         <PostList />

@@ -290,7 +290,7 @@ export default function MaintenancePage() {
     }
   };
 
-  const handleReload = () => navigate(ROUTERS.USER.HOME);
+  const handleReload = () => navigate(ROUTERS.USER.DIRECT);
   const handleGoToLogin = async () => {
     try {
       await signOut(auth);
@@ -305,7 +305,7 @@ export default function MaintenancePage() {
       <Spin size="large" style={{ display: "block", marginTop: "40vh" }} />
     );
   if (!maintenance) {
-    return <Navigate to={ROUTERS.USER.HOME} replace />;
+    return <Navigate to={ROUTERS.USER.DIRECT} replace />;
   }
 
   return (

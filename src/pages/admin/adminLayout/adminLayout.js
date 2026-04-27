@@ -14,7 +14,7 @@ export default function AdminLayout() {
 
   const { user } = useContext(AuthContext);
   if (!user || !["admin", "moderator"].includes(user.role)) {
-    return <Navigate to={ROUTERS.USER.HOME} replace />;
+    return <Navigate to={ROUTERS.USER.DIRECT} replace />;
   }
 
   return (

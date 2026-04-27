@@ -17,7 +17,7 @@ export default function PostItem({ post }) {
         showComments={showComments}
         onToggleComments={() => setShowComments((prev) => !prev)}
       />
-      {showComments && <CommentSection postId={post.id} postAuthorUid={post.uid} />}
+      <CommentSection postId={post.id} postAuthorUid={post.uid} isPreview={!showComments} />
     </div>
   );
 }

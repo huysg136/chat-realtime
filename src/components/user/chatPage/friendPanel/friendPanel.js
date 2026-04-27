@@ -192,7 +192,7 @@ export default function FriendPanel() {
       roomId = docRef.id;
     }
     setSelectedRoomId(roomId);
-    navigate(ROUTERS.USER.DIRECT.replace(":roomId", roomId));
+    navigate(ROUTERS.USER.CHAT.replace(":roomId", roomId));
   };
 
   // ── Tab content — inline JSX, KHÔNG dùng sub-component ────────────────

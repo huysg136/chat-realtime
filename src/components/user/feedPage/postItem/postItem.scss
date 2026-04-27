@@ -99,7 +99,7 @@
 
     // ── PostActions ───────────────────────────────────────────
     .post-actions {
-        padding: 0 16px 12px;
+        padding: 0 16px 4px;
 
         &__stats {
             display: flex;
@@ -110,7 +110,7 @@
         }
 
         &__stat {
-            font-size: 12.5px;
+            font-size: 14px;
             color: #94a3b8;
             display: flex;
             align-items: center;
@@ -129,6 +129,7 @@
 
         &__buttons {
             display: flex;
+            justify-content: space-between;
             gap: 2px;
         }
 
@@ -167,7 +168,6 @@
 
             &--active {
                 color: #1890ff;
-                background: rgba(24, 144, 255, 0.07);
             }
         }
     }

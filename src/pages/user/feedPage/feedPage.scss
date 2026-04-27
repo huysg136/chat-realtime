@@ -26,14 +26,6 @@
     padding: 0 2px;
   }
 
-  &__title {
-    font-size: 22px;
-    font-weight: 800;
-    color: #1a1a1a;
-    margin: 0;
-    letter-spacing: -0.5px;
-  }
-
   // Thin scrollbar
   &::-webkit-scrollbar {
     width: 8px !important;
@@ -49,10 +41,6 @@ body.theme-dark {
   .feed-page {
     background: #1a1a1a;
 
-    &__title {
-      color: #e2e8f0;
-    }
-
     &::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.1);
     }
@@ -63,9 +51,5 @@ body.theme-dark {
 @media (max-width: 768px) {
   .feed-page {
     padding: 16px 10px 32px;
-
-    &__title {
-      font-size: 18px;
-    }
   }
 }

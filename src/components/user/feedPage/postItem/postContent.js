@@ -5,9 +5,24 @@ import Lightbox from 'react-image-lightbox';
 export default function PostContent({ post }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const renderContentWithHashtags = (text) => {
+    if (!text) return null;
+    const parts = text.split(/(#[\p{L}\p{N}_-]+)/gu);
+    return parts.map((part, index) => {
+      if (part.match(/^#[\p{L}\p{N}_-]+$/u)) {
+        return (
+          <span key={index} style={{ color: "#1890ff", cursor: "pointer" }}>
+            {part}
+          </span>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <div className="post-content">
-      {post.content && <p className="post-content__text">{post.content}</p>}
+      {post.content && <p className="post-content__text">{renderContentWithHashtags(post.content)}</p>}
       
       {post.mediaUrl && (
         <div className="post-content__media">

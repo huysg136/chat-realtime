@@ -25,7 +25,7 @@ export default function HomePage() {
         </p>
 
         <div className="action-buttons">
-          <button className="primary-btn" onClick={() => navigate(ROUTERS.USER.HOME)}>
+          <button className="primary-btn" onClick={() => navigate(ROUTERS.USER.DIRECT)}>
             <MessageOutlined className="btn-icon" />
             <span>{t('explore.goToMessaging')}</span>
           </button>

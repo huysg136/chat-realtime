@@ -188,7 +188,7 @@ export default function AddRoomModal() {
         }
 
         setSelectedRoomId(room.id);
-        navigate(ROUTERS.USER.DIRECT.replace(':roomId', room.id));
+        navigate(ROUTERS.USER.CHAT.replace(':roomId', room.id));
 
         // GROUP CHAT
       } else {
@@ -272,7 +272,7 @@ export default function AddRoomModal() {
         });
 
         setSelectedRoomId(docRef.id);
-        navigate(ROUTERS.USER.DIRECT.replace(':roomId', docRef.id));
+        navigate(ROUTERS.USER.CHAT.replace(':roomId', docRef.id));
       }
       resetModal();
       setIsAddRoomVisible(false);

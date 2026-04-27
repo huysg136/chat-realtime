@@ -94,7 +94,7 @@ export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomI
 
   const handleClick = () => {
     navigate(
-      ROUTERS.USER.DIRECT.replace(":roomId", room.id)
+      ROUTERS.USER.CHAT.replace(":roomId", room.id)
     );
   };
 
