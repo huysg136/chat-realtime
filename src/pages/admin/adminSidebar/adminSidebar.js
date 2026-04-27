@@ -72,13 +72,9 @@ export default function AdminSidebar() {
             label: <Link to={ROUTERS.ADMIN.SETTINGS}>Cấu hình hệ thống</Link>,
           },
           {
-            key: ROUTERS.USER.DIRECT,
+            key: ROUTERS.USER.HOME,
             icon: <IoMdReturnLeft />,
-            label: roomId ? (
-              <Link to={ROUTERS.USER.CHAT.replace(":roomId", roomId)}>Quay về</Link>
-            ) : (
-              <Link to={ROUTERS.USER.DIRECT}>Quay về</Link>
-            ),
+            label: <Link to={ROUTERS.USER.HOME}>Quay về</Link>
           }
         ].filter(Boolean)}
       />
