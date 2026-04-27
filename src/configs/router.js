@@ -7,6 +7,7 @@ export const ROUTERS = {
     CHAT: "/direct/t/:roomId",
     LOGIN: "/login",
     MAINTENANCE: "/maintenance",
+    PROFILE: "/profile/:uid",
   },
 
   ADMIN: {

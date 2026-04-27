@@ -11,13 +11,71 @@
   padding: 12px 0;
   box-sizing: border-box;
   border-right: 2px solid rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.expanded {
+    width: 240px;
+    align-items: flex-start;
+    padding: 4px 16px;
+    background-color: transparent;
+    border-right: none;
+
+    .icon-group {
+      align-items: flex-start;
+      width: 100%;
+      gap: 8px;
+
+      .icon-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        width: 100%;
+        padding: 12px 24px;
+        border-radius: 16px;
+        font-size: 22px;
+        color: #65676b;
+        background-color: transparent;
+        transition: all 0.2s ease;
+
+        .icon-label {
+          font-size: 15px;
+          font-weight: 500;
+        }
+
+        svg {
+          color: #65676b;
+        }
+
+        &:hover {
+          background-color: #f0f2f5;
+          color: #050505;
+
+          svg {
+            color: #050505;
+          }
+        }
+
+        &.active {
+          background-color: #e8f0fe;
+          color: #1877f2;
+
+          .icon-label {
+            font-weight: 600;
+          }
+
+          svg {
+            color: #1877f2;
+          }
+        }
+      }
+    }
+
+    .user-avatar {
+      margin-left: 8px;
+    }
+  }
 
   .user-avatar {
-    margin-bottom: 10px;
-    border: 2px solid rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s;
 
@@ -101,9 +159,40 @@ body.theme-dark {
     background-color: map.get($theme-colors, "bg-dark");
     border-right: 2px solid rgba(255, 255, 255, 0.1);
 
-    .user-avatar {
-      border: 2px solid rgba(148, 163, 184, 0.3);
+    &.expanded {
+      background-color: transparent;
+      border-right: none;
 
+      .icon-group {
+        .icon-item {
+          color: #b0b3b8;
+
+          svg {
+            color: #b0b3b8;
+          }
+
+          &:hover {
+            background-color: #3a3b3c;
+            color: #e4e6eb;
+
+            svg {
+              color: #e4e6eb;
+            }
+          }
+
+          &.active {
+            background-color: rgba(24, 119, 242, 0.2);
+            color: #2e89ff;
+
+            svg {
+              color: #2e89ff;
+            }
+          }
+        }
+      }
+    }
+
+    .user-avatar {
       &:hover {
         border-color: #bebebe;
         box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);

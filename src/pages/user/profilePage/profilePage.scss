@@ -1,0 +1,670 @@
+.profile-container {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #f0f2f5;
+  box-sizing: border-box;
+  padding-bottom: 40px;
+
+  // Custom thin scrollbar
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #bcc0c4;
+    border-radius: 4px;
+  }
+}
+
+.profile-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.profile-not-found {
+  text-align: center;
+  padding: 40px;
+  background: white;
+  margin: 40px auto;
+  border-radius: 12px;
+  max-width: 400px;
+}
+
+.profile-header-card {
+  background: white;
+  max-width: 1000px;
+  margin: 24px auto;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+  .profile-header-content {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #ced0d4;
+    position: relative;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .avatar-section {
+      position: relative;
+      margin-top: -30px;
+      margin-right: 16px;
+
+      @media (max-width: 768px) {
+        margin-right: 0;
+      }
+
+      .main-avatar {
+        border: 4px solid white;
+        background: white;
+      }
+    }
+
+    .profile-header-text {
+      flex: 1;
+      margin-bottom: 16px;
+
+      .display-name {
+        font-size: 32px;
+        font-weight: 700;
+        color: #050505;
+        margin: 0;
+      }
+
+      .username {
+        font-size: 16px;
+        color: #65676b;
+        margin: 0 0 8px 0;
+      }
+
+      .profile-stats {
+        display: flex;
+        gap: 16px;
+        color: #65676b;
+        font-size: 15px;
+
+        @media (max-width: 768px) {
+          justify-content: center;
+        }
+
+        strong {
+          color: #050505;
+        }
+      }
+    }
+
+    .profile-header-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+
+      .edit-profile-btn {
+        background-color: #1877f2;
+        border-color: #1877f2;
+        font-weight: 600;
+        border-radius: 6px;
+
+        &:hover {
+          background-color: #166fe5;
+          border-color: #166fe5;
+        }
+      }
+
+      .more-btn {
+        background-color: #e4e6eb;
+        border-color: #e4e6eb;
+        color: #050505;
+        font-weight: 600;
+        border-radius: 6px;
+
+        &:hover {
+          background-color: #d8dadf;
+          border-color: #d8dadf;
+        }
+      }
+
+      .add-friend-btn {
+        background-color: #1877f2;
+        border-color: #1877f2;
+        color: white;
+        font-weight: 600;
+        border-radius: 6px;
+        padding: 0 16px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        &:hover {
+          background-color: #166fe5;
+          border-color: #166fe5;
+        }
+      }
+
+      .message-btn,
+      .friend-status-btn {
+        background-color: #e4e6eb;
+        border-color: #e4e6eb;
+        color: #050505;
+        font-weight: 600;
+        border-radius: 6px;
+        padding: 0 16px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        &:hover {
+          background-color: #d8dadf;
+          border-color: #d8dadf;
+          color: #050505;
+        }
+      }
+    }
+  }
+
+  .profile-tabs {
+    display: flex;
+    gap: 16px;
+    padding-top: 4px;
+
+    .tab-item {
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #65676b;
+      cursor: pointer;
+      position: relative;
+      border-radius: 4px;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: #f2f2f2;
+      }
+
+      &.active {
+        color: #1877f2;
+
+        &::after {
+          content: "";
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background-color: #1877f2;
+          border-radius: 3px;
+        }
+      }
+    }
+  }
+}
+
+.profile-layout-grid {
+  display: flex;
+  max-width: 1000px;
+  margin: 0 auto;
+  gap: 16px;
+  padding: 0 16px;
+
+  @media (max-width: 992px) {
+    flex-direction: column;
+  }
+
+  .profile-left-col {
+    flex: 2;
+    max-width: 400px;
+
+    @media (max-width: 992px) {
+      max-width: 100%;
+    }
+
+    .info-card {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      margin-bottom: 16px;
+
+      h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #050505;
+        margin: 0 0 12px 0;
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+
+        .subtitle {
+          font-size: 13px;
+          color: #65676b;
+        }
+
+        .see-all-link {
+          font-size: 15px;
+          color: #1877f2;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+
+      .intro-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 16px;
+
+        .intro-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 15px;
+          color: #050505;
+
+          .intro-icon {
+            font-size: 20px;
+            color: #8c8c8c;
+          }
+
+          strong {
+            color: #050505;
+          }
+        }
+      }
+
+      .edit-intro-btn {
+        background-color: #e4e6eb;
+        color: #050505;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        height: 36px;
+
+        &:hover {
+          background-color: #d8dadf;
+        }
+      }
+
+      .photos-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        border-radius: 8px;
+        overflow: hidden;
+
+        .grid-photo {
+          width: 100%;
+          aspect-ratio: 1;
+          object-fit: cover;
+          cursor: pointer;
+
+          &:hover {
+            filter: brightness(0.9);
+          }
+        }
+      }
+
+      .friends-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+
+        .friend-item {
+          display: flex;
+          flex-direction: column;
+          cursor: pointer;
+
+          .friend-avatar {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+
+            &:hover {
+              filter: brightness(0.9);
+            }
+          }
+
+          .friend-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #050505;
+            text-align: center;
+          }
+        }
+      }
+    }
+  }
+
+  .profile-right-col {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+body.theme-dark {
+  .profile-container {
+    background-color: #18191a;
+
+    &::-webkit-scrollbar-thumb {
+      background: #393a3b;
+    }
+  }
+
+  .profile-not-found {
+    background: #242526;
+    color: #e4e6eb;
+  }
+
+  .profile-header-card {
+    background: #242526;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+
+    .profile-header-content {
+      border-bottom: 1px solid #393a3b;
+
+      .avatar-section {
+        .main-avatar {
+          border: 4px solid #242526;
+          background: #242526;
+        }
+      }
+
+      .profile-header-text {
+        .display-name {
+          color: #e4e6eb;
+        }
+
+        .username {
+          color: #b0b3b8;
+        }
+
+        .profile-stats {
+          color: #b0b3b8;
+
+          strong {
+            color: #e4e6eb;
+          }
+        }
+      }
+
+      .profile-header-actions {
+
+        .message-btn,
+        .friend-status-btn {
+          background-color: #3a3b3c;
+          border-color: #3a3b3c;
+          color: #e4e6eb;
+
+          &:hover {
+            background-color: #4e4f50;
+            border-color: #4e4f50;
+            color: #e4e6eb;
+          }
+        }
+
+        .add-friend-btn {
+          background-color: #2e89ff;
+          border-color: #2e89ff;
+
+          &:hover {
+            background-color: #166fe5;
+            border-color: #166fe5;
+          }
+        }
+      }
+    }
+
+    .profile-tabs {
+      border-top: 1px solid #393a3b;
+
+      .tab-item {
+        color: #b0b3b8;
+
+        &:hover {
+          background-color: #3a3b3c;
+        }
+
+        &.active {
+          color: #2e89ff;
+
+          &::after {
+            background-color: #2e89ff;
+          }
+        }
+      }
+    }
+  }
+
+  .profile-layout-grid {
+    .profile-left-col {
+      .info-card {
+        background: #242526;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+
+        h3 {
+          color: #e4e6eb;
+        }
+
+        .card-header {
+          .subtitle {
+            color: #b0b3b8;
+          }
+
+          .see-all-link {
+            color: #2e89ff;
+          }
+        }
+
+        .intro-list {
+          .intro-item {
+            color: #e4e6eb;
+
+            .intro-icon {
+              color: #b0b3b8;
+            }
+
+            strong {
+              color: #e4e6eb;
+            }
+          }
+        }
+
+        .edit-intro-btn {
+          background-color: #3a3b3c;
+          color: #e4e6eb;
+
+          &:hover {
+            background-color: #4e4f50;
+          }
+        }
+
+        .friends-grid {
+          .friend-item {
+            .friend-name {
+              color: #e4e6eb;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .profile-tab-content-full {
+    .info-card {
+      background: #242526 !important;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+
+      h3 {
+        color: #e4e6eb;
+      }
+      
+      .intro-list {
+        .intro-item {
+          color: #e4e6eb;
+          .intro-icon { color: #b0b3b8; }
+        }
+      }
+
+      .full-friend-card {
+        &:hover {
+          background-color: #3a3b3c;
+        }
+        .full-friend-name {
+          color: #e4e6eb;
+        }
+      }
+    }
+  }
+}
+
+.profile-tab-content-full {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 16px;
+
+  .info-card {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+
+    h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #050505;
+      margin: 0 0 20px 0;
+    }
+  }
+
+  .full-friends-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 20px;
+
+    .full-friend-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: #f0f2f5;
+      }
+
+      .full-friend-name {
+        margin-top: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #050505;
+        text-align: center;
+      }
+    }
+  }
+
+  .full-photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+
+    .full-grid-photo {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: filter 0.2s;
+
+      &:hover {
+        filter: brightness(0.85);
+      }
+    }
+  }
+}
+
+  .all-friends-modal {
+    .ant-modal-content {
+      background-color: #242526;
+      color: #e4e6eb;
+
+      .ant-modal-header {
+        background-color: #242526;
+        border-bottom: 1px solid #393a3b;
+
+        .ant-modal-title {
+          color: #e4e6eb;
+        }
+      }
+
+      .ant-modal-close-icon {
+        color: #b0b3b8;
+
+        &:hover {
+          color: #e4e6eb;
+        }
+      }
+    }
+
+    .all-friends-list {
+      .all-friends-item {
+        &:hover {
+          background-color: #3a3b3c;
+        }
+
+        .friend-modal-name {
+          color: #e4e6eb !important;
+        }
+      }
+    }
+  }
+
+.all-friends-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .all-friends-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background-color: #f0f2f5;
+    }
+
+    .friend-modal-name {
+      color: #050505;
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Avatar, Dropdown, Tooltip, Modal, Input, Select } from "antd";
 import { MoreOutlined, DeleteOutlined, ExclamationCircleOutlined, EditOutlined, CloseOutlined } from "@ant-design/icons";
 import { formatDistanceToNow } from "date-fns";
@@ -30,6 +31,7 @@ function toTimestamp(createdAt) {
 export default function PostHeader({ post }) {
     const { user } = useContext(AuthContext);
     const { users } = useContext(AppContext);
+    const navigate = useNavigate();
 
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [editContent, setEditContent] = useState(post.content || "");
@@ -181,11 +183,17 @@ export default function PostHeader({ post }) {
                 size={42}
                 src={post.photoURL || defaultAvatar}
                 className="post-header__avatar"
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate(`/profile/${post.uid}`)}
             >
                 {!post.photoURL && post.displayName?.charAt(0)?.toUpperCase()}
             </Avatar>
             <div className="post-header__info">
-                <span className="post-header__name">
+                <span 
+                    className="post-header__name"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/profile/${post.uid}`)}
+                >
                     <UserBadge
                         displayName={author.displayName || post.displayName || "Người dùng"}
                         role={author.role}

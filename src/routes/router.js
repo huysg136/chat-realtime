@@ -4,10 +4,11 @@ import LoadingScreen from '../components/common/loadingScreen';
 import PrivateRoute from './privateRoute';
 import { ROUTERS } from '../configs/router';
 import ReportManager from '../components/admin/report/reportManager';
-import LandingPage from '../pages/user/chatPage/landingPage';
+import LandingPage from '../layouts/userLayout/landingPage';
 import FeedPage from '../pages/user/feedPage/feedPage';
 
 const ChatRoom = lazy(() => import('../pages/user/chatPage/chatRoom'));
+const ProfilePage = lazy(() => import('../pages/user/profilePage/profilePage'));
 const Login = lazy(() => import('../components/login'));
 const MaintenancePage = lazy(() => import('../pages/user/maintenancePage/maintenancePage'));
 const AdminLayout = lazy(() => import('../pages/admin/adminLayout/adminLayout'));
@@ -72,6 +73,14 @@ export const userRoutes = [
         element: (
           <Suspense fallback={<LoadingScreen />}>
             <ChatRoom />
+          </Suspense>
+        ),
+      },
+      {
+        path: getRelativePath(ROUTERS.USER.PROFILE, "/"),
+        element: (
+          <Suspense fallback={<LoadingScreen />}>
+            <ProfilePage />
           </Suspense>
         ),
       }
