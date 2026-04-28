@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Avatar, Tooltip, Modal } from "antd";
 import { HeartFilled, HeartOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { formatDistanceToNow } from "date-fns";
@@ -31,7 +31,14 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
 
     const author = users.find(u => u.uid === comment.uid) || {};
     const replies = repliesMap[comment.id] || [];
-    const isLiked = (comment.likes || []).includes(user?.uid);
+
+    const [localLikes, setLocalLikes] = useState(comment.likes || []);
+
+    useEffect(() => {
+        setLocalLikes(comment.likes || []);
+    }, [comment.likes]);
+
+    const isLiked = localLikes.includes(user?.uid);
     const [showReplyInput, setShowReplyInput] = useState(false);
     const [showReplies, setShowReplies] = useState(false);
     const [showLikesModal, setShowLikesModal] = useState(false);
@@ -47,7 +54,15 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
 
     const handleLike = async () => {
         if (!user?.uid) return;
-        
+
+        // Optimistic UI update
+        const wasLiked = localLikes.includes(user.uid);
+        const newLikes = wasLiked
+            ? localLikes.filter((id) => id !== user.uid)
+            : [...localLikes, user.uid];
+
+        setLocalLikes(newLikes);
+
         try {
             const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
             const res = await fetch(`${API_BASE_URL}/api/posts/${postId}/comment/${comment.id}/like`, {
@@ -63,6 +78,8 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
             if (!data.success) throw new Error(data.message);
         } catch (error) {
             console.error("Thao tác thích bình luận thất bại:", error);
+            // Rollback on error
+            setLocalLikes(comment.likes || []);
         }
     };
 
@@ -76,7 +93,7 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
             cancelText: 'Hủy',
             onOk: async () => {
                 const originalCount = commentsCount || 0;
-                
+
                 // 1. Tìm tất cả comment con đệ quy để biết tổng số lượng bị xóa (Dành cho Optimistic UI)
                 // Lưu ý: Logic này chỉ để tính số lượng trừ đi ngay lập tức trên UI
                 const countToRemove = (item) => {
@@ -151,7 +168,7 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
                         onClick={handleLike}
                     >
                         {isLiked ? <HeartFilled /> : <HeartOutlined />}
-                        {(comment.likes || []).length > 0 && (
+                        {localLikes.length > 0 && (
                             <span
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -159,7 +176,7 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
                                 }}
                                 style={{ cursor: "pointer", marginLeft: "4px" }}
                             >
-                                {(comment.likes || []).length}
+                                {localLikes.length}
                             </span>
                         )}
                         {/* <span>{isLiked ? "Đã thích" : "Thích"}</span> */}
@@ -224,7 +241,7 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
                 <LikeListModal
                     visible={showLikesModal}
                     onClose={() => setShowLikesModal(false)}
-                    uids={comment.likes}
+                    uids={localLikes}
                 />
             </div>
         </div>

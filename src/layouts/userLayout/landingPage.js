@@ -10,7 +10,11 @@ import "./landingPage.scss";
 import { ROUTERS } from "../../configs/router";
 import { AuthContext } from "../../context/authProvider";
 import { db } from "../../firebase/config";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, where, onSnapshot, getDocs } from "firebase/firestore";
+
+import { APP_CONFIG } from "../../configs/appConfig";
+
+import { io as socketIO } from "socket.io-client";
 
 const LandingPage = () => {
   const location = useLocation();
@@ -31,16 +35,65 @@ const LandingPage = () => {
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const notifDropdownRef = useRef(null);
 
+  const [socket, setSocket] = useState(null);
+
+  // 1. Khởi tạo Socket và lắng nghe realtime
   useEffect(() => {
     if (!user?.uid) return;
+
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+    const newSocket = socketIO(API_BASE_URL);
+    setSocket(newSocket);
+
+    // Join vào phòng riêng của mình
+    newSocket.emit("join", user.uid);
+
+    // Lắng nghe tín hiệu cập nhật số lượng thông báo
+    newSocket.on("unread_count_update", (data) => {
+      console.log("[Socket] Received unread count update:", data.count);
+      setUnreadCount(data.count);
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [user?.uid]);
+
+  const fetchUnreadCount = async () => {
+    if (!user?.uid) return;
+    try {
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+      const res = await fetch(`${API_BASE_URL}/api/friends/notifications/unread-count?uid=${user.uid}`);
+      const data = await res.json();
+      if (data.success) {
+        setUnreadCount(data.count);
+      }
+    } catch (error) {
+      console.error("Fetch unread count failed:", error);
+    }
+  };
+
+  // Tải số lượng ban đầu khi mount
+  useEffect(() => {
+    fetchUnreadCount();
+    // Vẫn giữ polling dự phòng nhưng sử dụng thời gian từ config
+    const interval = setInterval(fetchUnreadCount, APP_CONFIG.NOTIFICATION_POLLING_INTERVAL); 
+    return () => clearInterval(interval);
+  }, [user?.uid]);
+
+  // 2. Chỉ tải danh sách thông báo chi tiết từ Firestore khi người dùng mở Dropdown (Lazy Loading)
+  useEffect(() => {
+    if (!showNotifDropdown || !user?.uid) return;
 
     const q = query(
       collection(db, "notifications"),
       where("receiverUid", "==", user.uid)
     );
 
-    const unsubscribe = onSnapshot(q,
-      (snapshot) => {
+    // Dùng getDocs thay vì onSnapshot để tiết kiệm request khi đang mở dropdown
+    const fetchNotifs = async () => {
+      try {
+        const snapshot = await getDocs(q);
         const notifs = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -51,15 +104,13 @@ const LandingPage = () => {
           return timeB - timeA;
         });
         setNotifications(notifs);
-        setUnreadCount(notifs.filter((n) => !n.isRead).length);
-      },
-      (error) => {
-        console.warn("Firestore notification listener warning:", error.message);
+      } catch (error) {
+        console.error("Fetch notifications failed:", error);
       }
-    );
+    };
 
-    return () => unsubscribe();
-  }, [user?.uid]);
+    fetchNotifs();
+  }, [showNotifDropdown, user?.uid]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -80,6 +131,8 @@ const LandingPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uid: user.uid }),
       });
+      setUnreadCount(0);
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     } catch (error) {
     }
   };
@@ -87,9 +140,13 @@ const LandingPage = () => {
   const handleNotificationClick = async (notif) => {
     try {
       const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-      await fetch(`${API_BASE_URL}/api/friends/notifications/${notif.id}/read`, {
+      await fetch(`${API_BASE_URL}/api/friends/notifications/${notif.id}/read?uid=${user.uid}`, {
         method: "PATCH",
       });
+      if (!notif.isRead) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
+        setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
+      }
     } catch (error) {
     }
 

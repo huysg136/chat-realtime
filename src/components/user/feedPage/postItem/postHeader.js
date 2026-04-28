@@ -71,11 +71,18 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
             cancelText: 'Hủy',
             onOk: async () => {
                 try {
-                    await deleteDocument("posts", post.id);
+                    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+                    const response = await fetch(`${API_BASE_URL}/api/posts/${post.id}?uid=${user.uid}`, {
+                        method: "DELETE",
+                    });
+                    const data = await response.json();
+                    if (!data.success) throw new Error(data.message);
+
                     onPostDeleted && onPostDeleted(post.id);
                     toast.success("Đã xóa bài viết thành công!");
                 } catch (error) {
                     toast.error("Xóa bài viết thất bại.");
+                    console.error(error);
                 }
             },
         });

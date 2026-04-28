@@ -43,6 +43,11 @@ export default function ProfilePage() {
   const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
   const { isProfileVisible, setIsProfileVisible } = useContext(AppContext);
   const [activeTab, setActiveTab] = useState("posts");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handlePostCreated = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -372,9 +377,9 @@ export default function ProfilePage() {
 
           {/* Right Column (Create Post, Post List) */}
           <div className="profile-right-col">
-            {isOwner && <CreatePost />}
+            {isOwner && <CreatePost onPostCreated={handlePostCreated} />}
             <div className="profile-posts-wrapper">
-              <PostList filterUserId={uid} />
+              <PostList filterUserId={uid} refreshTrigger={refreshTrigger} />
             </div>
           </div>
         </div>

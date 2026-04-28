@@ -59,20 +59,20 @@ export default function CommentSection({ postId, postAuthorUid, isPreview = fals
     // Điểm A
     if (scoresMap[a.id] === undefined) {
       const authorA = users.find(u => u.uid === a.uid) || {};
-      const likesA = (a.likes || []).length;
+      const likesCountA = typeof a.likesCount === 'number' ? a.likesCount : (a.likes || []).length;
       const isPostAuthorA = a.uid === postAuthorUid;
       const isAdminA = authorA.role === "admin";
-      scoresMap[a.id] = (likesA * 2) + (isPostAuthorA ? 5 : 0) + (isAdminA ? 8 : 0);
+      scoresMap[a.id] = (likesCountA * 2) + (isPostAuthorA ? 5 : 0) + (isAdminA ? 8 : 0);
     }
     const scoreA = scoresMap[a.id];
 
     // Điểm B
     if (scoresMap[b.id] === undefined) {
       const authorB = users.find(u => u.uid === b.uid) || {};
-      const likesB = (b.likes || []).length;
+      const likesCountB = typeof b.likesCount === 'number' ? b.likesCount : (b.likes || []).length;
       const isPostAuthorB = b.uid === postAuthorUid;
       const isAdminB = authorB.role === "admin";
-      scoresMap[b.id] = (likesB * 2) + (isPostAuthorB ? 5 : 0) + (isAdminB ? 8 : 0);
+      scoresMap[b.id] = (likesCountB * 2) + (isPostAuthorB ? 5 : 0) + (isAdminB ? 8 : 0);
     }
     const scoreB = scoresMap[b.id];
 

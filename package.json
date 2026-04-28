@@ -43,6 +43,7 @@
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
     "resolve-url-loader": "^5.0.0",
+    "socket.io-client": "^4.8.3",
     "styled-components": "^6.1.0",
     "web-vitals": "^2.1.0"
   },
