@@ -42,7 +42,10 @@ const LandingPage = () => {
     if (!user?.uid) return;
 
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-    const newSocket = socketIO(API_BASE_URL);
+    const newSocket = socketIO(API_BASE_URL, {
+      transports: ["websocket"],
+      upgrade: false
+    });
     setSocket(newSocket);
 
     // Join vào phòng riêng của mình
