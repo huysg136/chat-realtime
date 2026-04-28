@@ -12,10 +12,6 @@ import { AuthContext } from "../../context/authProvider";
 import { db } from "../../firebase/config";
 import { collection, query, where, onSnapshot, getDocs } from "firebase/firestore";
 
-import { APP_CONFIG } from "../../configs/appConfig";
-
-import { io as socketIO } from "socket.io-client";
-
 const LandingPage = () => {
   const location = useLocation();
   const isHomePage = location.pathname === "/" || location.pathname.startsWith("/p/");
@@ -35,31 +31,21 @@ const LandingPage = () => {
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const notifDropdownRef = useRef(null);
 
-  const [socket, setSocket] = useState(null);
 
-  // 1. Khởi tạo Socket và lắng nghe realtime
   useEffect(() => {
     if (!user?.uid) return;
 
-    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-    const newSocket = socketIO(API_BASE_URL, {
-      transports: ["websocket"],
-      upgrade: false
-    });
-    setSocket(newSocket);
+    const q = query(
+      collection(db, "notifications"),
+      where("receiverUid", "==", user.uid),
+      where("isRead", "==", false)
+    );
 
-    // Join vào phòng riêng của mình
-    newSocket.emit("join", user.uid);
-
-    // Lắng nghe tín hiệu cập nhật số lượng thông báo
-    newSocket.on("unread_count_update", (data) => {
-      console.log("[Socket] Received unread count update:", data.count);
-      setUnreadCount(data.count);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setUnreadCount(snapshot.size);
     });
 
-    return () => {
-      newSocket.disconnect();
-    };
+    return () => unsubscribe();
   }, [user?.uid]);
 
   const fetchUnreadCount = async () => {
@@ -76,15 +62,10 @@ const LandingPage = () => {
     }
   };
 
-  // Tải số lượng ban đầu khi mount
   useEffect(() => {
     fetchUnreadCount();
-    // Vẫn giữ polling dự phòng nhưng sử dụng thời gian từ config
-    const interval = setInterval(fetchUnreadCount, APP_CONFIG.NOTIFICATION_POLLING_INTERVAL); 
-    return () => clearInterval(interval);
   }, [user?.uid]);
 
-  // 2. Chỉ tải danh sách thông báo chi tiết từ Firestore khi người dùng mở Dropdown (Lazy Loading)
   useEffect(() => {
     if (!showNotifDropdown || !user?.uid) return;
 
