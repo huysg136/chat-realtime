@@ -17,6 +17,7 @@ const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b
 function toTimestamp(createdAt) {
     if (!createdAt) return new Date();
     if (createdAt.seconds) return new Date(createdAt.seconds * 1000);
+    if (createdAt._seconds) return new Date(createdAt._seconds * 1000);
     if (createdAt.toMillis) return new Date(createdAt.toMillis());
     if (createdAt instanceof Date) return createdAt;
     return new Date(createdAt);
@@ -46,11 +47,22 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
 
     const handleLike = async () => {
         if (!user?.uid) return;
-        const ref = doc(db, "comments", comment.id);
-        if (isLiked) {
-            await updateDoc(ref, { likes: arrayRemove(user.uid) });
-        } else {
-            await updateDoc(ref, { likes: arrayUnion(user.uid) });
+        
+        try {
+            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+            const res = await fetch(`${API_BASE_URL}/api/posts/${postId}/comment/${comment.id}/like`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL
+                })
+            });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.message);
+        } catch (error) {
+            console.error("Thao tác thích bình luận thất bại:", error);
         }
     };
 

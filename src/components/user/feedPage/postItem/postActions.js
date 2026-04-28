@@ -1,13 +1,17 @@
 import React, { useContext } from "react";
 import { HeartFilled, HeartOutlined, MessageOutlined, ShareAltOutlined } from "@ant-design/icons";
 import { AuthContext } from "../../../../context/authProvider";
+import { AppContext } from "../../../../context/appProvider";
+
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { db } from "../../../../firebase/config";
 import { message as antMessage } from "antd";
 import LikeListModal from "../likeListModal/likeListModal";
 
-export default function PostActions({ post, showComments, onToggleComments }) {
+export default function PostActions({ post, showComments, onToggleComments, onPostUpdated }) {
     const { user } = useContext(AuthContext);
+    const { isPostDetailVisible, setIsPostDetailVisible, setActivePostId } = useContext(AppContext);
+
     const [showLikesModal, setShowLikesModal] = React.useState(false);
 
     const isLiked = (post.likes || []).includes(user?.uid);
@@ -15,14 +19,34 @@ export default function PostActions({ post, showComments, onToggleComments }) {
 
     const handleLike = async () => {
         if (!user?.uid) return;
-        const postRef = doc(db, "posts", post.id);
+
+        const newLikes = isLiked
+            ? (post.likes || []).filter((id) => id !== user.uid)
+            : [...(post.likes || []), user.uid];
+
+        onPostUpdated && onPostUpdated({
+            id: post.id,
+            likes: newLikes,
+        });
+
         try {
-            if (isLiked) {
-                await updateDoc(postRef, { likes: arrayRemove(user.uid) });
-            } else {
-                await updateDoc(postRef, { likes: arrayUnion(user.uid) });
-            }
-        } catch {
+            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+            const res = await fetch(`${API_BASE_URL}/api/posts/${post.id}/like`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL
+                })
+            });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.message);
+        } catch (error) {
+            onPostUpdated && onPostUpdated({
+                id: post.id,
+                likes: post.likes,
+            });
             antMessage.error("Thao tác thất bại.");
         }
     };
@@ -64,7 +88,12 @@ export default function PostActions({ post, showComments, onToggleComments }) {
                 <button
                     id={`comment-btn-${post.id}`}
                     className={`post-actions__btn ${showComments ? "post-actions__btn--active" : ""}`}
-                    onClick={onToggleComments}
+                    onClick={() => {
+                        if (isPostDetailVisible) return;
+                        setActivePostId(post.id);
+                        setIsPostDetailVisible(true);
+                        window.history.pushState(null, "", `/p/${post.id}`);
+                    }}
                 >
                     <MessageOutlined />
                     <span>Bình luận</span>

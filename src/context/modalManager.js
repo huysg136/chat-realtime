@@ -13,6 +13,8 @@ const SettingsModal = lazy(() => import('../components/modals/settingsModal'));
 const AnnouncementModal = lazy(() => import('../components/modals/announcementModal'));
 const MyReportsModal = lazy(() => import('../components/modals/myReportsModal'));
 const UpgradePlanModal = lazy(() => import('../components/modals/upgradePlanModal'));
+const PostDetailModal = lazy(() => import('../components/modals/postDetailModal'));
+
 
 
 export default function ModalManager() {
@@ -25,6 +27,8 @@ export default function ModalManager() {
         isAnnouncementVisible,
         isMyReportsVisible,
         isUpgradePlanVisible,
+        isPostDetailVisible,
+
     } = useContext(AppContext);
     const { user } = useContext(AuthContext);
     const location = useLocation();
@@ -45,6 +49,7 @@ export default function ModalManager() {
             {isAnnouncementVisible && <AnnouncementModal />}
             {isMyReportsVisible && <MyReportsModal />}
             {isUpgradePlanVisible && <UpgradePlanModal premiumLevel={user?.premiumLevel} />}
+            {isPostDetailVisible && <PostDetailModal />}
         </Suspense>
     );
 }

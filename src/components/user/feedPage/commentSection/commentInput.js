@@ -2,13 +2,11 @@ import React, { useContext, useState } from "react";
 import { Avatar, Input, Button } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 import { AuthContext } from "../../../../context/authProvider";
-import { addDocument } from "../../../../firebase/services";
-import { doc, increment, updateDoc } from "firebase/firestore";
-import { db } from "../../../../firebase/config";
+
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
-export default function CommentInput({ postId, parentId = null, replyToUser = null, onSubmitted, placeholder = "Viết bình luận..." }) {
+export default function CommentInput({ postId, postAuthorUid, parentId = null, replyToUser = null, onSubmitted, placeholder = "Viết bình luận...", onPostUpdated, commentsCount }) {
   const { user } = useContext(AuthContext);
   const [value, setValue] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -19,21 +17,29 @@ export default function CommentInput({ postId, parentId = null, replyToUser = nu
 
     setSubmitting(true);
     try {
-      await addDocument("comments", {
-        postId,
-        parentId,          // null = top-level, string = reply
-        replyToUid: replyToUser?.uid || null,
-        replyToName: replyToUser?.displayName || null,
-        content: trimmed,
-        uid: user.uid,
-        displayName: user.displayName || "Người dùng",
-        photoURL: user.photoURL || defaultAvatar,
-        likes: [],
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+      const res = await fetch(`${API_BASE_URL}/api/posts/${postId}/comment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          parentId,
+          replyToUid: replyToUser?.uid || null,
+          replyToName: replyToUser?.displayName || null,
+          content: trimmed,
+          uid: user.uid,
+          displayName: user.displayName || "Người dùng",
+          photoURL: user.photoURL || defaultAvatar,
+          postAuthorUid
+        })
       });
 
-      // Increment commentsCount on the post
-      const postRef = doc(db, "posts", postId);
-      await updateDoc(postRef, { commentsCount: increment(1) });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      onPostUpdated && onPostUpdated({
+        id: postId,
+        commentsCount: (commentsCount || 0) + 1
+      });
 
       setValue("");
       onSubmitted && onSubmitted();

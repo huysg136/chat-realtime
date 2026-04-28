@@ -82,89 +82,84 @@ export const getFriendUids = async (myUid) => {
 
 // ─── Write ───────────────────────────────────────────────────────────────────
 
+const getApiBaseUrl = () => {
+  return process.env.REACT_APP_API_BASE_URL || "http://localhost:3000";
+};
+
 /** Send a friend request. Returns the new request doc id, or null if already exists. */
 export const sendFriendRequest = async (fromUid, toUid) => {
   if (!fromUid || !toUid || fromUid === toUid) return null;
 
-  // Prevent duplicate
-  const q = query(
-    collection(db, "friendRequests"),
-    where("fromUid", "==", fromUid),
-    where("toUid", "==", toUid),
-    where("status", "==", "pending"),
-    limit(1)
-  );
-  const snap = await getDocs(q);
-  if (!snap.empty) return snap.docs[0].id;
-
-  const ref = await addDoc(collection(db, "friendRequests"), {
-    fromUid,
-    toUid,
-    status: "pending",
-    createdAt: serverTimestamp(),
-  });
-  return ref.id;
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/api/friends/request`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fromUid, toUid }),
+    });
+    const data = await response.json();
+    return data.success ? data.requestId : null;
+  } catch (error) {
+    return null;
+  }
 };
 
 /** Cancel / retract a sent friend request by fromUid+toUid */
 export const cancelFriendRequest = async (fromUid, toUid) => {
-  const q = query(
-    collection(db, "friendRequests"),
-    where("fromUid", "==", fromUid),
-    where("toUid", "==", toUid),
-    where("status", "==", "pending"),
-    limit(1)
-  );
-  const snap = await getDocs(q);
-  if (snap.empty) return false;
-  await deleteDoc(snap.docs[0].ref);
-  return true;
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/api/friends/cancel`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fromUid, toUid }),
+    });
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    return false;
+  }
 };
 
 /** Accept a friend request by requestId. Creates the friends doc. */
 export const acceptFriendRequest = async (requestId, fromUid, myUid) => {
-  // Update request status
-  await updateDoc(doc(db, "friendRequests", requestId), {
-    status: "accepted",
-    updatedAt: serverTimestamp(),
-  });
-
-  // Create friends relationship (check not already exists)
-  const pk = pairKey(fromUid, myUid);
-  const fQ = query(
-    collection(db, "friends"),
-    where("pairKey", "==", pk),
-    limit(1)
-  );
-  const fSnap = await getDocs(fQ);
-  if (fSnap.empty) {
-    await addDoc(collection(db, "friends"), {
-      users: [fromUid, myUid].sort(),
-      pairKey: pk,
-      createdAt: serverTimestamp(),
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/api/friends/accept`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestId, fromUid, myUid }),
     });
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    return false;
   }
-  return true;
 };
 
 /** Reject a friend request by requestId */
 export const rejectFriendRequest = async (requestId) => {
-  await updateDoc(doc(db, "friendRequests", requestId), {
-    status: "rejected",
-    updatedAt: serverTimestamp(),
-  });
-  return true;
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/api/friends/reject`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestId }),
+    });
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    return false;
+  }
 };
 
 /** Remove friendship between two users */
 export const unfriend = async (myUid, targetUid) => {
-  const pk = pairKey(myUid, targetUid);
-  const q = query(
-    collection(db, "friends"),
-    where("pairKey", "==", pk),
-    limit(1)
-  );
-  const snap = await getDocs(q);
-  if (!snap.empty) await deleteDoc(snap.docs[0].ref);
-  return true;
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/api/friends/unfriend`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ myUid, targetUid }),
+    });
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    return false;
+  }
 };
+

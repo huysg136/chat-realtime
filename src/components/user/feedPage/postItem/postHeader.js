@@ -23,12 +23,13 @@ const { confirm } = Modal;
 function toTimestamp(createdAt) {
     if (!createdAt) return null;
     if (createdAt.seconds) return new Date(createdAt.seconds * 1000);
+    if (createdAt._seconds) return new Date(createdAt._seconds * 1000);
     if (createdAt.toMillis) return new Date(createdAt.toMillis());
     if (createdAt instanceof Date) return createdAt;
     return new Date(createdAt);
 }
 
-export default function PostHeader({ post }) {
+export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
     const { user } = useContext(AuthContext);
     const { users } = useContext(AppContext);
     const navigate = useNavigate();
@@ -71,6 +72,7 @@ export default function PostHeader({ post }) {
             onOk: async () => {
                 try {
                     await deleteDocument("posts", post.id);
+                    onPostDeleted && onPostDeleted(post.id);
                     toast.success("Đã xóa bài viết thành công!");
                 } catch (error) {
                     toast.error("Xóa bài viết thất bại.");
@@ -142,6 +144,14 @@ export default function PostHeader({ post }) {
                 kind: finalKind,
                 privacy: editPrivacy,
                 editedAt: new Date()
+            });
+            onPostUpdated && onPostUpdated({
+                id: post.id,
+                content: trimmed,
+                mediaUrl: finalMediaUrl,
+                kind: finalKind,
+                privacy: editPrivacy,
+                editedAt: { _seconds: Math.floor(Date.now() / 1000) }
             });
             toast.success("Cập nhật bài viết thành công!");
             setIsEditModalVisible(false);

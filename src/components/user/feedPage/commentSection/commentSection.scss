@@ -58,10 +58,6 @@
   gap: 10px;
   animation: fadeSlideIn 0.2s ease;
 
-  &.no-section {
-    padding: 0;
-  }
-
   &__list {
     display: flex;
     flex-direction: column;

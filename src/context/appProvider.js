@@ -24,6 +24,9 @@ export default function AppProvider({ children }) {
   const [isFriendsVisible, setIsFriendsVisible] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
   const [ isActiveTab, setIsActiveTab ] = useState("message");
+  const [isPostDetailVisible, setIsPostDetailVisible] = useState(false);
+  const [activePostId, setActivePostId] = useState("");
+
 
   const location = useLocation();
 
@@ -179,6 +182,9 @@ export default function AppProvider({ children }) {
         isUpgradePlanVisible, setIsUpgradePlanVisible,
         isFriendsVisible, setIsFriendsVisible,
         isActiveTab, setIsActiveTab,
+        isPostDetailVisible, setIsPostDetailVisible,
+        activePostId, setActivePostId,
+
         searchText,
         setSearchText,
         theme,

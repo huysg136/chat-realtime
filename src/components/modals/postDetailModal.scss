@@ -1,0 +1,42 @@
+.post-detail-modal {
+  .ant-modal-content {
+    border-radius: 12px;
+    padding: 24px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--bg-card, #ffffff);
+    color: var(--text-primary, #1c1e21);
+  }
+
+  .ant-modal-close {
+    color: var(--text-secondary, #65676b);
+
+    &:hover {
+      color: var(--text-primary, #1c1e21);
+    }
+  }
+
+  &__content {
+    &.post-item {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+    }
+
+    .post-header {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .post-actions {
+      border-bottom: 1px solid var(--border-color, #f0f2f5);
+      padding: 0 6px;
+    }
+
+    .comment-section {
+      margin-top: 12px;
+    }
+  }
+}

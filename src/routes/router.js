@@ -61,6 +61,10 @@ export const userRoutes = [
         element: <FeedPage />,
       },
       {
+        path: "p/:postId",
+        element: <FeedPage />,
+      },
+      {
         path: ROUTERS.USER.CHAT,
         element: (
           <Suspense fallback={<LoadingScreen />}>

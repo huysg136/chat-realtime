@@ -3,15 +3,11 @@ import {
   AiOutlineLogout,
   AiFillMessage,
   AiOutlineMessage,
-  AiOutlineCompass,
-  AiFillCompass,
   AiOutlineUser,
-  AiFillUser,
   AiFillHome,
   AiOutlineHome,
   AiOutlineTeam
 } from "react-icons/ai";
-import { Avatar, Dropdown } from "antd";
 import { AuthContext } from "../../../context/authProvider";
 import { db } from "../../../firebase/config";
 import { getUserDocIdByUid } from "../../../firebase/services";
@@ -21,7 +17,6 @@ import { SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { AppContext } from '../../../context/appProvider';
 import { MdHome, MdOutlineAdminPanelSettings, MdOutlineHome, MdReportProblem } from "react-icons/md";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useUserStatus } from "../../../hooks/useUserStatus";
 import { ROUTERS } from "../../../configs/router";
 import { useTranslation } from "react-i18next";
 import { FaMoneyBillWave } from "react-icons/fa";
@@ -29,9 +24,6 @@ import { FaRegUser } from "react-icons/fa6";
 import { HiUserGroup, HiOutlineUserGroup } from "react-icons/hi2";
 import { useFriends } from "../../../hooks/useFriends";
 import UserMenu from "../userMenu/userMenu";
-
-
-
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
@@ -41,24 +33,21 @@ export default function LeftSide({ isExpanded }) {
   const [role, setRole] = useState("");
   const { user, logout } = useContext(AuthContext);
   const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible, selectedRoomId: roomId, setSelectedRoomId, setIsActiveTab } = useContext(AppContext);
-  const displayName = user?.displayName;
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
-  const userStatus = useUserStatus(user?.uid);
   const { t } = useTranslation();
   const { receivedRequests } = useFriends();
 
   useEffect(() => {
-    if (location.pathname === ROUTERS.USER.HOME) {
+    if (location.pathname === ROUTERS.USER.HOME || location.pathname.startsWith("/p/")) {
       setActive("home");
-      setIsActiveTab("home");
-    } else if (location.pathname === ROUTERS.USER.DIRECT || location.pathname.startsWith("/t/")) {
+    } else if (location.pathname === ROUTERS.USER.DIRECT || location.pathname.startsWith("/direct/t")) {
       // Only reset to "message" if we are NOT currently on the friends tab
       setActive((prev) => (prev === "friends" ? "friends" : "message"));
-    } else if (location.pathname.startsWith(`/profile/${user?.uid}`)) {
-      setActive("profile");
     } else if (location.pathname.startsWith("/profile")) {
-      setActive("");
+      setActive("profile");
+    } else if (location.pathname.startsWith("/direct")) {
+      setActive("message");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname, user?.uid]);

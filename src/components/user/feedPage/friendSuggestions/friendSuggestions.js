@@ -1,113 +1,41 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Avatar } from 'antd';
 import { AppContext } from '../../../../context/appProvider';
 import { AuthContext } from '../../../../context/authProvider';
 import { useFriends } from '../../../../hooks/useFriends';
-import useFirestore from '../../../../hooks/useFirestore';
 import UserBadge from '../../../common/userBadge';
 import FriendButton from '../../../common/friendButton';
 import './friendSuggestions.scss';
 
-function computeSuggestionScore(candidate, mutualCount, mutualGroupsCount, hasMessaged) {
-    let score = 0;
-
-    // 1. Bạn chung (10đ mỗi người)
-    score += mutualCount * 10;
-
-    // 2. Nhóm chung (4đ mỗi nhóm tối đa 3 nhóm)
-    const cappedGroups = Math.min(mutualGroupsCount, 3);
-    score += cappedGroups * 4;
-
-    // 3. Đã từng nhắn tin riêng (5đ)
-    if (hasMessaged) score += 5;
-
-    // 4. Độ ưu tiên Premium
-    const premiumScores = { max: 4, pro: 3, lite: 2 };
-    score += premiumScores[candidate.premiumLevel] || 0;
-
-    // 5. Vai trò hệ thống
-    const roleScores = { admin: 3, moderator: 2 };
-    score += roleScores[candidate.role] || 0;
-
-    // 6. Random noise (để danh sách luôn tươi mới)
-    score += Math.random() * 1.5;
-
-    return score;
-}
-
 export default function FriendSuggestions() {
-    const { users, rooms } = useContext(AppContext);
     const { user } = useContext(AuthContext);
-    const { friends, receivedRequests, sentRequests, loading } = useFriends();
-    const allFriendships = useFirestore("friends");
+    const { loading: friendsLoading } = useFriends();
+    const [suggestedUsers, setSuggestedUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const suggestedUsers = useMemo(() => {
-        if (!user?.uid || !users?.length) return [];
+    useEffect(() => {
+        if (!user?.uid) return;
 
-        const myFriendsSet = new Set(friends.map(f => f.uid));
-        const excludedUids = new Set([
-            user.uid,
-            ...myFriendsSet,
-            ...receivedRequests.map(r => r.fromUid),
-            ...sentRequests.map(r => r.toUid),
-        ]);
-
-        const globalFriendshipMap = new Map();
-        allFriendships.forEach((f) => {
-            const pair = f.users || [];
-            if (pair.length === 2) {
-                const [u1, u2] = pair;
-                if (!globalFriendshipMap.has(u1)) globalFriendshipMap.set(u1, new Set());
-                if (!globalFriendshipMap.has(u2)) globalFriendshipMap.set(u2, new Set());
-                globalFriendshipMap.get(u1).add(u2);
-                globalFriendshipMap.get(u2).add(u1);
-            }
-        });
-
-        return users
-            .filter(u => !excludedUids.has(u.uid) && u.displayName)
-            .map(u => {
-                const candidateFriends = globalFriendshipMap.get(u.uid) || new Set();
-                let mutualCount = 0;
-                candidateFriends.forEach(uid => {
-                    if (myFriendsSet.has(uid)) {
-                        mutualCount++;
-                    }
-                });
-
-                let mutualGroupsCount = 0;
-                let hasMessaged = false;
-
-                if (Array.isArray(rooms)) {
-                    rooms.forEach(room => {
-                        const memberUids = Array.isArray(room.members)
-                            ? room.members.map((m) => (typeof m === "string" ? m : m?.uid)).filter(Boolean)
-                            : [];
-
-                        if (memberUids.includes(u.uid)) {
-                            if (room.type === 'group') {
-                                mutualGroupsCount++;
-                            } else if (room.type === 'private' && room.lastMessage) {
-                                hasMessaged = true;
-                            }
-                        }
-                    });
+        const fetchSuggestions = async () => {
+            try {
+                const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+                const res = await fetch(`${API_BASE_URL}/api/friends/suggestions?uid=${user.uid}`);
+                const data = await res.json();
+                if (data.success) {
+                    setSuggestedUsers(data.suggestions);
                 }
+            } catch (error) {
+                console.error("Failed to fetch friend suggestions:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-                const score = computeSuggestionScore(u, mutualCount, mutualGroupsCount, hasMessaged);
+        fetchSuggestions();
+    }, [user?.uid]);
 
-                return {
-                    ...u,
-                    _score: score,
-                    _mutualCount: mutualCount
-                };
-            })
-            .sort((a, b) => b._score - a._score)
-            .slice(0, 5);
+    if (loading || friendsLoading || suggestedUsers.length === 0) return null;
 
-    }, [users, user?.uid, friends, receivedRequests, sentRequests, allFriendships]);
-
-    if (loading || suggestedUsers.length === 0) return null;
 
     return (
         <div className="friend-suggestions-container">

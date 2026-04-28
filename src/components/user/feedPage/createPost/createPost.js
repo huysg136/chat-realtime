@@ -104,27 +104,29 @@ export default function CreatePost({ onPostCreated }) {
             if (selectedFile) {
                 // Upload to R2
                 mediaUrl = await uploadToR2(selectedFile);
-
-                // Increase Quota
-                const docId = await getUserDocIdByUid(user.uid);
-                if (docId) {
-                    await increaseQuota(docId, selectedFile.size);
-                }
-
                 kind = fileType === "video" ? "video" : "image";
             }
 
-            await addDocument("posts", {
-                content: trimmed,
-                mediaUrl: mediaUrl,
-                kind: kind,
-                uid: user.uid,
-                displayName: user.displayName || "Người dùng",
-                photoURL: user.photoURL || defaultAvatar,
-                likes: [],
-                commentsCount: 0,
-                privacy: privacy,
+            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+            const response = await fetch(`${API_BASE_URL}/api/posts`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    content: trimmed,
+                    mediaUrl: mediaUrl,
+                    kind: kind,
+                    uid: user.uid,
+                    displayName: user.displayName || "Người dùng",
+                    photoURL: user.photoURL || defaultAvatar,
+                    privacy: privacy,
+                    fileSize: selectedFile ? selectedFile.size : 0,
+                }),
             });
+
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.message);
+            }
 
             setContent("");
             setPrivacy("public");

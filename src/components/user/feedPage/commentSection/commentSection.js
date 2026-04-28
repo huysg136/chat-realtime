@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useContext } from "react";
-import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, where, orderBy, onSnapshot, getDocs } from "firebase/firestore";
 import { db } from "../../../../firebase/config";
 import { AppContext } from "../../../../context/appProvider";
 import CommentItem from "./commentItem";
 import CommentInput from "./commentInput";
 import "./commentSection.scss";
 
-export default function CommentSection({ postId, postAuthorUid, isPreview = false }) {
+export default function CommentSection({ postId, postAuthorUid, isPreview = false, onPostUpdated, commentsCount }) {
   const [comments, setComments] = useState([]);
   const { users } = useContext(AppContext);
   const commentScoresRef = React.useRef({});
@@ -19,20 +19,34 @@ export default function CommentSection({ postId, postAuthorUid, isPreview = fals
       where("postId", "==", postId)
     );
 
-    const unsub = onSnapshot(q, (snap) => {
-      const fetchedComments = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      fetchedComments.sort((a, b) => {
-        const aTime = a.createdAt?.seconds ?? a.createdAt?.toMillis?.() / 1000 ?? 0;
-        const bTime = b.createdAt?.seconds ?? b.createdAt?.toMillis?.() / 1000 ?? 0;
-        return aTime - bTime;
+    if (isPreview) {
+      getDocs(q).then((snap) => {
+        const fetchedComments = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        fetchedComments.sort((a, b) => {
+          const aTime = a.createdAt?.seconds ?? a.createdAt?.toMillis?.() / 1000 ?? 0;
+          const bTime = b.createdAt?.seconds ?? b.createdAt?.toMillis?.() / 1000 ?? 0;
+          return aTime - bTime;
+        });
+        setComments(fetchedComments);
+      }).catch((error) => {
+        console.error("Error fetching preview comments:", error);
       });
-      setComments(fetchedComments);
-    }, (error) => {
-      console.error("Error fetching comments:", error);
-    });
+    } else {
+      const unsub = onSnapshot(q, (snap) => {
+        const fetchedComments = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        fetchedComments.sort((a, b) => {
+          const aTime = a.createdAt?.seconds ?? a.createdAt?.toMillis?.() / 1000 ?? 0;
+          const bTime = b.createdAt?.seconds ?? b.createdAt?.toMillis?.() / 1000 ?? 0;
+          return aTime - bTime;
+        });
+        setComments(fetchedComments);
+      }, (error) => {
+        console.error("Error fetching comments:", error);
+      });
 
-    return () => unsub();
-  }, [postId]);
+      return () => unsub();
+    }
+  }, [postId, isPreview]);
 
   const topLevel = comments.filter((c) => !c.parentId);
 
@@ -78,8 +92,8 @@ export default function CommentSection({ postId, postAuthorUid, isPreview = fals
     }, {});
 
   return (
-    <div className={`comment-section ${topLevel.length > 0 ? "" : "no-section"}`}>
-      {!isPreview && <CommentInput postId={postId} />}
+    <div className="comment-section">
+      {!isPreview && <CommentInput postId={postId} postAuthorUid={postAuthorUid} onPostUpdated={onPostUpdated} commentsCount={commentsCount} />}
 
       <div className="comment-section__list">
         {isPreview ? (
@@ -90,6 +104,8 @@ export default function CommentSection({ postId, postAuthorUid, isPreview = fals
               postId={postId}
               repliesMap={repliesMap}
               isPreview={true}
+              onPostUpdated={onPostUpdated}
+              commentsCount={commentsCount}
             />
           )
         ) : (
@@ -100,6 +116,8 @@ export default function CommentSection({ postId, postAuthorUid, isPreview = fals
               postId={postId}
               repliesMap={repliesMap}
               isPreview={false}
+              onPostUpdated={onPostUpdated}
+              commentsCount={commentsCount}
             />
           ))
         )}
