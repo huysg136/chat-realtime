@@ -15,7 +15,14 @@ export default function CommentInput({ postId, postAuthorUid, parentId = null, r
     const trimmed = value.trim();
     if (!trimmed) return;
 
-    setSubmitting(true);
+    const originalCount = commentsCount || 0;
+
+    // Optimistic UI: Cập nhật ngay lập tức
+    onPostUpdated && onPostUpdated({
+      id: postId,
+      commentsCount: originalCount + 1
+    });
+
     try {
       const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
       const res = await fetch(`${API_BASE_URL}/api/posts/${postId}/comment`, {
@@ -36,15 +43,15 @@ export default function CommentInput({ postId, postAuthorUid, parentId = null, r
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
 
-      onPostUpdated && onPostUpdated({
-        id: postId,
-        commentsCount: (commentsCount || 0) + 1
-      });
-
       setValue("");
       onSubmitted && onSubmitted();
-    } catch {
-      /* silent */
+    } catch (error) {
+      // Rollback nếu thất bại
+      onPostUpdated && onPostUpdated({
+        id: postId,
+        commentsCount: originalCount
+      });
+      console.error("Comment failed:", error);
     } finally {
       setSubmitting(false);
     }

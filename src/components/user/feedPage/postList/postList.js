@@ -20,6 +20,13 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
     const [loading, setLoading] = useState(true);
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_POSTS);
     const [isLazyLoading, setIsLazyLoading] = useState(false);
+    const [newPostCount, setNewPostCount] = useState(0);
+
+    // Lưu timestamp lần fetch cuối để so sánh
+    const lastFetchedAt = useRef(Date.now());
+    const pollTimerRef = useRef(null);
+    const isTabVisible = useRef(true);
+    const POLL_INTERVAL = 60_000; // 60 giây
 
     const handlePostUpdated = (updatedPost) => {
         setPosts((prev) => prev.map((p) => (p.id === updatedPost.id ? { ...p, ...updatedPost } : p)));
@@ -56,7 +63,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
         friendUidsRef.current = friends.map((f) => f.uid).filter(Boolean);
     }, [friends]);
 
-    const fetchFeed = React.useCallback(async () => {
+    const fetchFeed = React.useCallback(async (skipCache = false) => {
         if (!user?.uid) return;
         setLoading(true);
         try {
@@ -65,12 +72,15 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
             url.searchParams.append("userUid", user.uid);
             if (filterUserId) url.searchParams.append("filterUserId", filterUserId);
             if (searchQuery) url.searchParams.append("searchQuery", searchQuery);
+            if (skipCache) url.searchParams.append("skipCache", "true");
 
             const response = await fetch(url.toString());
             const data = await response.json();
 
             if (data.success) {
                 setPosts(data.posts);
+                setNewPostCount(0); // reset banner
+                lastFetchedAt.current = Date.now();
             }
         } catch (error) {
             console.error("Error fetching feed:", error);
@@ -78,6 +88,46 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
             setLoading(false);
         }
     }, [user?.uid, filterUserId, searchQuery]);
+
+    // Chỉ check nhẹ xem có bài mới không, KHÔNG fetch toàn bộ feed
+    const checkForNewPosts = React.useCallback(async () => {
+        // Không poll khi đang search hoặc xem profile hoặc tab bị ẩn
+        if (!user?.uid || filterUserId || searchQuery || !isTabVisible.current) return;
+        try {
+            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+            const url = new URL(`${API_BASE_URL}/api/posts/feed/check-new`);
+            url.searchParams.append("userUid", user.uid);
+            url.searchParams.append("since", lastFetchedAt.current.toString());
+
+            const res = await fetch(url.toString());
+            const data = await res.json();
+            if (data.success && data.count > 0) {
+                setNewPostCount(data.count);
+            }
+        } catch (err) {
+            console.error("Error checking for new posts:", err);
+        }
+    }, [user?.uid, filterUserId, searchQuery]);
+
+    // Dừng/tiếp tục poll khi tab bị ẩn
+    useEffect(() => {
+        const handleVisibility = () => {
+            isTabVisible.current = !document.hidden;
+            // Tab active trở lại → check ngay
+            if (!document.hidden) checkForNewPosts();
+        };
+        document.addEventListener("visibilitychange", handleVisibility);
+        return () => document.removeEventListener("visibilitychange", handleVisibility);
+    }, [checkForNewPosts]);
+
+    // Setup polling
+    useEffect(() => {
+        // Không poll khi search/profile view
+        if (filterUserId || searchQuery) return;
+
+        pollTimerRef.current = setInterval(checkForNewPosts, POLL_INTERVAL);
+        return () => clearInterval(pollTimerRef.current);
+    }, [checkForNewPosts, filterUserId, searchQuery, POLL_INTERVAL]);
 
 
     useEffect(() => {
@@ -159,6 +209,24 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
 
     return (
         <div className="post-list">
+            {/* Banner bài mới — user tự quyết định có load không */}
+            {newPostCount > 0 && !filterUserId && !searchQuery && (
+                <button
+                    className="new-posts-banner"
+                    onClick={() => {
+                        fetchFeed(true); // skipCache = true
+                        const feedPage = document.querySelector('.feed-page');
+                        if (feedPage) {
+                            feedPage.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    }}
+                >
+                    <span className="banner-icon">↑</span> {newPostCount} bài viết mới
+                </button>
+            )}
+
             {filteredPosts.slice(0, visibleCount).map((post) => (
                 <PostItem key={post.id} post={post} onPostUpdated={handlePostUpdated} onPostDeleted={handlePostDeleted} />
             ))}

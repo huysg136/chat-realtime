@@ -25,7 +25,7 @@ function toTimestamp(createdAt) {
 
 const { confirm } = Modal;
 
-export default function CommentItem({ comment, postId, repliesMap = {}, rootParentId = null, isPreview = false }) {
+export default function CommentItem({ comment, postId, repliesMap = {}, rootParentId = null, isPreview = false, onPostUpdated, commentsCount }) {
     const { user } = useContext(AuthContext);
     const { users } = useContext(AppContext);
 
@@ -75,35 +75,39 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
             okType: 'danger',
             cancelText: 'Hủy',
             onOk: async () => {
-                try {
-                    const batch = writeBatch(db);
-
-                    // Xóa chính nó
-                    batch.delete(doc(db, "comments", comment.id));
-
-                    // Tìm tất cả comment trong bài viết này để lọc đệ quy
-                    const q = query(collection(db, "comments"), where("postId", "==", postId));
-                    const snapshot = await getDocs(q);
-                    const allComments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-
-                    const descendantIds = [];
-                    const findDescendants = (parentId) => {
-                        allComments.forEach(c => {
-                            if (c.parentId === parentId) {
-                                descendantIds.push(c.id);
-                                findDescendants(c.id); // Đệ quy tìm tiếp
-                            }
-                        });
-                    };
-                    findDescendants(comment.id);
-
-                    // Thêm các comment con vào batch xóa
-                    descendantIds.forEach(id => {
-                        batch.delete(doc(db, "comments", id));
+                const originalCount = commentsCount || 0;
+                
+                // 1. Tìm tất cả comment con đệ quy để biết tổng số lượng bị xóa (Dành cho Optimistic UI)
+                // Lưu ý: Logic này chỉ để tính số lượng trừ đi ngay lập tức trên UI
+                const countToRemove = (item) => {
+                    let count = 1;
+                    const children = repliesMap[item.id] || [];
+                    children.forEach(child => {
+                        count += countToRemove(child);
                     });
+                    return count;
+                };
+                const totalRemoved = countToRemove(comment);
 
-                    await batch.commit();
+                // 2. Optimistic UI: Trừ ngay lập tức
+                onPostUpdated && onPostUpdated({
+                    id: postId,
+                    commentsCount: Math.max(0, originalCount - totalRemoved)
+                });
+
+                try {
+                    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+                    const res = await fetch(`${API_BASE_URL}/api/posts/${postId}/comment/${comment.id}?uid=${user.uid}`, {
+                        method: "DELETE"
+                    });
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.message);
                 } catch (error) {
+                    // Rollback nếu lỗi
+                    onPostUpdated && onPostUpdated({
+                        id: postId,
+                        commentsCount: originalCount
+                    });
                     console.error("Xóa comment thất bại:", error);
                 }
             }

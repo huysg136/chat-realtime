@@ -6,13 +6,15 @@ import CommentItem from "./commentItem";
 import CommentInput from "./commentInput";
 import "./commentSection.scss";
 
-export default function CommentSection({ postId, postAuthorUid, isPreview = false, onPostUpdated, commentsCount }) {
-  const [comments, setComments] = useState([]);
+export default function CommentSection({ postId, postAuthorUid, isPreview = false, onPostUpdated, commentsCount, topComment }) {
+  const [comments, setComments] = useState(topComment ? [topComment] : []);
   const { users } = useContext(AppContext);
   const commentScoresRef = React.useRef({});
 
   useEffect(() => {
     if (!postId) return;
+    // Nếu là preview và đã có topComment từ Backend thì không cần fetch nữa
+    if (isPreview && topComment) return;
 
     const q = query(
       collection(db, "comments"),

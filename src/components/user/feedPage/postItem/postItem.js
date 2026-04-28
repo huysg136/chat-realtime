@@ -20,6 +20,7 @@ export default function PostItem({ post, onPostUpdated, onPostDeleted }) {
         isPreview={true} 
         onPostUpdated={onPostUpdated} 
         commentsCount={post.commentsCount || 0} 
+        topComment={post.topComment}
       />
     </div>
   );
