@@ -9,7 +9,7 @@ import { ROUTERS } from "../../../configs/router";
 import PostList from "../../../components/user/feedPage/postList/postList";
 import CreatePost from "../../../components/user/feedPage/createPost/createPost";
 import { Avatar, Button, Spin, Modal } from "antd";
-import { sendFriendRequest, cancelFriendRequest } from "../../../firebase/friendService";
+import { sendFriendRequest, cancelFriendRequest } from "../../../services/friendService";
 import { toast } from "react-toastify";
 import Lightbox from "react-image-lightbox";
 import UserBadge from "../../../components/common/userBadge";

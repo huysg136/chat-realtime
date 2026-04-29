@@ -3,6 +3,7 @@ import { Avatar } from 'antd';
 import { AppContext } from '../../../../context/appProvider';
 import { AuthContext } from '../../../../context/authProvider';
 import { useFriends } from '../../../../hooks/useFriends';
+import { getFriendSuggestions } from '../../../../services/friendService';
 import UserBadge from '../../../common/userBadge';
 import FriendButton from '../../../common/friendButton';
 import './friendSuggestions.scss';
@@ -18,9 +19,7 @@ export default function FriendSuggestions() {
 
         const fetchSuggestions = async () => {
             try {
-                const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-                const res = await fetch(`${API_BASE_URL}/api/friends/suggestions?uid=${user.uid}`);
-                const data = await res.json();
+                const data = await getFriendSuggestions(user.uid);
                 if (data.success) {
                     setSuggestedUsers(data.suggestions);
                 }

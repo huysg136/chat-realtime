@@ -3,6 +3,7 @@ import { AuthContext } from "../../../../context/authProvider";
 import { AppContext } from "../../../../context/appProvider";
 import { useFriends } from "../../../../hooks/useFriends";
 import PostItem from "../postItem/postItem";
+import { getFeed, checkNewPosts } from "../../../../services/postService";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import "./postList.scss";
@@ -67,15 +68,12 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
         if (!user?.uid) return;
         setLoading(true);
         try {
-            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-            const url = new URL(`${API_BASE_URL}/api/posts/feed`);
-            url.searchParams.append("userUid", user.uid);
-            if (filterUserId) url.searchParams.append("filterUserId", filterUserId);
-            if (searchQuery) url.searchParams.append("searchQuery", searchQuery);
-            if (skipCache) url.searchParams.append("skipCache", "true");
-
-            const response = await fetch(url.toString());
-            const data = await response.json();
+            const data = await getFeed({
+                userUid: user.uid,
+                filterUserId,
+                searchQuery,
+                skipCache,
+            });
 
             if (data.success) {
                 setPosts(data.posts);
@@ -94,13 +92,10 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
         // Không poll khi đang search hoặc xem profile hoặc tab bị ẩn
         if (!user?.uid || filterUserId || searchQuery || !isTabVisible.current) return;
         try {
-            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-            const url = new URL(`${API_BASE_URL}/api/posts/feed/check-new`);
-            url.searchParams.append("userUid", user.uid);
-            url.searchParams.append("since", lastFetchedAt.current.toString());
-
-            const res = await fetch(url.toString());
-            const data = await res.json();
+            const data = await checkNewPosts({
+                userUid: user.uid,
+                since: lastFetchedAt.current.toString(),
+            });
             if (data.success && data.count > 0) {
                 setNewPostCount(data.count);
             }

@@ -12,6 +12,7 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { AuthContext } from "../../../context/authProvider";
+import { notifyReportAction } from "../../../services/mailService";
 import { toast } from "react-toastify";
 import {
   FiEye,
@@ -29,7 +30,6 @@ import "react-toastify/dist/ReactToastify.css";
 import "./reportManager.scss";
 import LoadingScreen from '../../common/loadingScreen';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 const { TextArea } = Input;
 
 const CATEGORY_COLORS = {
@@ -258,27 +258,19 @@ export default function ReportManager() {
       });
 
       try {
-        const emailResponse = await fetch(`${API_BASE_URL}/api/reports/notify`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            reporterEmail: actionReport.reportedByEmail,
-            reporterName: actionReport.reportedByName,
-            messageText: actionReport.messageText,
-            action: actionType,
-            adminName: currentUser.displayName,
-            reason: actionNotes,
-            reportDate: formatTimestamp(actionReport.createdAt),
-            ...(actionType === "ban" && {
-              banDuration,
-              banUnit,
-            }),
+        await notifyReportAction({
+          reporterEmail: actionReport.reportedByEmail,
+          reporterName: actionReport.reportedByName,
+          messageText: actionReport.messageText,
+          action: actionType,
+          adminName: currentUser.displayName,
+          reason: actionNotes,
+          reportDate: formatTimestamp(actionReport.createdAt),
+          ...(actionType === "ban" && {
+            banDuration,
+            banUnit,
           }),
         });
-
-        await emailResponse.json();
       } catch (emailError) {
       }
 

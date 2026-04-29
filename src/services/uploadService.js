@@ -7,7 +7,7 @@ import axios from "axios";
  * @returns {Promise<string>} - URL của file đã upload
  */
 export const uploadToR2 = async (file, onProgress) => {
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
   try {
     // Bước 1: Lấy presigned URL từ backend
     const { data } = await axios.post(

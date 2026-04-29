@@ -4,6 +4,7 @@ import { AuthContext } from "../../../../context/authProvider";
 import { AppContext } from "../../../../context/appProvider";
 
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { likePost } from "../../../../services/postService";
 import { db } from "../../../../firebase/config";
 import { message as antMessage } from "antd";
 import LikeListModal from "../likeListModal/likeListModal";
@@ -30,17 +31,11 @@ export default function PostActions({ post, showComments, onToggleComments, onPo
         });
 
         try {
-            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-            const res = await fetch(`${API_BASE_URL}/api/posts/${post.id}/like`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    uid: user.uid,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL
-                })
+            const data = await likePost(post.id, {
+                uid: user.uid,
+                displayName: user.displayName,
+                photoURL: user.photoURL
             });
-            const data = await res.json();
             if (!data.success) throw new Error(data.message);
         } catch (error) {
             onPostUpdated && onPostUpdated({

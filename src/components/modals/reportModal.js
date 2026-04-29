@@ -6,9 +6,9 @@ import { addDocument, updateDocument } from "../../firebase/services";
 import { db } from "../../firebase/config";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import "./reportModal.scss";
-import { askGemini } from "../../utils/AI/geminiBot";
+import { askGemini } from "../../services/aiService";
+import { notifyReportAction } from "../../services/mailService";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
 const { TextArea } = Input;
 
 // ==================== SIMPLE CATEGORIES ====================
@@ -372,7 +372,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         messageText.length
       );
 
-      let status = "pending"; 
+      let status = "pending";
 
       let resolved = false;
       let action = null;
@@ -394,8 +394,8 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
       const reportData = {
         messageId: message?.id || "",
         messageText,
-        messageRawText: message?.text || message?.decryptedText || "", 
-        messageTranscript: message?.transcript || "", 
+        messageRawText: message?.text || message?.decryptedText || "",
+        messageTranscript: message?.transcript || "",
         messageUid: message?.uid,
         messageDisplayName: message?.displayName || "",
         messageKind: message?.kind || "text",
@@ -417,7 +417,7 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
         reportCount,
 
         resolved,
-        videoResolved: resolved, 
+        videoResolved: resolved,
         action,
         actionNotes,
         reviewedBy,
@@ -439,20 +439,14 @@ export default function ReportModal({ visible, onClose, message, currentUser }) 
 
       if (resolved) {
         try {
-          fetch(`${API_BASE_URL}/api/reports/notify`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              reporterEmail: currentUser?.email,
-              reporterName: currentUser?.displayName,
-              messageText: messageText,
-              action: "reject",
-              adminName: "AI System",
-              reason: actionNotes,
-              reportDate: new Date().toLocaleString("vi-VN"),
-            }),
+          notifyReportAction({
+            reporterEmail: currentUser?.email,
+            reporterName: currentUser?.displayName,
+            messageText: messageText,
+            action: "reject",
+            adminName: "AI System",
+            reason: actionNotes,
+            reportDate: new Date().toLocaleString("vi-VN"),
           }).catch();
         } catch (e) {
         }

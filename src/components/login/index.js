@@ -4,13 +4,14 @@ import { GoogleOutlined } from "@ant-design/icons";
 import { BsSunFill, BsMoonStarsFill, BsLaptop } from "react-icons/bs";
 import { getAuth, signInWithPopup, GoogleAuthProvider, getAdditionalUserInfo } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { collection, query, where, getDoc, doc, getDocs, updateDoc, serverTimestamp } from "firebase/firestore";
+import { collection, query, where, getDoc, doc, getDocs } from "firebase/firestore";
 import app, { db } from "../../firebase/config";
 import { addDocument, getUserDocIdByUid } from "../../firebase/services";
 import ReactCountryFlag from "react-country-flag";
 import "./index.scss";
 import logo_quik from "../../images/logo_quik.png";
 import { toast } from "react-toastify";
+import { notifyNewUser } from "../../services/mailService";
 import { ROUTERS } from "../../configs/router"
 import { useTranslation } from "react-i18next";
 
@@ -134,16 +135,12 @@ export default function Login() {
           isBanned: false,
         });
 
-        fetch(`${process.env.REACT_APP_API_BASE_URL}/api/users/new-user-notify`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            displayName: user.displayName,
-            email: user.email,
-            uid: user.uid,
-            username: uniqueUsername,
-            photoURL: user.photoURL || "",
-          }),
+        notifyNewUser({
+          displayName: user.displayName,
+          email: user.email,
+          uid: user.uid,
+          username: uniqueUsername,
+          photoURL: user.photoURL || "",
         }).catch(() => { });
       }
 

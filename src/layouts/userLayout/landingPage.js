@@ -12,6 +12,7 @@ import { AuthContext } from "../../context/authProvider";
 import { db } from "../../firebase/config";
 import { collection, query, where, onSnapshot, getDocs } from "firebase/firestore";
 import { appConfig } from "../../configs/appConfig";
+import { getUnreadNotificationCount, markAllNotificationsAsRead, markNotificationAsRead } from "../../services/notificationService";
 
 const LandingPage = () => {
   const location = useLocation();
@@ -36,9 +37,7 @@ const LandingPage = () => {
   const fetchUnreadCount = useCallback(async () => {
     if (!user?.uid) return;
     try {
-      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-      const res = await fetch(`${API_BASE_URL}/api/friends/notifications/unread-count?uid=${user.uid}`);
-      const data = await res.json();
+      const data = await getUnreadNotificationCount(user.uid);
       if (data.success) setUnreadCount(data.count);
     } catch (error) {
       console.error("Fetch unread count failed:", error);
@@ -125,12 +124,7 @@ const LandingPage = () => {
   const handleMarkAllAsRead = async () => {
     if (!user?.uid) return;
     try {
-      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-      await fetch(`${API_BASE_URL}/api/friends/notifications/read-all`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid: user.uid }),
-      });
+      await markAllNotificationsAsRead(user.uid);
       setUnreadCount(0);
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     } catch (error) {
@@ -139,10 +133,7 @@ const LandingPage = () => {
 
   const handleNotificationClick = async (notif) => {
     try {
-      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-      await fetch(`${API_BASE_URL}/api/friends/notifications/${notif.id}/read?uid=${user.uid}`, {
-        method: "PATCH",
-      });
+      await markNotificationAsRead(notif.id, user.uid);
       if (!notif.isRead) {
         setUnreadCount(prev => Math.max(0, prev - 1));
         setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));

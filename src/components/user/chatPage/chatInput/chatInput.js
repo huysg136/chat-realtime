@@ -9,9 +9,8 @@ import {
 import { toast } from "react-toastify";
 import EmojiPicker from "emoji-picker-react";
 import { addDocument, updateDocument, encryptMessage, getUserDocIdByUid, decryptMessage } from "../../../../firebase/services";
-import { askGemini } from "../../../../utils/AI/geminiBot";
-import { askGroq } from "../../../../utils/AI/groqBot";
-import { uploadToR2 } from "../../../../utils/uploadToR2";
+import { askGemini, askGroq } from "../../../../services/aiService";
+import { uploadToR2 } from "../../../../services/uploadService";
 import { validateFile } from "../../../../utils/fileValidation";
 import { getToneMappings, buildPolishPrompt } from "../../../../utils/AI/tonePrompts";
 import { buildBotContextPrompt } from "../../../../utils/AI/botPrompts";

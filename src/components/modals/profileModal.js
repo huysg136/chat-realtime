@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { doc, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
 import { FiAlertTriangle, FiXCircle } from "react-icons/fi";
-import { uploadToR2 } from '../../utils/uploadToR2';
+import { uploadToR2 } from '../../services/uploadService';
 import { validateFile } from '../../utils/fileValidation';
 import "./profileModal.scss";
 import { useTranslation } from 'react-i18next';

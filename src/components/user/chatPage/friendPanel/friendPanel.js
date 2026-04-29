@@ -18,7 +18,7 @@ import {
   rejectFriendRequest,
   cancelFriendRequest,
   unfriend,
-} from "../../../../firebase/friendService";
+} from "../../../../services/friendService";
 import { addDocument, generateAESKey } from "../../../../firebase/services";
 import {
   collection,

@@ -11,9 +11,10 @@ import { AppContext } from "../../../../context/appProvider";
 import { deleteDocument, getUserDocIdByUid } from "../../../../firebase/services";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../firebase/config";
+import { deletePost } from "../../../../services/postService";
 import { toast } from "react-toastify";
 import UserBadge from "../../../common/userBadge";
-import { uploadToR2 } from "../../../../utils/uploadToR2";
+import { uploadToR2 } from "../../../../services/uploadService";
 import { validateFile } from "../../../../utils/fileValidation";
 import { hasEnoughQuota, increaseQuota, formatBytes, getQuotaLimit } from "../../../../utils/quota";
 
@@ -71,11 +72,7 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
             cancelText: 'Hủy',
             onOk: async () => {
                 try {
-                    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-                    const response = await fetch(`${API_BASE_URL}/api/posts/${post.id}?uid=${user.uid}`, {
-                        method: "DELETE",
-                    });
-                    const data = await response.json();
+                    const data = await deletePost(post.id, user?.uid);
                     if (!data.success) throw new Error(data.message);
 
                     onPostDeleted && onPostDeleted(post.id);

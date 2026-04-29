@@ -4,6 +4,7 @@ import { HeartFilled, HeartOutlined, ExclamationCircleOutlined } from "@ant-desi
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { doc, updateDoc, arrayUnion, arrayRemove, writeBatch, collection, query, where, getDocs } from "firebase/firestore";
+import { likeComment, deleteComment } from "../../../../services/postService";
 import { db } from "../../../../firebase/config";
 import { AuthContext } from "../../../../context/authProvider";
 import { AppContext } from "../../../../context/appProvider";
@@ -64,17 +65,11 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
         setLocalLikes(newLikes);
 
         try {
-            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-            const res = await fetch(`${API_BASE_URL}/api/posts/${postId}/comment/${comment.id}/like`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    uid: user.uid,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL
-                })
+            const data = await likeComment(postId, comment.id, {
+                uid: user.uid,
+                displayName: user.displayName,
+                photoURL: user.photoURL
             });
-            const data = await res.json();
             if (!data.success) throw new Error(data.message);
         } catch (error) {
             console.error("Thao tác thích bình luận thất bại:", error);
@@ -113,11 +108,7 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
                 });
 
                 try {
-                    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-                    const res = await fetch(`${API_BASE_URL}/api/posts/${postId}/comment/${comment.id}?uid=${user.uid}`, {
-                        method: "DELETE"
-                    });
-                    const data = await res.json();
+                    const data = await deleteComment(postId, comment.id, user?.uid);
                     if (!data.success) throw new Error(data.message);
                 } catch (error) {
                     // Rollback nếu lỗi

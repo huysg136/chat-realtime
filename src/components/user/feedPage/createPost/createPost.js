@@ -7,7 +7,8 @@ import { FaVideo } from "react-icons/fa";
 import { PRIVACY_CONFIG } from "../../../common/privacyIcon";
 import { AuthContext } from "../../../../context/authProvider";
 import { addDocument, getUserDocIdByUid } from "../../../../firebase/services";
-import { uploadToR2 } from "../../../../utils/uploadToR2";
+import { uploadToR2 } from "../../../../services/uploadService";
+import { createPost } from "../../../../services/postService";
 import { validateFile } from "../../../../utils/fileValidation";
 import { hasEnoughQuota, increaseQuota, formatBytes, getQuotaLimit } from "../../../../utils/quota";
 import { toast } from "react-toastify";
@@ -107,23 +108,16 @@ export default function CreatePost({ onPostCreated }) {
                 kind = fileType === "video" ? "video" : "image";
             }
 
-            const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-            const response = await fetch(`${API_BASE_URL}/api/posts`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    content: trimmed,
-                    mediaUrl: mediaUrl,
-                    kind: kind,
-                    uid: user.uid,
-                    displayName: user.displayName || "Người dùng",
-                    photoURL: user.photoURL || defaultAvatar,
-                    privacy: privacy,
-                    fileSize: selectedFile ? selectedFile.size : 0,
-                }),
+            const data = await createPost({
+                content: trimmed,
+                mediaUrl: mediaUrl,
+                kind: kind,
+                uid: user.uid,
+                displayName: user.displayName || "Người dùng",
+                photoURL: user.photoURL || defaultAvatar,
+                privacy: privacy,
+                fileSize: selectedFile ? selectedFile.size : 0,
             });
-
-            const data = await response.json();
             if (!data.success) {
                 throw new Error(data.message);
             }

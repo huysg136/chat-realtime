@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { Avatar, Input, Button } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 import { AuthContext } from "../../../../context/authProvider";
+import { commentPost } from "../../../../services/postService";
 
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
@@ -24,23 +25,16 @@ export default function CommentInput({ postId, postAuthorUid, parentId = null, r
     });
 
     try {
-      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-      const res = await fetch(`${API_BASE_URL}/api/posts/${postId}/comment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          parentId,
-          replyToUid: replyToUser?.uid || null,
-          replyToName: replyToUser?.displayName || null,
-          content: trimmed,
-          uid: user.uid,
-          displayName: user.displayName || "Người dùng",
-          photoURL: user.photoURL || defaultAvatar,
-          postAuthorUid
-        })
+      const data = await commentPost(postId, {
+        parentId,
+        replyToUid: replyToUser?.uid || null,
+        replyToName: replyToUser?.displayName || null,
+        content: trimmed,
+        uid: user.uid,
+        displayName: user.displayName || "Người dùng",
+        photoURL: user.photoURL || defaultAvatar,
+        postAuthorUid
       });
-
-      const data = await res.json();
       if (!data.success) throw new Error(data.message);
 
       setValue("");

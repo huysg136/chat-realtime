@@ -12,7 +12,7 @@ import {
     acceptFriendRequest,
     rejectFriendRequest,
     unfriend,
-} from "../../firebase/friendService";
+} from "../../services/friendService";
 import { FaUserXmark } from "react-icons/fa6";
 import { FaUserCheck } from "react-icons/fa";
 import { toast } from "react-toastify";
