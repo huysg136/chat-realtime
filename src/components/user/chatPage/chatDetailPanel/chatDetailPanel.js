@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Avatar, Input, Tooltip, Popconfirm, Dropdown, Modal } from "antd";
 import {
   DeleteOutlined,
@@ -35,6 +36,7 @@ export default function ChatDetailPanel({
   const [roomNameLocal, setRoomNameLocal] = useState("");
   const [isSavingName, setIsSavingName] = useState(false);
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const { uid } = currentUser;
 
@@ -288,7 +290,12 @@ export default function ChatDetailPanel({
             {isPrivate ? (
               otherUser ? (
                 <div className="overview-avatar">
-                  <Avatar size={64} src={otherUser.photoURL}>
+                  <Avatar 
+                    size={64} 
+                    src={otherUser.photoURL}
+                    onClick={() => navigate(`/profile/${otherUser.uid}`)}
+                    className="clickable-avatar"
+                  >
                     {(otherUser.displayName || "?").charAt(0).toUpperCase()}
                   </Avatar>
                   <div className="overview-info">
@@ -408,7 +415,12 @@ export default function ChatDetailPanel({
               {isPrivate ? (
                 otherUser && (
                   <div className="member-item" key={otherUser.uid}>
-                    <Avatar src={otherUser.photoURL} size={40}>
+                    <Avatar 
+                      src={otherUser.photoURL} 
+                      size={40}
+                      onClick={() => navigate(`/profile/${otherUser.uid}`)}
+                      className="clickable-avatar"
+                    >
                       {(otherUser.displayName || "?").charAt(0).toUpperCase()}
                     </Avatar>
                     <div className="member-info">
@@ -433,7 +445,12 @@ export default function ChatDetailPanel({
                   const isMemberCoOwner = role === "co-owner";
                   return (
                     <div className="member-item" key={m.uid} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <Avatar src={m.photoURL} size={40}>
+                      <Avatar 
+                        src={m.photoURL} 
+                        size={40}
+                        onClick={() => navigate(`/profile/${m.uid}`)}
+                        className="clickable-avatar"
+                      >
                         {(m.displayName || "?").charAt(0).toUpperCase()}
                       </Avatar>
                       <div className="member-info">

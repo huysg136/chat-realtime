@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Avatar, Skeleton } from "antd";
 import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { InfoCircleOutlined, VideoCameraOutlined } from "@ant-design/icons";
@@ -23,6 +24,7 @@ export default function ChatHeader({ onToggleDetail, banInfo }) {
     const authContext = useContext(AuthContext) || {};
     const user = authContext.user || {};
     const uid = user.uid || "";
+    const navigate = useNavigate();
 
     const { t } = useTranslation();
 
@@ -59,7 +61,12 @@ export default function ChatHeader({ onToggleDetail, banInfo }) {
                 {isPrivate ? (
                     otherUser ? (
                         <div style={{ position: "relative", display: "inline-block" }}>
-                            <Avatar src={otherUser.photoURL} size={40} />
+                            <Avatar 
+                                src={otherUser.photoURL} 
+                                size={40} 
+                                onClick={() => navigate(`/profile/${otherUser.uid}`)}
+                                className="clickable-avatar"
+                            />
                             {otherUserStatus?.lastOnline && (
                                 <>
                                     {otherUserStatus?.isOnline && otherUser?.showOnlineStatus && user?.showOnlineStatus && (
