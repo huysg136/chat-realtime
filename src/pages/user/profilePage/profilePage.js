@@ -8,8 +8,8 @@ import { addDocument, generateAESKey } from "../../../firebase/services";
 import { ROUTERS } from "../../../configs/router";
 import PostList from "../../../components/user/feedPage/postList/postList";
 import CreatePost from "../../../components/user/feedPage/createPost/createPost";
-import { Avatar, Button, Spin, Modal } from "antd";
-import { sendFriendRequest, cancelFriendRequest } from "../../../services/friendService";
+import { Avatar, Button, Spin, Modal, Popover } from "antd";
+import { sendFriendRequest, cancelFriendRequest, unfriend } from "../../../services/friendService";
 import { toast } from "react-toastify";
 import Lightbox from "react-image-lightbox";
 import UserBadge from "../../../components/common/userBadge";
@@ -199,6 +199,29 @@ export default function ProfilePage() {
     }
   };
 
+  const handleUnfriend = async () => {
+    try {
+      Modal.confirm({
+        title: 'Hủy kết bạn',
+        content: `Bạn có chắc chắn muốn hủy kết bạn với ${profileUser?.displayName || 'người này'} không?`,
+        okText: 'Hủy kết bạn',
+        okType: 'danger',
+        cancelText: 'Quay lại',
+        onOk: async () => {
+          const res = await unfriend(currentUser.uid, uid);
+          if (res) {
+            toast.success("Đã hủy kết bạn.");
+          } else {
+            toast.error("Không thể hủy kết bạn.");
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error unfriending:", error);
+      toast.error("Đã xảy ra lỗi khi hủy kết bạn.");
+    }
+  };
+
   const getJoinDate = (createdAt) => {
     if (!createdAt) return "Tham gia gần đây";
     let date;
@@ -283,12 +306,27 @@ export default function ProfilePage() {
             ) : (
               <>
                 {isFriend ? (
-                  <Button
-                    className="friend-status-btn"
-                    icon={<AiOutlineCheck />}
+                  <Popover
+                    content={
+                      <Button
+                        type="text"
+                        danger
+                        onClick={handleUnfriend}
+                        style={{ padding: '4px 8px' }}
+                      >
+                        Hủy kết bạn
+                      </Button>
+                    }
+                    trigger="click"
+                    placement="bottomRight"
                   >
-                    Bạn bè
-                  </Button>
+                    <Button
+                      className="friend-status-btn"
+                      icon={<AiOutlineCheck />}
+                    >
+                      Bạn bè
+                    </Button>
+                  </Popover>
                 ) : isPendingSent ? (
                   <Button
                     className="pending-sent-btn"

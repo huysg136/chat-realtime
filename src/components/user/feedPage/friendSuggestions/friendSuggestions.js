@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Avatar } from 'antd';
 import { AppContext } from '../../../../context/appProvider';
 import { AuthContext } from '../../../../context/authProvider';
@@ -9,6 +10,7 @@ import FriendButton from '../../../common/friendButton';
 import './friendSuggestions.scss';
 
 export default function FriendSuggestions() {
+    const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const { loading: friendsLoading } = useFriends();
     const [suggestedUsers, setSuggestedUsers] = useState([]);
@@ -41,7 +43,7 @@ export default function FriendSuggestions() {
             <h3 className="friend-suggestions-title">Gợi ý kết bạn</h3>
             <div className="friend-suggestions-list">
                 {suggestedUsers.map((u) => (
-                    <div className="friend-suggestion-item" key={u.uid}>
+                    <div className="friend-suggestion-item" key={u.uid} onClick={() => navigate(`/profile/${u.uid}`)}>
                         <Avatar src={u.photoURL} size={36}>
                             {(u.displayName || "?").charAt(0).toUpperCase()}
                         </Avatar>
@@ -72,7 +74,7 @@ export default function FriendSuggestions() {
                             )}
                         </div>
 
-                        <div className="friend-suggestion-item__action">
+                        <div className="friend-suggestion-item__action" onClick={(e) => e.stopPropagation()}>
                             <FriendButton targetUid={u.uid} size="small" />
                         </div>
                     </div>
