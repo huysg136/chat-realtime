@@ -19,9 +19,7 @@ import {
   AiOutlineMail,
   AiOutlineUser,
   AiOutlineClockCircle,
-  AiOutlineCamera,
   AiOutlineEdit,
-  AiOutlineDown,
   AiOutlineMessage,
   AiOutlineUserAdd,
   AiOutlineCheck
@@ -269,7 +267,7 @@ export default function ProfilePage() {
       <div className="profile-header-card">
         <div className="profile-header-content">
           <div className="avatar-section">
-            <Avatar size={140} src={profileUser.photoURL} icon={<AiOutlineUser />} className="main-avatar" />
+            <Avatar size={135} src={profileUser.photoURL} icon={<AiOutlineUser />} className="main-avatar" />
           </div>
 
           <div className="profile-header-text">
