@@ -275,8 +275,8 @@
       margin-bottom: 16px;
 
       h3 {
-        font-size: 20px;
-        font-weight: 700;
+        font-size: 17px;
+        font-weight: 600;
         color: #050505;
         margin: 0 0 12px 0;
       }
@@ -313,16 +313,17 @@
           display: flex;
           align-items: center;
           gap: 12px;
-          font-size: 15px;
-          color: #050505;
+          font-size: 14px;
+          color: #4b5563;
 
           .intro-icon {
-            font-size: 20px;
-            color: #8c8c8c;
+            font-size: 18px;
+            color: #6b7280;
           }
 
           strong {
-            color: #050505;
+            font-weight: 500;
+            color: #1f2937;
           }
         }
       }
@@ -549,14 +550,17 @@ body.theme-dark {
 
         .intro-list {
           .intro-item {
-            color: #e4e6eb;
+            color: #cbd5e1;
+            font-size: 14px;
 
             .intro-icon {
-              color: #b0b3b8;
+              color: #94a3b8;
+              font-size: 18px;
             }
 
             strong {
-              color: #e4e6eb;
+              font-weight: 500;
+              color: #e2e8f0;
             }
           }
         }
@@ -626,8 +630,8 @@ body.theme-dark {
     margin-bottom: 16px;
 
     h3 {
-      font-size: 20px;
-      font-weight: 700;
+      font-size: 17px;
+      font-weight: 600;
       color: #050505;
       margin: 0 0 20px 0;
     }
