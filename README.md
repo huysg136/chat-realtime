@@ -21,6 +21,12 @@ Quik combines a seamless chat interface with robust backend services.
 *   **🤖 AI Assistant**: Integrated **Google Gemini 2.5** and **Llama 3 (Groq)** for intelligent chat responses and assistance.
 *   **🔐 Secure Auth**: User authentication via Google and other providers.
 
+### 📱 Social Feed (New)
+*   **Interactive Timeline**: Post updates, share media, like, and comment.
+*   **Trending Topics**: Automated hashtag and topic tracking.
+*   **Smart Suggestions**: Friend recommendations via a backend Graph computation (Friend-of-Friends).
+*   **Online Presence**: Real-time user activity tracking.
+
 ### 🛡️ Admin Dashboard
 *   **Dashboard Overview**: Real-time system statistics.
 *   **User & Room Management**: Full control over accounts and chat groups.
@@ -28,18 +34,23 @@ Quik combines a seamless chat interface with robust backend services.
 *   **Announcements**: System-wide broadcast messaging.
 *   **Moderator Permissions**: Granular access control for staff.
 
+### ⚡ Performance Optimizations
+*   **Caching Layer**: Upstash Redis integration for caching user metadata and post feeds.
+*   **Atomic Counters**: Real-time unread badges without heavy DB polling.
+
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
 -   **Core**: ReactJS (v18)
--   **UI**: Ant Design, SCSS
+-   **UI**: Ant Design, SCSS, Styled Components
 -   **State**: Context API
 -   **i18n**: i18next (Internationalization)
 
 ### Backend & Cloud Services
 -   **Runtime**: Node.js, Express.js
+-   **Caching**: Upstash Redis
 -   **Video/Voice**: Stringee SDK
 -   **Speech-to-Text**: AssemblyAI
 -   **Storage**: Cloudflare R2 (S3 Compatible)
@@ -55,7 +66,7 @@ Quik combines a seamless chat interface with robust backend services.
 src/
 ├── components/       # UI Components
 │   ├── admin/        # Dashboard, User, Room, and Report management
-│   ├── user/         # ChatWindow, ChatInput, and Message components
+│   ├── user/         # Chat, Feed, Suggestions, Online friends
 │   ├── common/       # Shared elements (Loading, NoAccess, Layouts)
 │   └── modals/       # All interactive overlays (Profile, Settings, AI)
 ├── configs/          # Route constants & general app configuration
@@ -65,9 +76,32 @@ src/
 ├── i18n/             # Internationalization config (VI, EN)
 ├── pages/            # Page-level components & layouts
 ├── routes/           # Routing logic and PrivateRoute guards
+├── services/         # API Integration services (Friend, Post, AI)
 ├── stringee/         # Direct SDK integration for Video/Voice calls
 ├── style/            # Global SCSS, themes, and design tokens
 └── utils/            # Utility functions (AI, Encryption, Upload helpers)
+```
+
+---
+
+## ⚙️ Setup & Installation
+
+### Prerequisites
+- Node.js (v18+)
+- Firebase Project & Upstash Redis setup
+
+### 1. Backend Setup (`chat-realtime-api`)
+```bash
+cd chat-realtime-api
+npm install
+npm run dev
+```
+
+### 2. Frontend Setup (`chat-realtime`)
+```bash
+cd chat-realtime
+yarn install
+yarn start
 ```
 
 ---
