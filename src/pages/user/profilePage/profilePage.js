@@ -9,6 +9,8 @@ import { ROUTERS } from "../../../configs/router";
 import PostList from "../../../components/user/feedPage/postList/postList";
 import CreatePost from "../../../components/user/feedPage/createPost/createPost";
 import { Avatar, Button, Spin, Modal } from "antd";
+import { sendFriendRequest, cancelFriendRequest } from "../../../firebase/friendService";
+import { toast } from "react-toastify";
 import Lightbox from "react-image-lightbox";
 import UserBadge from "../../../components/common/userBadge";
 import "react-image-lightbox/style.css";
@@ -43,6 +45,7 @@ export default function ProfilePage() {
   const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
   const { isProfileVisible, setIsProfileVisible } = useContext(AppContext);
   const [activeTab, setActiveTab] = useState("posts");
+  const [isPendingSent, setIsPendingSent] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handlePostCreated = () => {
@@ -141,6 +144,8 @@ export default function ProfilePage() {
     );
     const unsubFollowers = onSnapshot(followersQ, (snap) => {
       setFollowerCount(snap.size);
+      const mySentReq = snap.docs.some(d => d.data().fromUid === currentUser?.uid);
+      setIsPendingSent(mySentReq);
     });
 
     // 3. Friends count
@@ -162,7 +167,38 @@ export default function ProfilePage() {
       unsubFollowers();
       unsubFriends();
     };
-  }, [uid]);
+  }, [uid, currentUser]);
+
+  const handleAddFriend = async () => {
+    try {
+      const res = await sendFriendRequest(currentUser.uid, uid);
+      if (res) {
+        setIsPendingSent(true);
+        toast.success("Đã gửi lời mời kết bạn!");
+      } else {
+        toast.error("Không thể gửi lời mời kết bạn.");
+      }
+    } catch (error) {
+      console.error("Error sending friend request:", error);
+      toast.error("Đã xảy ra lỗi khi gửi lời mời kết bạn.");
+    }
+  };
+
+  const handleCancelRequest = async () => {
+    try {
+      const res = await cancelFriendRequest(currentUser.uid, uid);
+      if (res) {
+        setIsPendingSent(false);
+        toast.success("Đã hủy lời mời kết bạn.");
+      } else {
+        toast.error("Không thể hủy lời mời kết bạn.");
+      }
+    } catch (error) {
+      console.error("Error canceling friend request:", error);
+      toast.error("Đã xảy ra lỗi khi hủy lời mời kết bạn.");
+    }
+  };
+
   const getJoinDate = (createdAt) => {
     if (!createdAt) return "Tham gia gần đây";
     let date;
@@ -253,11 +289,20 @@ export default function ProfilePage() {
                   >
                     Bạn bè
                   </Button>
+                ) : isPendingSent ? (
+                  <Button
+                    className="pending-sent-btn"
+                    icon={<AiOutlineClockCircle />}
+                    onClick={handleCancelRequest}
+                  >
+                    Đã gửi lời mời
+                  </Button>
                 ) : (
                   <Button
                     type="primary"
                     className="add-friend-btn"
                     icon={<AiOutlineUserAdd />}
+                    onClick={handleAddFriend}
                   >
                     Kết bạn
                   </Button>

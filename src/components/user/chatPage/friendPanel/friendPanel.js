@@ -8,6 +8,7 @@ import {
 import { FaUserXmark } from "react-icons/fa6";
 import { FaUserMinus, FaUserCheck } from "react-icons/fa";
 import { MdCancelScheduleSend } from "react-icons/md";
+import { AiOutlineClockCircle } from "react-icons/ai";
 import debounce from "lodash/debounce";
 import { AppContext } from "../../../../context/appProvider";
 import { AuthContext } from "../../../../context/authProvider";
@@ -306,7 +307,7 @@ export default function FriendPanel() {
             <span className="fp-hint">{t("friends.waitingAccept")}</span>
           </div>
           <div className="fp-actions">
-            <Button size="small" className="fb-reject" icon={<MdCancelScheduleSend />} loading={!!actionLoading[req.id]} onClick={() => handleCancelSent(req)} />
+            <Button size="small" className="fb-sent" icon={<AiOutlineClockCircle />} loading={!!actionLoading[req.id]} onClick={() => handleCancelSent(req)} />
           </div>
         </div>
       );

@@ -4,6 +4,7 @@ import { UserAddOutlined, UserDeleteOutlined } from "@ant-design/icons";
 import { FaUserFriends } from "react-icons/fa";
 import { AuthContext } from "../../context/authProvider";
 import { MdCancelScheduleSend } from "react-icons/md";
+import { AiOutlineClockCircle, AiOutlineCheck } from "react-icons/ai";
 import {
     getFriendshipStatus,
     sendFriendRequest,
@@ -139,9 +140,9 @@ export default function FriendButton({ targetUid, size = "small" }) {
         return (
             <Button
                 size={size}
-                className="fb-reject"
+                className="fb-sent"
                 loading={loading}
-                icon={<MdCancelScheduleSend />}
+                icon={<AiOutlineClockCircle />}
                 onClick={handleCancel}
             >
                 {/* {t("friends.cancelRequest")} */}
@@ -178,7 +179,7 @@ export default function FriendButton({ targetUid, size = "small" }) {
                 trigger={["click"]}
                 placement="bottomRight"
             >
-                <Button size={size} className="fb-friends" icon={<FaUserFriends />} loading={loading}>
+                <Button size={size} className="fb-friends" icon={<AiOutlineCheck />} loading={loading}>
                     {/* {t("friends.alreadyFriends")} */}
                 </Button>
             </Dropdown>

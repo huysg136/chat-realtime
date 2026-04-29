@@ -383,28 +383,26 @@
 
 /* Already sent — muted, click to cancel */
 .fb-sent {
-  color: #4d8bff !important;
-  border-color: #7581ff !important;
-  background: rgba(107, 77, 255, 0.02) !important;
+  color: #1a73e8 !important;
+  border-color: #e8f0fe !important;
+  background: #e8f0fe !important;
 }
 
 .fb-sent:hover {
-  color: #4d8bff !important;
-  border-color: #7581ff !important;
-  background: rgba(107, 77, 255, 0.08) !important;
+  background: #d2e3fc !important;
+  border-color: #d2e3fc !important;
 }
 
-/* Already friends — blue subtle */
+/* Already friends — soft green */
 .fb-friends {
-  color: #1a4ac4 !important;
-  border-color: #8fa3eb !important;
-  background: rgba(26, 49, 196, 0.04) !important;
+  color: #137333 !important;
+  border-color: #e6f4ea !important;
+  background: #e6f4ea !important;
 }
 
 .fb-friends:hover {
-  color: #1677ff !important;
-  border-color: #1677ff !important;
-  background: rgba(107, 77, 255, 0.08) !important;
+  background: #d2ebd4 !important;
+  border-color: #d2ebd4 !important;
 }
 
 /* Accept — green outlined */
@@ -451,27 +449,23 @@ body.theme-dark .fb-add:hover {
 }
 
 body.theme-dark .fb-sent {
-  color: #7ca3ff !important;
-  border-color: #5a6aee !important;
-  background: rgba(107, 77, 255, 0.06) !important;
+  color: #8ab4f8 !important;
+  border-color: transparent !important;
+  background: rgba(138, 180, 248, 0.15) !important;
 }
 
 body.theme-dark .fb-sent:hover {
-  color: #7ca3ff !important;
-  border-color: #5a6aee !important;
-  background: rgba(107, 77, 255, 0.14) !important;
+  background: rgba(138, 180, 248, 0.25) !important;
 }
 
 body.theme-dark .fb-friends {
-  color: #5b8df5 !important;
-  border-color: #3a5fc4 !important;
-  background: rgba(26, 49, 196, 0.08) !important;
+  color: #81c995 !important;
+  border-color: transparent !important;
+  background: rgba(129, 201, 149, 0.15) !important;
 }
 
 body.theme-dark .fb-friends:hover {
-  color: #7ca3ff !important;
-  border-color: #5a6aee !important;
-  background: rgba(107, 77, 255, 0.14) !important;
+  background: rgba(129, 201, 149, 0.25) !important;
 }
 
 body.theme-dark .fb-accept {

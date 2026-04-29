@@ -154,8 +154,7 @@
         }
       }
 
-      .message-btn,
-      .friend-status-btn {
+      .message-btn {
         background-color: #e4e6eb;
         border-color: #e4e6eb;
         color: #050505;
@@ -171,6 +170,42 @@
           background-color: #d8dadf;
           border-color: #d8dadf;
           color: #050505;
+        }
+      }
+
+      .friend-status-btn {
+        background-color: #e6f4ea;
+        border-color: #e6f4ea;
+        color: #137333;
+        font-weight: 600;
+        border-radius: 6px;
+        padding: 0 16px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        &:hover {
+          background-color: #d2ebd4;
+          border-color: #d2ebd4;
+        }
+      }
+
+      .pending-sent-btn {
+        background-color: #e8f0fe;
+        border-color: #e8f0fe;
+        color: #1a73e8;
+        font-weight: 600;
+        border-radius: 6px;
+        padding: 0 16px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        &:hover {
+          background-color: #d2e3fc;
+          border-color: #d2e3fc;
         }
       }
     }
@@ -413,8 +448,7 @@ body.theme-dark {
 
       .profile-header-actions {
 
-        .message-btn,
-        .friend-status-btn {
+        .message-btn {
           background-color: #3a3b3c;
           border-color: #3a3b3c;
           color: #e4e6eb;
@@ -426,6 +460,23 @@ body.theme-dark {
           }
         }
 
+        .friend-status-btn {
+          background-color: rgba(129, 201, 149, 0.15);
+          border-color: transparent;
+          color: #81c995;
+          font-weight: 600;
+          border-radius: 6px;
+          padding: 0 16px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          &:hover {
+            background-color: rgba(129, 201, 149, 0.25);
+          }
+        }
+
         .add-friend-btn {
           background-color: #2e89ff;
           border-color: #2e89ff;
@@ -433,6 +484,23 @@ body.theme-dark {
           &:hover {
             background-color: #166fe5;
             border-color: #166fe5;
+          }
+        }
+
+        .pending-sent-btn {
+          background-color: rgba(138, 180, 248, 0.15);
+          border-color: transparent;
+          color: #8ab4f8;
+          font-weight: 600;
+          border-radius: 6px;
+          padding: 0 16px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          &:hover {
+            background-color: rgba(138, 180, 248, 0.25);
           }
         }
       }
@@ -521,11 +589,14 @@ body.theme-dark {
       h3 {
         color: #e4e6eb;
       }
-      
+
       .intro-list {
         .intro-item {
           color: #e4e6eb;
-          .intro-icon { color: #b0b3b8; }
+
+          .intro-icon {
+            color: #b0b3b8;
+          }
         }
       }
 
@@ -533,6 +604,7 @@ body.theme-dark {
         &:hover {
           background-color: #3a3b3c;
         }
+
         .full-friend-name {
           color: #e4e6eb;
         }
@@ -609,41 +681,41 @@ body.theme-dark {
   }
 }
 
-  .all-friends-modal {
-    .ant-modal-content {
+.all-friends-modal {
+  .ant-modal-content {
+    background-color: #242526;
+    color: #e4e6eb;
+
+    .ant-modal-header {
       background-color: #242526;
-      color: #e4e6eb;
+      border-bottom: 1px solid #393a3b;
 
-      .ant-modal-header {
-        background-color: #242526;
-        border-bottom: 1px solid #393a3b;
-
-        .ant-modal-title {
-          color: #e4e6eb;
-        }
-      }
-
-      .ant-modal-close-icon {
-        color: #b0b3b8;
-
-        &:hover {
-          color: #e4e6eb;
-        }
+      .ant-modal-title {
+        color: #e4e6eb;
       }
     }
 
-    .all-friends-list {
-      .all-friends-item {
-        &:hover {
-          background-color: #3a3b3c;
-        }
+    .ant-modal-close-icon {
+      color: #b0b3b8;
 
-        .friend-modal-name {
-          color: #e4e6eb !important;
-        }
+      &:hover {
+        color: #e4e6eb;
       }
     }
   }
+
+  .all-friends-list {
+    .all-friends-item {
+      &:hover {
+        background-color: #3a3b3c;
+      }
+
+      .friend-modal-name {
+        color: #e4e6eb !important;
+      }
+    }
+  }
+}
 
 .all-friends-list {
   display: flex;
