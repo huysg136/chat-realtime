@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import LeftSide from "../../components/user/leftSide/leftSide";
 import { AiOutlineSearch, AiOutlineBell, AiOutlineCloseCircle } from "react-icons/ai";
@@ -11,6 +11,7 @@ import { ROUTERS } from "../../configs/router";
 import { AuthContext } from "../../context/authProvider";
 import { db } from "../../firebase/config";
 import { collection, query, where, onSnapshot, getDocs } from "firebase/firestore";
+import { appConfig } from "../../configs/appConfig";
 
 const LandingPage = () => {
   const location = useLocation();
@@ -32,39 +33,54 @@ const LandingPage = () => {
   const notifDropdownRef = useRef(null);
 
 
-  useEffect(() => {
-    if (!user?.uid) return;
-
-    const q = query(
-      collection(db, "notifications"),
-      where("receiverUid", "==", user.uid),
-      where("isRead", "==", false)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setUnreadCount(snapshot.size);
-    });
-
-    return () => unsubscribe();
-  }, [user?.uid]);
-
-  const fetchUnreadCount = async () => {
+  const fetchUnreadCount = useCallback(async () => {
     if (!user?.uid) return;
     try {
       const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
       const res = await fetch(`${API_BASE_URL}/api/friends/notifications/unread-count?uid=${user.uid}`);
       const data = await res.json();
-      if (data.success) {
-        setUnreadCount(data.count);
-      }
+      if (data.success) setUnreadCount(data.count);
     } catch (error) {
       console.error("Fetch unread count failed:", error);
     }
-  };
+  }, [user?.uid]);
+
+  const pollTimerRef = useRef(null);
+
+  const stopPolling = useCallback(() => {
+    if (pollTimerRef.current) {
+      clearInterval(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
+  }, []);
+
+  const startPolling = useCallback(() => {
+    stopPolling();
+    pollTimerRef.current = setInterval(fetchUnreadCount, appConfig.NOTIFICATION_POLL_INTERVAL);
+  }, [fetchUnreadCount, stopPolling]);
 
   useEffect(() => {
+    if (!user?.uid) return;
+
     fetchUnreadCount();
-  }, [user?.uid]);
+    startPolling();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchUnreadCount();
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [user?.uid, fetchUnreadCount, startPolling, stopPolling]);
 
   useEffect(() => {
     if (!showNotifDropdown || !user?.uid) return;
