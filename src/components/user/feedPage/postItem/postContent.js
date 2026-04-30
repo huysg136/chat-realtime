@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import 'react-image-lightbox/style.css';
 import Lightbox from 'react-image-lightbox';
 
-const NOT_FOUND_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png";
-
-export default function PostContent({ post }) {
+export default function PostContent({ post, hasError, setHasError }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [hasError, setHasError] = useState(false);
 
   const renderContentWithHashtags = (text) => {
     if (!text) return null;
