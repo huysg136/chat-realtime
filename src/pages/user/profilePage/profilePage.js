@@ -278,7 +278,9 @@ export default function ProfilePage() {
       <div className="profile-header-card">
         <div className="profile-header-content">
           <div className="avatar-section">
-            <Avatar size={135} src={profileUser.photoURL} icon={<AiOutlineUser />} className="main-avatar" />
+            <Avatar size={135} src={profileUser.photoURL} className="main-avatar">
+              {profileUser.displayName?.charAt(0)?.toUpperCase() || "?"}
+            </Avatar>
           </div>
 
           <div className="profile-header-text">
@@ -455,7 +457,9 @@ export default function ProfilePage() {
                 {profileFriends.length > 0 ? (
                   profileFriends.map((f, idx) => (
                     <div key={idx} className="friend-item" onClick={() => navigate(`/profile/${f.uid}`)}>
-                      <img src={f.photoURL || "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg"} alt={f.displayName} className="friend-avatar" />
+                      <Avatar src={f.photoURL} shape="square" className="friend-avatar">
+                        {f.displayName?.charAt(0)?.toUpperCase() || "?"}
+                      </Avatar>
                       <span className="friend-name">{f.displayName}</span>
                     </div>
                   ))
@@ -487,7 +491,9 @@ export default function ProfilePage() {
               {allProfileFriends.length > 0 ? (
                 allProfileFriends.map((f, idx) => (
                   <div key={idx} className="full-friend-card" onClick={() => navigate(`/profile/${f.uid}`)}>
-                    <Avatar size={80} src={f.photoURL} />
+                    <Avatar size={80} src={f.photoURL}>
+                      {f.displayName?.charAt(0)?.toUpperCase() || "?"}
+                    </Avatar>
                     <span className="full-friend-name">{f.displayName}</span>
                   </div>
                 ))
@@ -563,7 +569,9 @@ export default function ProfilePage() {
                   navigate(`/profile/${f.uid}`);
                 }}
               >
-                <Avatar src={f.photoURL} size={40} />
+                <Avatar src={f.photoURL} size={40}>
+                  {f.displayName?.charAt(0)?.toUpperCase() || "?"}
+                </Avatar>
                 <span className="friend-modal-name" style={{ fontWeight: 500 }}>{f.displayName}</span>
               </div>
             ))

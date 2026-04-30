@@ -15,6 +15,10 @@
 
   @include Responsive($WIDE_MOBILE) {
     display: flex;
+
+    &.is-hidden {
+      display: none !important;
+    }
   }
 
   &__item {

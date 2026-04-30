@@ -84,7 +84,7 @@ const BottomNav = () => {
   ];
 
   return (
-    <div className="bottom-nav">
+    <div className={`bottom-nav ${roomId ? "is-hidden" : ""}`}>
       {navItems.map((item) => (
         <div
           key={item.key}

@@ -33,6 +33,8 @@
         flex-direction: column;
         justify-content: center;
         flex: 1;
+        min-width: 0;
+        overflow: hidden;
     }
 
     .header__title {
@@ -44,7 +46,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 300px;
+        width: 100%;
         transition: color 0.3s;
     }
 
@@ -99,6 +101,7 @@ body.theme-dark {
 
         .mobile-back-btn {
             color: #f9fafb;
+
             &:hover {
                 background: rgba(255, 255, 255, 0.1);
             }

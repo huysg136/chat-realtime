@@ -78,6 +78,7 @@
 
   .rooms-list {
     flex: 1;
+    max-height: 400px;
     overflow-y: auto;
     padding-right: 10px;
   }

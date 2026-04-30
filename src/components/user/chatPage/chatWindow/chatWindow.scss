@@ -25,6 +25,12 @@
       gap: 4px;
       min-height: 0;
 
+      // Đẩy tin nhắn xuống dưới cùng khi có ít tin nhắn
+      &::before {
+        content: "";
+        flex: 1;
+      }
+
       &::-webkit-scrollbar {
         width: 6px;
       }

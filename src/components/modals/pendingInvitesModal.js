@@ -147,7 +147,7 @@ export default function PendingInvitesModal() {
         return (
           <div key={invite.id} className="pending-invite-item">
             <CircularAvatarGroup
-              members={membersData.map((u) => ({ avatar: u.photoURL, name: u.displayName }))}
+              members={membersData.map((u) => ({ uid: u.uid, avatar: u.photoURL, name: u.displayName }))}
               maxDisplay={3}
               className="pending-invite-avatars"
             />

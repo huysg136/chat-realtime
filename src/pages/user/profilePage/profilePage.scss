@@ -399,11 +399,28 @@
           cursor: pointer;
 
           .friend-avatar {
-            width: 100%;
-            aspect-ratio: 1;
+            width: 100% !important;
+            height: auto !important;
+            aspect-ratio: 1 / 1 !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 8px !important;
             margin-bottom: 8px;
+
+            .ant-image-img,
+            img {
+              object-fit: cover;
+              height: 100% !important;
+            }
+
+            span {
+              line-height: 1 !important;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
 
             &:hover {
               filter: brightness(0.9);

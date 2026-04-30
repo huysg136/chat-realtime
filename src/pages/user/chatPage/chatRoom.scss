@@ -37,7 +37,7 @@
       position: absolute;
       left: 0;
       top: 0;
-      bottom: 60px;
+      bottom: 0; // Chiếm toàn bộ chiều cao vì đã ẩn BottomNav
       z-index: 10;
 
       &.is-hidden {
@@ -56,7 +56,7 @@
       position: fixed;
       right: 0;
       top: 0;
-      bottom: 60px;
+      bottom: 0; // Chiếm toàn bộ chiều cao
       width: 100%;
       z-index: 100;
       box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
