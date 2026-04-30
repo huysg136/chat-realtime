@@ -1,0 +1,83 @@
+@import "../../../style/responsive";
+
+.chat-room-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+
+  &__sidebar {
+    width: 360px;
+    flex-shrink: 0;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+    background: #fff;
+    transition: transform 0.3s ease;
+
+    @include Responsive($WIDE_MOBILE) {
+      width: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 60px;
+      z-index: 20;
+
+      &.is-hidden {
+        transform: translateX(-100%);
+      }
+    }
+  }
+
+  &__window {
+    flex: 1;
+    min-width: 0;
+    background: #fff;
+
+    @include Responsive($WIDE_MOBILE) {
+      width: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 60px;
+      z-index: 10;
+
+      &.is-hidden {
+        transform: translateX(100%);
+      }
+    }
+  }
+
+  &__detail {
+    width: 360px;
+    flex-shrink: 0;
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    background: #fff;
+
+    @include Responsive($WIDE_MOBILE) {
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 60px;
+      width: 100%;
+      z-index: 100;
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+body.theme-dark {
+  .chat-room-container {
+    &__sidebar {
+      border-right-color: rgba(255, 255, 255, 0.05);
+      background: #242526;
+    }
+
+    &__window {
+      background: #18191a;
+    }
+
+    &__detail {
+      border-left-color: rgba(255, 255, 255, 0.05);
+      background: #242526;
+    }
+  }
+}

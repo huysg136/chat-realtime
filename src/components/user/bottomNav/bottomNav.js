@@ -6,7 +6,6 @@ import {
   AiOutlineTeam
 } from "react-icons/ai";
 import { FaUser, FaRegUser } from "react-icons/fa6";
-import { HiUserGroup, HiOutlineUserGroup } from "react-icons/hi2";
 import { AuthContext } from "../../../context/authProvider";
 import { AppContext } from "../../../context/appProvider";
 import { ROUTERS } from "../../../configs/router";
@@ -60,7 +59,7 @@ const BottomNav = () => {
     },
     {
       key: "friends",
-      icon: active === "friends" ? <HiUserGroup /> : <HiOutlineUserGroup />,
+      icon: <AiOutlineTeam />,
       badge: receivedRequests.length,
       onClick: () => {
         setActive("friends");
@@ -89,7 +88,7 @@ const BottomNav = () => {
       {navItems.map((item) => (
         <div
           key={item.key}
-          className={`bottom-nav__item ${active === item.key ? "active" : ""}`}
+          className={`bottom-nav__item ${item.key} ${active === item.key ? "active" : ""}`}
           onClick={item.onClick}
         >
           <div className="bottom-nav__icon-wrapper">

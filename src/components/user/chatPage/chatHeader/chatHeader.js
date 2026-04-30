@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Avatar, Skeleton } from "antd";
-import { AiOutlineUsergroupAdd } from "react-icons/ai";
+import { AiOutlineUsergroupAdd, AiOutlineLeft } from "react-icons/ai";
 import { InfoCircleOutlined, VideoCameraOutlined } from "@ant-design/icons";
 import CircularAvatarGroup from "../../../common/circularAvatarGroup";
 import UserBadge from "../../../common/userBadge";
@@ -10,6 +10,7 @@ import { useUserStatus } from "../../../../hooks/useUserStatus";
 import { AppContext } from "../../../../context/appProvider";
 import { AuthContext } from "../../../../context/authProvider";
 import { useTranslation } from "react-i18next";
+import { ROUTERS } from "../../../../configs/router";
 import "./chatHeader.scss";
 
 export default function ChatHeader({ onToggleDetail, banInfo }) {
@@ -57,6 +58,12 @@ export default function ChatHeader({ onToggleDetail, banInfo }) {
 
     return (
         <header className="chat-window__header">
+            <Button
+                type="text"
+                icon={<AiOutlineLeft />}
+                className="mobile-back-btn"
+                onClick={() => navigate(ROUTERS.USER.DIRECT)}
+            />
             <div className="header-avatar">
                 {isPrivate ? (
                     otherUser ? (

@@ -1,5 +1,6 @@
 @use "sass:map";
 @import "../../../../style/theme";
+@import "../../../../style/responsive";
 
 .chat-window__header {
     display: flex;
@@ -10,6 +11,22 @@
     border-bottom: 1px solid #dbdbdb;
     background: #ffffff;
     flex-shrink: 0;
+
+    .mobile-back-btn {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        font-size: 20px;
+        color: #262626;
+        padding: 0;
+        margin-right: -4px;
+
+        @include Responsive($WIDE_MOBILE) {
+            display: flex;
+        }
+    }
 
     .header__info {
         display: flex;
@@ -79,6 +96,13 @@ body.theme-dark {
     .chat-window__header {
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         background: map.get($theme-colors, "bg-dark");
+
+        .mobile-back-btn {
+            color: #f9fafb;
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
 
         .header__title,
         .header__description {

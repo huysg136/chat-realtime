@@ -244,18 +244,18 @@ body.theme-dark {
 
 @include Responsive($WIDE_MOBILE) {
   .feed-page {
-    padding: 16px 30px;
+    padding: 16px 20px;
   }
 }
 
 @include Responsive($TABLET_DEVICE) {
   .feed-page {
-    padding: 16px 30px;
+    padding: 16px 24px;
   }
 }
 
 @include Responsive($MEDIUM_DEVICE) {
   .feed-page {
-    padding: 16px 30px;
+    padding: 16px 28px;
   }
 }

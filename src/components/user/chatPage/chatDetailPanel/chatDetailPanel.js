@@ -9,6 +9,7 @@ import {
   CloseOutlined,
   MoreOutlined,
 } from "@ant-design/icons";
+import { AiOutlineClose } from "react-icons/ai";
 import { FaKey } from "react-icons/fa6";
 import { toast } from 'react-toastify';
 import CircularAvatarGroup from "../../../common/circularAvatarGroup";
@@ -283,6 +284,12 @@ export default function ChatDetailPanel({
             <h3>{t("chatDetail.title")}</h3>
             <span className="room-type">{isPrivate ? t("chatDetail.private") : t("chatDetail.group")}</span>
           </div>
+          <Button
+            type="text"
+            icon={<AiOutlineClose />}
+            className="close-btn"
+            onClick={onClose}
+          />
         </div>
 
         <div className="chat-detail-content">

@@ -8,6 +8,7 @@ import { AppContext } from "../../../context/appProvider";
 import { AuthContext } from "../../../context/authProvider";
 import { useParams, useNavigate } from "react-router-dom";
 import { ROUTERS } from "../../../configs/router";
+import "./chatRoom.scss";
 
 export default function ChatRoom() {
     const [isDetailVisible, setIsDetailVisible] = useState(false);
@@ -37,7 +38,10 @@ export default function ChatRoom() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!roomId) return;
+        if (!roomId) {
+            setSelectedRoomId(null);
+            return;
+        }
         if (!uid) return;
 
         if (!rooms || rooms.length === 0) return;
@@ -66,16 +70,12 @@ export default function ChatRoom() {
     };
 
     return (
-        <div style={{ display: 'flex', height: '100%', width: '100%', overflow: 'hidden' }}>
-            {/* <div style={{ width: '64px', flexShrink: 0 }}>
-                <LeftSide />
-            </div> */}
-
-            <div style={{ width: '360px', flexShrink: 0 }}>
+        <div className="chat-room-container">
+            <div className={`chat-room-container__sidebar ${selectedRoomId ? 'is-hidden' : ''}`}>
                 <SideBar />
             </div>
 
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div className={`chat-room-container__window ${!selectedRoomId ? 'is-hidden' : ''}`}>
                 <ChatWindow
                     isDetailVisible={isDetailVisible}
                     onToggleDetail={() => setIsDetailVisible(prev => !prev)}
@@ -83,7 +83,7 @@ export default function ChatRoom() {
             </div>
 
             {isDetailVisible && selectedRoom && (
-                <div style={{ width: '360px', flexShrink: 0 }}>
+                <div className="chat-room-container__detail">
                     <ChatDetailPanel
                         isVisible={true}
                         selectedRoom={selectedRoom}
@@ -124,4 +124,4 @@ export default function ChatRoom() {
             )}
         </div>
     );
-}
+}

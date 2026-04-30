@@ -12,7 +12,6 @@
   align-items: center;
   border-top: 1px solid #ced0d4;
   z-index: 1000;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 
   @include Responsive($WIDE_MOBILE) {
     display: flex;
@@ -44,6 +43,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  &__item.profile &__icon-wrapper {
+    font-size: 22px; // Giảm size riêng cho icon Profile (FaUser)
   }
 
   &__badge {
@@ -70,7 +78,6 @@ body.theme-dark {
   .bottom-nav {
     background: #242526;
     border-top-color: #393a3b;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
 
     &__item {
       color: #b0b3b8;
