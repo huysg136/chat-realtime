@@ -1,5 +1,6 @@
 @use "sass:map";
 @import "../../../../style/theme";
+@import "../../../../style/responsive";
 
 .post-item {
     background: #ffffff;
@@ -13,12 +14,22 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.09);
     }
 
+    @include Responsive($WIDE_MOBILE) {
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+    }
+
     // ── PostHeader ────────────────────────────────────────────
     .post-header {
         display: flex;
         align-items: center;
         gap: 10px;
         padding: 14px 16px 4px;
+
+        @include Responsive($WIDE_MOBILE) {
+            padding: 12px 12px 4px;
+        }
 
         &__avatar {
             border: 2px solid rgba(0, 0, 0, 0.08);
@@ -69,6 +80,10 @@
     .post-content {
         padding: 4px 16px 4px;
 
+        @include Responsive($WIDE_MOBILE) {
+            padding: 4px 12px 4px;
+        }
+
         &__text {
             font-size: 15px;
             color: #1a1a1a;
@@ -116,6 +131,10 @@
     // ── PostActions ───────────────────────────────────────────
     .post-actions {
         padding: 0 16px 4px;
+
+        @include Responsive($WIDE_MOBILE) {
+            padding: 0 12px 4px;
+        }
 
         &__stats {
             display: flex;

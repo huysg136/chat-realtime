@@ -1,3 +1,4 @@
+@import "../../style/responsive";
 
   .login-wrapper {
     position: relative;
@@ -120,11 +121,11 @@
     animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     border: 1px solid rgba(226, 232, 240, 0.6);
     
-    @media (max-width: 768px) {
+    @include Responsive($WIDE_MOBILE) {
       padding: 40px 30px;
     }
     
-    @media (max-width: 480px) {
+    @include Responsive($SMALL_DEVICES) {
       padding: 32px 24px;
     }
   }
@@ -169,7 +170,7 @@
       color: #333;
       letter-spacing: -1px;
 
-      @media (max-width: 480px) {
+      @include Responsive($SMALL_DEVICES) {
         font-size: 32px;
       }
     }
@@ -181,7 +182,7 @@
       margin-top: 8px;
       font-weight: 400;
       
-      @media (max-width: 480px) {
+      @include Responsive($SMALL_DEVICES) {
         font-size: 14px;
       }
     }
@@ -197,7 +198,7 @@
         font-weight: 600;
         color: #333;
 
-        @media (max-width: 480px) {
+        @include Responsive($SMALL_DEVICES) {
           font-size: 20px;
         }
       }
@@ -252,7 +253,7 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       }
       
-      @media (max-width: 480px) {
+      @include Responsive($SMALL_DEVICES) {
         height: 48px;
         font-size: 15px;
       }
@@ -267,7 +268,7 @@
     display: block;
     padding: 0 20px;
     
-    @media (max-width: 480px) {
+    @include Responsive($SMALL_DEVICES) {
       font-size: 12px;
       margin-top: 24px;
       padding: 0 10px;
@@ -275,13 +276,13 @@
   }
 
   // Responsive adjustments
-  @media (max-width: 768px) {
+  @include Responsive($WIDE_MOBILE) {
     .login-card {
       margin: 0 16px;
     }
   }
 
-  @media (max-width: 480px) {
+  @include Responsive($SMALL_DEVICES) {
     .lang-select {
       top: 16px;
       right: 16px;
@@ -319,7 +320,7 @@
     font-weight: 600;
   }
 
-  @media (max-width: 480px) {
+  @include Responsive($SMALL_DEVICES) {
     font-size: 10px;
     bottom: 8px;
   }

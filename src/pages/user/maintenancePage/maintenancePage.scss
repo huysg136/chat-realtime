@@ -1,3 +1,5 @@
+@import "../../../style/responsive";
+
 .maintenance-wrapper {
   display: flex;
   flex-direction: column;
@@ -209,7 +211,7 @@ body.theme-dark {
   }
 }
 
-@media (max-width: 768px) {
+@include Responsive($WIDE_MOBILE) {
   .maintenance-wrapper {
     padding: 16px;
 

@@ -6,6 +6,7 @@ import logoQuik from "../../images/logo_quik.png";
 import { AppContext } from "../../context/appProvider";
 import { Avatar } from "antd";
 import UserMenu from "../../components/user/userMenu/userMenu";
+import BottomNav from "../../components/user/bottomNav/bottomNav";
 import "./landingPage.scss";
 import { ROUTERS } from "../../configs/router";
 import { AuthContext } from "../../context/authProvider";
@@ -16,6 +17,8 @@ import { getUnreadNotificationCount, markAllNotificationsAsRead, markNotificatio
 
 const LandingPage = () => {
   const location = useLocation();
+  const searchInputRef = useRef(null);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const isHomePage = location.pathname === "/" || location.pathname.startsWith("/p/");
   const isProfilePage = location.pathname.startsWith("/profile");
   const isExpandedPage = isHomePage || isProfilePage;
@@ -203,11 +206,15 @@ const LandingPage = () => {
         <div className="landing-layout__top-bar">
           <div className="landing-layout__logo" onClick={() => navigate(ROUTERS.USER.HOME)}>
             <img src={logoQuik} alt="Quik Logo" className="landing-layout__logo-img" />
-            <span>Quik</span>
+            <span className={isSearchFocused ? "hide-on-mobile-search" : ""}>Quik</span>
           </div>
-          <div className="landing-layout__search-wrapper">
+          <div 
+            className={`landing-layout__search-wrapper ${isSearchFocused ? "is-focused" : ""}`}
+            onClick={() => searchInputRef.current?.focus()}
+          >
             <AiOutlineSearch className="search-icon" />
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Tìm kiếm trên Quik"
               value={searchInput}
@@ -223,8 +230,16 @@ const LandingPage = () => {
                   setShowDropdown(false);
                 }
               }}
-              onFocus={() => searchInput.trim() && setShowDropdown(true)}
-              onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+              onFocus={() => {
+                setIsSearchFocused(true);
+                searchInput.trim() && setShowDropdown(true);
+              }}
+              onBlur={() => {
+                setTimeout(() => {
+                  setIsSearchFocused(false);
+                  setShowDropdown(false);
+                }, 200);
+              }}
             />
 
             {searchInput && (
@@ -346,6 +361,7 @@ const LandingPage = () => {
           <Outlet context={{ feedSearchQuery, setSearchInput, setFeedSearchQuery, triggerFeedSearch }} />
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 };

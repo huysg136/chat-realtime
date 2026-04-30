@@ -1,5 +1,6 @@
 @use "sass:map";
 @import "../../../style/theme";
+@import "../../../style/responsive";
 
 .feed-page {
   height: 100%;
@@ -123,10 +124,20 @@
 
   &__layout {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
+    gap: 32px;
     align-items: flex-start;
     width: 100%;
-    padding: 20px 0 30px;
+    padding: 20px 16px 30px;
+
+    @include Responsive($MEDIUM_DEVICE) {
+      gap: 20px;
+      padding: 20px 12px;
+    }
+
+    @include Responsive($WIDE_MOBILE) {
+      padding: 0;
+    }
   }
 
   &__inner {
@@ -144,7 +155,7 @@
     gap: 15px;
     align-self: stretch;
 
-    & > *:last-child {
+    &>*:last-child {
       position: sticky;
       top: 15px;
     }
@@ -219,14 +230,32 @@ body.theme-dark {
 }
 
 // ─── Responsive ──────────────────────────────────────────────
-@media (max-width: 950px) {
+@include Responsive($TABLET_DEVICE) {
   .feed-page__right-side {
     display: none;
   }
 }
 
-@media (max-width: 768px) {
+@include Responsive($WIDE_MOBILE) {
+  .feed-page__right-side {
+    display: none;
+  }
+}
+
+@include Responsive($WIDE_MOBILE) {
   .feed-page {
-    padding: 16px 10px 32px;
+    padding: 16px 30px;
+  }
+}
+
+@include Responsive($TABLET_DEVICE) {
+  .feed-page {
+    padding: 16px 30px;
+  }
+}
+
+@include Responsive($MEDIUM_DEVICE) {
+  .feed-page {
+    padding: 16px 30px;
   }
 }

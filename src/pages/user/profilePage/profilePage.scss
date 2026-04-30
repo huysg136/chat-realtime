@@ -1,3 +1,5 @@
+@import "../../../style/responsive";
+
 .profile-container {
   width: 100%;
   height: 100%;
@@ -5,7 +7,7 @@
   overflow-x: hidden;
   background-color: #f0f2f5;
   box-sizing: border-box;
-  padding-bottom: 40px;
+  padding: 4px 20px;
 
   // Custom thin scrollbar
   &::-webkit-scrollbar {
@@ -50,12 +52,13 @@
     align-items: center;
     padding: 16px 24px;
     border-bottom: 1px solid #ced0d4;
+
     position: relative;
 
-    @media (max-width: 768px) {
+    @include Responsive($TABLET_DEVICE) {
       flex-direction: column;
-      align-items: center;
-      text-align: center;
+      align-items: flex-start;
+      text-align: left;
     }
 
     .avatar-section {
@@ -63,13 +66,14 @@
       margin-top: -30px;
       margin-right: 16px;
 
-      @media (max-width: 768px) {
-        margin-right: 0;
-      }
-
       .main-avatar {
         border: 4px solid white;
         background: white;
+
+        @include Responsive($WIDE_MOBILE) {
+          width: 120px !important;
+          height: 120px !important;
+        }
       }
     }
 
@@ -82,6 +86,10 @@
         font-weight: 700;
         color: #050505;
         margin: 0;
+
+        @include Responsive($WIDE_MOBILE) {
+          font-size: 24px;
+        }
       }
 
       .username {
@@ -96,7 +104,7 @@
         color: #65676b;
         font-size: 15px;
 
-        @media (max-width: 768px) {
+        @include Responsive($WIDE_MOBILE) {
           justify-content: center;
         }
 
@@ -110,6 +118,12 @@
       display: flex;
       gap: 8px;
       margin-bottom: 16px;
+
+      @include Responsive($WIDE_MOBILE) {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
 
       .edit-profile-btn {
         background-color: #1877f2;
@@ -216,6 +230,13 @@
     gap: 16px;
     padding-top: 4px;
 
+    @include Responsive($WIDE_MOBILE) {
+      padding: 0 8px;
+      gap: 4px;
+      justify-content: space-evenly;
+      border-top: 1px solid #f0f2f5;
+    }
+
     .tab-item {
       padding: 14px 16px;
       font-size: 15px;
@@ -253,9 +274,12 @@
   max-width: 1000px;
   margin: 0 auto;
   gap: 16px;
-  padding: 0 16px;
 
-  @media (max-width: 992px) {
+  @include Responsive($WIDE_MOBILE) {
+    flex-direction: column;
+  }
+
+  @include Responsive($TABLET_DEVICE) {
     flex-direction: column;
   }
 
@@ -263,7 +287,11 @@
     flex: 2;
     max-width: 400px;
 
-    @media (max-width: 992px) {
+    @include Responsive($WIDE_MOBILE) {
+      max-width: 100%;
+    }
+
+    @include Responsive($TABLET_DEVICE) {
       max-width: 100%;
     }
 
@@ -398,6 +426,10 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+
+    @include Responsive($WIDE_MOBILE) {
+      gap: 10px;
+    }
   }
 }
 
@@ -615,6 +647,42 @@ body.theme-dark {
       }
     }
   }
+
+  .all-friends-modal {
+    .ant-modal-content {
+      background-color: #242526;
+      color: #e4e6eb;
+
+      .ant-modal-header {
+        background-color: #242526;
+        border-bottom: 1px solid #393a3b;
+
+        .ant-modal-title {
+          color: #e4e6eb;
+        }
+      }
+
+      .ant-modal-close-icon {
+        color: #b0b3b8;
+
+        &:hover {
+          color: #e4e6eb;
+        }
+      }
+    }
+
+    .all-friends-list {
+      .all-friends-item {
+        &:hover {
+          background-color: #3a3b3c;
+        }
+
+        .friend-modal-name {
+          color: #e4e6eb !important;
+        }
+      }
+    }
+  }
 }
 
 .profile-tab-content-full {
@@ -685,41 +753,6 @@ body.theme-dark {
   }
 }
 
-.all-friends-modal {
-  .ant-modal-content {
-    background-color: #242526;
-    color: #e4e6eb;
-
-    .ant-modal-header {
-      background-color: #242526;
-      border-bottom: 1px solid #393a3b;
-
-      .ant-modal-title {
-        color: #e4e6eb;
-      }
-    }
-
-    .ant-modal-close-icon {
-      color: #b0b3b8;
-
-      &:hover {
-        color: #e4e6eb;
-      }
-    }
-  }
-
-  .all-friends-list {
-    .all-friends-item {
-      &:hover {
-        background-color: #3a3b3c;
-      }
-
-      .friend-modal-name {
-        color: #e4e6eb !important;
-      }
-    }
-  }
-}
 
 .all-friends-list {
   display: flex;

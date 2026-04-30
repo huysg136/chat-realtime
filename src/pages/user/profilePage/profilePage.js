@@ -45,6 +45,17 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts");
   const [isPendingSent, setIsPendingSent] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [brokenPhotos, setBrokenPhotos] = useState(new Set());
+
+  const handlePhotoError = (url) => {
+    setBrokenPhotos((prev) => {
+      const next = new Set(prev);
+      next.add(url);
+      return next;
+    });
+  };
+
+  const visiblePhotos = userPhotos.filter(url => !brokenPhotos.has(url));
 
   const handlePostCreated = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -392,7 +403,7 @@ export default function ProfilePage() {
                 <span
                   className="see-all-link"
                   onClick={() => {
-                    if (userPhotos.length > 0) {
+                    if (visiblePhotos.length > 0) {
                       setPhotoIndex(0);
                       setIsOpen(true);
                     }
@@ -403,8 +414,8 @@ export default function ProfilePage() {
                 </span>
               </div>
               <div className="photos-grid">
-                {userPhotos.length > 0 ? (
-                  userPhotos.slice(0, 9).map((url, idx) => (
+                {visiblePhotos.length > 0 ? (
+                  visiblePhotos.slice(0, 9).map((url, idx) => (
                     <img
                       key={idx}
                       src={url}
@@ -414,6 +425,7 @@ export default function ProfilePage() {
                         setPhotoIndex(idx);
                         setIsOpen(true);
                       }}
+                      onError={() => handlePhotoError(url)}
                     />
                   ))
                 ) : (
@@ -494,14 +506,15 @@ export default function ProfilePage() {
           <div className="info-card">
             <h3>Ảnh</h3>
             <div className="full-photos-grid">
-              {userPhotos.length > 0 ? (
-                userPhotos.map((url, idx) => (
+              {visiblePhotos.length > 0 ? (
+                visiblePhotos.map((url, idx) => (
                   <img
                     key={idx}
                     src={url}
                     className="full-grid-photo"
                     onClick={() => { setPhotoIndex(idx); setIsOpen(true); }}
                     alt={`User post photo ${idx}`}
+                    onError={() => handlePhotoError(url)}
                   />
                 ))
               ) : (
@@ -514,17 +527,17 @@ export default function ProfilePage() {
         </div>
       )}
       {/* Image Preview Lightbox */}
-      {isOpen && (
+      {isOpen && visiblePhotos.length > 0 && (
         <Lightbox
-          mainSrc={userPhotos[photoIndex]}
-          nextSrc={userPhotos[(photoIndex + 1) % userPhotos.length]}
-          prevSrc={userPhotos[(photoIndex + userPhotos.length - 1) % userPhotos.length]}
+          mainSrc={visiblePhotos[photoIndex]}
+          nextSrc={visiblePhotos[(photoIndex + 1) % visiblePhotos.length]}
+          prevSrc={visiblePhotos[(photoIndex + visiblePhotos.length - 1) % visiblePhotos.length]}
           onCloseRequest={() => setIsOpen(false)}
           onMovePrevRequest={() =>
-            setPhotoIndex((photoIndex + userPhotos.length - 1) % userPhotos.length)
+            setPhotoIndex((photoIndex + visiblePhotos.length - 1) % visiblePhotos.length)
           }
           onMoveNextRequest={() =>
-            setPhotoIndex((photoIndex + 1) % userPhotos.length)
+            setPhotoIndex((photoIndex + 1) % visiblePhotos.length)
           }
         />
       )}

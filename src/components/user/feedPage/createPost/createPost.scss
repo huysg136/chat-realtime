@@ -1,5 +1,6 @@
 @use "sass:map";
 @import "../../../../style/theme";
+@import "../../../../style/responsive";
 
 .create-post {
     background: #ffffff;
@@ -7,6 +8,14 @@
     padding: 16px 20px;
     border: 1.5px solid rgba(0, 0, 0, 0.07);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+
+    @include Responsive($WIDE_MOBILE) {
+        border-left: none;
+        border-right: none;
+        padding: 12px;
+        box-shadow: none;
+    }
+
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &--focused {
@@ -85,6 +94,12 @@
 
         .anticon {
             font-size: 16px;
+        }
+
+        span {
+            @include Responsive($WIDE_MOBILE) {
+                display: none;
+            }
         }
     }
 

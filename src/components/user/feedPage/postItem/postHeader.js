@@ -8,7 +8,7 @@ import { AiFillPicture } from "react-icons/ai";
 import PrivacyIcon, { PRIVACY_CONFIG } from "../../../common/privacyIcon";
 import { AuthContext } from "../../../../context/authProvider";
 import { AppContext } from "../../../../context/appProvider";
-import { deleteDocument, getUserDocIdByUid } from "../../../../firebase/services";
+import { getUserDocIdByUid } from "../../../../firebase/services";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../firebase/config";
 import { deletePost } from "../../../../services/postService";
@@ -206,7 +206,7 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
                 {!post.photoURL && post.displayName?.charAt(0)?.toUpperCase()}
             </Avatar>
             <div className="post-header__info">
-                <span 
+                <span
                     className="post-header__name"
                     style={{ cursor: "pointer" }}
                     onClick={() => navigate(`/profile/${post.uid}`)}
@@ -254,17 +254,17 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
                             <img src={NOT_FOUND_IMAGE} alt="Error" className="create-post__preview-media" />
                         ) : existingMediaUrl ? (
                             existingMediaKind === "video" ? (
-                                <video 
-                                    src={existingMediaUrl} 
-                                    controls 
-                                    className="create-post__preview-media" 
+                                <video
+                                    src={existingMediaUrl}
+                                    controls
+                                    className="create-post__preview-media"
                                     onError={() => setHasEditMediaError(true)}
                                 />
                             ) : (
-                                <img 
-                                    src={existingMediaUrl} 
-                                    alt="Preview" 
-                                    className="create-post__preview-media" 
+                                <img
+                                    src={existingMediaUrl}
+                                    alt="Preview"
+                                    className="create-post__preview-media"
                                     onError={() => setHasEditMediaError(true)}
                                 />
                             )

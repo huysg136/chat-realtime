@@ -1,3 +1,5 @@
+@import "../../style/responsive";
+
 .landing-layout {
   display: flex;
   flex-direction: column;
@@ -17,6 +19,10 @@
     z-index: 100;
     flex-shrink: 0;
     transition: background 0.3s ease, box-shadow 0.3s ease;
+
+    @include Responsive($WIDE_MOBILE) {
+      gap: 12px;
+    }
   }
 
   &__logo {
@@ -36,6 +42,16 @@
       object-fit: contain;
       border-radius: 50%;
     }
+
+    span {
+      transition: all 0.3s ease;
+
+      @include Responsive($WIDE_MOBILE) {
+        &.hide-on-mobile-search {
+          display: none;
+        }
+      }
+    }
   }
 
   &__search-wrapper {
@@ -51,6 +67,55 @@
     &:focus-within {
       width: 320px;
       background: #e4e6eb;
+
+      @include Responsive($SMALL_DEVICES) {
+        width: 100%;
+      }
+    }
+
+    @include Responsive($WIDE_MOBILE) {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 50%;
+      justify-content: center;
+
+      input {
+        position: absolute;
+        width: 0;
+        opacity: 0;
+        padding: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+      }
+
+      .search-icon {
+        margin-right: 0;
+      }
+
+      &.is-focused {
+        flex: 1;
+        width: auto;
+        height: auto;
+        padding: 10px 14px;
+        border-radius: 20px;
+        position: relative;
+        left: auto;
+        z-index: 10;
+        background: #f0f2f5;
+
+        input {
+          position: relative;
+          width: 100%;
+          opacity: 1;
+          padding-left: 8px;
+          pointer-events: auto;
+        }
+
+        .search-icon {
+          margin-right: 8px;
+        }
+      }
     }
 
     .search-icon {
@@ -262,6 +327,16 @@
     flex: 1;
     position: relative;
     overflow: hidden;
+
+    @include Responsive($WIDE_MOBILE) {
+      padding-bottom: 60px; // Space for BottomNav
+    }
+  }
+
+  &__sidebar-wrapper {
+    @include Responsive($WIDE_MOBILE) {
+      display: none !important;
+    }
   }
 }
 

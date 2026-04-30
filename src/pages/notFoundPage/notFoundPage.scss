@@ -1,5 +1,6 @@
 @use "sass:map";
 @import "../../style/theme";
+@import "../../style/responsive";
 
 .not-found-container {
     display: flex;
@@ -60,7 +61,7 @@
             font-weight: 600;
         }
 
-        @media (max-width: 480px) {
+        @include Responsive($SMALL_DEVICES) {
             font-size: 10px;
             bottom: 12px;
         }

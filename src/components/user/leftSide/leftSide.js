@@ -3,10 +3,8 @@ import {
   AiOutlineLogout,
   AiFillMessage,
   AiOutlineMessage,
-  AiOutlineUser,
   AiFillHome,
   AiOutlineHome,
-  AiOutlineTeam
 } from "react-icons/ai";
 import { AuthContext } from "../../../context/authProvider";
 import { db } from "../../../firebase/config";
@@ -20,7 +18,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ROUTERS } from "../../../configs/router";
 import { useTranslation } from "react-i18next";
 import { FaMoneyBillWave } from "react-icons/fa";
-import { FaRegUser } from "react-icons/fa6";
+import { FaUser, FaRegUser } from "react-icons/fa6";
 import { HiUserGroup, HiOutlineUserGroup } from "react-icons/hi2";
 import { useFriends } from "../../../hooks/useFriends";
 import UserMenu from "../userMenu/userMenu";
@@ -48,6 +46,8 @@ export default function LeftSide({ isExpanded }) {
       setActive("profile");
     } else if (location.pathname.startsWith("/direct")) {
       setActive("message");
+    } else {
+      setActive(""); // Clear active state for other pages (like Admin)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname, user?.uid]);
@@ -198,7 +198,7 @@ export default function LeftSide({ isExpanded }) {
                 }
               }}
             >
-              {active === "friends" ? <AiOutlineTeam /> : <AiOutlineTeam />}
+              {active === "friends" ? <HiUserGroup /> : <HiOutlineUserGroup />}
               <span className="icon-label">Bạn bè</span>
             </div>
             <div
@@ -210,7 +210,7 @@ export default function LeftSide({ isExpanded }) {
                 }
               }}
             >
-              <AiOutlineUser />
+              {active === "profile" ? <FaUser /> : <FaRegUser />}
               <span className="icon-label">Trang cá nhân</span>
             </div>
           </>
@@ -270,7 +270,7 @@ export default function LeftSide({ isExpanded }) {
               }}
               title="Trang cá nhân"
             >
-              <AiOutlineUser />
+              {active === "profile" ? <FaUser /> : <FaRegUser />}
             </div>
           </>
         )}

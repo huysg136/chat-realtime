@@ -254,7 +254,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
 
             {visibleCount >= filteredPosts.length && filterUserId && (
                 <div className="profile-feed-end" style={{ textAlign: 'center', padding: '20px 0', color: '#8c8c8c', fontStyle: 'italic' }}>
-                    <span>Đã xem hết bài viết của người dùng này</span>
+                    <span>Đã xem hết bài viết</span>
                 </div>
             )}
         </div>
