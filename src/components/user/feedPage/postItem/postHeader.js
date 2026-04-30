@@ -19,6 +19,7 @@ import { validateFile } from "../../../../utils/fileValidation";
 import { hasEnoughQuota, increaseQuota, formatBytes, getQuotaLimit } from "../../../../utils/quota";
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
+const NOT_FOUND_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png";
 const { confirm } = Modal;
 
 function toTimestamp(createdAt) {
@@ -45,6 +46,7 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
     const [editFileType, setEditFileType] = useState("");
     const [existingMediaUrl, setExistingMediaUrl] = useState(post.mediaUrl || null);
     const [existingMediaKind, setExistingMediaKind] = useState(post.kind || "text");
+    const [hasEditMediaError, setHasEditMediaError] = useState(false);
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -179,6 +181,7 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
                 setEditSelectedFile(null);
                 setEditFilePreview("");
                 setEditFileType("");
+                setHasEditMediaError(false);
                 setIsEditModalVisible(true);
             },
         },
@@ -247,11 +250,23 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
             >
                 {(existingMediaUrl || editFilePreview) && (
                     <div className="create-post__preview" style={{ marginBottom: 12 }}>
-                        {existingMediaUrl ? (
+                        {hasEditMediaError ? (
+                            <img src={NOT_FOUND_IMAGE} alt="Error" className="create-post__preview-media" />
+                        ) : existingMediaUrl ? (
                             existingMediaKind === "video" ? (
-                                <video src={existingMediaUrl} controls className="create-post__preview-media" />
+                                <video 
+                                    src={existingMediaUrl} 
+                                    controls 
+                                    className="create-post__preview-media" 
+                                    onError={() => setHasEditMediaError(true)}
+                                />
                             ) : (
-                                <img src={existingMediaUrl} alt="Preview" className="create-post__preview-media" />
+                                <img 
+                                    src={existingMediaUrl} 
+                                    alt="Preview" 
+                                    className="create-post__preview-media" 
+                                    onError={() => setHasEditMediaError(true)}
+                                />
                             )
                         ) : (
                             editFileType === "video" ? (

@@ -18,6 +18,7 @@ import "./createPost.scss";
 
 const { TextArea } = Input;
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
+const NOT_FOUND_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png";
 
 export default function CreatePost({ onPostCreated }) {
     const { user } = useContext(AuthContext);
@@ -30,6 +31,7 @@ export default function CreatePost({ onPostCreated }) {
     const [selectedFile, setSelectedFile] = useState(null);
     const [filePreview, setFilePreview] = useState("");
     const [fileType, setFileType] = useState(""); // 'image' or 'video'
+    const [hasError, setHasError] = useState(false);
     const fileInputRef = useRef(null);
 
     // Emoji states
@@ -79,6 +81,7 @@ export default function CreatePost({ onPostCreated }) {
 
         setSelectedFile(file);
         setFileType(file.type.startsWith("video/") ? "video" : "image");
+        setHasError(false);
 
         // Revoke old preview if exists
         if (filePreview) URL.revokeObjectURL(filePreview);
@@ -210,10 +213,22 @@ export default function CreatePost({ onPostCreated }) {
             {/* Media Preview Area */}
             {filePreview && (
                 <div className="create-post__media-preview">
-                    {fileType === "video" ? (
-                        <video src={filePreview} controls className="media-preview-element" />
+                    {hasError ? (
+                        <img src={NOT_FOUND_IMAGE} alt="Error" className="media-preview-element" />
+                    ) : fileType === "video" ? (
+                        <video 
+                            src={filePreview} 
+                            controls 
+                            className="media-preview-element" 
+                            onError={() => setHasError(true)}
+                        />
                     ) : (
-                        <img src={filePreview} alt="Preview" className="media-preview-element" />
+                        <img 
+                            src={filePreview} 
+                            alt="Preview" 
+                            className="media-preview-element" 
+                            onError={() => setHasError(true)}
+                        />
                     )}
                     <button
                         className="create-post__remove-media"
