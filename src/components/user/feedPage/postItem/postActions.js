@@ -94,10 +94,10 @@ export default function PostActions({ post, showComments, onToggleComments, onPo
                     <span>Bình luận</span>
                 </button>
 
-                <button className="post-actions__btn" title="Chia sẻ (sắp ra mắt)" disabled={true} style={{ cursor: "not-allowed" }}>
+                {/* <button className="post-actions__btn" title="Chia sẻ (sắp ra mắt)" disabled={true} style={{ cursor: "not-allowed" }}>
                     <ShareAltOutlined />
                     <span>Chia sẻ</span>
-                </button>
+                </button> */}
 
             </div>
 

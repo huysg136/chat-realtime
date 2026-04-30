@@ -97,7 +97,7 @@
         }
 
         span {
-            @include Responsive($WIDE_MOBILE) {
+            @include Responsive($MEDIUM_DEVICE) {
                 display: none;
             }
         }

@@ -216,17 +216,17 @@ export default function CreatePost({ onPostCreated }) {
                     {hasError ? (
                         <img src={NOT_FOUND_IMAGE} alt="Error" className="media-preview-element" />
                     ) : fileType === "video" ? (
-                        <video 
-                            src={filePreview} 
-                            controls 
-                            className="media-preview-element" 
+                        <video
+                            src={filePreview}
+                            controls
+                            className="media-preview-element"
                             onError={() => setHasError(true)}
                         />
                     ) : (
-                        <img 
-                            src={filePreview} 
-                            alt="Preview" 
-                            className="media-preview-element" 
+                        <img
+                            src={filePreview}
+                            alt="Preview"
+                            className="media-preview-element"
                             onError={() => setHasError(true)}
                         />
                     )}
@@ -254,7 +254,7 @@ export default function CreatePost({ onPostCreated }) {
             {isExpanded && (
                 <div className="create-post__bottom">
                     <div className="create-post__actions">
-                        <button
+                        {/* <button
                             className="create-post__action-btn"
                             disabled={true}
                             style={{ opacity: 0.6, cursor: 'not-allowed' }}
@@ -265,7 +265,7 @@ export default function CreatePost({ onPostCreated }) {
                                 <span style={{ lineHeight: 1 }}>Video trực tiếp</span>
                                 <span style={{ fontSize: '10px', lineHeight: 1, color: '#f50057', fontWeight: 'bold' }}>Sắp ra mắt</span>
                             </div>
-                        </button>
+                        </button> */}
                         <button
                             className={`create-post__action-btn ${selectedFile ? "active" : ""}`}
                             onClick={() => fileInputRef.current?.click()}
