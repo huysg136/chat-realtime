@@ -348,9 +348,10 @@ body.theme-dark {
 }
 
 .media-not-found {
-  width: auto;
-  max-width: 220px;
-  max-height: 220px;
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+  max-height: 300px;
   border-radius: 12px;
   border: 1px solid #dbdbdb;
   background-color: #fafafa;
