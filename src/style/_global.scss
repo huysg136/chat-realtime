@@ -349,22 +349,21 @@ body.theme-dark {
 
 .media-not-found {
   width: 100%;
-  max-width: 500px;
+  max-width: none;
   aspect-ratio: 16 / 9;
-  background-color: #f0f2f5;
-  border-radius: 12px;
-  border: 1px solid #e4e6eb;
   display: block;
-  margin: 10px 0;
   user-select: none;
   object-fit: scale-down;
   padding: 30px;
   box-sizing: border-box;
+  background-color: transparent;
+  border: none;
+  margin: 0;
 }
 
 body.theme-dark {
   .media-not-found {
-    background-color: #242526;
-    border-color: #3e4042;
+    background-color: transparent;
+    border-color: transparent;
   }
 }
