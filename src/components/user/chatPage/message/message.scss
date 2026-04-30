@@ -272,7 +272,7 @@
   }
 }
 
-.chat-media-not-found {
+.media-not-found {
   width: 100%;
   max-width: 250px;
   aspect-ratio: 16 / 9;
@@ -288,7 +288,7 @@
 }
 
 body.theme-dark {
-  .chat-media-not-found {
+  .media-not-found {
     background-color: #242526;
     border-color: #3e4042;
   }

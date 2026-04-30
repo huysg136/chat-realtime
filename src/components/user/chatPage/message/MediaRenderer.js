@@ -35,7 +35,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
       <img
         src={NOT_FOUND_IMAGE}
         alt="Not found"
-        className="chat-media-not-found"
+        className="media-not-found"
       />
     );
   }

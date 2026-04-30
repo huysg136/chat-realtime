@@ -27,15 +27,9 @@ export default function PostContent({ post }) {
     <div className="post-content">
       {post.content && <p className="post-content__text">{renderContentWithHashtags(post.content)}</p>}
       
-      {post.mediaUrl && (
+      {post.mediaUrl && !hasError && (
         <div className="post-content__media">
-          {hasError ? (
-            <img 
-              src={NOT_FOUND_IMAGE} 
-              alt="Not found" 
-              className="media-not-found"
-            />
-          ) : post.kind === "video" ? (
+          {post.kind === "video" ? (
             <video 
               src={post.mediaUrl} 
               controls 
