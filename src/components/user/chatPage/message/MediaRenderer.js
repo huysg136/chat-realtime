@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import ReactPlayer from 'react-player';
 import { useTranslation } from 'react-i18next';
 import 'react-h5-audio-player/lib/styles.css';
-import { MdAttachFile } from "react-icons/md";
+import { MdAttachFile, MdImageNotSupported } from "react-icons/md";
 import 'react-image-lightbox/style.css';
 import Lightbox from 'react-image-lightbox';
 import { SlSpeech } from "react-icons/sl";
 
+
+const NOT_FOUND_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png";
 
 const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, actorUid, targetUid, users, transcript }) => {
   const { t } = useTranslation();
@@ -15,6 +17,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [showTranscript, setShowTranscript] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const audioRef = React.useRef(null);
 
 
@@ -22,6 +25,20 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
 
   if (isRevoked) {
     return <span className="message-text-part revoked">{t('roomList.revoked')}</span>;
+  }
+
+  if (hasError) {
+    if (kind === 'audio') {
+      return <span className="message-text-part revoked">[{t('message.voiceUnavailable')}]</span>;
+    }
+    return (
+      <img
+        src={NOT_FOUND_IMAGE}
+        alt="Not found"
+        className="media-not-found"
+        style={{ maxWidth: '200px' }}
+      />
+    );
   }
 
   if (kind === 'system') {
@@ -122,7 +139,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
           alt={fileName || ''}
           className="message-media-image"
           onClick={() => setIsOpen(true)}
-          onError={(e) => (e.target.style.display = 'none')}
+          onError={() => setHasError(true)}
         />
         {isOpen && (
           <Lightbox
@@ -157,6 +174,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
               borderRadius: "12px",
             }}
             preload="metadata"
+            onError={() => setHasError(true)}
           />
         ) : (
           <ReactPlayer
@@ -165,6 +183,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
             width="100%"
             height="100%"
             className="react-player"
+            onError={() => setHasError(true)}
           />
         )}
       </div>
@@ -223,6 +242,7 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             onEnded={handleEnded}
+            onError={() => setHasError(true)}
           />
 
           <button className="voice-play-btn" onClick={togglePlay}>

@@ -179,8 +179,8 @@ export default function ChatInput({
 
     try {
       setSendingVoice(true);
-      // upload audio thẳng lên R2
-      const audioUrl = await uploadToR2(audioFile);
+      // upload audio thẳng lên R2 vào thư mục chat_voice
+      const audioUrl = await uploadToR2(audioFile, 'chat_voice');
 
       const docId = await getUserDocIdByUid(user.uid);
       await increaseQuota(docId, audioFile.size);
@@ -259,7 +259,7 @@ export default function ChatInput({
         setSendingFile(true);
         setUploadProgress(0);
         
-        const fileUrl = await uploadToR2(fileToSend, (progress) => {
+        const fileUrl = await uploadToR2(fileToSend, 'chat_media', (progress) => {
           setUploadProgress(progress);
         });
 

@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import 'react-image-lightbox/style.css';
 import Lightbox from 'react-image-lightbox';
 
+const NOT_FOUND_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png";
+
 export default function PostContent({ post }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   const renderContentWithHashtags = (text) => {
     if (!text) return null;
@@ -26,8 +29,20 @@ export default function PostContent({ post }) {
       
       {post.mediaUrl && (
         <div className="post-content__media">
-          {post.kind === "video" ? (
-            <video src={post.mediaUrl} controls className="media-element" />
+          {hasError ? (
+            <img 
+              src={NOT_FOUND_IMAGE} 
+              alt="Not found" 
+              className="media-not-found"
+              style={{ maxWidth: '100%', height: 'auto' }}
+            />
+          ) : post.kind === "video" ? (
+            <video 
+              src={post.mediaUrl} 
+              controls 
+              className="media-element" 
+              onError={() => setHasError(true)}
+            />
           ) : (
             <>
               <img 
@@ -36,6 +51,7 @@ export default function PostContent({ post }) {
                 className="media-element" 
                 onClick={() => setIsOpen(true)}
                 style={{ cursor: "pointer" }}
+                onError={() => setHasError(true)}
               />
               {isOpen && (
                 <Lightbox

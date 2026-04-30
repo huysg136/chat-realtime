@@ -346,3 +346,21 @@ body.theme-dark {
     }
   }
 }
+
+.media-not-found {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid #dbdbdb;
+  background-color: #fafafa;
+  display: block;
+  user-select: none;
+  object-fit: contain;
+}
+
+body.theme-dark {
+  .media-not-found {
+    background-color: #1a1a1a;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}

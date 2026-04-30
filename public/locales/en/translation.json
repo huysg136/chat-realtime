@@ -279,7 +279,8 @@
         "copy": "Copy message",
         "share": "Share message",
         "report": "Report",
-        "revoke": "Revoke"
+        "revoke": "Revoke",
+        "voiceUnavailable": "Voice message unavailable or deleted"
     },
     "addRoom": {
         "title": "New Message",

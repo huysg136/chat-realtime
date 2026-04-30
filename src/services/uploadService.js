@@ -6,7 +6,7 @@ import axios from "axios";
  * @param {Function} onProgress - Callback để track progress (optional)
  * @returns {Promise<string>} - URL của file đã upload
  */
-export const uploadToR2 = async (file, onProgress) => {
+export const uploadToR2 = async (file, folder = "uploads", onProgress) => {
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
   try {
     // Bước 1: Lấy presigned URL từ backend
@@ -15,6 +15,7 @@ export const uploadToR2 = async (file, onProgress) => {
       {
         fileName: file.name,
         fileType: file.type,
+        folder: folder,
       }
     );
 

@@ -195,7 +195,7 @@ export default function ProfileModal() {
 
     try {
       setUploadingAvatar(true);
-      const avatarUrl = await uploadToR2(file);
+      const avatarUrl = await uploadToR2(file, 'avatars');
       const docId = await getUserDocIdByUid(user.uid);
       await updateDocument("users", docId, { photoURL: avatarUrl });
       setUser((prev) => ({ ...prev, photoURL: avatarUrl }));

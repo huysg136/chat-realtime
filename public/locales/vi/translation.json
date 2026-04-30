@@ -279,7 +279,8 @@
         "copy": "Copy tin nhắn",
         "share": "Chia sẻ tin nhắn",
         "report": "Báo cáo",
-        "revoke": "Thu hồi"
+        "revoke": "Thu hồi",
+        "voiceUnavailable": "Ghi âm không khả dụng hoặc đã bị xóa"
     },
     "addRoom": {
         "title": "Tin nhắn mới",

@@ -104,7 +104,7 @@ export default function CreatePost({ onPostCreated }) {
 
             if (selectedFile) {
                 // Upload to R2
-                mediaUrl = await uploadToR2(selectedFile);
+                mediaUrl = await uploadToR2(selectedFile, 'posts');
                 kind = fileType === "video" ? "video" : "image";
             }
 
