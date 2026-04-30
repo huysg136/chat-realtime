@@ -94,6 +94,23 @@
                 object-fit: contain;
             }
         }
+
+        &__owner-error {
+            padding: 12px;
+            background: #fff1f0;
+            border: 1px dashed #ffccc7;
+            border-radius: 8px;
+            color: #cf1322;
+            font-size: 13px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            svg {
+                font-size: 18px;
+            }
+        }
     }
 
     // ── PostActions ───────────────────────────────────────────
@@ -214,6 +231,12 @@ body.theme-dark {
             &__media {
                 border-color: rgba(255, 255, 255, 0.1);
                 background: #1a1a1a;
+            }
+
+            &__owner-error {
+                background: rgba(255, 77, 79, 0.1);
+                border-color: rgba(255, 77, 79, 0.2);
+                color: #ff7875;
             }
         }
 

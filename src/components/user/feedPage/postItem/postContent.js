@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import 'react-image-lightbox/style.css';
 import Lightbox from 'react-image-lightbox';
+import { MdErrorOutline } from "react-icons/md";
 
-export default function PostContent({ post, hasError, setHasError }) {
+export default function PostContent({ post, hasError, setHasError, isOwner }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const renderContentWithHashtags = (text) => {
@@ -23,6 +24,13 @@ export default function PostContent({ post, hasError, setHasError }) {
   return (
     <div className="post-content">
       {post.content && <p className="post-content__text">{renderContentWithHashtags(post.content)}</p>}
+      
+      {hasError && !post.content && isOwner && (
+        <div className="post-content__owner-error">
+          <MdErrorOutline />
+          <span>Hình ảnh/Video này không khả dụng. Hãy nhấn chỉnh sửa để thay thế.</span>
+        </div>
+      )}
       
       {post.mediaUrl && !hasError && (
         <div className="post-content__media">
