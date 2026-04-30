@@ -34,7 +34,6 @@ export default function PostContent({ post }) {
               src={NOT_FOUND_IMAGE} 
               alt="Not found" 
               className="media-not-found"
-              style={{ maxWidth: '100%', height: 'auto' }}
             />
           ) : post.kind === "video" ? (
             <video 

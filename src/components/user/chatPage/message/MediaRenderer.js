@@ -36,7 +36,6 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
         src={NOT_FOUND_IMAGE}
         alt="Not found"
         className="media-not-found"
-        style={{ maxWidth: '200px' }}
       />
     );
   }
