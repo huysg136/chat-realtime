@@ -200,16 +200,18 @@ const LandingPage = () => {
     navigate(`/profile/${user.uid}`);
   };
 
+  const isSearchActive = isSearchFocused || searchInput.trim().length > 0;
+
   return (
     <div className={`landing-layout ${isExpandedPage ? 'landing-layout--expanded' : ''}`}>
       {isExpandedPage && (
         <div className="landing-layout__top-bar">
           <div className="landing-layout__logo" onClick={() => navigate(ROUTERS.USER.HOME)}>
             <img src={logoQuik} alt="Quik Logo" className="landing-layout__logo-img" />
-            <span className={isSearchFocused ? "hide-on-mobile-search" : ""}>Quik</span>
+            <span className={isSearchActive ? "hide-on-mobile-search" : ""}>Quik</span>
           </div>
           <div 
-            className={`landing-layout__search-wrapper ${isSearchFocused ? "is-focused" : ""}`}
+            className={`landing-layout__search-wrapper ${isSearchActive ? "is-focused" : ""}`}
             onClick={() => searchInputRef.current?.focus()}
           >
             <AiOutlineSearch className="search-icon" />
@@ -245,18 +247,11 @@ const LandingPage = () => {
             {searchInput && (
               <AiOutlineCloseCircle
                 className="clear-search-icon"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   setSearchInput("");
                   setFeedSearchQuery("");
                   setShowDropdown(false);
-                }}
-                style={{
-                  cursor: "pointer",
-                  color: "#65676b",
-                  fontSize: "18px",
-                  marginLeft: "auto",
-                  paddingRight: "5px",
-                  flexShrink: 0
                 }}
               />
             )}

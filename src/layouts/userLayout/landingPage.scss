@@ -125,6 +125,20 @@
       flex-shrink: 0;
     }
 
+    .clear-search-icon {
+      cursor: pointer;
+      color: #65676b;
+      font-size: 18px;
+      margin-left: auto;
+      padding-right: 5px;
+      flex-shrink: 0;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #1877f2;
+      }
+    }
+
     input {
       border: none;
       background: transparent;

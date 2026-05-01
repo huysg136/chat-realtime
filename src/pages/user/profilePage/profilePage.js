@@ -284,15 +284,13 @@ export default function ProfilePage() {
           </div>
 
           <div className="profile-header-text">
-            <h1 className="display-name">
-              <UserBadge
-                displayName={profileUser.displayName}
-                role={profileUser.role}
-                premiumLevel={profileUser.premiumLevel}
-                premiumUntil={profileUser.premiumUntil}
-                size={24}
-              />
-            </h1>
+            <UserBadge
+              displayName={profileUser.displayName}
+              role={profileUser.role}
+              premiumLevel={profileUser.premiumLevel}
+              premiumUntil={profileUser.premiumUntil}
+              size={18}
+            />
             <p className="username">@{profileUser.username || "user"}</p>
 
             <div className="profile-stats">

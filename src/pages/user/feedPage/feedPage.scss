@@ -242,12 +242,6 @@ body.theme-dark {
   }
 }
 
-@include Responsive($WIDE_MOBILE) {
-  .feed-page {
-    padding: 16px 20px;
-  }
-}
-
 @include Responsive($TABLET_DEVICE) {
   .feed-page {
     padding: 16px 24px;
@@ -256,6 +250,6 @@ body.theme-dark {
 
 @include Responsive($MEDIUM_DEVICE) {
   .feed-page {
-    padding: 16px 28px;
+    padding: 16px;
   }
 }

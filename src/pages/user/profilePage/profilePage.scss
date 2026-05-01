@@ -69,33 +69,28 @@
       .main-avatar {
         border: 4px solid white;
         background: white;
+        width: 120px !important;
+        height: 120px !important;
 
-        @include Responsive($WIDE_MOBILE) {
-          width: 120px !important;
-          height: 120px !important;
+        @include Responsive($TABLET_DEVICE) {
+          width: 80px !important;
+          height: 80px !important;
         }
       }
     }
 
     .profile-header-text {
       flex: 1;
-      margin-bottom: 16px;
-
-      .display-name {
-        font-size: 32px;
-        font-weight: 700;
-        color: #050505;
-        margin: 0;
-
-        @include Responsive($WIDE_MOBILE) {
-          font-size: 24px;
-        }
-      }
+      margin: 4px 0 16px 0;
 
       .username {
         font-size: 16px;
         color: #65676b;
         margin: 0 0 8px 0;
+
+        @include Responsive($WIDE_MOBILE) {
+          font-size: 14px;
+        }
       }
 
       .profile-stats {
