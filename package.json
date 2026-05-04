@@ -1,6 +1,7 @@
 {
   "name": "chat-realtime",
   "version": "0.1.0",
+  "description": "Quik là mạng xã hội kết nối mọi người, mang đến trải nghiệm chia sẻ khoảnh khắc, nhắn tin và gọi thoại nhanh chóng, mượt mà và hoàn toàn bảo mật.",
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^5.2.6",

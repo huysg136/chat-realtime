@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- Trang chủ -->
+  <!-- Trang chủ (Bọc PrivateRoute, sẽ redirect ra Login, nhưng vẫn nên để) -->
   <url>
     <loc>https://quik.id.vn/</loc>
-    <lastmod>2025-10-29</lastmod>
+    <lastmod>2026-05-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -12,41 +12,33 @@
   <!-- Login -->
   <url>
     <loc>https://quik.id.vn/login</loc>
-    <lastmod>2025-10-29</lastmod>
+    <lastmod>2026-05-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- Admin tổng quan -->
+  <!-- Điều khoản -->
   <url>
-    <loc>https://quik.id.vn/admin</loc>
-    <lastmod>2025-10-29</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <loc>https://quik.id.vn/terms.html</loc>
+    <lastmod>2026-05-04</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
 
-  <!-- Quản lý users -->
+  <!-- Bảo mật -->
   <url>
-    <loc>https://quik.id.vn/admin/users</loc>
-    <lastmod>2025-10-29</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://quik.id.vn/privacy.html</loc>
+    <lastmod>2026-05-04</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
 
-  <!-- Quản lý rooms -->
+  <!-- Xóa dữ liệu -->
   <url>
-    <loc>https://quik.id.vn/admin/rooms</loc>
-    <lastmod>2025-10-29</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Quản lý announcements -->
-  <url>
-    <loc>https://quik.id.vn/admin/announcements</loc>
-    <lastmod>2025-10-29</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://quik.id.vn/delete-data.html</loc>
+    <lastmod>2026-05-04</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
   </url>
 
 </urlset>
