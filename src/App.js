@@ -11,7 +11,7 @@ import useApplyTheme from './hooks/useApplyTheme';
 
 import { renderPublicRoutes, renderUserRoutes, renderAdminRoutes, renderNotFoundRoute } from './routes/router';
 
-import ModalManager from './context/modalManager';
+import ModalManager from './components/modalManager';
 import useUserPresence from './hooks/useUserPresence';
 
 function ThemeWrapper({ children }) {

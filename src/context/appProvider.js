@@ -3,100 +3,102 @@ import { AuthContext } from "./authProvider";
 import { useFirestore } from "../hooks/useFirestore";
 import { db } from "../firebase/config";
 import { useLocation } from "react-router-dom";
-import { doc, onSnapshot, collection, query, where, arrayUnion, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { useVideoCall } from "../hooks/useVideoCall";
+import { useModalState } from "../hooks/useModalState";
+import { useAnnouncement } from "../hooks/useAnnouncement";
 
 export const AppContext = React.createContext();
 
+function getOtherUser(selectedRoom, users, currentUid) {
+  if (!selectedRoom || selectedRoom.type !== "private") return null;
+
+  const memberIds = (selectedRoom.members || [])
+    .map((m) => (typeof m === "string" ? m : m?.uid))
+    .filter(Boolean);
+
+  const membersData = memberIds
+    .map((mid) => {
+      const found = users.find(
+        (u) => String(u.uid).trim() === String(mid).trim()
+      );
+
+      // Người dùng chưa load xong → trả placeholder để UI không trống
+      if (!found && String(mid).trim() !== String(currentUid).trim()) {
+        return { uid: mid, displayName: "Loading...", photoURL: null, _isPlaceholder: true };
+      }
+
+      return found;
+    })
+    .filter(Boolean);
+
+  if (membersData.length !== 2) return null;
+
+  return membersData.find(
+    (m) => String(m.uid).trim() !== String(currentUid).trim()
+  );
+}
+
+function findCallerRoom(rooms, callerId, currentRoomId) {
+  const callerRoom = rooms.find((room) => {
+    if (room.type !== "private") return false;
+    return (room.members || []).some((m) => {
+      const memberId = typeof m === "string" ? m : m?.uid;
+      return String(memberId).trim() === String(callerId).trim();
+    });
+  });
+
+  return callerRoom?.id !== currentRoomId ? callerRoom : null;
+}
+
 export default function AppProvider({ children }) {
-  const [isAddRoomVisible, setIsAddRoomVisible] = useState(false);
-  const [isInviteMemberVisible, setIsInviteMemberVisible] = useState(false);
-  const [isProfileVisible, setIsProfileVisible] = useState(false);
-  const [isPendingInviteVisible, setIsPendingInviteVisible] = useState(false);
-  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
-  const [isMyReportsVisible, setIsMyReportsVisible] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState("");
   const [searchText, setSearchText] = useState("");
   const [theme, setTheme] = useState("system");
   const [isMaintenance, setIsMaintenance] = useState(false);
-  const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(false);
-  const [isUpgradePlanVisible, setIsUpgradePlanVisible] = useState(false);
-  const [isFriendsVisible, setIsFriendsVisible] = useState(false);
-  const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
-  const [ isActiveTab, setIsActiveTab ] = useState("message");
-  const [isPostDetailVisible, setIsPostDetailVisible] = useState(false);
-  const [activePostId, setActivePostId] = useState("");
-
+  const [isActiveTab, setIsActiveTab] = useState("message");
 
   const location = useLocation();
-
   const { user } = useContext(AuthContext);
 
+  const modalState = useModalState();
+  const announcementState = useAnnouncement(user, location.pathname);
+
+  // Reset state khi logout
   useEffect(() => {
     if (!user?.uid) {
       setSearchText("");
       setSelectedRoomId("");
       setIsActiveTab("message");
+      modalState.resetAllModals();
     }
   }, [user?.uid]);
 
+  // Lắng nghe trạng thái bảo trì
   useEffect(() => {
-    // Sync appStatus (maintenance)
-    const unsubStatus = onSnapshot(doc(db, "config", "appStatus"), (snap) => {
-      const maintenance = snap.exists() ? snap.data().maintenance : false;
-      setIsMaintenance(maintenance);
+    const unsubscribe = onSnapshot(doc(db, "config", "appStatus"), (snap) => {
+      setIsMaintenance(snap.exists() ? snap.data().maintenance : false);
     });
-
-    return () => {
-      unsubStatus();
-    };
+    return () => unsubscribe();
   }, []);
 
   const roomsCondition = useMemo(
-    () => ({
-      fieldName: "members",
-      operator: "array-contains",
-      compareValue: user?.uid,
-    }),
+    () => ({ fieldName: "members", operator: "array-contains", compareValue: user?.uid }),
     [user?.uid]
   );
 
   const rooms = useFirestore("rooms", roomsCondition);
   const users = useFirestore("users");
 
-  // Get current selected room and other user for video call
   const selectedRoom = useMemo(
     () => rooms.find((room) => room.id === selectedRoomId),
     [rooms, selectedRoomId]
   );
 
-  const otherUser = useMemo(() => {
-    if (!selectedRoom || selectedRoom.type !== "private") return null;
-
-    const members = selectedRoom.members || [];
-    const membersData = members
-      .map((m) => (typeof m === "string" ? m : m?.uid))
-      .filter(Boolean)
-      .map((mid) => {
-        let found = users.find((u) => String(u.uid).trim() === String(mid).trim());
-
-        if (!found && String(mid).trim() !== String(user?.uid).trim()) {
-          return {
-            uid: mid,
-            displayName: 'Loading...',
-            photoURL: null,
-            _isPlaceholder: true
-          };
-        }
-
-        return found;
-      })
-      .filter(Boolean);
-
-    if (membersData.length !== 2) return null;
-
-    return membersData.find((m) => String(m.uid).trim() !== String(user?.uid).trim());
-  }, [selectedRoom, users, user?.uid]);
+  const otherUser = useMemo(
+    () => getOtherUser(selectedRoom, users, user?.uid),
+    [selectedRoom, users, user?.uid]
+  );
 
   const videoCallState = useVideoCall(
     user?.uid,
@@ -104,100 +106,38 @@ export default function AppProvider({ children }) {
     otherUser,
     users,
     (callerId) => {
-      const callerRoom = rooms.find(room => {
-        if (room.type !== 'private') return false;
-        const members = room.members || [];
-        return members.some(m => {
-          const memberId = typeof m === "string" ? m : m?.uid;
-          return String(memberId).trim() === String(callerId).trim();
-        });
-      });
-
-      if (callerRoom && callerRoom.id !== selectedRoomId) {
-        setSelectedRoomId(callerRoom.id);
-      }
+      const callerRoom = findCallerRoom(rooms, callerId, selectedRoomId);
+      if (callerRoom) setSelectedRoomId(callerRoom.id);
     }
   );
 
-  useEffect(() => {
-    if (location.pathname.startsWith("/admin")) {
-      setIsAnnouncementVisible(false);
-    }
-  }, [location.pathname]);
+  const contextValue = useMemo(
+    () => ({
+      rooms,
+      users,
+      selectedRoom,
+      otherUser,
+      videoCallState,
 
-  useEffect(() => {
-    if (
-      !user?.uid ||
-      !["user", "moderator"].includes(user.role) ||
-      location.pathname.startsWith("/admin")
-    ) {
-      return;
-    }
+      selectedRoomId, setSelectedRoomId,
+      searchText, setSearchText,
+      theme, setTheme,
+      isMaintenance,
+      isActiveTab, setIsActiveTab,
 
-    const q = query(collection(db, "announcements"), where("isShow", "==", true));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const announcements = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-      const unseenAnnouncement = announcements.find(ann => {
-        const hasSeen = ann.hasSeenBy?.includes(user.uid) || false;
-        const isTargeted = ann.targetUids ? ann.targetUids.includes(user.uid) : true;
-        return !hasSeen && isTargeted;
-      });
-
-      if (unseenAnnouncement) {
-        setCurrentAnnouncement(unseenAnnouncement);
-        setIsAnnouncementVisible(true);
-      } else {
-        setIsAnnouncementVisible(false);
-        setCurrentAnnouncement(null);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [user?.uid, user?.role, location.pathname]);
-
-  const markAnnouncementAsSeen = async (announcementId) => {
-    if (!user?.uid) return;
-
-    try {
-      await updateDoc(doc(db, "announcements", announcementId), {
-        hasSeenBy: arrayUnion(user.uid)
-      });
-    } catch (error) {
-    }
-  };
+      ...modalState,
+      ...announcementState,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      rooms, users, selectedRoom, otherUser, videoCallState,
+      selectedRoomId, searchText, theme, isMaintenance, isActiveTab,
+      modalState, announcementState,
+    ]
+  );
 
   return (
-    <AppContext.Provider
-      value={{
-        rooms,
-        users,
-        isAddRoomVisible, setIsAddRoomVisible,
-        selectedRoomId, setSelectedRoomId,
-        isInviteMemberVisible, setIsInviteMemberVisible,
-        isProfileVisible, setIsProfileVisible,
-        isSettingsVisible, setIsSettingsVisible,
-        isMyReportsVisible, setIsMyReportsVisible,
-        isPendingInviteVisible, setIsPendingInviteVisible,
-        isUpgradePlanVisible, setIsUpgradePlanVisible,
-        isFriendsVisible, setIsFriendsVisible,
-        isActiveTab, setIsActiveTab,
-        isPostDetailVisible, setIsPostDetailVisible,
-        activePostId, setActivePostId,
-
-        searchText,
-        setSearchText,
-        theme,
-        setTheme,
-        isMaintenance,
-        isAnnouncementVisible, setIsAnnouncementVisible,
-        currentAnnouncement,
-        markAnnouncementAsSeen,
-        videoCallState,
-        selectedRoom,
-        otherUser,
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );

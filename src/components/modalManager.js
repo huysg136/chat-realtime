@@ -1,21 +1,19 @@
 import React, { lazy, Suspense, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
-import { AppContext } from './appProvider';
-import { AuthContext } from './authProvider';
+import { AppContext } from '../context/appProvider';
+import { AuthContext } from '../context/authProvider';
 import { ROUTERS } from '../configs/router';
 
 // Lazy load modals
-const AddRoomModal = lazy(() => import('../components/modals/addRoomModal'));
-const InviteMemberModal = lazy(() => import('../components/modals/inviteMemberModal'));
-const ProfileModal = lazy(() => import('../components/modals/profileModal'));
-const PendingInvitesModal = lazy(() => import('../components/modals/pendingInvitesModal'));
-const SettingsModal = lazy(() => import('../components/modals/settingsModal'));
-const AnnouncementModal = lazy(() => import('../components/modals/announcementModal'));
-const MyReportsModal = lazy(() => import('../components/modals/myReportsModal'));
-const UpgradePlanModal = lazy(() => import('../components/modals/upgradePlanModal'));
-const PostDetailModal = lazy(() => import('../components/modals/postDetailModal'));
-
-
+const AddRoomModal = lazy(() => import('./modals/addRoomModal'));
+const InviteMemberModal = lazy(() => import('./modals/inviteMemberModal'));
+const ProfileModal = lazy(() => import('./modals/profileModal'));
+const PendingInvitesModal = lazy(() => import('./modals/pendingInvitesModal'));
+const SettingsModal = lazy(() => import('./modals/settingsModal'));
+const AnnouncementModal = lazy(() => import('./modals/announcementModal'));
+const MyReportsModal = lazy(() => import('./modals/myReportsModal'));
+const UpgradePlanModal = lazy(() => import('./modals/upgradePlanModal'));
+const PostDetailModal = lazy(() => import('./modals/postDetailModal'));
 
 export default function ModalManager() {
     const {
@@ -28,17 +26,14 @@ export default function ModalManager() {
         isMyReportsVisible,
         isUpgradePlanVisible,
         isPostDetailVisible,
-
     } = useContext(AppContext);
     const { user } = useContext(AuthContext);
     const location = useLocation();
 
-    // Do not show any modals on the maintenance page
     if (location.pathname === ROUTERS.USER.MAINTENANCE) {
         return null;
     }
-    // Render nothing if no modal is active (check logic below if you want stricter control, 
-    // but React lazy + conditional rendering is usually enough)
+
     return (
         <Suspense fallback={null}>
             {isAddRoomVisible && <AddRoomModal />}
