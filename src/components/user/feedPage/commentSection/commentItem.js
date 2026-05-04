@@ -1,8 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Avatar, Tooltip, Modal } from "antd";
 import { HeartFilled, HeartOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
-import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
+import { formatTimeAgo, toTimestamp } from "../../../../utils/dateUtils";
 import { doc, updateDoc, arrayUnion, arrayRemove, writeBatch, collection, query, where, getDocs } from "firebase/firestore";
 import { likeComment, deleteComment } from "../../../../services/postService";
 import { db } from "../../../../firebase/config";
@@ -15,14 +14,7 @@ import UserBadge from "../../../common/userBadge";
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
-function toTimestamp(createdAt) {
-    if (!createdAt) return new Date();
-    if (createdAt.seconds) return new Date(createdAt.seconds * 1000);
-    if (createdAt._seconds) return new Date(createdAt._seconds * 1000);
-    if (createdAt.toMillis) return new Date(createdAt.toMillis());
-    if (createdAt instanceof Date) return createdAt;
-    return new Date(createdAt);
-}
+
 
 const { confirm } = Modal;
 
@@ -47,11 +39,7 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
     // Gán ID của bình luận gốc. Nếu không có rootParentId truyền vào (tức là bình luận này ở Level 1), thì nó chính là gốc.
     const currentRootId = rootParentId || comment.id;
 
-    let timeAgo = comment.createdAt
-        ? formatDistanceToNow(toTimestamp(comment.createdAt), { locale: vi })
-        : "";
-
-    timeAgo = timeAgo.replace("khoảng ", "").replace("dưới ", "").trim();
+    let timeAgo = formatTimeAgo(comment.createdAt);
 
     const handleLike = async () => {
         if (!user?.uid) return;

@@ -702,6 +702,14 @@ body.theme-dark {
   margin: 0 auto;
   padding: 0 16px;
 
+  @include Responsive($DESKTOP) {
+    padding: 0;
+  }
+
+  @include Responsive($MEDIUM_DEVICE) {
+    padding: 0;
+  }
+
   .info-card {
     background: white;
     border-radius: 8px;

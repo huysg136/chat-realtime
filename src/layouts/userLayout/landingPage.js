@@ -14,6 +14,7 @@ import { db } from "../../firebase/config";
 import { collection, query, where, onSnapshot, getDocs } from "firebase/firestore";
 import { appConfig } from "../../configs/appConfig";
 import { getUnreadNotificationCount, markAllNotificationsAsRead, markNotificationAsRead } from "../../services/notificationService";
+import { formatTimeAgo } from "../../utils/dateUtils";
 
 const LandingPage = () => {
   const location = useLocation();
@@ -320,9 +321,7 @@ const LandingPage = () => {
                                       : "tương tác với bạn."}
                           </p>
                           <span className="notification-time">
-                            {n.createdAt?.seconds
-                              ? new Date(n.createdAt.seconds * 1000).toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' })
-                              : "Mới đây"}
+                            {n.createdAt ? formatTimeAgo(n.createdAt) : "Mới đây"}
                           </span>
                         </div>
                         {!n.isRead && <span className="unread-dot"></span>}

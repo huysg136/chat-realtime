@@ -2,8 +2,7 @@ import React, { useContext, useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, Dropdown, Tooltip, Modal, Input, Select } from "antd";
 import { MoreOutlined, DeleteOutlined, ExclamationCircleOutlined, EditOutlined, CloseOutlined } from "@ant-design/icons";
-import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
+import { formatTimeAgo, toTimestamp } from "../../../../utils/dateUtils";
 import { AiFillPicture } from "react-icons/ai";
 import PrivacyIcon, { PRIVACY_CONFIG } from "../../../common/privacyIcon";
 import { AuthContext } from "../../../../context/authProvider";
@@ -22,14 +21,7 @@ const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b
 const NOT_FOUND_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png";
 const { confirm } = Modal;
 
-function toTimestamp(createdAt) {
-    if (!createdAt) return null;
-    if (createdAt.seconds) return new Date(createdAt.seconds * 1000);
-    if (createdAt._seconds) return new Date(createdAt._seconds * 1000);
-    if (createdAt.toMillis) return new Date(createdAt.toMillis());
-    if (createdAt instanceof Date) return createdAt;
-    return new Date(createdAt);
-}
+
 
 export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
     const { user } = useContext(AuthContext);
@@ -58,11 +50,7 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
     const isOwner = user?.uid === post.uid;
     const author = users.find((u) => u.uid === post.uid) || {};
 
-    let timeAgo = post.createdAt
-        ? formatDistanceToNow(toTimestamp(post.createdAt), { locale: vi })
-        : "";
-
-    timeAgo = timeAgo.replace("khoảng ", "").replace("dưới ", "").trim();
+    let timeAgo = formatTimeAgo(post.createdAt);
 
     const handleDelete = () => {
         confirm({
