@@ -8,9 +8,7 @@ import PrivacyIcon, { PRIVACY_CONFIG } from "../../../common/privacyIcon";
 import { AuthContext } from "../../../../context/authProvider";
 import { AppContext } from "../../../../context/appProvider";
 import { getUserDocIdByUid } from "../../../../firebase/services";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../../../../firebase/config";
-import { deletePost } from "../../../../services/postService";
+import { deletePost, updatePost } from "../../../../services/postService";
 import { toast } from "react-toastify";
 import UserBadge from "../../../common/userBadge";
 import { uploadToR2 } from "../../../../services/uploadService";
@@ -124,7 +122,6 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
 
                 const url = await uploadToR2(editSelectedFile);
                 if (url) {
-                    await increaseQuota(userDocId, editSelectedFile.size);
                     finalMediaUrl = url;
                     finalKind = editFileType === "video" ? "video" : "image";
                 }
@@ -132,13 +129,24 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
 
             if (!finalMediaUrl) finalKind = "text";
 
-            await updateDoc(doc(db, "posts", post.id), {
+            const payload = {
                 content: trimmed,
                 mediaUrl: finalMediaUrl,
                 kind: finalKind,
                 privacy: editPrivacy,
-                editedAt: new Date()
-            });
+                uid: user.uid,
+            };
+
+            if (editSelectedFile) {
+                payload.fileSize = editSelectedFile.size;
+            }
+
+            const response = await updatePost(post.id, payload);
+            
+            if (!response.success) {
+                throw new Error(response.message || "Failed to update post");
+            }
+
             onPostUpdated && onPostUpdated({
                 id: post.id,
                 content: trimmed,

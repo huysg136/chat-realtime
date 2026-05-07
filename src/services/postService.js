@@ -35,6 +35,23 @@ export const deletePost = async (postId, uid) => {
 };
 
 /**
+ * Cập nhật bài viết
+ */
+export const updatePost = async (postId, postData) => {
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(postData),
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating post:", error);
+    return { success: false, message: error.message };
+  }
+};
+
+/**
  * Lấy danh sách Feed
  */
 export const getFeed = async ({ userUid, filterUserId, searchQuery, skipCache }) => {
