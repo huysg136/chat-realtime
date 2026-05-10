@@ -54,15 +54,18 @@ export const updatePost = async (postId, postData) => {
 /**
  * Lấy danh sách Feed
  */
-export const getFeed = async ({ userUid, filterUserId, searchQuery, skipCache }) => {
+export const getFeed = async ({ userUid, filterUserId, searchQuery, skipCache, lastCreatedAt, limit }) => {
   try {
     const url = new URL(`${getApiBaseUrl()}/api/posts/feed`);
     url.searchParams.append("userUid", userUid);
     if (filterUserId) url.searchParams.append("filterUserId", filterUserId);
     if (searchQuery) url.searchParams.append("searchQuery", searchQuery);
     if (skipCache) url.searchParams.append("skipCache", "true");
+    if (lastCreatedAt) url.searchParams.append("lastCreatedAt", lastCreatedAt);
+    if (limit) url.searchParams.append("limit", limit);
 
     const response = await fetch(url.toString());
+    return await response.json();
     return await response.json();
   } catch (error) {
     console.error("Error fetching feed:", error);

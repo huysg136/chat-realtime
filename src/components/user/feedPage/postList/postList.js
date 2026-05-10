@@ -19,9 +19,10 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
     const { friends, loading: friendsLoading } = useFriends();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_POSTS);
     const [isLazyLoading, setIsLazyLoading] = useState(false);
     const [newPostCount, setNewPostCount] = useState(0);
+    const [lastCreatedAt, setLastCreatedAt] = useState(null);
+    const [hasMore, setHasMore] = useState(true);
 
     // Lưu timestamp lần fetch cuối để so sánh
     const lastFetchedAt = useRef(Date.now());
@@ -39,7 +40,9 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
 
 
     useEffect(() => {
-        setVisibleCount(INITIAL_VISIBLE_POSTS);
+        // Reset feed state when filter or search changes
+        setLastCreatedAt(null);
+        setHasMore(true);
     }, [filterUserId, searchQuery]);
 
     const usersRef = useRef(users);
@@ -73,10 +76,13 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                 filterUserId,
                 searchQuery,
                 skipCache,
+                limit: 15
             });
 
             if (data.success) {
                 setPosts(data.posts);
+                setLastCreatedAt(data.lastCreatedAt);
+                setHasMore(data.hasMore);
                 setNewPostCount(0); // reset banner
                 lastFetchedAt.current = Date.now();
             }
@@ -86,6 +92,34 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
             setLoading(false);
         }
     }, [user?.uid, filterUserId, searchQuery]);
+
+    const fetchMore = React.useCallback(async () => {
+        // Only paginate on main feed (no search/filter) as per requirements
+        if (!user?.uid || !hasMore || isLazyLoading || filterUserId || searchQuery) return;
+
+        setIsLazyLoading(true);
+        try {
+            const data = await getFeed({
+                userUid: user.uid,
+                lastCreatedAt,
+                limit: 15
+            });
+
+            if (data.success) {
+                setPosts((prev) => {
+                    const existingIds = new Set(prev.map(p => p.id));
+                    const newPosts = data.posts.filter(p => !existingIds.has(p.id));
+                    return [...prev, ...newPosts];
+                });
+                setLastCreatedAt(data.lastCreatedAt);
+                setHasMore(data.hasMore);
+            }
+        } catch (error) {
+            console.error("Error fetching more posts:", error);
+        } finally {
+            setIsLazyLoading(false);
+        }
+    }, [user?.uid, hasMore, isLazyLoading, lastCreatedAt, filterUserId, searchQuery]);
 
     // Chỉ check nhẹ xem có bài mới không, KHÔNG fetch toàn bộ feed
     const checkForNewPosts = React.useCallback(async () => {
@@ -144,12 +178,8 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                 }
             }
 
-            if (isBottom && visibleCount < filteredPosts.length && !isLazyLoading) {
-                setIsLazyLoading(true);
-                setTimeout(() => {
-                    setVisibleCount((prev) => prev + INCREMENT_VISIBLE_POSTS);
-                    setIsLazyLoading(false);
-                }, 800);
+            if (isBottom && hasMore && !isLazyLoading && !filterUserId && !searchQuery) {
+                fetchMore();
             }
         };
 
@@ -165,7 +195,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                 scrollableParent.removeEventListener('scroll', handleScroll);
             }
         };
-    }, [visibleCount, filteredPosts.length, isLazyLoading]);
+    }, [hasMore, isLazyLoading, fetchMore, filterUserId, searchQuery]);
 
     useEffect(() => {
         if (!friendsLoading) {
@@ -222,7 +252,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                 </button>
             )}
 
-            {filteredPosts.slice(0, visibleCount).map((post) => (
+            {filteredPosts.map((post) => (
                 <PostItem key={post.id} post={post} onPostUpdated={handlePostUpdated} onPostDeleted={handlePostDeleted} />
             ))}
 
@@ -233,10 +263,10 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                 </div>
             )}
 
-            {visibleCount >= filteredPosts.length && !filterUserId && (
+            {!hasMore && !filterUserId && !searchQuery && (
                 <div className="feed-end-card">
                     <h4>Bạn đã đọc hết rồi</h4>
-                    <p>Không còn bài viết nào trong {FEED_WINDOW_DAYS} ngày gần đây.</p>
+                    <p>Không còn bài viết nào để hiển thị.</p>
                     <button className="feed-end-card__reload-btn" onClick={() => {
                         fetchFeed();
 
@@ -252,7 +282,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                 </div>
             )}
 
-            {visibleCount >= filteredPosts.length && filterUserId && (
+            {!hasMore && (filterUserId || searchQuery) && (
                 <div className="profile-feed-end" style={{ textAlign: 'center', padding: '20px 0', color: '#8c8c8c', fontStyle: 'italic' }}>
                     <span>Đã xem hết bài viết</span>
                 </div>
