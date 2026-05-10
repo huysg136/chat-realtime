@@ -60,7 +60,7 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
             cancelText: 'Hủy',
             onOk: async () => {
                 try {
-                    const data = await deletePost(post.id, user?.uid);
+                    const data = await deletePost(post.id);
                     if (!data.success) throw new Error(data.message);
 
                     onPostDeleted && onPostDeleted(post.id);
@@ -134,7 +134,6 @@ export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
                 mediaUrl: finalMediaUrl,
                 kind: finalKind,
                 privacy: editPrivacy,
-                uid: user.uid,
             };
 
             if (editSelectedFile) {

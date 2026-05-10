@@ -54,7 +54,6 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
 
         try {
             const data = await likeComment(postId, comment.id, {
-                uid: user.uid,
                 displayName: user.displayName,
                 photoURL: user.photoURL
             });
@@ -96,7 +95,7 @@ export default function CommentItem({ comment, postId, repliesMap = {}, rootPare
                 });
 
                 try {
-                    const data = await deleteComment(postId, comment.id, user?.uid);
+                    const data = await deleteComment(postId, comment.id);
                     if (!data.success) throw new Error(data.message);
                 } catch (error) {
                     // Rollback nếu lỗi

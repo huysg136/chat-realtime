@@ -72,7 +72,6 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
         setLoading(true);
         try {
             const data = await getFeed({
-                userUid: user.uid,
                 filterUserId,
                 searchQuery,
                 skipCache,
@@ -100,7 +99,6 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
         setIsLazyLoading(true);
         try {
             const data = await getFeed({
-                userUid: user.uid,
                 lastCreatedAt,
                 limit: 15
             });
@@ -127,7 +125,6 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
         if (!user?.uid || filterUserId || searchQuery || !isTabVisible.current) return;
         try {
             const data = await checkNewPosts({
-                userUid: user.uid,
                 since: lastFetchedAt.current.toString(),
             });
             if (data.success && data.count > 0) {

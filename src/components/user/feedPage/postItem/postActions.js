@@ -32,7 +32,6 @@ export default function PostActions({ post, showComments, onToggleComments, onPo
 
         try {
             const data = await likePost(post.id, {
-                uid: user.uid,
                 displayName: user.displayName,
                 photoURL: user.photoURL
             });

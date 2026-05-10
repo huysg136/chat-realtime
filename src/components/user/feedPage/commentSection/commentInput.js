@@ -30,7 +30,6 @@ export default function CommentInput({ postId, postAuthorUid, parentId = null, r
         replyToUid: replyToUser?.uid || null,
         replyToName: replyToUser?.displayName || null,
         content: trimmed,
-        uid: user.uid,
         displayName: user.displayName || "Người dùng",
         photoURL: user.photoURL || defaultAvatar,
         postAuthorUid

@@ -1,5 +1,20 @@
+import { getAuth } from "firebase/auth";
+import app from "../firebase/config";
+
+const auth = getAuth(app);
+
 const getApiBaseUrl = () => {
   return process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+};
+
+const getAuthHeaders = async () => {
+  const user = auth.currentUser;
+  if (!user) return { "Content-Type": "application/json" };
+  const token = await user.getIdToken();
+  return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`,
+  };
 };
 
 /**
@@ -7,9 +22,10 @@ const getApiBaseUrl = () => {
  */
 export const createPost = async (postData) => {
   try {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${getApiBaseUrl()}/api/posts`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(postData),
     });
     return await response.json();
@@ -22,10 +38,12 @@ export const createPost = async (postData) => {
 /**
  * Xóa bài viết
  */
-export const deletePost = async (postId, uid) => {
+export const deletePost = async (postId) => {
   try {
-    const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}?uid=${uid}`, {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}`, {
       method: "DELETE",
+      headers,
     });
     return await response.json();
   } catch (error) {
@@ -39,9 +57,10 @@ export const deletePost = async (postId, uid) => {
  */
 export const updatePost = async (postId, postData) => {
   try {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(postData),
     });
     return await response.json();
@@ -54,17 +73,17 @@ export const updatePost = async (postId, postData) => {
 /**
  * Lấy danh sách Feed
  */
-export const getFeed = async ({ userUid, filterUserId, searchQuery, skipCache, lastCreatedAt, limit }) => {
+export const getFeed = async ({ filterUserId, searchQuery, skipCache, lastCreatedAt, limit }) => {
   try {
+    const headers = await getAuthHeaders();
     const url = new URL(`${getApiBaseUrl()}/api/posts/feed`);
-    url.searchParams.append("userUid", userUid);
     if (filterUserId) url.searchParams.append("filterUserId", filterUserId);
     if (searchQuery) url.searchParams.append("searchQuery", searchQuery);
     if (skipCache) url.searchParams.append("skipCache", "true");
     if (lastCreatedAt) url.searchParams.append("lastCreatedAt", lastCreatedAt);
     if (limit) url.searchParams.append("limit", limit);
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), { headers });
     return await response.json();
     return await response.json();
   } catch (error) {
@@ -76,13 +95,13 @@ export const getFeed = async ({ userUid, filterUserId, searchQuery, skipCache, l
 /**
  * Kiểm tra xem có bài viết mới không
  */
-export const checkNewPosts = async ({ userUid, since }) => {
+export const checkNewPosts = async ({ since }) => {
   try {
+    const headers = await getAuthHeaders();
     const url = new URL(`${getApiBaseUrl()}/api/posts/feed/check-new`);
-    url.searchParams.append("userUid", userUid);
     url.searchParams.append("since", since);
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), { headers });
     return await response.json();
   } catch (error) {
     console.error("Error checking new posts:", error);
@@ -95,9 +114,10 @@ export const checkNewPosts = async ({ userUid, since }) => {
  */
 export const likePost = async (postId, payload) => {
   try {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}/like`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(payload),
     });
     return await response.json();
@@ -112,9 +132,10 @@ export const likePost = async (postId, payload) => {
  */
 export const commentPost = async (postId, commentData) => {
   try {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}/comment`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(commentData),
     });
     return await response.json();
@@ -127,10 +148,12 @@ export const commentPost = async (postId, commentData) => {
 /**
  * Xóa bình luận
  */
-export const deleteComment = async (postId, commentId, uid) => {
+export const deleteComment = async (postId, commentId) => {
   try {
-    const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}/comment/${commentId}?uid=${uid}`, {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}/comment/${commentId}`, {
       method: "DELETE",
+      headers,
     });
     return await response.json();
   } catch (error) {
@@ -144,9 +167,10 @@ export const deleteComment = async (postId, commentId, uid) => {
  */
 export const likeComment = async (postId, commentId, payload) => {
   try {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}/comment/${commentId}/like`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(payload),
     });
     return await response.json();
