@@ -5,7 +5,7 @@ import { useFriends } from "../../../../hooks/useFriends";
 import PostItem from "../postItem/postItem";
 import { getFeed, checkNewPosts } from "../../../../services/postService";
 import { Spin } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import "./postList.scss";
 
 // Lấy bài trong 7 ngày gần nhất
@@ -23,6 +23,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
     const [newPostCount, setNewPostCount] = useState(0);
     const [lastCreatedAt, setLastCreatedAt] = useState(null);
     const [hasMore, setHasMore] = useState(true);
+    const [showScrollTop, setShowScrollTop] = useState(false);
 
     // Lưu timestamp lần fetch cuối để so sánh
     const lastFetchedAt = useRef(Date.now());
@@ -158,41 +159,73 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
 
     useEffect(() => {
         const handleScroll = () => {
-            const scrollableParent = document.querySelector('.profile-container') || document.querySelector('.feed-page');
-            let isBottom = false;
+            const feedPage = document.querySelector('.feed-page');
+            const profilePage = document.querySelector('.profile-container');
+            const target = feedPage || profilePage || window;
 
-            if (scrollableParent) {
-                const { scrollTop, scrollHeight, clientHeight } = scrollableParent;
-                if (scrollTop + clientHeight >= scrollHeight - 150) {
-                    isBottom = true;
-                }
+            let scrollTop = 0;
+            if (target === window) {
+                scrollTop = window.pageYOffset;
             } else {
-                const scrollY = window.scrollY;
-                const windowHeight = window.innerHeight;
-                const documentHeight = document.documentElement.scrollHeight;
-                if (scrollY + windowHeight >= documentHeight - 150) {
-                    isBottom = true;
-                }
+                scrollTop = target.scrollTop;
             }
 
-            if (isBottom && hasMore && !isLazyLoading && !filterUserId && !searchQuery) {
-                fetchMore();
-            }
+            setShowScrollTop(scrollTop > 500);
         };
 
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        const scrollableParent = document.querySelector('.profile-container') || document.querySelector('.feed-page');
-        if (scrollableParent) {
-            scrollableParent.addEventListener('scroll', handleScroll, { passive: true });
+        const feedPage = document.querySelector('.feed-page');
+        const profilePage = document.querySelector('.profile-container');
+        const target = feedPage || profilePage || window;
+
+        if (target === window) {
+            window.addEventListener('scroll', handleScroll);
+        } else {
+            target.addEventListener('scroll', handleScroll);
         }
 
         return () => {
-            window.removeEventListener('scroll', handleScroll);
-            if (scrollableParent) {
-                scrollableParent.removeEventListener('scroll', handleScroll);
+            if (target === window) {
+                window.removeEventListener('scroll', handleScroll);
+            } else {
+                target.removeEventListener('scroll', handleScroll);
             }
         };
-    }, [hasMore, isLazyLoading, fetchMore, filterUserId, searchQuery]);
+    }, []);
+
+    const scrollToTop = () => {
+        const feedPage = document.querySelector('.feed-page');
+        const profilePage = document.querySelector('.profile-container');
+        const target = feedPage || profilePage || window;
+
+        if (target === window) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            target.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    const observerTarget = useRef(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasMore && !isLazyLoading && !loading && !filterUserId && !searchQuery) {
+                    fetchMore();
+                }
+            },
+            { threshold: 0.1, rootMargin: "200px" }
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => {
+            if (observerTarget.current) {
+                observer.unobserve(observerTarget.current);
+            }
+        };
+    }, [hasMore, isLazyLoading, loading, fetchMore, filterUserId, searchQuery]);
 
     useEffect(() => {
         if (!friendsLoading) {
@@ -253,10 +286,34 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                 <PostItem key={post.id} post={post} onPostUpdated={handlePostUpdated} onPostDeleted={handlePostDeleted} />
             ))}
 
+            {/* Sentinel for IntersectionObserver */}
+            <div ref={observerTarget} style={{ height: '20px' }} />
+
             {isLazyLoading && (
                 <div className="lazy-load-spinner" style={{ textAlign: 'center', padding: '15px' }}>
                     <Spin indicator={<LoadingOutlined spin />} size="default" />
                     <span style={{ marginLeft: '10px', color: '#65676b', fontSize: '14px' }}>Đang tải thêm bài viết...</span>
+                </div>
+            )}
+
+            {/* Nút tải thêm thủ công nếu tự động tải không kích hoạt hoặc dự phòng */}
+            {hasMore && !isLazyLoading && !filterUserId && !searchQuery && (
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                    <button
+                        className="load-more-btn"
+                        onClick={fetchMore}
+                        style={{
+                            padding: '8px 24px',
+                            borderRadius: '20px',
+                            border: '1px solid #ddd',
+                            background: '#fff',
+                            cursor: 'pointer',
+                            color: '#65676b',
+                            fontWeight: '600'
+                        }}
+                    >
+                        Xem thêm bài viết cũ
+                    </button>
                 </div>
             )}
 
@@ -284,6 +341,15 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                     <span>Đã xem hết bài viết</span>
                 </div>
             )}
+
+            {/* Nút Scroll to Top */}
+            <button
+                className={`scroll-top-btn ${showScrollTop ? 'scroll-top-btn--visible' : ''}`}
+                onClick={scrollToTop}
+                title="Lên đầu trang"
+            >
+                <ArrowUpOutlined />
+            </button>
         </div>
     );
 }
