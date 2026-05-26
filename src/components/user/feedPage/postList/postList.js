@@ -8,11 +8,6 @@ import { Spin } from "antd";
 import { LoadingOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import "./postList.scss";
 
-// Lấy bài trong 7 ngày gần nhất
-const FEED_WINDOW_DAYS = 7;
-const INITIAL_VISIBLE_POSTS = 4;
-const INCREMENT_VISIBLE_POSTS = 3;
-
 export default function PostList({ searchQuery, filterUserId, refreshTrigger }) {
     const { user } = useContext(AuthContext);
     const { users } = useContext(AppContext);
