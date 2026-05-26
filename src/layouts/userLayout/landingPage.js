@@ -11,7 +11,7 @@ import "./landingPage.scss";
 import { ROUTERS } from "../../configs/router";
 import { AuthContext } from "../../context/authProvider";
 import { db } from "../../firebase/config";
-import { collection, query, where, onSnapshot, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { appConfig } from "../../configs/appConfig";
 import { getUnreadNotificationCount, markAllNotificationsAsRead, markNotificationAsRead } from "../../services/notificationService";
 import { formatTimeAgo } from "../../utils/dateUtils";

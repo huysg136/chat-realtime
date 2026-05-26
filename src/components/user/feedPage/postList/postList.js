@@ -217,9 +217,11 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
 
         return () => {
             if (observerTarget.current) {
+                // eslint-disable-next-line react-hooks/exhaustive-deps
                 observer.unobserve(observerTarget.current);
             }
         };
+    
     }, [hasMore, isLazyLoading, loading, fetchMore, filterUserId, searchQuery]);
 
     useEffect(() => {
