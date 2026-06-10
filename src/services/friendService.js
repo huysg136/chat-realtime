@@ -6,14 +6,12 @@ import {
   getDocs,
   limit,
 } from "firebase/firestore";
+import { apiFetch } from "../configs/apiClient";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /** Tạo pairKey chuẩn từ 2 uid để [A,B] === [B,A] */
 const makePairKey = (uid1, uid2) => [uid1, uid2].sort().join("_");
-
-const getApiBaseUrl = () =>
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
@@ -96,9 +94,8 @@ export const sendFriendRequest = async (fromUid, toUid) => {
   if (!fromUid || !toUid || fromUid === toUid) return null;
 
   try {
-    const res = await fetch(`${getApiBaseUrl()}/api/friends/request`, {
+    const res = await apiFetch("/api/friends/request", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fromUid, toUid }),
     });
 
@@ -119,9 +116,8 @@ export const sendFriendRequest = async (fromUid, toUid) => {
  */
 export const cancelFriendRequest = async (fromUid, toUid) => {
   try {
-    const res = await fetch(`${getApiBaseUrl()}/api/friends/cancel`, {
+    const res = await apiFetch("/api/friends/cancel", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fromUid, toUid }),
     });
 
@@ -142,9 +138,8 @@ export const cancelFriendRequest = async (fromUid, toUid) => {
  */
 export const acceptFriendRequest = async (requestId, fromUid, myUid) => {
   try {
-    const res = await fetch(`${getApiBaseUrl()}/api/friends/accept`, {
+    const res = await apiFetch("/api/friends/accept", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ requestId, fromUid, myUid }),
     });
 
@@ -165,9 +160,8 @@ export const acceptFriendRequest = async (requestId, fromUid, myUid) => {
  */
 export const rejectFriendRequest = async (requestId) => {
   try {
-    const res = await fetch(`${getApiBaseUrl()}/api/friends/reject`, {
+    const res = await apiFetch("/api/friends/reject", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ requestId }),
     });
 
@@ -188,9 +182,8 @@ export const rejectFriendRequest = async (requestId) => {
  */
 export const unfriend = async (myUid, targetUid) => {
   try {
-    const res = await fetch(`${getApiBaseUrl()}/api/friends/unfriend`, {
+    const res = await apiFetch("/api/friends/unfriend", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ myUid, targetUid }),
     });
 
@@ -212,9 +205,7 @@ export const getFriendSuggestions = async (uid) => {
   if (!uid) return { success: false, suggestions: [] };
 
   try {
-    const res = await fetch(
-      `${getApiBaseUrl()}/api/friends/suggestions?uid=${uid}`
-    );
+    const res = await apiFetch(`/api/friends/suggestions?uid=${uid}`);
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 

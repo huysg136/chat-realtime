@@ -1,15 +1,12 @@
-const getApiBaseUrl = () => {
-  return process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-};
+import { apiFetch } from "../configs/apiClient";
 
 /**
  * Gửi thông báo báo cáo vi phạm qua email
  */
 export const notifyReportAction = async (payload) => {
   try {
-    const response = await fetch(`${getApiBaseUrl()}/api/mail/notify-report`, {
+    const response = await apiFetch("/api/mail/notify-report", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     return await response.json();
@@ -24,9 +21,8 @@ export const notifyReportAction = async (payload) => {
  */
 export const notifyNewUser = async (payload) => {
   try {
-    const response = await fetch(`${getApiBaseUrl()}/api/mail/notify-new-user`, {
+    const response = await apiFetch("/api/mail/notify-new-user", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     return await response.json();

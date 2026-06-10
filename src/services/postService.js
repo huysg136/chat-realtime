@@ -1,20 +1,15 @@
 import { getAuth } from "firebase/auth";
 import app from "../firebase/config";
+import { apiFetch } from "../configs/apiClient";
 
 const auth = getAuth(app);
 
-const getApiBaseUrl = () => {
-  return process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-};
-
+/** Lấy Firebase token để xác thực user (gộp vào x-api-key header) */
 const getAuthHeaders = async () => {
   const user = auth.currentUser;
-  if (!user) return { "Content-Type": "application/json" };
+  if (!user) return {};
   const token = await user.getIdToken();
-  return {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
-  };
+  return { Authorization: `Bearer ${token}` };
 };
 
 /**
@@ -22,10 +17,10 @@ const getAuthHeaders = async () => {
  */
 export const createPost = async (postData) => {
   try {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${getApiBaseUrl()}/api/posts`, {
+    const authHeaders = await getAuthHeaders();
+    const response = await apiFetch("/api/posts", {
       method: "POST",
-      headers,
+      headers: authHeaders,
       body: JSON.stringify(postData),
     });
     return await response.json();
@@ -40,10 +35,10 @@ export const createPost = async (postData) => {
  */
 export const deletePost = async (postId) => {
   try {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}`, {
+    const authHeaders = await getAuthHeaders();
+    const response = await apiFetch(`/api/posts/${postId}`, {
       method: "DELETE",
-      headers,
+      headers: authHeaders,
     });
     return await response.json();
   } catch (error) {
@@ -57,10 +52,10 @@ export const deletePost = async (postId) => {
  */
 export const updatePost = async (postId, postData) => {
   try {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}`, {
+    const authHeaders = await getAuthHeaders();
+    const response = await apiFetch(`/api/posts/${postId}`, {
       method: "PUT",
-      headers,
+      headers: authHeaders,
       body: JSON.stringify(postData),
     });
     return await response.json();
@@ -75,16 +70,18 @@ export const updatePost = async (postId, postData) => {
  */
 export const getFeed = async ({ filterUserId, searchQuery, skipCache, lastCreatedAt, limit }) => {
   try {
-    const headers = await getAuthHeaders();
-    const url = new URL(`${getApiBaseUrl()}/api/posts/feed`);
+    const authHeaders = await getAuthHeaders();
+    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+    const url = new URL(`${API_BASE_URL}/api/posts/feed`);
     if (filterUserId) url.searchParams.append("filterUserId", filterUserId);
     if (searchQuery) url.searchParams.append("searchQuery", searchQuery);
     if (skipCache) url.searchParams.append("skipCache", "true");
     if (lastCreatedAt) url.searchParams.append("lastCreatedAt", lastCreatedAt);
     if (limit) url.searchParams.append("limit", limit);
 
-    const response = await fetch(url.toString(), { headers });
-    return await response.json();
+    const response = await apiFetch(`/api/posts/feed?${url.searchParams.toString()}`, {
+      headers: authHeaders,
+    });
     return await response.json();
   } catch (error) {
     console.error("Error fetching feed:", error);
@@ -97,11 +94,10 @@ export const getFeed = async ({ filterUserId, searchQuery, skipCache, lastCreate
  */
 export const checkNewPosts = async ({ since }) => {
   try {
-    const headers = await getAuthHeaders();
-    const url = new URL(`${getApiBaseUrl()}/api/posts/feed/check-new`);
-    url.searchParams.append("since", since);
-
-    const response = await fetch(url.toString(), { headers });
+    const authHeaders = await getAuthHeaders();
+    const response = await apiFetch(`/api/posts/feed/check-new?since=${since}`, {
+      headers: authHeaders,
+    });
     return await response.json();
   } catch (error) {
     console.error("Error checking new posts:", error);
@@ -114,10 +110,10 @@ export const checkNewPosts = async ({ since }) => {
  */
 export const likePost = async (postId, payload) => {
   try {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}/like`, {
+    const authHeaders = await getAuthHeaders();
+    const response = await apiFetch(`/api/posts/${postId}/like`, {
       method: "POST",
-      headers,
+      headers: authHeaders,
       body: JSON.stringify(payload),
     });
     return await response.json();
@@ -132,10 +128,10 @@ export const likePost = async (postId, payload) => {
  */
 export const commentPost = async (postId, commentData) => {
   try {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}/comment`, {
+    const authHeaders = await getAuthHeaders();
+    const response = await apiFetch(`/api/posts/${postId}/comment`, {
       method: "POST",
-      headers,
+      headers: authHeaders,
       body: JSON.stringify(commentData),
     });
     return await response.json();
@@ -150,10 +146,10 @@ export const commentPost = async (postId, commentData) => {
  */
 export const deleteComment = async (postId, commentId) => {
   try {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}/comment/${commentId}`, {
+    const authHeaders = await getAuthHeaders();
+    const response = await apiFetch(`/api/posts/${postId}/comment/${commentId}`, {
       method: "DELETE",
-      headers,
+      headers: authHeaders,
     });
     return await response.json();
   } catch (error) {
@@ -167,10 +163,10 @@ export const deleteComment = async (postId, commentId) => {
  */
 export const likeComment = async (postId, commentId, payload) => {
   try {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${getApiBaseUrl()}/api/posts/${postId}/comment/${commentId}/like`, {
+    const authHeaders = await getAuthHeaders();
+    const response = await apiFetch(`/api/posts/${postId}/comment/${commentId}/like`, {
       method: "POST",
-      headers,
+      headers: authHeaders,
       body: JSON.stringify(payload),
     });
     return await response.json();
