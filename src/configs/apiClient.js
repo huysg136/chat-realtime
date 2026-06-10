@@ -14,11 +14,10 @@
  */
 
 import axios from "axios";
+import { auth } from "../firebase/config";
 
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-
-const API_SECRET_KEY = process.env.REACT_APP_API_SECRET_KEY || "";
 
 // ─── Axios instance ───────────────────────────────────────────────────────────
 
@@ -27,14 +26,32 @@ export const apiClient = axios.create({
   timeout: 30000,
   headers: {
     "Content-Type": "application/json",
-    "x-api-key": API_SECRET_KEY,
   },
 });
+
+// Interceptor to inject Firebase ID Token dynamically into every Axios request
+apiClient.interceptors.request.use(
+  async (config) => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const token = await user.getIdToken();
+        config.headers.Authorization = `Bearer ${token}`;
+      } catch (error) {
+        console.error("Error getting Firebase ID Token for Axios:", error);
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // ─── Fetch wrapper ────────────────────────────────────────────────────────────
 
 /**
- * Thay thế cho `fetch()` — tự động thêm baseURL và x-api-key header.
+ * Thay thế cho `fetch()` — tự động thêm baseURL và Authorization header.
  * @param {string} path - Đường dẫn API (ví dụ: "/api/friends/request")
  * @param {RequestInit} options - Các tùy chọn fetch (method, body, headers,...)
  */
@@ -43,9 +60,19 @@ export const apiFetch = async (path, options = {}) => {
 
   const headers = {
     "Content-Type": "application/json",
-    "x-api-key": API_SECRET_KEY,
     ...(options.headers || {}),
   };
 
+  const user = auth.currentUser;
+  if (user) {
+    try {
+      const token = await user.getIdToken();
+      headers.Authorization = `Bearer ${token}`;
+    } catch (error) {
+      console.error("Error getting Firebase ID Token for fetch:", error);
+    }
+  }
+
   return fetch(url, { ...options, headers });
 };
+
