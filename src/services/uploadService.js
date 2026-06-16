@@ -1,3 +1,4 @@
+import axios from "axios";
 import { apiClient } from "../configs/apiClient";
 
 /**
@@ -17,10 +18,9 @@ export const uploadToR2 = async (file, folder = "uploads", onProgress) => {
       fileSize: file.size,
     });
 
-    // Bước 2: Upload trực tiếp lên R2 (không cần x-api-key cho R2)
-    await apiClient.put(data.uploadUrl, file, {
-      baseURL: "", // override baseURL vì đây là URL của R2, không phải backend
-      headers: { "Content-Type": file.type, "x-api-key": undefined },
+    // Bước 2: Upload trực tiếp lên R2 bằng axios nguyên gốc để không bị dính Authorization header
+    await axios.put(data.uploadUrl, file, {
+      headers: { "Content-Type": file.type },
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
           const progress = Math.round(
