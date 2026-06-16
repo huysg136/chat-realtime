@@ -14,6 +14,7 @@ export const uploadToR2 = async (file, folder = "uploads", onProgress) => {
       fileName: file.name,
       fileType: file.type,
       folder: folder,
+      fileSize: file.size,
     });
 
     // Bước 2: Upload trực tiếp lên R2 (không cần x-api-key cho R2)
