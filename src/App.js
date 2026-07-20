@@ -12,13 +12,11 @@ import useApplyTheme from './hooks/useApplyTheme';
 import { renderPublicRoutes, renderUserRoutes, renderAdminRoutes, renderNotFoundRoute } from './routes/router';
 
 import ModalManager from './components/modalManager';
-import useUserPresence from './hooks/useUserPresence';
 
 function ThemeWrapper({ children }) {
   const { user } = useContext(AuthContext);
 
   useApplyTheme(user?.theme);
-  useUserPresence(user);
 
   return children;
 }
