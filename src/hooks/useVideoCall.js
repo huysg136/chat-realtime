@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-
+import { apiFetch } from '../configs/apiClient';
 export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCall) {
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
   const [videoCall, setVideoCall] = useState(null);
@@ -44,9 +44,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
     try {
       setIsInitializing(true);
 
-      const tokenRes = await fetch(
-        `${API_BASE_URL}/api/stringee/token?uid=${encodeURIComponent(uid)}`
-      );
+      const tokenRes = await apiFetch(`/api/stringee/token?uid=${encodeURIComponent(uid)}`);
 
       if (!tokenRes.ok) {
         throw new Error(`HTTP ${tokenRes.status}`);
