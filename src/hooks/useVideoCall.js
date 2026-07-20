@@ -65,6 +65,7 @@ export function useVideoCall(uid, selectedRoomId, otherUser, users, onIncomingCa
       setVideoCall(vc);
 
     } catch (err) {
+      console.error('[Stringee] initStringee FAILED:', err?.message || err);
     } finally {
       setIsInitializing(false);
     }
