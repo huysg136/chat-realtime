@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
 import { AuthContext } from "../../../../context/authProvider";
 import { AppContext } from "../../../../context/appProvider";
-import { useFriends } from "../../../../hooks/useFriends";
 import PostItem from "../postItem/postItem";
 import { getFeed, checkNewPosts } from "../../../../services/postService";
 import { Spin } from "antd";
@@ -11,7 +10,6 @@ import "./postList.scss";
 export default function PostList({ searchQuery, filterUserId, refreshTrigger }) {
     const { user } = useContext(AuthContext);
     const { users } = useContext(AppContext);
-    const { friends, loading: friendsLoading } = useFriends();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isLazyLoading, setIsLazyLoading] = useState(false);
@@ -57,11 +55,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
         return contentMatch || authorMatch;
     });
 
-    const friendUidsRef = useRef([]);
 
-    useEffect(() => {
-        friendUidsRef.current = friends.map((f) => f.uid).filter(Boolean);
-    }, [friends]);
 
     const fetchFeed = React.useCallback(async (skipCache = false) => {
         if (!user?.uid) return;
@@ -225,15 +219,13 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
     }, [hasMore, isLazyLoading, loading, fetchMore, filterUserId, searchQuery]);
 
     useEffect(() => {
-        if (!friendsLoading) {
-            fetchFeed();
-        }
-    }, [fetchFeed, friendsLoading, refreshTrigger]);
+        fetchFeed();
+    }, [fetchFeed, refreshTrigger]);
 
 
 
 
-    if (loading || friendsLoading) {
+    if (loading) {
         return (
             <div className="post-list post-list--loading">
                 <Spin indicator={<LoadingOutlined spin />} size="large" />
