@@ -18,6 +18,7 @@ import { AuthContext } from "../../../../context/authProvider";
 import { updateDocument, encryptMessage, decryptMessage } from "../../../../firebase/services";
 import ChatHeader from "../chatHeader/chatHeader";
 import VideoCallOverlay from "../videoCallOverlay/videoCallOverlay";
+import { getTypingUsers } from "../../../../services/chatService";
 import "./chatWindow.scss";
 import { useTranslation } from "react-i18next";
 
@@ -56,6 +57,31 @@ export default function ChatWindow({ onToggleDetail }) {
   const prevScrollHeightRef = useRef(0);
   const shouldScrollToBottomRef = useRef(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [typingUids, setTypingUids] = useState([]);
+
+  useEffect(() => {
+    if (!selectedRoomId) {
+      setTypingUids([]);
+      return;
+    }
+
+    const fetchTyping = async () => {
+      const uids = await getTypingUsers(selectedRoomId);
+      setTypingUids(uids);
+    };
+
+    fetchTyping();
+    const interval = setInterval(fetchTyping, 1500);
+
+    return () => clearInterval(interval);
+  }, [selectedRoomId]);
+
+  const typingUsers = useMemo(() => {
+    if (!typingUids || typingUids.length === 0) return [];
+    return typingUids
+      .map((tUid) => users.find((u) => String(u.uid).trim() === String(tUid).trim()))
+      .filter(Boolean);
+  }, [typingUids, users]);
 
   const selectedRoom = contextSelectedRoom;
 
@@ -451,6 +477,21 @@ export default function ChatWindow({ onToggleDetail }) {
             user={user}
             otherUser={otherUser}
           />
+        )}
+
+        {typingUsers.length > 0 && (
+          <div className="typing-indicator-wrapper">
+            <div className="typing-bubble">
+              <div className="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+            <span className="typing-text">
+              {typingUsers.map((u) => u.displayName || "Ai đó").join(", ")} đang soạn tin...
+            </span>
+          </div>
         )}
 
         {banInfo ? (

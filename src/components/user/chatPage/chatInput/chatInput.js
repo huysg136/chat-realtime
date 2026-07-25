@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import EmojiPicker from "emoji-picker-react";
 import { addDocument, updateDocument, encryptMessage, getUserDocIdByUid, decryptMessage } from "../../../../firebase/services";
 import { askGemini, askGroq } from "../../../../services/aiService";
+import { sendTypingStatus } from "../../../../services/chatService";
 import { uploadToR2 } from "../../../../services/uploadService";
 import { validateFile } from "../../../../utils/fileValidation";
 import { getToneMappings, buildPolishPrompt } from "../../../../utils/AI/tonePrompts";
@@ -49,6 +50,7 @@ export default function ChatInput({
 }) {
   const { uid, photoURL, displayName, role, premiumLevel } = user || {};
   const formRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
   const [sendingFile, setSendingFile] = useState(false);
@@ -69,7 +71,22 @@ export default function ChatInput({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const { t } = useTranslation();
 
-  const handleInputChange = (e) => setInputValue(e.target.value);
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInputValue(value);
+
+    if (selectedRoom?.id) {
+      sendTypingStatus(selectedRoom.id, "start");
+
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      typingTimeoutRef.current = setTimeout(() => {
+        sendTypingStatus(selectedRoom.id, "stop");
+      }, 2500);
+    }
+  };
 
   const handleSelectTone = async (selectedTone) => {
     setShowTonePicker(false);
@@ -238,6 +255,13 @@ export default function ChatInput({
 
   const handleOnSubmit = async () => {
     if ((!inputValue.trim() && !selectedFile) || !selectedRoom || !uid || sending || sendingFile) return;
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    if (selectedRoom?.id) {
+      sendTypingStatus(selectedRoom.id, "stop");
+    }
 
     setSending(true);
     const messageText = inputValue.trim();
