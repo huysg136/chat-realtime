@@ -1,16 +1,8 @@
 /**
  * apiClient.js — HTTP client trung tâm
  *
- * Tự động gắn header `x-api-key` vào MỌI request gửi lên backend.
- * Sử dụng thay thế cho `axios` và `fetch` trực tiếp trong các service.
- *
- * Usage (axios-style):
- *   import { apiClient } from "../configs/apiClient";
- *   apiClient.post("/api/ask-gemini", { prompt });
- *
- * Usage (fetch-style):
- *   import { apiFetch } from "../configs/apiClient";
- *   apiFetch("/api/friends/request", { method: "POST", body: JSON.stringify(...) });
+ * Tự động gắn header `Authorization: Bearer <Token>` vào MỌI request gửi lên backend.
+ * Sử dụng cho cả `axios` và `fetch` trong các service.
  */
 
 import axios from "axios";
@@ -18,6 +10,25 @@ import { auth } from "../firebase/config";
 
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+
+// Helper lấy Firebase ID Token đáng tin cậy
+const getFirebaseToken = async () => {
+  let user = auth.currentUser;
+  if (!user) {
+    // Đợi Firebase Auth khởi tạo phiên đăng nhập từ storage nếu có
+    await new Promise((resolve) => {
+      const unsubscribe = auth.onAuthStateChanged((u) => {
+        unsubscribe();
+        resolve(u);
+      });
+    });
+    user = auth.currentUser;
+  }
+  if (user) {
+    return await user.getIdToken();
+  }
+  return null;
+};
 
 // ─── Axios instance ───────────────────────────────────────────────────────────
 
@@ -29,17 +40,21 @@ export const apiClient = axios.create({
   },
 });
 
-// Interceptor to inject Firebase ID Token dynamically into every Axios request
+// Interceptor tự động thêm Bearer Token cho Axios
 apiClient.interceptors.request.use(
   async (config) => {
-    const user = auth.currentUser;
-    if (user) {
-      try {
-        const token = await user.getIdToken();
-        config.headers.Authorization = `Bearer ${token}`;
-      } catch (error) {
-        console.error("Error getting Firebase ID Token for Axios:", error);
+    try {
+      const token = await getFirebaseToken();
+      if (token) {
+        if (config.headers && typeof config.headers.set === "function") {
+          config.headers.set("Authorization", `Bearer ${token}`);
+        } else {
+          config.headers = config.headers || {};
+          config.headers.Authorization = `Bearer ${token}`;
+        }
       }
+    } catch (error) {
+      console.error("Error getting Firebase ID Token for Axios:", error);
     }
     return config;
   },
@@ -63,16 +78,14 @@ export const apiFetch = async (path, options = {}) => {
     ...(options.headers || {}),
   };
 
-  const user = auth.currentUser;
-  if (user) {
-    try {
-      const token = await user.getIdToken();
+  try {
+    const token = await getFirebaseToken();
+    if (token && !headers.Authorization) {
       headers.Authorization = `Bearer ${token}`;
-    } catch (error) {
-      console.error("Error getting Firebase ID Token for fetch:", error);
     }
+  } catch (error) {
+    console.error("Error getting Firebase ID Token for fetch:", error);
   }
 
   return fetch(url, { ...options, headers });
 };
-
