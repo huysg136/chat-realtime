@@ -7,6 +7,44 @@ import { Spin } from "antd";
 import { LoadingOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import "./postList.scss";
 
+/**
+ * Client-side Feed Cache — sessionStorage, TTL 2 phút.
+ * Chỉ cache trang đầu của feed chính (không search, không filterUserId).
+ *
+ * Chiến lược SWR (Stale-While-Revalidate):
+ *   1. Hiển thị tức thì từ cache (0ms latency).
+ *   2. Gọi API ngầm — chỉ update state khi post IDs thay đổi.
+ */
+const FEED_CACHE_TTL_MS = 2 * 60 * 1000; // 2 phút
+const FEED_CACHE_PREFIX = 'feed_main_';
+
+const getFeedCache = (uid) => {
+    try {
+        const raw = sessionStorage.getItem(FEED_CACHE_PREFIX + uid);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (Date.now() - parsed.fetchedAt > FEED_CACHE_TTL_MS) return null;
+        return parsed;
+    } catch {
+        return null;
+    }
+};
+
+const setFeedCache = (uid, posts, lastCreatedAt, hasMore) => {
+    try {
+        sessionStorage.setItem(
+            FEED_CACHE_PREFIX + uid,
+            JSON.stringify({ posts, lastCreatedAt, hasMore, fetchedAt: Date.now() })
+        );
+    } catch { }
+};
+
+export const clearFeedCache = (uid) => {
+    try {
+        if (uid) sessionStorage.removeItem(FEED_CACHE_PREFIX + uid);
+    } catch { }
+};
+
 export default function PostList({ searchQuery, filterUserId, refreshTrigger }) {
     const { user } = useContext(AuthContext);
     const { users } = useContext(AppContext);
@@ -59,7 +97,31 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
 
     const fetchFeed = React.useCallback(async (skipCache = false) => {
         if (!user?.uid) return;
-        setLoading(true);
+
+        const isMainFeed = !filterUserId && !searchQuery;
+
+        // step 1: render từ cache
+        if (isMainFeed && !skipCache) {
+            const cached = getFeedCache(user.uid);
+            if (cached) {
+                setPosts(cached.posts);
+                setLastCreatedAt(cached.lastCreatedAt);
+                setHasMore(cached.hasMore);
+                setNewPostCount(0);
+                setLoading(false);
+            }
+        }
+
+        // xóa cache cũ trước khi gọi API
+        if (skipCache && isMainFeed) {
+            clearFeedCache(user.uid);
+        }
+
+        // step 2: gọi api
+        const hasCachedData = isMainFeed && !skipCache && !!getFeedCache(user.uid);
+        // Nếu đã có data từ cache thì không hiện loading spinner
+        if (!hasCachedData) setLoading(true);
+
         try {
             const data = await getFeed({
                 filterUserId,
@@ -69,11 +131,21 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
             });
 
             if (data.success) {
-                setPosts(data.posts);
+                // Chỉ update state nếu post IDs thực sự thay đổi (tránh re-render thừa)
+                const newIds = data.posts.map(p => p.id).join(',');
+                setPosts(prev => {
+                    const oldIds = prev.map(p => p.id).join(',');
+                    return newIds !== oldIds ? data.posts : prev;
+                });
                 setLastCreatedAt(data.lastCreatedAt);
                 setHasMore(data.hasMore);
-                setNewPostCount(0); // reset banner
+                setNewPostCount(0);
                 lastFetchedAt.current = Date.now();
+
+                // Lưu trang đầu của feed chính vào sessionStorage cache
+                if (isMainFeed) {
+                    setFeedCache(user.uid, data.posts, data.lastCreatedAt, data.hasMore);
+                }
             }
         } catch (error) {
             console.error("Error fetching feed:", error);
