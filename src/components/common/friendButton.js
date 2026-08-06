@@ -19,6 +19,8 @@ import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { collection, query, where, limit, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/config";
+import { clearFriendSuggestionsCache } from "../user/feedPage/friendSuggestions/friendSuggestions";
+import { clearFeedCache } from "../user/feedPage/postList/postList";
 import "../../components/user/chatPage/friendPanel/friendPanel.scss"
 
 /**
@@ -71,6 +73,8 @@ export default function FriendButton({ targetUid, size = "small" }) {
         try {
             await sendFriendRequest(myUid, targetUid);
             setStatus("pending_sent");
+            // Gửi lời mời → gợi ý sẽ thay đổi, xóa cache suggestions
+            clearFriendSuggestionsCache(myUid);
             toast.success(t("friends.sentSuccess"));
         } catch { toast.error(t("friends.actionError")); }
         finally { setLoading(false); }
@@ -81,6 +85,8 @@ export default function FriendButton({ targetUid, size = "small" }) {
         try {
             await cancelFriendRequest(myUid, targetUid);
             setStatus("none");
+            // Hủy lời mời → gợi ý có thể thay đổi
+            clearFriendSuggestionsCache(myUid);
             toast.info(t("friends.cancelledSuccess"));
         } catch { toast.error(t("friends.actionError")); }
         finally { setLoading(false); }
@@ -92,6 +98,9 @@ export default function FriendButton({ targetUid, size = "small" }) {
         try {
             await acceptFriendRequest(reqId, targetUid, myUid);
             setStatus("friends");
+            // Chấp nhận kết bạn → danh sách bạn bè thay đổi → xóa cả suggestions lẫn feed cache
+            clearFriendSuggestionsCache(myUid);
+            clearFeedCache(myUid);
             toast.success(t("friends.acceptedSuccess"));
         } catch { toast.error(t("friends.actionError")); }
         finally { setLoading(false); }
@@ -103,6 +112,8 @@ export default function FriendButton({ targetUid, size = "small" }) {
         try {
             await rejectFriendRequest(reqId);
             setStatus("none");
+            // Từ chối lời mời → gợi ý có thể thay đổi
+            clearFriendSuggestionsCache(myUid);
             toast.info(t("friends.rejectedSuccess"));
         } catch { toast.error(t("friends.actionError")); }
         finally { setLoading(false); }
@@ -113,6 +124,9 @@ export default function FriendButton({ targetUid, size = "small" }) {
         try {
             await unfriend(myUid, targetUid);
             setStatus("none");
+            // Hủy bạn → danh sách bạn bè thay đổi → xóa cả suggestions lẫn feed cache
+            clearFriendSuggestionsCache(myUid);
+            clearFeedCache(myUid);
             toast.info(t("friends.unfriendSuccess"));
         } catch { toast.error(t("friends.actionError")); }
         finally { setLoading(false); }
