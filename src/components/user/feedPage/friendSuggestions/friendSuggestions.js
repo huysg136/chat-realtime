@@ -9,12 +9,43 @@ import FriendButton from '../../../common/friendButton';
 import './friendSuggestions.scss';
 
 /**
- * In-memory session cache — tồn tại suốt vòng đời tab (không reset khi re-render).
- * Key: uid, Value: { suggestions, fetchedAt }
+ * Cache trong sessionStorage — tồn tại qua reload (F5), mất khi đóng tab.
+ * Key: `friend_suggestions_<uid>`
  * TTL: 5 phút — tương đương Redis SUGGESTIONS TTL phía backend.
+ *
+ * Chiến lược: SWR (Stale-While-Revalidate)
+ *   1. Render tức thì từ sessionStorage (0ms latency).
+ *   2. Gọi API ngầm để revalidate — chỉ update state khi data thực sự thay đổi.
  */
-const SESSION_CACHE = new Map();
 const SESSION_CACHE_TTL_MS = 5 * 60 * 1000; // 5 phút
+const CACHE_KEY_PREFIX = 'friend_suggestions_';
+
+const getCache = (uid) => {
+    try {
+        const raw = sessionStorage.getItem(CACHE_KEY_PREFIX + uid);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (Date.now() - parsed.fetchedAt > SESSION_CACHE_TTL_MS) return null;
+        return parsed;
+    } catch {
+        return null;
+    }
+};
+
+const setCache = (uid, suggestions) => {
+    try {
+        sessionStorage.setItem(
+            CACHE_KEY_PREFIX + uid,
+            JSON.stringify({ suggestions, fetchedAt: Date.now() })
+        );
+    } catch { }
+};
+
+export const clearFriendSuggestionsCache = (uid) => {
+    try {
+        if (uid) sessionStorage.removeItem(CACHE_KEY_PREFIX + uid);
+    } catch { }
+};
 
 export default function FriendSuggestions() {
     const navigate = useNavigate();
@@ -29,15 +60,18 @@ export default function FriendSuggestions() {
     useEffect(() => {
         if (!user?.uid) return;
 
-        // Kiểm tra session cache còn hạn không
-        const cached = SESSION_CACHE.get(user.uid);
-        if (cached && Date.now() - cached.fetchedAt < SESSION_CACHE_TTL_MS) {
+        // step 1: render từ cache
+        const cached = getCache(user.uid);
+        if (cached) {
             setSuggestedUsers(cached.suggestions);
             setLoading(false);
-            return;
         }
 
-        // Tránh gọi API đồng thời (StrictMode mount 2 lần)
+        // step 2: gọi api ngầm để lấy data mới nhất
+        // silent = true  → đã có cache, gọi âm thầm, không hiện spinner
+        // silent = false → chưa có cache, gọi bình thường (hiện spinner)
+        const silent = !!cached;
+
         if (isFetchingRef.current) return;
         isFetchingRef.current = true;
 
@@ -45,25 +79,28 @@ export default function FriendSuggestions() {
             try {
                 const data = await getFriendSuggestions(user.uid);
                 if (data.success) {
-                    setSuggestedUsers(data.suggestions);
-                    // Lưu vào session cache
-                    SESSION_CACHE.set(user.uid, {
-                        suggestions: data.suggestions,
-                        fetchedAt: Date.now(),
-                    });
+                    // Chỉ update state & cache nếu danh sách uid thực sự thay đổi
+                    const newIds = data.suggestions.map(u => u.uid).join(',');
+                    const oldIds = (cached?.suggestions || []).map(u => u.uid).join(',');
+                    if (newIds !== oldIds) {
+                        setSuggestedUsers(data.suggestions);
+                        setCache(user.uid, data.suggestions);
+                    }
                 }
             } catch (error) {
                 console.error("Failed to fetch friend suggestions:", error);
             } finally {
-                setLoading(false);
+                // Chỉ tắt spinner nếu chưa tắt ở bước cache
+                if (!silent) setLoading(false);
                 isFetchingRef.current = false;
             }
         };
 
         fetchSuggestions();
-    }, [user?.uid]);
+    }, [user?.uid]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (loading || friendsLoading || suggestedUsers.length === 0) return null;
+    // ẩn component nếu data null
+    if ((loading && suggestedUsers.length === 0) || friendsLoading || suggestedUsers.length === 0) return null;
 
     return (
         <div className="friend-suggestions-container">
@@ -86,14 +123,12 @@ export default function FriendSuggestions() {
                                 />
                             </div>
 
-                            {/* Hiển thị username */}
                             {u.username && (
                                 <span className="friend-suggestion-item__username">
                                     @{u.username}
                                 </span>
                             )}
 
-                            {/* FIX: Bây giờ _mutualCount đã tồn tại */}
                             {u._mutualCount > 0 && (
                                 <span className="friend-suggestion-item__mutual">
                                     {u._mutualCount} bạn chung
