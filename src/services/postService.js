@@ -71,15 +71,14 @@ export const updatePost = async (postId, postData) => {
 export const getFeed = async ({ filterUserId, searchQuery, skipCache, lastCreatedAt, limit }) => {
   try {
     const authHeaders = await getAuthHeaders();
-    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
-    const url = new URL(`${API_BASE_URL}/api/posts/feed`);
-    if (filterUserId) url.searchParams.append("filterUserId", filterUserId);
-    if (searchQuery) url.searchParams.append("searchQuery", searchQuery);
-    if (skipCache) url.searchParams.append("skipCache", "true");
-    if (lastCreatedAt) url.searchParams.append("lastCreatedAt", lastCreatedAt);
-    if (limit) url.searchParams.append("limit", limit);
+    const params = new URLSearchParams();
+    if (filterUserId) params.append("filterUserId", filterUserId);
+    if (searchQuery) params.append("searchQuery", searchQuery);
+    if (skipCache) params.append("skipCache", "true");
+    if (lastCreatedAt) params.append("lastCreatedAt", lastCreatedAt);
+    if (limit) params.append("limit", limit);
 
-    const response = await apiFetch(`/api/posts/feed?${url.searchParams.toString()}`, {
+    const response = await apiFetch(`/api/posts/feed?${params.toString()}`, {
       headers: authHeaders,
     });
     return await response.json();
