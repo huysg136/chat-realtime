@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext, useRef } from "react";
 import { AuthContext } from "../../../../context/authProvider";
-import { AppContext } from "../../../../context/appProvider";
 import PostItem from "../postItem/postItem";
 import { getFeed, checkNewPosts } from "../../../../services/postService";
 import { Spin } from "antd";
@@ -47,7 +46,6 @@ export const clearFeedCache = (uid) => {
 
 export default function PostList({ searchQuery, filterUserId, refreshTrigger }) {
     const { user } = useContext(AuthContext);
-    const { users } = useContext(AppContext);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isLazyLoading, setIsLazyLoading] = useState(false);
@@ -76,24 +74,6 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
         setLastCreatedAt(null);
         setHasMore(true);
     }, [filterUserId, searchQuery]);
-
-    const usersRef = useRef(users);
-    useEffect(() => { usersRef.current = users; }, [users]);
-
-    const filteredPosts = posts.filter((post) => {
-        if (!searchQuery) return true;
-
-        const contentMatch = post.content?.toLowerCase().includes(searchQuery.toLowerCase());
-
-        const currentUsers = usersRef.current || [];
-        const author = currentUsers.find((u) => u.uid === post.uid) || {};
-        const authorName = author.displayName || post.displayName || "";
-        const authorMatch = authorName.toLowerCase().includes(searchQuery.toLowerCase());
-
-        return contentMatch || authorMatch;
-    });
-
-
 
     const fetchFeed = React.useCallback(async (skipCache = false) => {
         if (!user?.uid) return;
@@ -155,12 +135,12 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
     }, [user?.uid, filterUserId, searchQuery]);
 
     const fetchMore = React.useCallback(async () => {
-        // Only paginate on main feed (no search/filter) as per requirements
-        if (!user?.uid || !hasMore || isLazyLoading || filterUserId || searchQuery) return;
+        if (!user?.uid || !hasMore || isLazyLoading || searchQuery) return;
 
         setIsLazyLoading(true);
         try {
             const data = await getFeed({
+                filterUserId,
                 lastCreatedAt,
                 limit: 15
             });
@@ -270,7 +250,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries[0].isIntersecting && hasMore && !isLazyLoading && !loading && !filterUserId && !searchQuery) {
+                if (entries[0].isIntersecting && hasMore && !isLazyLoading && !loading && !searchQuery) {
                     fetchMore();
                 }
             },
@@ -306,7 +286,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
         );
     }
 
-    if (filteredPosts.length === 0) {
+    if (posts.length === 0) {
         return (
             <div className="post-list post-list--empty">
                 <h3>Không tìm thấy bài viết nào</h3>
@@ -343,7 +323,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                 </button>
             )}
 
-            {filteredPosts.map((post) => (
+            {posts.map((post) => (
                 <PostItem key={post.id} post={post} onPostUpdated={handlePostUpdated} onPostDeleted={handlePostDeleted} />
             ))}
 
@@ -357,8 +337,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                 </div>
             )}
 
-            {/* Nút tải thêm thủ công nếu tự động tải không kích hoạt hoặc dự phòng */}
-            {hasMore && !isLazyLoading && !filterUserId && !searchQuery && (
+            {hasMore && !isLazyLoading && !searchQuery && (
                 <div style={{ textAlign: 'center', padding: '20px' }}>
                     <button
                         className="load-more-btn"
@@ -378,7 +357,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                 </div>
             )}
 
-            {!hasMore && !filterUserId && !searchQuery && (
+            {!hasMore && !searchQuery && (
                 <div className="feed-end-card">
                     <h4>Bạn đã đọc hết rồi</h4>
                     <p>Không còn bài viết nào để hiển thị.</p>
@@ -397,7 +376,7 @@ export default function PostList({ searchQuery, filterUserId, refreshTrigger }) 
                 </div>
             )}
 
-            {!hasMore && (filterUserId || searchQuery) && (
+            {!hasMore && searchQuery && (
                 <div className="profile-feed-end" style={{ textAlign: 'center', padding: '20px 0', color: '#8c8c8c', fontStyle: 'italic' }}>
                     <span>Đã xem hết bài viết</span>
                 </div>
