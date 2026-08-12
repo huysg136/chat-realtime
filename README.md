@@ -5,7 +5,6 @@
 
 > **Quik** is a powerful, full-featured real-time messaging platform powered by **ReactJS** and **Node.js**. It features high-performance video calls, lightning-fast file storage, and smart AI assistants, designed for both personal and community communication.
 
-⚠️ **Note:** This project is a **Work In Progress (WIP)**.
 🌐 **Live Demo:** [https://quik.id.vn](https://quik.id.vn)
 
 ---
