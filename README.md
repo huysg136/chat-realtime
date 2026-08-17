@@ -8,7 +8,6 @@
 [![Cloudflare R2](https://img.shields.io/badge/Cloudflare-R2_Storage-F38020?logo=cloudflare&logoColor=white)](https://www.cloudflare.com/developer-platform/r2/)
 [![AI](https://img.shields.io/badge/AI-Gemini%20%26%20Llama%203-4285F4?logo=google-gemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
 [![AssemblyAI](https://img.shields.io/badge/AssemblyAI-Speech%20to%20Text-673AB7)](https://www.assemblyai.com/)
-[![Socket.io](https://img.shields.io/badge/Socket.io-Realtime-010101?logo=socketdotio&logoColor=white)](https://socket.io/)
 
 > **Quik** là nền tảng mạng xã hội và nhắn tin thời gian thực toàn diện được xây dựng trên **React 18** và **Node.js**. Quik mang đến trải nghiệm nhắn tin bảo mật mã hoá đầu cuối (E2EE), gọi thoại/video chất lượng cao, chia sẻ bài viết, trợ lý ảo AI thông minh và hệ thống quản trị mạnh mẽ.
 
@@ -19,10 +18,9 @@
 ## 🌟 Tính năng nổi bật (Features)
 
 ### 💬 Nhắn tin Realtime & Bảo mật (Chat & Messaging)
-* **Realtime Chat**: Gửi và nhận tin nhắn tức thì qua **Firebase Firestore** & **Socket.io**.
+* **Realtime Chat**: Gửi và nhận tin nhắn tức thì qua **Firebase Firestore**.
 * **Mã hoá đầu cuối (E2EE)**: Mã hoá tin nhắn bằng khoá bí mật AES riêng biệt cho từng phòng trò chuyện.
 * **Đa phương tiện**: Gửi ảnh, video, tệp tin dung lượng lớn, ghi âm giọng nói (Voice Note) kèm biểu đồ sóng âm (Waveform).
-* **Hỗ trợ Markdown & Code Highlighting**: Hỗ trợ định dạng in đậm, in nghiêng, trích dẫn, bảng và các khối code (Code Block) với cú pháp màu sắc (Syntax Highlighting).
 * **Tự động nhận diện liên kết (Smart URL Linkifier)**: Tự động phát hiện và chuyển đổi link web trong tin nhắn thành liên kết bấm được.
 * **Trạng thái Online/Offline & Heartbeat**: Theo dõi trạng thái hoạt động theo thời gian thực qua Firebase Realtime Database.
 * **Xem ảnh toàn màn hình (Lightbox)** & Trình phát âm thanh/video tích hợp.
