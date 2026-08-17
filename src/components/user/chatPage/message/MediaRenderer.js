@@ -6,6 +6,10 @@ import { MdAttachFile, MdImageNotSupported } from "react-icons/md";
 import 'react-image-lightbox/style.css';
 import Lightbox from 'react-image-lightbox';
 import { SlSpeech } from "react-icons/sl";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
 const NOT_FOUND_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png";
@@ -304,42 +308,93 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
     );
   }
 
-  const urlRegex = /((https?:\/\/)?((www\.)?[\w-]+(\.[\w-]+)+)(\/[^\s]*)?)/i;
-  if (urlRegex.test(content.trim()) && content.trim().match(urlRegex)[0] === content.trim()) {
-    const href = content.startsWith("http") ? content : `https://${content}`;
-    return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`message-media-link ${isOwn ? "own" : ""}`}
-        style={{ display: "inline-block", textDecoration: "underline" }}
+  return (
+    <div className={`message-markdown-wrapper ${isOwn ? "own" : ""}`}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          code({ node, inline, className, children, ...props }) {
+            const match = /language-(\w+)/.exec(className || '');
+            return !inline && match ? (
+              <SyntaxHighlighter
+                style={vscDarkPlus}
+                language={match[1]}
+                PreTag="div"
+                customStyle={{
+                  margin: '6px 0',
+                  borderRadius: '8px',
+                  fontSize: '12.5px',
+                  padding: '8px 12px',
+                  maxWidth: '100%',
+                }}
+                {...props}
+              >
+                {String(children).replace(/\n$/, '')}
+              </SyntaxHighlighter>
+            ) : (
+              <code
+                className={`inline-code ${className || ''}`}
+                style={{
+                  backgroundColor: isOwn ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.08)',
+                  color: isOwn ? '#fff' : '#d63384',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                  fontSize: '0.9em',
+                }}
+                {...props}
+              >
+                {children}
+              </code>
+            );
+          },
+          a({ node, href, children, ...props }) {
+            return (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="message-media-link"
+                style={{
+                  color: isOwn ? '#ffffff' : '#0084ff',
+                  textDecoration: 'underline',
+                  fontWeight: 500,
+                  wordBreak: 'break-all',
+                }}
+                {...props}
+              >
+                {children}
+              </a>
+            );
+          },
+          p({ node, children }) {
+            return <p style={{ margin: 0, lineHeight: 1.45, whiteSpace: 'pre-wrap' }}>{children}</p>;
+          },
+          ul({ node, children }) {
+            return <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>{children}</ul>;
+          },
+          ol({ node, children }) {
+            return <ol style={{ margin: '4px 0', paddingLeft: '20px' }}>{children}</ol>;
+          },
+          blockquote({ node, children }) {
+            return (
+              <blockquote
+                style={{
+                  margin: '4px 0',
+                  paddingLeft: '10px',
+                  borderLeft: `3px solid ${isOwn ? 'rgba(255,255,255,0.7)' : '#0084ff'}`,
+                  opacity: 0.9,
+                }}
+              >
+                {children}
+              </blockquote>
+            );
+          },
+        }}
       >
         {content}
-      </a>
-    );
-  }
-  const parts = content.split(/((?:https?:\/\/)?(?:www\.)?[\w-]+(?:\.[\w-]+)+(?:[/?#][[^\s]*)?)/);
-  return (
-    <span className="message-text-part">
-      {parts.map((part, i) => {
-        if (/^(?:https?:\/\/)?(?:www\.)?[\w-]+(?:\.[\w-]+)+(?:[/?#][^\s]*)?$/.test(part)) {
-          const href = part.startsWith("http") ? part : `https://${part}`;
-          return (
-            <a
-              key={i}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`message-media-link ${isOwn ? "own" : ""}`}
-            >
-              {part}
-            </a>
-          );
-        }
-        return <span key={i}>{part}</span>;
-      })}
-    </span>
+      </ReactMarkdown>
+    </div>
   );
 };
 

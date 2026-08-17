@@ -135,6 +135,62 @@
   }
 }
 
+.message-markdown-wrapper {
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: #262626;
+  word-break: break-word;
+
+  &.own {
+    color: #ffffff;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 4px 0 2px;
+    font-weight: 600;
+    color: inherit;
+  }
+
+  h1 { font-size: 1.25em; }
+  h2 { font-size: 1.15em; }
+  h3 { font-size: 1.05em; }
+
+  ul, ol {
+    margin: 4px 0;
+    padding-left: 18px;
+  }
+
+  table {
+    border-collapse: collapse;
+    margin: 6px 0;
+    width: 100%;
+    font-size: 13px;
+
+    th, td {
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      padding: 4px 8px;
+    }
+
+    th {
+      background: rgba(0, 0, 0, 0.05);
+      font-weight: 600;
+    }
+  }
+
+  &.own table {
+    th, td {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    th {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
 .message-link {
   color: #1890ff;
   text-decoration: underline;
