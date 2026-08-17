@@ -1,108 +1,105 @@
-# ⚡ Quik - Real-Time Chat & Video Call
+# ⚡ Quik - Real-Time Chat, Video Call & Social Network
 
-![React](https://img.shields.io/badge/React-18-blue?logo=react&logoColor=white) ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?logo=firebase&logoColor=black) ![Ant Design](https://img.shields.io/badge/Ant%20Design-5.0-red?logo=antdesign&logoColor=white) 
-[![Stringee](https://img.shields.io/badge/Stringee-Video%20Call-red)](https://stringee.com/) [![Cloudflare R2](https://img.shields.io/badge/Cloudflare-R2_Storage-orange?logo=cloudflare&logoColor=white)](https://www.cloudflare.com/developer-platform/r2/) [![AI](https://img.shields.io/badge/AI-Gemini%20%26%20Llama-blue?logo=google-gemini&logoColor=white)](https://deepmind.google/technologies/gemini/) [![AssemblyAI](https://img.shields.io/badge/AssemblyAI-Speech%20to%20Text-purple)](https://www.assemblyai.com/)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Zustand](https://img.shields.io/badge/State-Zustand-4338CA?logo=react&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?logo=firebase&logoColor=black)
+![Ant Design](https://img.shields.io/badge/Ant%20Design-5.0-0170FE?logo=antdesign&logoColor=white)
+[![Stringee](https://img.shields.io/badge/Stringee-Video%20Call-FF0000)](https://stringee.com/)
+[![Cloudflare R2](https://img.shields.io/badge/Cloudflare-R2_Storage-F38020?logo=cloudflare&logoColor=white)](https://www.cloudflare.com/developer-platform/r2/)
+[![AI](https://img.shields.io/badge/AI-Gemini%20%26%20Llama%203-4285F4?logo=google-gemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
+[![AssemblyAI](https://img.shields.io/badge/AssemblyAI-Speech%20to%20Text-673AB7)](https://www.assemblyai.com/)
+[![Socket.io](https://img.shields.io/badge/Socket.io-Realtime-010101?logo=socketdotio&logoColor=white)](https://socket.io/)
 
-> **Quik** is a powerful, full-featured real-time messaging platform powered by **ReactJS** and **Node.js**. It features high-performance video calls, lightning-fast file storage, and smart AI assistants, designed for both personal and community communication.
+> **Quik** là nền tảng mạng xã hội và nhắn tin thời gian thực toàn diện được xây dựng trên **React 18** và **Node.js**. Quik mang đến trải nghiệm nhắn tin bảo mật mã hoá đầu cuối (E2EE), gọi thoại/video chất lượng cao, chia sẻ bài viết, trợ lý ảo AI thông minh và hệ thống quản trị mạnh mẽ.
 
-🌐 **Live Demo:** [https://quik.id.vn](https://quik.id.vn)
-
----
-
-## 🚀 Features
-
-Quik combines a seamless chat interface with robust backend services.
-
-### 🌟 Key Features
-*   **Real-time Messaging**: Instant text messaging powered by **Firebase Firestore**.
-*   **📹 Video Calls**: Crystal clear video and voice calls orchestrated by **Stringee SDK**.
-*   **☁️ Fast Storage**: Secure, high-speed media and file sharing using **Cloudflare R2**.
-*   **🤖 AI Assistant**: Integrated **Google Gemini 2.5** and **Llama 3 (Groq)** for intelligent chat responses and assistance.
-*   **🔐 Secure Auth**: User authentication via Google and other providers.
-
-### 📱 Social Feed (New)
-*   **Interactive Timeline**: Post updates, share media, like, and comment.
-*   **Trending Topics**: Automated hashtag and topic tracking.
-*   **Smart Suggestions**: Friend recommendations via a backend Graph computation (Friend-of-Friends).
-*   **Online Presence**: Real-time user activity tracking.
-
-### 🛡️ Admin Dashboard
-*   **Dashboard Overview**: Real-time system statistics.
-*   **User & Room Management**: Full control over accounts and chat groups.
-*   **Report System**: Automated content moderation with email notifications via **Resend** (no-reply@quik.id.vn).
-*   **Announcements**: System-wide broadcast messaging.
-*   **Moderator Permissions**: Granular access control for staff.
-
-### ⚡ Performance Optimizations
-*   **Caching Layer**: Upstash Redis integration for caching user metadata and post feeds.
-*   **Atomic Counters**: Real-time unread badges without heavy DB polling.
+🌐 **Trang chủ & Trải nghiệm trực tiếp:** [https://quik.id.vn](https://quik.id.vn)
 
 ---
 
-## 🛠️ Tech Stack
+## 🌟 Tính năng nổi bật (Features)
+
+### 💬 Nhắn tin Realtime & Bảo mật (Chat & Messaging)
+* **Realtime Chat**: Gửi và nhận tin nhắn tức thì qua **Firebase Firestore** & **Socket.io**.
+* **Mã hoá đầu cuối (E2EE)**: Mã hoá tin nhắn bằng khoá bí mật AES riêng biệt cho từng phòng trò chuyện.
+* **Đa phương tiện**: Gửi ảnh, video, tệp tin dung lượng lớn, ghi âm giọng nói (Voice Note) kèm biểu đồ sóng âm (Waveform).
+* **Hỗ trợ Markdown & Code Highlighting**: Hỗ trợ định dạng in đậm, in nghiêng, trích dẫn, bảng và các khối code (Code Block) với cú pháp màu sắc (Syntax Highlighting).
+* **Tự động nhận diện liên kết (Smart URL Linkifier)**: Tự động phát hiện và chuyển đổi link web trong tin nhắn thành liên kết bấm được.
+* **Trạng thái Online/Offline & Heartbeat**: Theo dõi trạng thái hoạt động theo thời gian thực qua Firebase Realtime Database.
+* **Xem ảnh toàn màn hình (Lightbox)** & Trình phát âm thanh/video tích hợp.
+
+### 📹 Gọi Video & Thoại chất lượng cao (Voice & Video Calls)
+* **Stringee SDK**: Gọi thoại 1-1 và gọi video HD ổn định, độ trễ thấp.
+* Tự động điều hướng và đồng bộ cuộc gọi ngay trong phòng chat.
+
+### 🤖 Trợ lý thông minh AI (AI Assistants)
+* **Google Gemini 2.5 & Groq Llama 3.1**: Tích hợp chatbot AI thông minh trả lời câu hỏi, tóm tắt nội dung và hỗ trợ người dùng.
+* **Chuyển giọng nói thành văn bản (Speech-to-Text)**: Tích hợp **AssemblyAI** giúp chuyển đổi tin nhắn thoại thành văn bản tức thì.
+
+### 📰 Bảng tin Mạng xã hội (Social Feed)
+* **Dòng thời gian tương tác**: Đăng bài viết, chia sẻ hình ảnh/video, thả tim (Like) và bình luận.
+* **Chủ đề thịnh hành (Trending Topics)**: Tự động phân tích và gắn thẻ hashtag thịnh hành.
+* **Gợi ý kết bạn thông minh (Friend Suggestions)**: Thuật toán Graph (Friend-of-Friends) tìm kiếm bạn bè phù hợp.
+* **Danh sách bạn bè trực tuyến (Online Friends)**: Cập nhật trạng thái bạn bè đang online realtime.
+
+### 💎 Quản lý Gói thành viên & Giới hạn (Subscription & Quota)
+* Phân cấp tài khoản: **Free**, **Lite**, **Pro**, **Max**.
+* Tự động kiểm tra hạn sử dụng gói và điều chỉnh hạn mức (Quota) tài nguyên.
+
+### 🛡️ Trang quản trị nâng cao (Admin Dashboard)
+* **Thống kê tổng quan**: Biểu đồ trực quan hoá số lượng người dùng, tin nhắn, phòng chat với **Recharts & Chart.js**.
+* **Quản lý người dùng & phòng chat**: Xem chi tiết, phân quyền (User / Moderator / Admin), khóa/mở tài khoản.
+* **Hệ thống báo cáo (Reports)**: Tiếp nhận và xử lý vi phạm, tự động gửi email thông báo qua **Resend** (`no-reply@quik.id.vn`).
+* **Thông báo hệ thống (Announcements)**: Phát thông báo toàn hệ thống hoặc theo nhóm đối tượng mục tiêu.
+* **Chế độ bảo trì hệ thống (Maintenance Mode)**: Kích hoạt màn hình bảo trì tức thì trên toàn app.
+
+---
+
+## 🛠️ Công nghệ sử dụng (Tech Stack)
 
 ### Frontend
--   **Core**: ReactJS (v18)
--   **UI**: Ant Design, SCSS, Styled Components
--   **State**: Context API
--   **i18n**: i18next (Internationalization)
+- **Core**: ReactJS 18 (CRA)
+- **State Management**: **Zustand** (Modular Stores: `useAuthStore`, `useModalStore`, `useChatStore`, `useAppStore`)
+- **Giao diện & Styling**: Ant Design 5, SCSS, Styled Components, Lucide Icons, React Icons
+- **Đa ngôn ngữ (i18n)**: `react-i18next` (Tiếng Việt / English)
+- **Biểu đồ & Thống kê**: Chart.js, Recharts
+- **Tiện ích**: `dayjs`, `date-fns`, `crypto-js`, `emoji-picker-react`, `react-markdown`
 
 ### Backend & Cloud Services
--   **Runtime**: Node.js, Express.js
--   **Caching**: Upstash Redis
--   **Video/Voice**: Stringee SDK
--   **Speech-to-Text**: AssemblyAI
--   **Storage**: Cloudflare R2 (S3 Compatible)
--   **AI Models**: Google Gemini 2.5 Flash Lite, Groq (Llama 3.1 8b)
--   **Database**: Firebase Firestore, Realtime Database
--   **Email**: Resend
+- **Runtime & API**: Node.js, Express.js
+- **Database**: Firebase Firestore, Firebase Realtime Database
+- **Caching Layer**: Upstash Redis (lưu cache feed, metadata và atomic counters)
+- **Lưu trữ tệp (Object Storage)**: Cloudflare R2 (tương thích S3 API)
+- **Cuộc gọi RTC**: Stringee SDK
+- **Speech-to-Text**: AssemblyAI
+- **Email Service**: Resend
 
 ---
 
-## 📂 Project Structure
+## 📂 Cấu trúc thư mục (Project Structure)
 
 ```bash
 src/
-├── components/       # UI Components
-│   ├── admin/        # Dashboard, User, Room, and Report management
-│   ├── user/         # Chat, Feed, Suggestions, Online friends
-│   ├── common/       # Shared elements (Loading, NoAccess, Layouts)
-│   └── modals/       # All interactive overlays (Profile, Settings, AI)
-├── configs/          # Route constants & general app configuration
-├── context/          # State management (Auth & App Providers)
-├── firebase/         # Firestore config and shared CRUD services
-├── hooks/            # Custom hooks (VideoCall, Firestore, Presence)
-├── i18n/             # Internationalization config (VI, EN)
-├── pages/            # Page-level components & layouts
-├── routes/           # Routing logic and PrivateRoute guards
-├── services/         # API Integration services (Friend, Post, AI)
-├── stringee/         # Direct SDK integration for Video/Voice calls
-├── style/            # Global SCSS, themes, and design tokens
-└── utils/            # Utility functions (AI, Encryption, Upload helpers)
+├── components/          # Các Component giao diện UI
+│   ├── admin/           # Quản trị viên (Dashboard, Settings, User/Room/Report Manager)
+│   ├── common/          # Component dùng chung (Loading, Badge, FriendButton,...)
+│   ├── modals/          # Các cửa sổ tương tác (Profile, Settings, AddRoom, UpgradePlan,...)
+│   └── user/            # Giao diện người dùng (ChatPage, FeedPage, Message, Comment,...)
+├── configs/             # Cấu hình routes, hằng số hệ thống
+├── context/             # Adapter/Bridge providers (hỗ trợ tương thích ngược)
+├── firebase/            # Khởi tạo Firebase SDK & các hàm CRUD dịch vụ
+├── hooks/               # Custom Hooks (useFirestore, useFriends, useVideoCall,...)
+├── i18n/                # Cấu hình đa ngôn ngữ (vi, en)
+├── layouts/             # Bố cục trang (LandingPage, UserLayout, AdminLayout)
+├── pages/               # Các trang chính (ChatRoom, Feed, Profile, Login, Admin, Maintenance)
+├── routes/              # Điều hướng & Route Guards (PrivateRoute, AdminRoute)
+├── services/            # Kết nối API backend (Post, Friend, Quota, AI)
+├── stores/              # Zustand Global Stores (Auth, Chat, Modal, App)
+├── stringee/            # Cấu hình & Client gọi video/thoại Stringee
+├── style/               # Global SCSS, theme variables, reset css
+└── utils/               # Hàm tiện ích (Encryption, Validate file, Format date)
 ```
 
----
 
-## ⚙️ Setup & Installation
 
-### Prerequisites
-- Node.js (v18+)
-- Firebase Project & Upstash Redis setup
-
-### 1. Backend Setup (`chat-realtime-api`)
-```bash
-cd chat-realtime-api
-npm install
-npm run dev
-```
-
-### 2. Frontend Setup (`chat-realtime`)
-```bash
-cd chat-realtime
-yarn install
-yarn start
-```
-
----
-
-🔗 **Backend Repository:** [**chat-realtime-api**](https://github.com/huysg136/chat-realtime-api)
+## 🔗 Liên kết liên quan
+* 📦 **Backend API Repository:** [**chat-realtime-api**](https://github.com/huysg136/chat-realtime-api)
