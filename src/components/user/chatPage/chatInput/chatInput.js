@@ -51,6 +51,7 @@ export default function ChatInput({
   const { uid, photoURL, displayName, role, premiumLevel } = user || {};
   const formRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const lastTypingSentRef = useRef(0);
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
   const [sendingFile, setSendingFile] = useState(false);
@@ -76,7 +77,12 @@ export default function ChatInput({
     setInputValue(value);
 
     if (selectedRoom?.id) {
-      sendTypingStatus(selectedRoom.id, "start");
+      const now = Date.now();
+      // Chỉ gửi start typing tối đa 1 lần mỗi 2 giây
+      if (now - lastTypingSentRef.current > 2000) {
+        sendTypingStatus(selectedRoom.id, "start");
+        lastTypingSentRef.current = now;
+      }
 
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
@@ -84,6 +90,7 @@ export default function ChatInput({
 
       typingTimeoutRef.current = setTimeout(() => {
         sendTypingStatus(selectedRoom.id, "stop");
+        lastTypingSentRef.current = 0;
       }, 2500);
     }
   };

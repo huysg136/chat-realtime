@@ -71,7 +71,7 @@ export default function ChatWindow({ onToggleDetail }) {
     };
 
     fetchTyping();
-    const interval = setInterval(fetchTyping, 1500);
+    const interval = setInterval(fetchTyping, 3000);
 
     return () => clearInterval(interval);
   }, [selectedRoomId]);
