@@ -3,39 +3,27 @@ import { useNavigate } from 'react-router-dom';
 import app from "../firebase/config";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, onSnapshot } from "firebase/firestore";
-import { ref, set } from "firebase/database";
-import { rtdb } from "../firebase/config";
 import LoadingScreen from '../components/common/loadingScreen';
 import { getUserDocIdByUid, updateDocument } from "../firebase/services";
 import { ROUTERS } from '../configs/router';
+import { useAuthStore } from '../stores/useAuthStore';
 
 export const AuthContext = React.createContext();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-
 export default function AuthProvider({ children }) {
-  const [user, setUser] = React.useState(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const setIsLoading = useAuthStore((state) => state.setIsLoading);
+  const logout = useAuthStore((state) => state.logout);
+  const updateStatus = useAuthStore((state) => state.updateStatus);
+  const setCurrentUserDocId = useAuthStore((state) => state.setCurrentUserDocId);
+
   const navigate = useNavigate();
   const unsubscribeUserRef = React.useRef(null);
   const heartbeatRef = React.useRef(null);
-  const currentUserDocIdRef = React.useRef(null);
-
-  const updateStatus = async (isOnline) => {
-    const userDocId = currentUserDocIdRef.current;
-    if (!userDocId) return;
-    const statusRef = ref(rtdb, `userStatuses/${userDocId}`);
-    const now = Date.now();
-    try {
-      await set(statusRef, {
-        lastOnline: now,
-        lastHeartbeat: now,
-        isOnline,
-      });
-    } catch (error) {
-    }
-  };
 
   const startHeartbeat = () => {
     stopHeartbeat();
@@ -51,18 +39,9 @@ export default function AuthProvider({ children }) {
     }
   };
 
-  const logout = async () => {
-    try {
-      stopHeartbeat();              // dừng heartbeat trước
-      await updateStatus(false);    // set offline
-      await auth.signOut();         // logout
-    } catch (err) {
-    }
-  };
-
   React.useEffect(() => {
     const handleVisibilityChange = () => {
-      if (!currentUserDocIdRef.current) return;
+      if (!useAuthStore.getState().currentUserDocId) return;
       if (document.visibilityState === 'hidden') {
         stopHeartbeat();
         updateStatus(false);
@@ -86,7 +65,7 @@ export default function AuthProvider({ children }) {
       if (currentUser) {
         const { displayName, email, photoURL, uid } = currentUser;
         const userDocId = await getUserDocIdByUid(uid);
-        currentUserDocIdRef.current = userDocId;
+        setCurrentUserDocId(userDocId);
 
         if (userDocId) {
           await updateStatus(true); // online NGAY khi login
@@ -101,6 +80,7 @@ export default function AuthProvider({ children }) {
               try {
                 await updateDocument("users", userDocId, { premiumLevel: 'free' });
               } catch (error) {
+                console.error("Error downgrading premium:", error);
               }
             }
             setUser({
@@ -123,7 +103,7 @@ export default function AuthProvider({ children }) {
         }
       } else {
         updateStatus(false);
-        currentUserDocIdRef.current = null;
+        setCurrentUserDocId(null);
         setUser(null);
         setIsLoading(false);
         stopHeartbeat();
@@ -141,7 +121,7 @@ export default function AuthProvider({ children }) {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [navigate]);
+  }, [navigate, setCurrentUserDocId, setIsLoading, setUser, updateStatus]);
 
   React.useEffect(() => {
     let interval;
@@ -163,8 +143,15 @@ export default function AuthProvider({ children }) {
     }
   }, [user]);
 
+  const authContextValue = React.useMemo(() => ({
+    user,
+    setUser,
+    isLoading,
+    logout,
+  }), [user, setUser, isLoading, logout]);
+
   return (
-    <AuthContext.Provider value={{ user, setUser, isLoading, logout }}>
+    <AuthContext.Provider value={authContextValue}>
       {isLoading ? (
         <LoadingScreen fullScreen />
       ) : (

@@ -1,21 +1,24 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { db } from "../firebase/config";
 import { doc, collection, query, where, onSnapshot, arrayUnion, updateDoc } from "firebase/firestore";
+import { useModalStore } from "../stores/useModalStore";
 
 export function useAnnouncement(user, pathname) {
-  const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(false);
-  const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
+  const isAnnouncementVisible = useModalStore((s) => s.isAnnouncementVisible);
+  const setIsAnnouncementVisible = useModalStore((s) => s.setIsAnnouncementVisible);
+  const currentAnnouncement = useModalStore((s) => s.currentAnnouncement);
+  const setCurrentAnnouncement = useModalStore((s) => s.setCurrentAnnouncement);
 
   // Ẩn announcement khi vào trang admin
   useEffect(() => {
-    if (pathname.startsWith("/admin")) {
+    if (pathname && pathname.startsWith("/admin")) {
       setIsAnnouncementVisible(false);
     }
-  }, [pathname]);
+  }, [pathname, setIsAnnouncementVisible]);
 
   // Lắng nghe announcement chưa xem
   useEffect(() => {
-    const isAdminPage = pathname.startsWith("/admin");
+    const isAdminPage = pathname && pathname.startsWith("/admin");
     const isEligibleUser = user?.uid && ["user", "moderator"].includes(user?.role);
 
     if (!isEligibleUser || isAdminPage) return;
@@ -40,7 +43,7 @@ export function useAnnouncement(user, pathname) {
     });
 
     return () => unsubscribe();
-  }, [user?.uid, user?.role, pathname]);
+  }, [user?.uid, user?.role, pathname, setCurrentAnnouncement, setIsAnnouncementVisible]);
 
   const markAnnouncementAsSeen = async (announcementId) => {
     if (!user?.uid) return;

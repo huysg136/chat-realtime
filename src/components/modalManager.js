@@ -1,7 +1,7 @@
-import React, { lazy, Suspense, useContext } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
-import { AppContext } from '../context/appProvider';
-import { AuthContext } from '../context/authProvider';
+import { useModalStore } from '../stores/useModalStore';
+import { useAuthStore } from '../stores/useAuthStore';
 import { ROUTERS } from '../configs/router';
 
 // Lazy load modals
@@ -16,18 +16,17 @@ const UpgradePlanModal = lazy(() => import('./modals/upgradePlanModal'));
 const PostDetailModal = lazy(() => import('./modals/postDetailModal'));
 
 export default function ModalManager() {
-    const {
-        isAddRoomVisible,
-        isInviteMemberVisible,
-        isProfileVisible,
-        isPendingInviteVisible,
-        isSettingsVisible,
-        isAnnouncementVisible,
-        isMyReportsVisible,
-        isUpgradePlanVisible,
-        isPostDetailVisible,
-    } = useContext(AppContext);
-    const { user } = useContext(AuthContext);
+    const isAddRoomVisible = useModalStore((state) => state.isAddRoomVisible);
+    const isInviteMemberVisible = useModalStore((state) => state.isInviteMemberVisible);
+    const isProfileVisible = useModalStore((state) => state.isProfileVisible);
+    const isPendingInviteVisible = useModalStore((state) => state.isPendingInviteVisible);
+    const isSettingsVisible = useModalStore((state) => state.isSettingsVisible);
+    const isAnnouncementVisible = useModalStore((state) => state.isAnnouncementVisible);
+    const isMyReportsVisible = useModalStore((state) => state.isMyReportsVisible);
+    const isUpgradePlanVisible = useModalStore((state) => state.isUpgradePlanVisible);
+    const isPostDetailVisible = useModalStore((state) => state.isPostDetailVisible);
+
+    const user = useAuthStore((state) => state.user);
     const location = useLocation();
 
     if (location.pathname === ROUTERS.USER.MAINTENANCE) {

@@ -15,7 +15,7 @@ import { uploadToR2 } from "../../../../services/uploadService";
 import { validateFile } from "../../../../utils/fileValidation";
 import { getToneMappings, buildPolishPrompt } from "../../../../utils/AI/tonePrompts";
 import { buildBotContextPrompt } from "../../../../utils/AI/botPrompts";
-import { transcribeAudio } from "../../../../utils/audio/audioService";
+import { transcribeAudio } from "../../../../services/audioService";
 import "./chatInput.scss";
 import { useTranslation } from "react-i18next";
 import { FaMagic } from "react-icons/fa";

@@ -2,8 +2,9 @@ import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Input, Avatar, Spin, Checkbox, Button } from 'antd';
-import { AppContext } from '../../context/appProvider';
-import { AuthContext } from '../../context/authProvider';
+import { useModalStore } from '../../stores/useModalStore';
+import { useChatStore } from '../../stores/useChatStore';
+import { useAuthStore } from '../../stores/useAuthStore';
 import { collection, query, where, orderBy, limit, getDocs, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import debounce from 'lodash/debounce';
@@ -13,9 +14,13 @@ import UserBadge from '../common/userBadge';
 import { ROUTERS } from '../../configs/router';
 
 export default function AddRoomModal() {
-  const { isAddRoomVisible, setIsAddRoomVisible, setSelectedRoomId, rooms, users } = useContext(AppContext);
+  const isAddRoomVisible = useModalStore((state) => state.isAddRoomVisible);
+  const setIsAddRoomVisible = useModalStore((state) => state.setIsAddRoomVisible);
+  const setSelectedRoomId = useChatStore((state) => state.setSelectedRoomId);
+  const rooms = useChatStore((state) => state.rooms);
+  const users = useChatStore((state) => state.users);
+  const user = useAuthStore((state) => state.user);
   const { t } = useTranslation();
-  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const uid = user?.uid;
 

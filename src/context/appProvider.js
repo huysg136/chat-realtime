@@ -1,78 +1,69 @@
-import React, { useState, useContext, useMemo, useEffect } from "react";
+import React, { useMemo, useEffect } from "react";
 import { AuthContext } from "./authProvider";
 import { useFirestore } from "../hooks/useFirestore";
 import { db } from "../firebase/config";
 import { useLocation } from "react-router-dom";
 import { doc, onSnapshot } from "firebase/firestore";
 import { useVideoCall } from "../hooks/useVideoCall";
-import { useModalState } from "../hooks/useModalState";
+import { useModalStore } from "../stores/useModalStore";
+import { useAppStore } from "../stores/useAppStore";
+import { useChatStore, getOtherUser, findCallerRoom } from "../stores/useChatStore";
 import { useAnnouncement } from "../hooks/useAnnouncement";
 
 export const AppContext = React.createContext();
 
-function getOtherUser(selectedRoom, users, currentUid) {
-  if (!selectedRoom || selectedRoom.type !== "private") return null;
-
-  const memberIds = (selectedRoom.members || [])
-    .map((m) => (typeof m === "string" ? m : m?.uid))
-    .filter(Boolean);
-
-  const membersData = memberIds
-    .map((mid) => {
-      const found = users.find(
-        (u) => String(u.uid).trim() === String(mid).trim()
-      );
-
-      // Người dùng chưa load xong → trả placeholder để UI không trống
-      if (!found && String(mid).trim() !== String(currentUid).trim()) {
-        return { uid: mid, displayName: "Loading...", photoURL: null, _isPlaceholder: true };
-      }
-
-      return found;
-    })
-    .filter(Boolean);
-
-  if (membersData.length !== 2) return null;
-
-  return membersData.find(
-    (m) => String(m.uid).trim() !== String(currentUid).trim()
-  );
-}
-
-function findCallerRoom(rooms, callerId, currentRoomId) {
-  const callerRoom = rooms.find((room) => {
-    if (room.type !== "private") return false;
-    return (room.members || []).some((m) => {
-      const memberId = typeof m === "string" ? m : m?.uid;
-      return String(memberId).trim() === String(callerId).trim();
-    });
-  });
-
-  return callerRoom?.id !== currentRoomId ? callerRoom : null;
-}
-
 export default function AppProvider({ children }) {
-  const [selectedRoomId, setSelectedRoomId] = useState("");
-  const [searchText, setSearchText] = useState("");
-  const [theme, setTheme] = useState("system");
-  const [isMaintenance, setIsMaintenance] = useState(false);
-  const [isActiveTab, setIsActiveTab] = useState("message");
+  const selectedRoomId = useChatStore((state) => state.selectedRoomId);
+  const setSelectedRoomId = useChatStore((state) => state.setSelectedRoomId);
+  const searchText = useChatStore((state) => state.searchText);
+  const setSearchText = useChatStore((state) => state.setSearchText);
+  const isActiveTab = useChatStore((state) => state.isActiveTab);
+  const setIsActiveTab = useChatStore((state) => state.setIsActiveTab);
+  const resetChatState = useChatStore((state) => state.resetChatState);
+  const setRoomsInStore = useChatStore((state) => state.setRooms);
+  const setUsersInStore = useChatStore((state) => state.setUsers);
+
+  const theme = useAppStore((state) => state.theme);
+  const setTheme = useAppStore((state) => state.setTheme);
+  const isMaintenance = useAppStore((state) => state.isMaintenance);
+  const setIsMaintenance = useAppStore((state) => state.setIsMaintenance);
+
+  const resetAllModals = useModalStore((state) => state.resetAllModals);
+
+  // Modal selectors for legacy AppContext compatibility
+  const isAddRoomVisible = useModalStore((s) => s.isAddRoomVisible);
+  const setIsAddRoomVisible = useModalStore((s) => s.setIsAddRoomVisible);
+  const isInviteMemberVisible = useModalStore((s) => s.isInviteMemberVisible);
+  const setIsInviteMemberVisible = useModalStore((s) => s.setIsInviteMemberVisible);
+  const isProfileVisible = useModalStore((s) => s.isProfileVisible);
+  const setIsProfileVisible = useModalStore((s) => s.setIsProfileVisible);
+  const isPendingInviteVisible = useModalStore((s) => s.isPendingInviteVisible);
+  const setIsPendingInviteVisible = useModalStore((s) => s.setIsPendingInviteVisible);
+  const isSettingsVisible = useModalStore((s) => s.isSettingsVisible);
+  const setIsSettingsVisible = useModalStore((s) => s.setIsSettingsVisible);
+  const isMyReportsVisible = useModalStore((s) => s.isMyReportsVisible);
+  const setIsMyReportsVisible = useModalStore((s) => s.setIsMyReportsVisible);
+  const isUpgradePlanVisible = useModalStore((s) => s.isUpgradePlanVisible);
+  const setIsUpgradePlanVisible = useModalStore((s) => s.setIsUpgradePlanVisible);
+  const isFriendsVisible = useModalStore((s) => s.isFriendsVisible);
+  const setIsFriendsVisible = useModalStore((s) => s.setIsFriendsVisible);
+  const isPostDetailVisible = useModalStore((s) => s.isPostDetailVisible);
+  const setIsPostDetailVisible = useModalStore((s) => s.setIsPostDetailVisible);
+  const activePostId = useModalStore((s) => s.activePostId);
+  const setActivePostId = useModalStore((s) => s.setActivePostId);
 
   const location = useLocation();
-  const { user } = useContext(AuthContext);
+  const { user } = React.useContext(AuthContext);
 
-  const modalState = useModalState();
   const announcementState = useAnnouncement(user, location.pathname);
 
   // Reset state khi logout
   useEffect(() => {
     if (!user?.uid) {
-      setSearchText("");
-      setSelectedRoomId("");
-      setIsActiveTab("message");
-      modalState.resetAllModals();
+      resetChatState();
+      resetAllModals();
     }
-  }, [user?.uid]);
+  }, [user?.uid, resetChatState, resetAllModals]);
 
   // Lắng nghe trạng thái bảo trì
   useEffect(() => {
@@ -80,7 +71,7 @@ export default function AppProvider({ children }) {
       setIsMaintenance(snap.exists() ? snap.data().maintenance : false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [setIsMaintenance]);
 
   const roomsCondition = useMemo(
     () => ({ fieldName: "members", operator: "array-contains", compareValue: user?.uid }),
@@ -89,6 +80,14 @@ export default function AppProvider({ children }) {
 
   const rooms = useFirestore("rooms", roomsCondition);
   const users = useFirestore("users");
+
+  useEffect(() => {
+    setRoomsInStore(rooms);
+  }, [rooms, setRoomsInStore]);
+
+  useEffect(() => {
+    setUsersInStore(users);
+  }, [users, setUsersInStore]);
 
   const selectedRoom = useMemo(
     () => rooms.find((room) => room.id === selectedRoomId),
@@ -119,20 +118,63 @@ export default function AppProvider({ children }) {
       otherUser,
       videoCallState,
 
-      selectedRoomId, setSelectedRoomId,
-      searchText, setSearchText,
-      theme, setTheme,
+      selectedRoomId,
+      setSelectedRoomId,
+      searchText,
+      setSearchText,
+      theme,
+      setTheme,
       isMaintenance,
-      isActiveTab, setIsActiveTab,
+      isActiveTab,
+      setIsActiveTab,
 
-      ...modalState,
+      isAddRoomVisible,
+      setIsAddRoomVisible,
+      isInviteMemberVisible,
+      setIsInviteMemberVisible,
+      isProfileVisible,
+      setIsProfileVisible,
+      isPendingInviteVisible,
+      setIsPendingInviteVisible,
+      isSettingsVisible,
+      setIsSettingsVisible,
+      isMyReportsVisible,
+      setIsMyReportsVisible,
+      isUpgradePlanVisible,
+      setIsUpgradePlanVisible,
+      isFriendsVisible,
+      setIsFriendsVisible,
+      isPostDetailVisible,
+      setIsPostDetailVisible,
+      activePostId,
+      setActivePostId,
+      resetAllModals,
+
       ...announcementState,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      rooms, users, selectedRoom, otherUser, videoCallState,
-      selectedRoomId, searchText, theme, isMaintenance, isActiveTab,
-      modalState, announcementState,
+      rooms,
+      users,
+      selectedRoom,
+      otherUser,
+      videoCallState,
+      selectedRoomId,
+      searchText,
+      theme,
+      isMaintenance,
+      isActiveTab,
+      isAddRoomVisible,
+      isInviteMemberVisible,
+      isProfileVisible,
+      isPendingInviteVisible,
+      isSettingsVisible,
+      isMyReportsVisible,
+      isUpgradePlanVisible,
+      isFriendsVisible,
+      isPostDetailVisible,
+      activePostId,
+      announcementState,
     ]
   );
 
