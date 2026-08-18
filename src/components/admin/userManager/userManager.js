@@ -1,11 +1,11 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../../../firebase/config";
 import {
   collection, onSnapshot, deleteDoc, doc,
   updateDoc, addDoc, deleteField, getDocs,
   query, where
 } from "firebase/firestore";
-import { AuthContext } from "../../../context/authProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
 import { toast } from "react-toastify";
 import {
   FiArrowUp, FiArrowDown, FiSlash, FiUnlock,
@@ -90,7 +90,7 @@ const TIER_VALUE = {
 };
 
 export default function UsersManager() {
-  const { user: currentUser } = useContext(AuthContext);
+  const currentUser = useAuthStore((state) => state.user);
   const [users, setUsers] = useState([]);
   const [bans, setBans] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -1,12 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import Searching from '../searching/searching';
 import RoomList from '../roomList/roomList';
 import FriendPanel from '../friendPanel/friendPanel';
-import { AppContext } from '../../../../context/appProvider';
+import { useChatStore } from '../../../../stores/useChatStore';
 import './sideBar.scss';
 
 export default function SideBar() {
-  const { isActiveTab } = useContext(AppContext);
+  const isActiveTab = useChatStore((state) => state.isActiveTab);
 
   if (isActiveTab === 'friends') {
     return (

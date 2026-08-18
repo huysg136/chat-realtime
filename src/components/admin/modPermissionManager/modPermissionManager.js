@@ -1,14 +1,14 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { Table, Switch, Space, Tag, Tooltip, Avatar } from "antd";
 import { db } from "../../../firebase/config";
 import { collection, query, where, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
-import { AuthContext } from "../../../context/authProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
 import NoAccess from "../noAccess/noAccess";
 import "./modPermissionManager.scss";
 
 export default function ModPermissionManager() {
-  const { user: currentUser } = useContext(AuthContext);
+  const currentUser = useAuthStore((state) => state.user);
   const [mods, setMods] = useState([]);
 
   useEffect(() => {

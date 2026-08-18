@@ -1,13 +1,13 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Layout, Avatar, Space } from "antd";
-import { AuthContext } from "../../../context/authProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
 import "./adminHeader.scss";
 import { useUserData } from "../../../hooks/useUserData";
 
 const { Header } = Layout;
 
 export default function AdminHeader() {
-  const { user } = useContext(AuthContext);
+  const user = useAuthStore((state) => state.user);
   const { role, photoURL, displayName, loading } = useUserData(user?.uid);
   return (
     <Header className="admin-header">

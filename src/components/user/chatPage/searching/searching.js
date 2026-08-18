@@ -1,17 +1,21 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Button } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { IoCreateOutline } from "react-icons/io5";
-import { AppContext } from "../../../../context/appProvider";
-import { AuthContext } from "../../../../context/authProvider";
+import { useModalStore } from "../../../../stores/useModalStore";
+import { useChatStore } from "../../../../stores/useChatStore";
+import { useAuthStore } from "../../../../stores/useAuthStore";
 import "./searching.scss";
 import { useTranslation } from "react-i18next";
 import UserBadge from "../../../common/userBadge";
 
 export default function Searching() {
-  const { setIsAddRoomVisible, searchText, setSearchText, selectedRoomId } = useContext(AppContext);
-  const { setIsPendingInviteVisible } = useContext(AppContext);
-  const { user } = useContext(AuthContext) || {};
+  const setIsAddRoomVisible = useModalStore((state) => state.setIsAddRoomVisible);
+  const setIsPendingInviteVisible = useModalStore((state) => state.setIsPendingInviteVisible);
+  const searchText = useChatStore((state) => state.searchText);
+  const setSearchText = useChatStore((state) => state.setSearchText);
+  const selectedRoomId = useChatStore((state) => state.selectedRoomId);
+  const user = useAuthStore((state) => state.user) || {};
   const [displayName, setDisplayName] = useState("");
   const [usernameHandle, setUsernameHandle] = useState("");
   const { t } = useTranslation();

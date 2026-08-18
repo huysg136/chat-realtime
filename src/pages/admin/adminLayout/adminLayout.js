@@ -4,15 +4,13 @@ import { Outlet, Navigate } from "react-router-dom";
 import AdminSidebar from "../adminSidebar/adminSidebar";
 import AdminHeader from "../adminHeader/adminHeader";
 import "./adminLayout.scss";
-import { useContext } from "react";
-import { AuthContext } from "../../../context/authProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
 import { ROUTERS } from "../../../configs/router";
 
 const { Content } = Layout;
 
 export default function AdminLayout() {
-
-  const { user } = useContext(AuthContext);
+  const user = useAuthStore((state) => state.user);
   if (!user || !["admin", "moderator"].includes(user.role)) {
     return <Navigate to={ROUTERS.USER.DIRECT} replace />;
   }

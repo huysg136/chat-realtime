@@ -1,5 +1,5 @@
 // components/Modal/MyReportsModal/MyReportsModal.js
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Table, Tag, Empty, Input, Select } from "antd";
 import { useTranslation } from "react-i18next";
 import { FiMessageSquare, FiClock } from "react-icons/fi";
@@ -7,8 +7,8 @@ import { db } from "../../firebase/config";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { toast } from "react-toastify";
 import "./myReportsModal.scss";
-import { AuthContext } from "../../context/authProvider";
-import { AppContext } from "../../context/appProvider";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { useModalStore } from "../../stores/useModalStore";
 import LoadingScreen from '../common/loadingScreen';
 
 const STATUS_COLORS = {
@@ -48,8 +48,9 @@ export default function MyReportsModal() {
   const [loading, setLoading] = useState(false);
 
   const { t, i18n } = useTranslation();
-  const { user } = useContext(AuthContext);
-  const { isMyReportsVisible, setIsMyReportsVisible } = useContext(AppContext);
+  const user = useAuthStore((state) => state.user);
+  const isMyReportsVisible = useModalStore((state) => state.isMyReportsVisible);
+  const setIsMyReportsVisible = useModalStore((state) => state.setIsMyReportsVisible);
 
   const [filters, setFilters] = useState({
     search: "",

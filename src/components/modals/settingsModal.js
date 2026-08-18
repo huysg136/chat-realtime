@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Card, Select, Switch } from "antd";
-import { AppContext } from "../../context/appProvider";
-import { AuthContext } from "../../context/authProvider";
+import { useModalStore } from "../../stores/useModalStore";
+import { useAuthStore } from "../../stores/useAuthStore";
 import { updateDocument, getUserDocIdByUid } from "../../firebase/services";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,8 +16,10 @@ import { useTranslation } from "react-i18next";
 const { Option } = Select;
 
 export default function SettingsModal() {
-  const { isSettingsVisible, setIsSettingsVisible } = useContext(AppContext);
-  const { user, setUser } = useContext(AuthContext);
+  const isSettingsVisible = useModalStore((state) => state.isSettingsVisible);
+  const setIsSettingsVisible = useModalStore((state) => state.setIsSettingsVisible);
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
   const { t, i18n } = useTranslation();
 
   const [theme, setTheme] = useState(user?.theme || "system");

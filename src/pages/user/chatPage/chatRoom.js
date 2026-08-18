@@ -1,11 +1,11 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import SideBar from "../../../components/user/chatPage/sideBar/sideBar"
 import ChatWindow from "../../../components/user/chatPage/chatWindow/chatWindow";
 import ChatDetailPanel from "../../../components/user/chatPage/chatDetailPanel/chatDetailPanel";
 import TransferOwnershipModal from "../../../components/modals/transferOwnershipModal";
 import IncomingCallUI from "../../../components/common/IncomingCallUI";
-import { AppContext } from "../../../context/appProvider";
-import { AuthContext } from "../../../context/authProvider";
+import { useChatStore } from "../../../stores/useChatStore";
+import { useAuthStore } from "../../../stores/useAuthStore";
 import { useParams, useNavigate } from "react-router-dom";
 import { ROUTERS } from "../../../configs/router";
 import "./chatRoom.scss";
@@ -16,8 +16,12 @@ export default function ChatRoom() {
     const [selectedTransferUid, setSelectedTransferUid] = useState(null);
     const [leavingLoading, setLeavingLoading] = useState(false);
 
-    const { rooms, users, selectedRoomId, setSelectedRoomId, videoCallState } = useContext(AppContext);
-    const { user = {} } = useContext(AuthContext) || {};
+    const rooms = useChatStore((state) => state.rooms);
+    const users = useChatStore((state) => state.users);
+    const selectedRoomId = useChatStore((state) => state.selectedRoomId);
+    const setSelectedRoomId = useChatStore((state) => state.setSelectedRoomId);
+    const videoCallState = useChatStore((state) => state.videoCallState);
+    const user = useAuthStore((state) => state.user) || {};
     const uid = user.uid || "";
 
     const selectedRoom = rooms.find(r => r.id === selectedRoomId) || null;

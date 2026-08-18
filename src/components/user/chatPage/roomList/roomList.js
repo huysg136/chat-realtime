@@ -1,15 +1,18 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
-import { AppContext } from "../../../../context/appProvider";
-import { AuthContext } from "../../../../context/authProvider";
+import React, { useEffect, useState, useMemo } from "react";
+import { useChatStore } from "../../../../stores/useChatStore";
+import { useAuthStore } from "../../../../stores/useAuthStore";
 import RoomItem from "./roomItem";
 import { db } from "../../../../firebase/config";
 import { doc, onSnapshot } from "firebase/firestore";
 import "./roomList.scss";
 
 export default function RoomList() {
-  const { rooms = [], users = [], selectedRoomId, setSelectedRoomId, searchText } =
-    useContext(AppContext);
-  const { user } = useContext(AuthContext);
+  const rooms = useChatStore((state) => state.rooms) || [];
+  const users = useChatStore((state) => state.users) || [];
+  const selectedRoomId = useChatStore((state) => state.selectedRoomId);
+  const setSelectedRoomId = useChatStore((state) => state.setSelectedRoomId);
+  const searchText = useChatStore((state) => state.searchText);
+  const user = useAuthStore((state) => state.user);
   const [pinnedRooms, setPinnedRooms] = useState([]);
 
   useEffect(() => {

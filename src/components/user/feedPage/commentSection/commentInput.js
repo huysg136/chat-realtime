@@ -1,14 +1,13 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Avatar, Input, Button } from "antd";
 import { SendOutlined } from "@ant-design/icons";
-import { AuthContext } from "../../../../context/authProvider";
+import { useAuthStore } from "../../../../stores/useAuthStore";
 import { commentPost } from "../../../../services/postService";
-
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
 export default function CommentInput({ postId, postAuthorUid, parentId = null, replyToUser = null, onSubmitted, placeholder = "Viết bình luận...", onPostUpdated, commentsCount }) {
-  const { user } = useContext(AuthContext);
+  const user = useAuthStore((state) => state.user);
   const [value, setValue] = useState("");
   const [submitting, setSubmitting] = useState(false);
 

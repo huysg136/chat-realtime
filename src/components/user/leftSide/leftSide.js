@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   AiOutlineLogout,
   AiFillMessage,
@@ -6,13 +6,14 @@ import {
   AiFillHome,
   AiOutlineHome,
 } from "react-icons/ai";
-import { AuthContext } from "../../../context/authProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
+import { useModalStore } from "../../../stores/useModalStore";
+import { useChatStore } from "../../../stores/useChatStore";
 import { db } from "../../../firebase/config";
 import { getUserDocIdByUid } from "../../../firebase/services";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import "./leftSide.scss";
 import { SettingOutlined, LogoutOutlined } from '@ant-design/icons';
-import { AppContext } from '../../../context/appProvider';
 import { MdHome, MdOutlineAdminPanelSettings, MdOutlineHome, MdReportProblem } from "react-icons/md";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ROUTERS } from "../../../configs/router";
@@ -29,8 +30,15 @@ export default function LeftSide({ isExpanded }) {
   const location = useLocation();
   const [active, setActive] = useState("home");
   const [role, setRole] = useState("");
-  const { user, logout } = useContext(AuthContext);
-  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible, selectedRoomId: roomId, setSelectedRoomId, setIsActiveTab } = useContext(AppContext);
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const setIsProfileVisible = useModalStore((state) => state.setIsProfileVisible);
+  const setIsSettingsVisible = useModalStore((state) => state.setIsSettingsVisible);
+  const setIsMyReportsVisible = useModalStore((state) => state.setIsMyReportsVisible);
+  const setIsUpgradePlanVisible = useModalStore((state) => state.setIsUpgradePlanVisible);
+  const roomId = useChatStore((state) => state.selectedRoomId);
+  const setSelectedRoomId = useChatStore((state) => state.setSelectedRoomId);
+  const setIsActiveTab = useChatStore((state) => state.setIsActiveTab);
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const navigate = useNavigate();
   const { t } = useTranslation();

@@ -1,12 +1,12 @@
-import React, { useContext, useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, Dropdown, Tooltip, Modal, Input, Select } from "antd";
 import { MoreOutlined, DeleteOutlined, ExclamationCircleOutlined, EditOutlined, CloseOutlined } from "@ant-design/icons";
 import { formatTimeAgo, toTimestamp } from "../../../../utils/dateUtils";
 import { AiFillPicture } from "react-icons/ai";
 import PrivacyIcon, { PRIVACY_CONFIG } from "../../../common/privacyIcon";
-import { AuthContext } from "../../../../context/authProvider";
-import { AppContext } from "../../../../context/appProvider";
+import { useAuthStore } from "../../../../stores/useAuthStore";
+import { useChatStore } from "../../../../stores/useChatStore";
 import { getUserDocIdByUid } from "../../../../firebase/services";
 import { deletePost, updatePost } from "../../../../services/postService";
 import { toast } from "react-toastify";
@@ -19,11 +19,9 @@ const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b
 const NOT_FOUND_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png";
 const { confirm } = Modal;
 
-
-
 export default function PostHeader({ post, onPostUpdated, onPostDeleted }) {
-    const { user } = useContext(AuthContext);
-    const { users } = useContext(AppContext);
+    const user = useAuthStore((state) => state.user);
+    const users = useChatStore((state) => state.users);
     const navigate = useNavigate();
 
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);

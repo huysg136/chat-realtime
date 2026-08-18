@@ -1,8 +1,7 @@
-import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import LoadingScreen from '../components/common/loadingScreen';
-import { AuthContext } from "../context/authProvider";
-import { AppContext } from "../context/appProvider";
+import { useAuthStore } from "../stores/useAuthStore";
+import { useAppStore } from "../stores/useAppStore";
 import { ROUTERS } from "../configs/router";
 
 export default function PrivateRoute({
@@ -10,8 +9,9 @@ export default function PrivateRoute({
   requireAdmin = false,
   requirePermission = null
 }) {
-  const { user, isLoading: isAuthLoading } = useContext(AuthContext);
-  const { isMaintenance } = useContext(AppContext);
+  const user = useAuthStore((state) => state.user);
+  const isAuthLoading = useAuthStore((state) => state.isLoading);
+  const isMaintenance = useAppStore((state) => state.isMaintenance);
 
   // Loading state
   if (isAuthLoading) {

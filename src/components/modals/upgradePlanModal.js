@@ -1,6 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Modal, Button } from "antd";
-import { AppContext } from "../../context/appProvider";
+import { useModalStore } from "../../stores/useModalStore";
+import { useAuthStore } from "../../stores/useAuthStore";
 import {
   IoCheckmarkCircle,
   IoCloseCircle,
@@ -10,14 +11,14 @@ import "./upgradePlanModal.scss";
 import UserBadge from "../common/userBadge";
 import { planConfigs } from "../../configs/planConfigs";
 import { useTranslation } from "react-i18next";
-import { AuthContext } from "../../context/authProvider";
 
 const PLAN_KEYS = ["free", "lite", "pro", "max"];
 
 export default function UpgradeModal() {
-  const { isUpgradePlanVisible, setIsUpgradePlanVisible } = useContext(AppContext);
+  const isUpgradePlanVisible = useModalStore((state) => state.isUpgradePlanVisible);
+  const setIsUpgradePlanVisible = useModalStore((state) => state.setIsUpgradePlanVisible);
   const { t, i18n } = useTranslation();
-  const { user } = useContext(AuthContext);
+  const user = useAuthStore((state) => state.user);
 
   const premiumLevel = user?.premiumLevel;
   const [selectedPlan, setSelectedPlan] = useState(premiumLevel);

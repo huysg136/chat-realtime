@@ -1,12 +1,12 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, Tooltip, Modal } from "antd";
 import { HeartFilled, HeartOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { formatTimeAgo, toTimestamp } from "../../../../utils/dateUtils";
 import { doc, updateDoc, arrayUnion, arrayRemove, writeBatch, collection, query, where, getDocs } from "firebase/firestore";
 import { likeComment, deleteComment } from "../../../../services/postService";
 import { db } from "../../../../firebase/config";
-import { AuthContext } from "../../../../context/authProvider";
-import { AppContext } from "../../../../context/appProvider";
+import { useAuthStore } from "../../../../stores/useAuthStore";
+import { useChatStore } from "../../../../stores/useChatStore";
 import { deleteDocument } from "../../../../firebase/services";
 import CommentInput from "./commentInput";
 import LikeListModal from "../likeListModal/likeListModal";
@@ -14,13 +14,11 @@ import UserBadge from "../../../common/userBadge";
 
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
-
-
 const { confirm } = Modal;
 
 export default function CommentItem({ comment, postId, repliesMap = {}, rootParentId = null, isPreview = false, onPostUpdated, commentsCount }) {
-    const { user } = useContext(AuthContext);
-    const { users } = useContext(AppContext);
+    const user = useAuthStore((state) => state.user);
+    const users = useChatStore((state) => state.users);
 
     const author = users.find(u => u.uid === comment.uid) || {};
     const replies = repliesMap[comment.id] || [];

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   AiFillHome, AiOutlineHome,
@@ -6,8 +6,8 @@ import {
   AiOutlineTeam
 } from "react-icons/ai";
 import { FaUser, FaRegUser } from "react-icons/fa6";
-import { AuthContext } from "../../../context/authProvider";
-import { AppContext } from "../../../context/appProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
+import { useChatStore } from "../../../stores/useChatStore";
 import { ROUTERS } from "../../../configs/router";
 import { useFriends } from "../../../hooks/useFriends";
 import "./bottomNav.scss";
@@ -15,8 +15,10 @@ import "./bottomNav.scss";
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useContext(AuthContext);
-  const { selectedRoomId: roomId, setSelectedRoomId, setIsActiveTab } = useContext(AppContext);
+  const user = useAuthStore((state) => state.user);
+  const roomId = useChatStore((state) => state.selectedRoomId);
+  const setSelectedRoomId = useChatStore((state) => state.setSelectedRoomId);
+  const setIsActiveTab = useChatStore((state) => state.setIsActiveTab);
   const { receivedRequests } = useFriends();
   const [active, setActive] = useState("home");
 

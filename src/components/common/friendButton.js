@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Dropdown } from "antd";
 import { UserAddOutlined, UserDeleteOutlined } from "@ant-design/icons";
 import { FaUserFriends } from "react-icons/fa";
-import { AuthContext } from "../../context/authProvider";
+import { useAuthStore } from "../../stores/useAuthStore";
 import { MdCancelScheduleSend } from "react-icons/md";
 import { AiOutlineClockCircle, AiOutlineCheck } from "react-icons/ai";
 import {
@@ -31,7 +31,7 @@ import "../../components/user/chatPage/friendPanel/friendPanel.scss"
  */
 export default function FriendButton({ targetUid, size = "small" }) {
     const { t } = useTranslation();
-    const { user } = useContext(AuthContext);
+    const user = useAuthStore((state) => state.user);
     const myUid = user?.uid;
 
     const [status, setStatus] = useState(null);

@@ -5,14 +5,17 @@ import OnlineFriends from "../../../components/user/feedPage/onlineFriends/onlin
 import FriendSuggestions from "../../../components/user/feedPage/friendSuggestions/friendSuggestions";
 import TrendingTopics from "../../../components/user/feedPage/trendingTopics/trendingTopics";
 import { useOutletContext, useParams } from "react-router-dom";
-import { AppContext } from "../../../context/appProvider";
+import { useModalStore } from "../../../stores/useModalStore";
+import { useChatStore } from "../../../stores/useChatStore";
 import "./feedPage.scss";
 
 export default function FeedPage() {
   const { feedSearchQuery } = useOutletContext();
   const [refreshTrigger, setRefreshTrigger] = React.useState(0);
   const { postId } = useParams();
-  const { setIsPostDetailVisible, setActivePostId, setIsActiveTab } = React.useContext(AppContext);
+  const setIsPostDetailVisible = useModalStore((state) => state.setIsPostDetailVisible);
+  const setActivePostId = useModalStore((state) => state.setActivePostId);
+  const setIsActiveTab = useChatStore((state) => state.setIsActiveTab);
 
   React.useEffect(() => {
     setIsActiveTab("home");

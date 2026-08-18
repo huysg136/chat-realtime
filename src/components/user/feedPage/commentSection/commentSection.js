@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { collection, query, where, orderBy, onSnapshot, getDocs } from "firebase/firestore";
 import { db } from "../../../../firebase/config";
-import { AppContext } from "../../../../context/appProvider";
+import { useChatStore } from "../../../../stores/useChatStore";
 import CommentItem from "./commentItem";
 import CommentInput from "./commentInput";
 import "./commentSection.scss";
 
 export default function CommentSection({ postId, postAuthorUid, isPreview = false, onPostUpdated, commentsCount, topComment }) {
   const [comments, setComments] = useState(topComment ? [topComment] : []);
-  const { users } = useContext(AppContext);
+  const users = useChatStore((state) => state.users);
   const commentScoresRef = React.useRef({});
 
   useEffect(() => {

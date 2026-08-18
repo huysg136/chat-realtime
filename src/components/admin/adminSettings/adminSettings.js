@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   Switch,
@@ -19,7 +19,7 @@ import { db } from "../../../firebase/config";
 import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import { toast } from 'react-toastify';
 import "./adminSettings.scss";
-import { AuthContext } from "../../../context/authProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
 import NoAccess from "../noAccess/noAccess";
 import utc from "dayjs/plugin/utc";
 
@@ -37,7 +37,7 @@ export default function AdminSettings() {
   const [actualExpectedResume, setActualExpectedResume] = useState(null);
 
   const [loading, setLoading] = useState(true);
-  const { user: currentUser } = useContext(AuthContext);
+  const currentUser = useAuthStore((state) => state.user);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "config", "appStatus"), (snap) => {

@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase/config";
-import { AppContext } from "../../context/appProvider";
+import { useModalStore } from "../../stores/useModalStore";
 import PostHeader from "../user/feedPage/postItem/postHeader";
 import PostContent from "../user/feedPage/postItem/postContent";
 import PostActions from "../user/feedPage/postItem/postActions";
@@ -12,7 +12,10 @@ import "../user/feedPage/postItem/postItem.scss";
 import "./postDetailModal.scss";
 
 export default function PostDetailModal() {
-  const { isPostDetailVisible, setIsPostDetailVisible, activePostId, setActivePostId } = useContext(AppContext);
+  const isPostDetailVisible = useModalStore((state) => state.isPostDetailVisible);
+  const setIsPostDetailVisible = useModalStore((state) => state.setIsPostDetailVisible);
+  const activePostId = useModalStore((state) => state.activePostId);
+  const setActivePostId = useModalStore((state) => state.setActivePostId);
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
 

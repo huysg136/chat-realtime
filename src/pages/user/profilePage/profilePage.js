@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, collection, query, where, onSnapshot, getDocs, limit } from "firebase/firestore";
 import { db } from "../../../firebase/config";
-import { AppContext } from "../../../context/appProvider";
-import { AuthContext } from "../../../context/authProvider";
+import { useChatStore } from "../../../stores/useChatStore";
+import { useAuthStore } from "../../../stores/useAuthStore";
+import { useModalStore } from "../../../stores/useModalStore";
 import { addDocument, generateAESKey } from "../../../firebase/services";
 import { ROUTERS } from "../../../configs/router";
 import PostList from "../../../components/user/feedPage/postList/postList";
@@ -29,8 +30,12 @@ import "./profilePage.scss";
 export default function ProfilePage() {
   const { uid } = useParams();
   const navigate = useNavigate();
-  const { users, setSelectedRoomId, setIsActiveTab } = useContext(AppContext);
-  const { user: currentUser } = useContext(AuthContext);
+  const users = useChatStore((state) => state.users);
+  const setSelectedRoomId = useChatStore((state) => state.setSelectedRoomId);
+  const setIsActiveTab = useChatStore((state) => state.setIsActiveTab);
+  const currentUser = useAuthStore((state) => state.user);
+  const isProfileVisible = useModalStore((state) => state.isProfileVisible);
+  const setIsProfileVisible = useModalStore((state) => state.setIsProfileVisible);
   const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [postCount, setPostCount] = useState(0);
@@ -41,7 +46,6 @@ export default function ProfilePage() {
   const [photoIndex, setPhotoIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
-  const { isProfileVisible, setIsProfileVisible } = useContext(AppContext);
   const [activeTab, setActiveTab] = useState("posts");
   const [isPendingSent, setIsPendingSent] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);

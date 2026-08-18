@@ -1,13 +1,13 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import PostHeader from "./postHeader";
 import PostContent from "./postContent";
 import PostActions from "./postActions";
 import CommentSection from "../commentSection/commentSection";
-import { AuthContext } from "../../../../context/authProvider";
+import { useAuthStore } from "../../../../stores/useAuthStore";
 import "./postItem.scss";
 
 export default function PostItem({ post, onPostUpdated, onPostDeleted }) {
-  const { user } = useContext(AuthContext);
+  const user = useAuthStore((state) => state.user);
   const [hasError, setHasError] = useState(false);
   const isOwner = user?.uid === post.uid;
 

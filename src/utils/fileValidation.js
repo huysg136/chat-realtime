@@ -22,9 +22,8 @@ export const getFileSizeLimit = (user) => {
 /**
  * Validate file trước khi upload
  * @param {File} file
- * @param {Object} user - user object từ AuthContext (có premiumLevel)
+ * @param {Object} user - user object từ useAuthStore (có premiumLevel)
  */
-
 export const validateFile = (file, user) => {
 
   if (!file) {

@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Modal, List, Avatar } from "antd";
-import { AppContext } from "../../../../context/appProvider";
+import { useChatStore } from "../../../../stores/useChatStore";
 import UserBadge from "../../../common/userBadge";
 import "./likeListModal.scss";
 
 export default function LikeListModal({ visible, onClose, uids }) {
-    const { users } = useContext(AppContext);
+    const users = useChatStore((state) => state.users);
 
     const likedUsers = (uids || [])
         .map(uid => users.find(u => u.uid === uid))

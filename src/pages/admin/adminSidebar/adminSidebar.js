@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Layout, Menu } from "antd";
 import {
   UserOutlined,
@@ -12,18 +12,17 @@ import { Link, useLocation } from "react-router-dom";
 import { IoMdReturnLeft } from "react-icons/io";
 import logo from "../../../images/logo_quik.png";
 import "./adminSidebar.scss";
-import { AuthContext } from "../../../context/authProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
+import { useChatStore } from "../../../stores/useChatStore";
 import { ROUTERS } from "../../../configs/router";
 import { MdReportProblem } from "react-icons/md";
-import { AppContext } from "../../../context/appProvider";
-
 
 const { Sider } = Layout;
 
 export default function AdminSidebar() {
   const location = useLocation();
-  const { user: currentUser } = useContext(AuthContext);
-  const { selectedRoomId: roomId } = useContext(AppContext);
+  const currentUser = useAuthStore((state) => state.user);
+  const roomId = useChatStore((state) => state.selectedRoomId);
 
   return (
     <Sider width={220} className="admin-sider">

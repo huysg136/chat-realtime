@@ -1,8 +1,9 @@
-import React, { useContext, useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Input, Avatar, Spin, Checkbox, Button } from 'antd';
-import { AppContext } from '../../context/appProvider';
-import { AuthContext } from '../../context/authProvider';
+import { useModalStore } from '../../stores/useModalStore';
+import { useChatStore } from '../../stores/useChatStore';
+import { useAuthStore } from '../../stores/useAuthStore';
 import { collection, query, where, orderBy, limit, getDocs, getDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { addDocument } from '../../firebase/services';
@@ -11,9 +12,13 @@ import './inviteMemberModal.scss';
 import UserBadge from '../common/userBadge';
 
 export default function InviteMemberModal() {
-  const { isInviteMemberVisible, setIsInviteMemberVisible, selectedRoomId, rooms, users } = useContext(AppContext);
+  const isInviteMemberVisible = useModalStore((state) => state.isInviteMemberVisible);
+  const setIsInviteMemberVisible = useModalStore((state) => state.setIsInviteMemberVisible);
+  const selectedRoomId = useChatStore((state) => state.selectedRoomId);
+  const rooms = useChatStore((state) => state.rooms);
+  const users = useChatStore((state) => state.users);
+  const user = useAuthStore((state) => state.user);
   const { t } = useTranslation();
-  const { user } = useContext(AuthContext);
   const uid = user?.uid;
 
   const [searchText, setSearchText] = useState('');

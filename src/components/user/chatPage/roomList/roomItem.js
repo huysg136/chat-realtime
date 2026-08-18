@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Avatar, Dropdown, Menu, Skeleton } from "antd";
 import { TeamOutlined, EllipsisOutlined, PushpinOutlined, DeleteOutlined } from "@ant-design/icons";
-import { AuthContext } from "../../../../context/authProvider";
+import { useAuthStore } from "../../../../stores/useAuthStore";
 import CircularAvatarGroup from "../../../common/circularAvatarGroup";
 import { decryptMessage } from "../../../../firebase/services";
 import { doc, onSnapshot, setDoc, updateDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomId }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const user = useAuthStore((state) => state.user);
   const [member, setMember] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(false);

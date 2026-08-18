@@ -1,4 +1,5 @@
-import React, { useContext, useMemo, useState, useCallback, useEffect } from "react";
+import React, { useMemo, useState, useCallback, useEffect } from "react";
+import debounce from "lodash/debounce";
 import { Avatar, Button, Input, Spin, Empty, Tabs, Popconfirm, Badge, ConfigProvider, theme as antTheme } from "antd";
 import {
   MessageOutlined,
@@ -9,9 +10,8 @@ import { FaUserXmark } from "react-icons/fa6";
 import { FaUserMinus, FaUserCheck } from "react-icons/fa";
 import { MdCancelScheduleSend } from "react-icons/md";
 import { AiOutlineClockCircle } from "react-icons/ai";
-import debounce from "lodash/debounce";
-import { AppContext } from "../../../../context/appProvider";
-import { AuthContext } from "../../../../context/authProvider";
+import { useChatStore } from "../../../../stores/useChatStore";
+import { useAuthStore } from "../../../../stores/useAuthStore";
 import { useFriends } from "../../../../hooks/useFriends";
 import {
   acceptFriendRequest,
@@ -53,8 +53,9 @@ function useIsDarkMode() {
 
 export default function FriendPanel() {
   const { t } = useTranslation();
-  const { users, setSelectedRoomId } = useContext(AppContext);
-  const { user } = useContext(AuthContext);
+  const users = useChatStore((state) => state.users);
+  const setSelectedRoomId = useChatStore((state) => state.setSelectedRoomId);
+  const user = useAuthStore((state) => state.user);
   const { friends, receivedRequests, sentRequests, loading } = useFriends();
   const navigate = useNavigate();
   const isDark = useIsDarkMode();

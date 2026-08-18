@@ -1,8 +1,8 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Avatar, Input, Button, Card, Progress } from 'antd';
 import { EditOutlined, UserOutlined, CameraOutlined } from '@ant-design/icons';
-import { AuthContext } from '../../context/authProvider';
-import { AppContext } from '../../context/appProvider';
+import { useAuthStore } from '../../stores/useAuthStore';
+import { useModalStore } from '../../stores/useModalStore';
 import { updateDocument, getUserDocIdByUid } from '../../firebase/services';
 import { db } from "../../firebase/config";
 import { toast } from 'react-toastify';
@@ -23,8 +23,11 @@ const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b
 const MAX_USERNAME_LENGTH = 20;
 
 export default function ProfileModal() {
-  const { user, setUser } = useContext(AuthContext);
-  const { isProfileVisible, setIsProfileVisible, setIsUpgradePlanVisible } = useContext(AppContext);
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+  const isProfileVisible = useModalStore((state) => state.isProfileVisible);
+  const setIsProfileVisible = useModalStore((state) => state.setIsProfileVisible);
+  const setIsUpgradePlanVisible = useModalStore((state) => state.setIsUpgradePlanVisible);
 
   const [displayName, setDisplayName] = useState(user?.displayName || '');
   const [username, setUsername] = useState(user?.username || '');

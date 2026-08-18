@@ -1,7 +1,7 @@
-import React, { useContext, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from 'antd';
-import { AuthContext } from '../../../../context/authProvider';
+import { useAuthStore } from '../../../../stores/useAuthStore';
 import { useFriends } from '../../../../hooks/useFriends';
 import { getFriendSuggestions } from '../../../../services/friendService';
 import UserBadge from '../../../common/userBadge';
@@ -49,7 +49,7 @@ export const clearFriendSuggestionsCache = (uid) => {
 
 export default function FriendSuggestions() {
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
+    const user = useAuthStore((state) => state.user);
     const { loading: friendsLoading } = useFriends();
     const [suggestedUsers, setSuggestedUsers] = useState([]);
     const [loading, setLoading] = useState(true);

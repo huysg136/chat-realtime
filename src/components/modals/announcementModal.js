@@ -1,20 +1,20 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Modal, Button } from "antd";
 import { BellOutlined } from "@ant-design/icons";
-import { AppContext } from "../../context/appProvider";
+import { useModalStore } from "../../stores/useModalStore";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { markAnnouncementAsSeen } from "../../hooks/useAnnouncement";
 import "./announcementModal.scss";
 
 export default function AnnouncementModal() {
-  const {
-    isAnnouncementVisible,
-    setIsAnnouncementVisible,
-    currentAnnouncement,
-    markAnnouncementAsSeen,
-  } = useContext(AppContext);
+  const isAnnouncementVisible = useModalStore((state) => state.isAnnouncementVisible);
+  const setIsAnnouncementVisible = useModalStore((state) => state.setIsAnnouncementVisible);
+  const currentAnnouncement = useModalStore((state) => state.currentAnnouncement);
+  const user = useAuthStore((state) => state.user);
 
   const handleClose = () => {
-    if (currentAnnouncement?.id) {
-      markAnnouncementAsSeen(currentAnnouncement.id);
+    if (currentAnnouncement?.id && user?.uid) {
+      markAnnouncementAsSeen(currentAnnouncement.id, user.uid);
     }
     setIsAnnouncementVisible(false);
   };

@@ -3,6 +3,17 @@ import { db } from "../firebase/config";
 import { doc, collection, query, where, onSnapshot, arrayUnion, updateDoc } from "firebase/firestore";
 import { useModalStore } from "../stores/useModalStore";
 
+export const markAnnouncementAsSeen = async (announcementId, uid) => {
+  if (!uid || !announcementId) return;
+  try {
+    await updateDoc(doc(db, "announcements", announcementId), {
+      hasSeenBy: arrayUnion(uid),
+    });
+  } catch (error) {
+    console.error("[useAnnouncement] markAnnouncementAsSeen failed:", error);
+  }
+};
+
 export function useAnnouncement(user, pathname) {
   const isAnnouncementVisible = useModalStore((s) => s.isAnnouncementVisible);
   const setIsAnnouncementVisible = useModalStore((s) => s.setIsAnnouncementVisible);
@@ -45,21 +56,15 @@ export function useAnnouncement(user, pathname) {
     return () => unsubscribe();
   }, [user?.uid, user?.role, pathname, setCurrentAnnouncement, setIsAnnouncementVisible]);
 
-  const markAnnouncementAsSeen = async (announcementId) => {
-    if (!user?.uid) return;
-    try {
-      await updateDoc(doc(db, "announcements", announcementId), {
-        hasSeenBy: arrayUnion(user.uid),
-      });
-    } catch (error) {
-      console.error("[useAnnouncement] markAnnouncementAsSeen failed:", error);
-    }
+  const handleMarkAsSeen = (announcementId) => {
+    return markAnnouncementAsSeen(announcementId, user?.uid);
   };
 
   return {
     isAnnouncementVisible,
     setIsAnnouncementVisible,
     currentAnnouncement,
-    markAnnouncementAsSeen,
+    markAnnouncementAsSeen: handleMarkAsSeen,
   };
 }
+

@@ -48,16 +48,21 @@ export const useChatStore = create((set) => ({
   rooms: [],
   users: [],
 
+  videoCallState: null,
+
   setSelectedRoomId: (selectedRoomId) => set({ selectedRoomId }),
   setSearchText: (searchText) => set({ searchText }),
   setIsActiveTab: (isActiveTab) => set({ isActiveTab }),
   setRooms: (rooms) => set({ rooms }),
   setUsers: (users) => set({ users }),
+  setVideoCallState: (videoCallState) => set({ videoCallState }),
 
   resetChatState: () =>
     set({
       selectedRoomId: "",
       searchText: "",
       isActiveTab: "message",
+      videoCallState: null,
     }),
 }));
+

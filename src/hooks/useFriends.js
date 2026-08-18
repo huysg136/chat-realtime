@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { db } from "../firebase/config";
 import {
   collection,
@@ -6,7 +6,7 @@ import {
   where,
   onSnapshot,
 } from "firebase/firestore";
-import { AuthContext } from "../context/authProvider";
+import { useAuthStore } from "../stores/useAuthStore";
 
 /**
  * Real-time hook for friend data.
@@ -18,7 +18,7 @@ import { AuthContext } from "../context/authProvider";
  *   loading        — boolean
  */
 export function useFriends() {
-  const { user } = useContext(AuthContext);
+  const user = useAuthStore((state) => state.user);
   const myUid = user?.uid;
 
   const [friends, setFriends] = useState([]);

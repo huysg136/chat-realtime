@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Avatar, Skeleton } from "antd";
 import { AiOutlineUsergroupAdd, AiOutlineLeft } from "react-icons/ai";
@@ -7,25 +7,25 @@ import CircularAvatarGroup from "../../../common/circularAvatarGroup";
 import UserBadge from "../../../common/userBadge";
 import { getOnlineStatus } from "../../../common/getOnlineStatus";
 import { useUserStatus } from "../../../../hooks/useUserStatus";
-import { AppContext } from "../../../../context/appProvider";
-import { AuthContext } from "../../../../context/authProvider";
+import { useChatStore, getOtherUser } from "../../../../stores/useChatStore";
+import { useModalStore } from "../../../../stores/useModalStore";
+import { useAuthStore } from "../../../../stores/useAuthStore";
 import { useTranslation } from "react-i18next";
 import { ROUTERS } from "../../../../configs/router";
 import "./chatHeader.scss";
 
 export default function ChatHeader({ onToggleDetail, banInfo }) {
-    const {
-        users,
-        setIsInviteMemberVisible,
-        videoCallState,
-        selectedRoom,
-        otherUser
-    } = useContext(AppContext);
-
-    const authContext = useContext(AuthContext) || {};
-    const user = authContext.user || {};
+    const users = useChatStore((state) => state.users);
+    const rooms = useChatStore((state) => state.rooms);
+    const selectedRoomId = useChatStore((state) => state.selectedRoomId);
+    const videoCallState = useChatStore((state) => state.videoCallState);
+    const setIsInviteMemberVisible = useModalStore((state) => state.setIsInviteMemberVisible);
+    const user = useAuthStore((state) => state.user) || {};
     const uid = user.uid || "";
     const navigate = useNavigate();
+
+    const selectedRoom = rooms.find((r) => r.id === selectedRoomId) || null;
+    const otherUser = getOtherUser(selectedRoom, users, uid);
 
     const { t } = useTranslation();
 

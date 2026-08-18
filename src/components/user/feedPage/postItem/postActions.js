@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
+import React from "react";
 import { HeartFilled, HeartOutlined, MessageOutlined, ShareAltOutlined } from "@ant-design/icons";
-import { AuthContext } from "../../../../context/authProvider";
-import { AppContext } from "../../../../context/appProvider";
+import { useAuthStore } from "../../../../stores/useAuthStore";
+import { useModalStore } from "../../../../stores/useModalStore";
 
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import { likePost } from "../../../../services/postService";
@@ -10,8 +10,10 @@ import { message as antMessage } from "antd";
 import LikeListModal from "../likeListModal/likeListModal";
 
 export default function PostActions({ post, showComments, onToggleComments, onPostUpdated }) {
-    const { user } = useContext(AuthContext);
-    const { isPostDetailVisible, setIsPostDetailVisible, setActivePostId } = useContext(AppContext);
+    const user = useAuthStore((state) => state.user);
+    const isPostDetailVisible = useModalStore((state) => state.isPostDetailVisible);
+    const setIsPostDetailVisible = useModalStore((state) => state.setIsPostDetailVisible);
+    const setActivePostId = useModalStore((state) => state.setActivePostId);
 
     const [showLikesModal, setShowLikesModal] = React.useState(false);
 

@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, Dropdown } from "antd";
 import { AiOutlineDown } from "react-icons/ai";
-import { AuthContext } from "../../../context/authProvider";
-import { AppContext } from "../../../context/appProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
+import { useModalStore } from "../../../stores/useModalStore";
 import { db } from "../../../firebase/config";
 import { getUserDocIdByUid } from "../../../firebase/services";
 import { doc, onSnapshot } from "firebase/firestore";
@@ -18,8 +18,12 @@ import { SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b6d5c38c96eb0e.jpeg";
 
 export default function UserMenu({ showChevron = false }) {
-  const { user, logout } = useContext(AuthContext);
-  const { setIsProfileVisible, setIsSettingsVisible, setIsMyReportsVisible, setIsUpgradePlanVisible } = useContext(AppContext);
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const setIsProfileVisible = useModalStore((state) => state.setIsProfileVisible);
+  const setIsSettingsVisible = useModalStore((state) => state.setIsSettingsVisible);
+  const setIsMyReportsVisible = useModalStore((state) => state.setIsMyReportsVisible);
+  const setIsUpgradePlanVisible = useModalStore((state) => state.setIsUpgradePlanVisible);
   const [role, setRole] = useState("");
   const [photoURL, setPhotoURL] = useState(defaultAvatar);
   const userStatus = useUserStatus(user?.uid);

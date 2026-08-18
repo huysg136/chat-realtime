@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Result,
   Button,
@@ -19,9 +19,9 @@ import { BsSunFill, BsMoonStarsFill, BsLaptop } from "react-icons/bs";
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { auth, db } from "../../../firebase/config";
-import { AuthContext } from "../../../context/authProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
+import { useAppStore } from "../../../stores/useAppStore";
 import { getUserDocIdByUid, updateDocument } from "../../../firebase/services";
-import { AppContext } from "../../../context/appProvider";
 import { Navigate } from "react-router-dom";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -38,14 +38,15 @@ dayjs.extend(timezone);
 
 export default function MaintenancePage() {
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const user = useAuthStore((state) => state.user);
 
   const [loading, setLoading] = useState(true);
   const [maintenance, setMaintenance] = useState(false);
   const [expectedResume, setExpectedResume] = useState(null);
   const [countdown, setCountdown] = useState(null);
   const [lang, setLang] = useState("vi");
-  const { theme, setTheme } = useContext(AppContext);
+  const theme = useAppStore((state) => state.theme);
+  const setTheme = useAppStore((state) => state.setTheme);
 
   const tz = "Asia/Bangkok"; // GMT+7
 

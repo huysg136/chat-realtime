@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useContext, useRef } from "react";
-import { AuthContext } from "../../../../context/authProvider";
+import React, { useEffect, useState, useRef } from "react";
+import { useAuthStore } from "../../../../stores/useAuthStore";
 import PostItem from "../postItem/postItem";
 import { getFeed, checkNewPosts } from "../../../../services/postService";
 import { Spin } from "antd";
@@ -45,7 +45,7 @@ export const clearFeedCache = (uid) => {
 };
 
 export default function PostList({ searchQuery, filterUserId, refreshTrigger }) {
-    const { user } = useContext(AuthContext);
+    const user = useAuthStore((state) => state.user);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isLazyLoading, setIsLazyLoading] = useState(false);

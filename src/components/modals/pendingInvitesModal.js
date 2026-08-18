@@ -1,7 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Button } from "antd";
-import { AppContext } from "../../context/appProvider";
-import { AuthContext } from "../../context/authProvider";
+import { useChatStore } from "../../stores/useChatStore";
+import { useModalStore } from "../../stores/useModalStore";
+import { useAuthStore } from "../../stores/useAuthStore";
 import { db } from "../../firebase/config";
 import { collection, query, where, getDocs, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { addDocument } from "../../firebase/services";
@@ -11,8 +12,10 @@ import { vi } from "date-fns/locale";
 import "./pendingInvitesModal.scss";
 
 export default function PendingInvitesModal() {
-  const { users, isPendingInviteVisible, setIsPendingInviteVisible } = useContext(AppContext);
-  const { user } = useContext(AuthContext);
+  const users = useChatStore((state) => state.users);
+  const isPendingInviteVisible = useModalStore((state) => state.isPendingInviteVisible);
+  const setIsPendingInviteVisible = useModalStore((state) => state.setIsPendingInviteVisible);
+  const user = useAuthStore((state) => state.user);
   const uid = user?.uid;
 
   const [pendingInvites, setPendingInvites] = useState([]);

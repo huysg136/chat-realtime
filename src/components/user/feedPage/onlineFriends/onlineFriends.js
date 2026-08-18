@@ -1,7 +1,7 @@
-import React, { useContext, useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Avatar } from 'antd';
-import { AppContext } from '../../../../context/appProvider';
-import { AuthContext } from '../../../../context/authProvider';
+import { useChatStore } from '../../../../stores/useChatStore';
+import { useAuthStore } from '../../../../stores/useAuthStore';
 import { useFriends } from '../../../../hooks/useFriends';
 import { useUserStatus } from '../../../../hooks/useUserStatus';
 import UserBadge from '../../../common/userBadge';
@@ -13,8 +13,9 @@ import { addDocument, generateAESKey } from "../../../../firebase/services";
 import './onlineFriends.scss';
 
 function OnlineFriendItem({ uid, onStatusChange }) {
-    const { users, setSelectedRoomId } = useContext(AppContext);
-    const { user: currentUser } = useContext(AuthContext);
+    const users = useChatStore((state) => state.users);
+    const setSelectedRoomId = useChatStore((state) => state.setSelectedRoomId);
+    const currentUser = useAuthStore((state) => state.user);
     const navigate = useNavigate();
 
     const friendInfo = users.find((u) => u.uid === uid);

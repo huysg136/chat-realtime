@@ -1,10 +1,10 @@
-import React, { useMemo, useContext, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, Dropdown, Menu } from "antd";
 import { FaRegCopy, FaImage, FaDownload, FaShareSquare, FaReply, FaVideo } from "react-icons/fa";
 import { MoreOutlined, UndoOutlined } from "@ant-design/icons";
-import { AppContext } from "../../../../context/appProvider";
-import { AuthContext } from "../../../../context/authProvider";
+import { useChatStore } from "../../../../stores/useChatStore";
+import { useAuthStore } from "../../../../stores/useAuthStore";
 import MediaRenderer from "./MediaRenderer";
 import { db } from "../../../../firebase/config";
 import { doc, onSnapshot, collection, query, where } from "firebase/firestore";
@@ -169,10 +169,11 @@ export default function Message({
   action, actor, target,
   transcript,
 }) {
-  const { rooms, selectedRoomId, users } = useContext(AppContext);
+  const rooms = useChatStore((state) => state.rooms);
+  const selectedRoomId = useChatStore((state) => state.selectedRoomId);
+  const users = useChatStore((state) => state.users);
   const { t } = useTranslation();
-  const authContext = useContext(AuthContext) || {};
-  const user = authContext.user || {};
+  const user = useAuthStore((state) => state.user) || {};
   const currentUid = user.uid || "";
   const currentPhotoURL = user.photoURL || null;
   const currentDisplayName = user.displayName || "Unknown";

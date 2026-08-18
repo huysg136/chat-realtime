@@ -1,25 +1,17 @@
 import './App.css';
 import { BrowserRouter, Routes } from 'react-router-dom';
 import './i18n/config';
-import { useContext } from 'react';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import AuthProvider, { AuthContext } from './context/authProvider';
-import AppProvider from './context/appProvider';
 import useApplyTheme from './hooks/useApplyTheme';
+import { useAuthInit } from './hooks/useAuthInit';
+import { useChatSync } from './hooks/useChatSync';
+import { useAuthStore } from './stores/useAuthStore';
+import LoadingScreen from './components/common/loadingScreen';
 
 import { renderPublicRoutes, renderUserRoutes, renderAdminRoutes, renderNotFoundRoute } from './routes/router';
-
 import ModalManager from './components/modalManager';
-
-function ThemeWrapper({ children }) {
-  const { user } = useContext(AuthContext);
-
-  useApplyTheme(user?.theme);
-
-  return children;
-}
 
 function AppRoutes() {
   return (
@@ -32,24 +24,38 @@ function AppRoutes() {
   );
 }
 
+function AppContent() {
+  useAuthInit();
+  useChatSync();
+
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
+
+  useApplyTheme(user?.theme);
+
+  if (isLoading) {
+    return <LoadingScreen fullScreen />;
+  }
+
+  return (
+    <>
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        toastClassName="small-toast"
+      />
+      <AppRoutes />
+      <ModalManager />
+    </>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <AppProvider>
-          <ThemeWrapper>
-            <ToastContainer
-              position="top-right"
-              autoClose={2000}
-              toastClassName="small-toast"
-            />
-            <AppRoutes />
-            <ModalManager />
-          </ThemeWrapper>
-        </AppProvider>
-      </AuthProvider>
+      <AppContent />
     </BrowserRouter>
   );
 }
 
-export default App;
+export default App;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { db } from "../../../firebase/config";
 import {
   collection,
@@ -15,8 +15,8 @@ import { Table, Button, Modal, Input, Switch, Space } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import "./announcementManager.scss";
 import { toast } from "react-toastify";
-import { AppContext } from "../../../context/appProvider";
-import { AuthContext } from "../../../context/authProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
+import { useChatStore } from "../../../stores/useChatStore";
 import NoAccess from "../noAccess/noAccess";
 import LoadingScreen from "../../common/loadingScreen";
 
@@ -30,9 +30,8 @@ export default function AnnouncementManager() {
   const [targetUids, setTargetUids] = useState("");
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
-  const { user: currentUser } = useContext(AuthContext);
-
-  const { users } = useContext(AppContext);
+  const currentUser = useAuthStore((state) => state.user);
+  const users = useChatStore((state) => state.users);
 
 
   useEffect(() => {

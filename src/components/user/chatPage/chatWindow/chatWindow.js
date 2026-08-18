@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Button, Avatar, Tooltip, Spin } from "antd";
 import { FaAngleDoubleDown } from "react-icons/fa";
 import {
@@ -13,8 +13,8 @@ import { db } from "../../../../firebase/config";
 import Message from "../message/message";
 import CircularAvatarGroup from "../../../common/circularAvatarGroup";
 import ChatInput from "../chatInput/chatInput";
-import { AppContext } from "../../../../context/appProvider";
-import { AuthContext } from "../../../../context/authProvider";
+import { useChatStore, getOtherUser } from "../../../../stores/useChatStore";
+import { useAuthStore } from "../../../../stores/useAuthStore";
 import { updateDocument, encryptMessage, decryptMessage } from "../../../../firebase/services";
 import ChatHeader from "../chatHeader/chatHeader";
 import VideoCallOverlay from "../videoCallOverlay/videoCallOverlay";
@@ -30,17 +30,15 @@ function formatDate(timestamp) {
 }
 
 export default function ChatWindow({ onToggleDetail }) {
-  const {
-    users,
-    selectedRoomId,
-    videoCallState,
-    selectedRoom: contextSelectedRoom,
-    otherUser: contextOtherUser
-  } = useContext(AppContext);
-
-  const authContext = useContext(AuthContext) || {};
-  const user = authContext.user || {};
+  const users = useChatStore((state) => state.users);
+  const rooms = useChatStore((state) => state.rooms);
+  const selectedRoomId = useChatStore((state) => state.selectedRoomId);
+  const videoCallState = useChatStore((state) => state.videoCallState);
+  const user = useAuthStore((state) => state.user) || {};
   const uid = user.uid || "";
+
+  const contextSelectedRoom = rooms.find((r) => r.id === selectedRoomId) || null;
+  const contextOtherUser = getOtherUser(contextSelectedRoom, users, uid);
 
   const [replyTo, setReplyTo] = useState(null);
   const inputRef = useRef(null);

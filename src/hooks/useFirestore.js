@@ -1,11 +1,12 @@
 import React from "react";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/config";
-import { AuthContext } from "../context/authProvider";
+import { useAuthStore } from "../stores/useAuthStore";
 
 export const useFirestore = (collectionName, condition) => {
   const [documents, setDocuments] = React.useState([]);
-  const { user } = React.useContext(AuthContext);
+  const user = useAuthStore((state) => state.user);
+
 
   React.useEffect(() => {
     if (!user?.uid) {

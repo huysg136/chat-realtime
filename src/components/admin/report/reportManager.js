@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../../../firebase/config";
 import {
   collection,
@@ -11,7 +11,7 @@ import {
   getDocs,
   addDoc,
 } from "firebase/firestore";
-import { AuthContext } from "../../../context/authProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
 import { notifyReportAction } from "../../../services/mailService";
 import { toast } from "react-toastify";
 import {
@@ -115,7 +115,7 @@ function formatBanDuration(value, unit) {
 }
 
 export default function ReportManager() {
-  const { user: currentUser } = useContext(AuthContext);
+  const currentUser = useAuthStore((state) => state.user);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({

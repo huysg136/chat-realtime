@@ -1,9 +1,9 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../../../firebase/config";
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, arrayRemove } from "firebase/firestore";
 import { decryptMessage } from "../../../firebase/services";
 import NoAccess from "../noAccess/noAccess";
-import { AuthContext } from "../../../context/authProvider";
+import { useAuthStore } from "../../../stores/useAuthStore";
 import { FiCopy, FiEye, FiTrash2, FiUserMinus } from "react-icons/fi";
 import { FaKey } from "react-icons/fa6";
 import { Table, Modal, Avatar } from "antd";
@@ -14,7 +14,7 @@ import UserBadge from "../../common/userBadge";
 import CircularAvatarGroup from "../../common/circularAvatarGroup";
 
 export default function RoomManager() {
-  const { user: currentUser } = useContext(AuthContext);
+  const currentUser = useAuthStore((state) => state.user);
   const [loading, setLoading] = useState(true);
   const [rooms, setRooms] = useState([]);
   const [uidToName, setUidToName] = useState({});

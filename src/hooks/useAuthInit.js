@@ -1,35 +1,35 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import app from "../firebase/config";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, onSnapshot } from "firebase/firestore";
-import LoadingScreen from '../components/common/loadingScreen';
 import { getUserDocIdByUid, updateDocument } from "../firebase/services";
-import { ROUTERS } from '../configs/router';
-import { useAuthStore } from '../stores/useAuthStore';
+import { ROUTERS } from "../configs/router";
+import { useAuthStore } from "../stores/useAuthStore";
+import { useChatStore } from "../stores/useChatStore";
+import { useModalStore } from "../stores/useModalStore";
 
-export const AuthContext = React.createContext();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-export default function AuthProvider({ children }) {
+export function useAuthInit() {
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
-  const isLoading = useAuthStore((state) => state.isLoading);
   const setIsLoading = useAuthStore((state) => state.setIsLoading);
-  const logout = useAuthStore((state) => state.logout);
   const updateStatus = useAuthStore((state) => state.updateStatus);
   const setCurrentUserDocId = useAuthStore((state) => state.setCurrentUserDocId);
+  const resetChatState = useChatStore((state) => state.resetChatState);
+  const resetAllModals = useModalStore((state) => state.resetAllModals);
 
   const navigate = useNavigate();
-  const unsubscribeUserRef = React.useRef(null);
-  const heartbeatRef = React.useRef(null);
+  const unsubscribeUserRef = useRef(null);
+  const heartbeatRef = useRef(null);
 
   const startHeartbeat = () => {
     stopHeartbeat();
     heartbeatRef.current = setInterval(() => {
       updateStatus(true);
-    }, 10000); // mỗi 10s
+    }, 10000); // Mỗi 10s
   };
 
   const stopHeartbeat = () => {
@@ -39,14 +39,14 @@ export default function AuthProvider({ children }) {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleVisibilityChange = () => {
       if (!useAuthStore.getState().currentUserDocId) return;
-      if (document.visibilityState === 'hidden') {
+      if (document.visibilityState === "hidden") {
         stopHeartbeat();
         updateStatus(false);
       } else {
-        updateStatus(true); // online NGAY
+        updateStatus(true);
         startHeartbeat();
       }
     };
@@ -68,28 +68,42 @@ export default function AuthProvider({ children }) {
         setCurrentUserDocId(userDocId);
 
         if (userDocId) {
-          await updateStatus(true); // online NGAY khi login
+          await updateStatus(true);
           startHeartbeat();
 
           const userDocRef = doc(db, "users", userDocId);
           const unsubscribeUser = onSnapshot(userDocRef, async (userSnap) => {
             const userData = userSnap.exists() ? userSnap.data() : {};
             const currentTime = new Date();
-            const premiumUntilDate = userData.premiumUntil?.toDate ? userData.premiumUntil.toDate() : (userData.premiumUntil ? new Date(userData.premiumUntil) : null);
-            if ((userData.premiumLevel === 'pro' || userData.premiumLevel === "max" || userData.premiumLevel === "lite") && premiumUntilDate && premiumUntilDate < currentTime) {
+            const premiumUntilDate = userData.premiumUntil?.toDate
+              ? userData.premiumUntil.toDate()
+              : userData.premiumUntil
+              ? new Date(userData.premiumUntil)
+              : null;
+
+            if (
+              (userData.premiumLevel === "pro" ||
+                userData.premiumLevel === "max" ||
+                userData.premiumLevel === "lite") &&
+              premiumUntilDate &&
+              premiumUntilDate < currentTime
+            ) {
               try {
-                await updateDocument("users", userDocId, { premiumLevel: 'free' });
+                await updateDocument("users", userDocId, { premiumLevel: "free" });
               } catch (error) {
                 console.error("Error downgrading premium:", error);
               }
             }
+
             setUser({
               uid,
               email,
               displayName,
               photoURL,
               ...userData,
-              premiumUntil: userData.premiumUntil?.toDate ? userData.premiumUntil.toDate() : userData.premiumUntil,
+              premiumUntil: userData.premiumUntil?.toDate
+                ? userData.premiumUntil.toDate()
+                : userData.premiumUntil,
             });
             setIsLoading(false);
             if (window.location.pathname === "/login") navigate(ROUTERS.USER.HOME);
@@ -97,7 +111,15 @@ export default function AuthProvider({ children }) {
 
           unsubscribeUserRef.current = unsubscribeUser;
         } else {
-          setUser({ displayName, email, photoURL, uid, role: "user", theme: "system", permissions: {} });
+          setUser({
+            displayName,
+            email,
+            photoURL,
+            uid,
+            role: "user",
+            theme: "system",
+            permissions: {},
+          });
           setIsLoading(false);
           if (window.location.pathname === "/login") navigate(ROUTERS.USER.HOME);
         }
@@ -105,34 +127,44 @@ export default function AuthProvider({ children }) {
         updateStatus(false);
         setCurrentUserDocId(null);
         setUser(null);
+        resetChatState();
+        resetAllModals();
         setIsLoading(false);
         stopHeartbeat();
         if (window.location.pathname !== "/login") navigate(ROUTERS.USER.LOGIN);
       }
     });
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       if (unsubscribeAuth) unsubscribeAuth();
       if (unsubscribeUserRef.current) unsubscribeUserRef.current();
       stopHeartbeat();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [navigate, setCurrentUserDocId, setIsLoading, setUser, updateStatus]);
+  }, [navigate, setCurrentUserDocId, setIsLoading, setUser, updateStatus, resetChatState, resetAllModals]);
 
-  React.useEffect(() => {
+  // Kiểm tra hạn gói Premium định kỳ mỗi phút
+  useEffect(() => {
     let interval;
-    if ((user?.premiumLevel === 'pro' || user?.premiumLevel === 'max' || user?.premiumLevel === 'lite') && user?.premiumUntil) {
+    if (
+      (user?.premiumLevel === "pro" ||
+        user?.premiumLevel === "max" ||
+        user?.premiumLevel === "lite") &&
+      user?.premiumUntil
+    ) {
       interval = setInterval(async () => {
         const now = new Date();
-        const premiumUntilDate = user.premiumUntil?.toDate ? user.premiumUntil.toDate() : new Date(user.premiumUntil);
+        const premiumUntilDate = user.premiumUntil?.toDate
+          ? user.premiumUntil.toDate()
+          : new Date(user.premiumUntil);
         if (!isNaN(premiumUntilDate.getTime()) && premiumUntilDate < now) {
           const userDocId = await getUserDocIdByUid(user.uid);
           if (userDocId) {
-            await updateDocument("users", userDocId, { premiumLevel: 'free' });
+            await updateDocument("users", userDocId, { premiumLevel: "free" });
           }
         }
       }, 60000);
@@ -140,23 +172,8 @@ export default function AuthProvider({ children }) {
 
     return () => {
       if (interval) clearInterval(interval);
-    }
+    };
   }, [user]);
-
-  const authContextValue = React.useMemo(() => ({
-    user,
-    setUser,
-    isLoading,
-    logout,
-  }), [user, setUser, isLoading, logout]);
-
-  return (
-    <AuthContext.Provider value={authContextValue}>
-      {isLoading ? (
-        <LoadingScreen fullScreen />
-      ) : (
-        children
-      )}
-    </AuthContext.Provider>
-  );
 }
+
+export default useAuthInit;

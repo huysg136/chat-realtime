@@ -1,11 +1,11 @@
-import React, { useState, useContext, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Avatar, Input, Button, Select } from "antd";
 import { SendOutlined, CloseOutlined } from "@ant-design/icons";
 import { AiFillPicture } from "react-icons/ai";
 import { MdEmojiEmotions } from "react-icons/md";
 import { FaVideo } from "react-icons/fa";
 import { PRIVACY_CONFIG } from "../../../common/privacyIcon";
-import { AuthContext } from "../../../../context/authProvider";
+import { useAuthStore } from "../../../../stores/useAuthStore";
 import { addDocument, getUserDocIdByUid } from "../../../../firebase/services";
 import { uploadToR2 } from "../../../../services/uploadService";
 import { createPost } from "../../../../services/postService";
@@ -21,7 +21,7 @@ const defaultAvatar = "https://images.spiderum.com/sp-images/9ae85f405bdf11f0a7b
 const NOT_FOUND_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png";
 
 export default function CreatePost({ onPostCreated }) {
-    const { user } = useContext(AuthContext);
+    const user = useAuthStore((state) => state.user);
     const [content, setContent] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
