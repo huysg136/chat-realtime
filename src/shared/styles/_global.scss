@@ -1,0 +1,348 @@
+* {
+  transition:
+    background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body,
+body * {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden; // Ngăn body scroll
+}
+
+#root {
+  height: 100%;
+}
+
+.copyable {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  max-width: 220px;
+
+  .text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .copy-icon {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    color: #94a3b8;
+  }
+
+  &:hover .copy-icon {
+    opacity: 1;
+  }
+
+  &:active .copy-icon {
+    color: #3b82f6;
+  }
+}
+
+
+// luxyry name gold shimmer effect
+@keyframes gold-wave {
+  0% {
+    background-position: -120% -120%;
+  }
+
+  100% {
+    background-position: 220% 220%;
+  }
+}
+
+.text-luxury-gold {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  background: linear-gradient(135deg,
+      #b8962e 0%,
+      #d4af37 35%,
+      #f6e27f 45%,
+      #d4af37 55%,
+      #b8962e 70%,
+      #b8962e 100%);
+  background-size: 300% 300%;
+  background-position: 0% 0%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gold-wave 6s linear infinite;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.theme-dark {
+  .text-luxury-gold {
+    background: linear-gradient(135deg,
+        #b8962e 0%,
+        #d4af37 35%,
+        #f6e27f 45%,
+        #d4af37 55%,
+        #b8962e 70%,
+        #b8962e 100%);
+    background-size: 300% 300%;
+    background-position: 0% 0%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gold-wave 6s linear infinite;
+    text-shadow: 0 0 6px rgba(255, 191, 0, 0.2);
+  }
+}
+
+// luxury name silver shimmer effect
+@keyframes silver-wave {
+  0% {
+    background-position: -120% -120%;
+  }
+
+  100% {
+    background-position: 220% 220%;
+  }
+}
+
+.text-luxury-silver {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  background: linear-gradient(135deg,
+      #6f7276 0%,
+      #9ea1a6 30%,
+      #e3e6ea 45%,
+      #9ea1a6 60%,
+      #6f7276 80%,
+      #6f7276 100%);
+  background-size: 300% 300%;
+  background-position: 0% 0%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: silver-wave 7s linear infinite;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+  -webkit-font-smoothing: antialiased;
+}
+
+
+body.theme-dark {
+  .text-luxury-silver {
+    background: linear-gradient(135deg,
+        #6b7280 0%,
+        #9ca3af 35%,
+        #e5e7eb 45%,
+        #9ca3af 55%,
+        #6b7280 70%,
+        #6b7280 100%);
+    background-size: 300% 300%;
+    background-position: 0% 0%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: silver-wave 7s linear infinite;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+  }
+}
+
+// luxury name bronze shimmer effect
+@keyframes bronze-wave {
+  0% {
+    background-position: -120% -120%;
+  }
+
+  100% {
+    background-position: 220% 220%;
+  }
+}
+
+.text-luxury-bronze {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  background: linear-gradient(135deg,
+      #7a4a2a 0%,
+      #a67c52 35%,
+      #d4a383 45%,
+      #a67c52 55%,
+      #7a4a2a 70%,
+      #7a4a2a 100%);
+  background-size: 300% 300%;
+  background-position: 0% 0%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: bronze-wave 8s linear infinite;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+  -webkit-font-smoothing: antialiased;
+}
+
+body.theme-dark {
+  .text-luxury-bronze {
+    background: linear-gradient(135deg,
+        #8c5e3c 0%,
+        #a0785a 35%,
+        #d4b595 45%,
+        #a0785a 55%,
+        #8c5e3c 70%,
+        #8c5e3c 100%);
+    background-size: 300% 300%;
+    background-position: 0% 0%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: bronze-wave 8s linear infinite;
+    text-shadow: 0 0 6px rgba(212, 181, 149, 0.2);
+  }
+}
+
+// .icon-max-shimmer {
+//   display: flex;
+//   align-items: center;
+//   filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.5));
+//   flex-shrink: 0; 
+// }
+
+*::-webkit-scrollbar {
+  width: 3px !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #c7c7c7 !important;
+  /* Nếu hiện màu đỏ là đã nhận, rồi mới sửa lại màu xám */
+}
+
+body.theme-dark {
+  .copyable .copy-icon {
+    color: #cbd5e1;
+
+    &:active {
+      color: #60a5fa;
+    }
+  }
+
+  .ant-dropdown-menu {
+    background-color: #303030;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    .ant-dropdown-menu-item {
+      color: #ffffff;
+
+      &:hover {
+        background-color: rgba(148, 163, 184, 0.1);
+        color: #e2e8f0;
+      }
+
+      &.ant-dropdown-menu-item-danger {
+        color: #ff4d4f;
+
+        &:hover {
+          background-color: rgba(255, 77, 79, 0.08);
+        }
+      }
+    }
+
+    .ant-dropdown-menu-item-divider {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 0;
+    }
+  }
+
+  .ant-pagination {
+    .ant-pagination-item {
+      background: #27354a;
+      border: 1px solid #475569;
+      color: #ffffff;
+
+      a {
+        color: #ffffff;
+      }
+
+      &:hover {
+        border-color: #60a5fa;
+        color: #93c5fd;
+      }
+
+      &.ant-pagination-item-active {
+        background: #27354a;
+        border: 2px solid #1d4ed8;
+      }
+    }
+
+    .ant-pagination-prev,
+    .ant-pagination-next {
+      background: #27354a;
+      border: 1px solid #475569;
+      color: #cbd5e1;
+
+      &:hover {
+        border-color: #60a5fa;
+        color: #93c5fd;
+      }
+
+      .ant-pagination-item-link {
+        color: #cbd5e1;
+
+        &:hover {
+          color: #93c5fd;
+        }
+      }
+    }
+
+    .ant-pagination-jump-prev,
+    .ant-pagination-jump-next {
+      color: #cbd5e1;
+    }
+  }
+
+  .ant-tooltip {
+    .ant-tooltip-inner {
+      background-color: #ffffff;
+      color: #000000;
+    }
+
+    .ant-tooltip-arrow::before {
+      background-color: #ffffff;
+    }
+  }
+
+  .ant-dropdown-menu-item-danger {
+    color: #ff4d4f;
+
+    &:hover {
+      background-color: rgba(255, 77, 79, 0.15) !important;
+      color: #ff7875 !important;
+
+      * {
+        color: #ff7875 !important;
+      }
+    }
+  }
+}
+
+.small-toast {
+  font-size: 14px !important;
+  padding: 8px 12px !important;
+}
+
+// Light Mode danger item hover
+.ant-dropdown-menu-item-danger {
+  color: #ff4d4f;
+
+  &:hover {
+    background-color: #fff1f0 !important;
+    color: #ff4d4f !important;
+
+    * {
+      color: #ff4d4f !important;
+    }
+  }
+}

@@ -1,0 +1,433 @@
+.profile-modal {
+
+  // ===== ANT DESIGN OVERRIDES =====
+  .ant-modal-content {
+    background-color: #ffffff;
+    color: #000;
+  }
+
+  .ant-modal-header,
+  .ant-modal-title,
+  .ant-modal-body {
+    background-color: #ffffff;
+    color: #000;
+  }
+
+  .ant-modal-close {
+    color: #000;
+
+    &:hover {
+      color: #000;
+    }
+  }
+
+  .ant-input {
+    background-color: #fff;
+    border-color: #d9d9d9;
+    color: #000;
+
+    &:focus,
+    &.ant-input-focused {
+      border-color: #1890ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+  }
+
+  // ===== CARD =====
+  .profile-card {
+    background-color: #ffffff;
+  }
+
+  // ===== BUTTONS =====
+  .camera-button {
+    background-color: #1890ff !important;
+    border-color: #1890ff !important;
+    color: #fff !important;
+  }
+
+  .save-button {
+    background-color: #1890ff !important;
+    border-color: #1890ff !important;
+    color: #fff !important;
+  }
+
+  .cancel-button {
+    color: #000 !important;
+    border-color: #d9d9d9 !important;
+  }
+
+  .upgrade-btn {
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 11px;
+    height: 28px;
+    padding: 0 12px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    border: none;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+      filter: brightness(1.1);
+    }
+  }
+
+  .avatar-section {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .avatar-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .avatar-img {
+    border: 4px solid #f0f0f0;
+  }
+
+  .camera-button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border: none !important;
+  }
+
+  .file-input-hidden {
+    display: none;
+  }
+
+  // ===== FIELD SECTION =====
+  .field-section {
+    margin-bottom: 10px;
+  }
+
+  .field-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2px;
+  }
+
+  .field-label {
+    font-weight: 600;
+    margin-right: 8px;
+    font-size: 14px;
+  }
+
+  .field-value {
+    font-size: 14px;
+  }
+
+  .field-edit-row {
+    display: flex;
+    gap: 8px;
+
+    .ant-input {
+      flex: 1;
+    }
+  }
+
+  // ===== USERNAME WARNINGS =====
+  .username-warning {
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  .warning-limit-reached {
+    color: #ff4d4f;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .warning-limit-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .warning-limit-sub {
+    font-size: 13px;
+    font-weight: 400;
+    opacity: 0.9;
+    color: #ff7875;
+  }
+
+  .warning-wait {
+    color: #d48806;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .membership-title {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+  }
+
+  .quota-usage-section {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 0 4px;
+
+    .quota-usage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 11px;
+    }
+
+    .quota-usage-label {
+      font-weight: 500;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .quota-usage-text {
+      color: #a1a1aa;
+    }
+
+    .quota-progress {
+      margin-bottom: 0;
+
+      .ant-progress-text {
+        font-size: 11px;
+        color: #71717a;
+        margin-left: 8px;
+      }
+
+      .ant-progress-inner {
+        height: 6px !important;
+        background-color: #f1f5f9;
+      }
+    }
+  }
+
+  .membership-card {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    border-radius: 14px;
+    transition: all 0.3s ease;
+    gap: 16px;
+
+    &--pro {
+      background: linear-gradient(135deg, #f7f7f8 0%, #ffffff 100%);
+      border: 1px solid rgba(156, 163, 175, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    &--lite {
+      background: linear-gradient(135deg, #fdf5ef 0%, #ffffff 100%);
+      border: 1px solid rgba(160, 120, 90, 0.2);
+      box-shadow: 0 2px 8px rgba(160, 120, 90, 0.05);
+    }
+
+    &--max {
+      background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+      border: 1px solid rgba(184, 134, 11, 0.2);
+      box-shadow: 0 4px 12px rgba(184, 134, 11, 0.1);
+    }
+
+    &--free {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+  }
+
+  .membership-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .membership-plan-name {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+
+    &--pro {
+      color: #374151;
+    }
+
+    &--lite {
+      color: #a0785a; // Bronze color
+    }
+
+    &--max {
+      color: #b8860b;
+    }
+
+    &--free {
+      color: #64748b;
+    }
+  }
+
+  .membership-expiry {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 1px;
+    font-weight: 500;
+  }
+
+  // ===== DARK MODE =====
+  body.theme-dark & {
+
+    .ant-modal-content,
+    .ant-modal-header,
+    .ant-modal-title,
+    .ant-modal-body,
+    .profile-card {
+      background-color: rgba(30, 30, 30, 0.95);
+      color: #f9fafb;
+    }
+
+    .ant-modal-close {
+      color: #ffffff;
+
+      &:hover {
+        color: #cdcdcd;
+      }
+    }
+
+    .ant-btn {
+
+      &-primary {
+        color: #fff;
+        background: #1677ff;
+        &:disabled {
+          opacity: 0.5 !important;
+        }
+        border-color: rgba(255, 255, 255, 0.2) !important;
+      }
+
+      &-color-defalut {
+        background: #000000 !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+      }
+
+      &-icon {
+        color: #c2c2c2;
+      }
+    }
+
+    .camera-button,
+    .save-button {
+      background-color: #3b82f6 !important;
+      border-color: #3b82f6 !important;
+      color: #fff !important;
+    }
+
+    .cancel-button {
+      color: #f9fafb !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .ant-input {
+      background-color: rgba(51, 51, 51, 0.95);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #f9fafb;
+
+      &::placeholder {
+        color: #cecece;
+      }
+    }
+
+    .field-label {
+      color: #f9fafb;
+    }
+
+    .field-value {
+      color: #d1d5db;
+    }
+
+    .quota-usage-section {
+      .quota-usage-label {
+        color: #a1a1aa;
+      }
+
+      .quota-usage-text {
+        color: #71717a;
+      }
+
+      .quota-progress {
+        .ant-progress-inner {
+          background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .ant-progress-bg {
+          box-shadow: 0 0 8px currentColor;
+        }
+
+        .ant-progress-text {
+          color: #f1f5f9;
+        }
+      }
+    }
+
+    .membership-section {
+      border-top-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .membership-card {
+      &--free {
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      &--pro {
+        background: linear-gradient(135deg, rgba(229, 231, 235, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+        border-color: rgba(156, 163, 175, 0.2);
+        box-shadow: 0 0 15px rgba(156, 163, 175, 0.05);
+
+        .membership-plan-name--pro {
+          color: #e5e7eb;
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      &--lite {
+        background: linear-gradient(135deg, rgba(160, 120, 90, 0.12) 0%, rgba(30, 30, 30, 0.95) 100%);
+        border-color: rgba(160, 120, 90, 0.4);
+        box-shadow: 0 0 15px rgba(160, 120, 90, 0.1);
+
+        .membership-plan-name--lite {
+          color: #d0a080; // Softer copper for dark mode
+          text-shadow: 0 0 10px rgba(208, 160, 128, 0.2);
+        }
+      }
+
+      &--max {
+        background: linear-gradient(135deg, rgba(184, 134, 11, 0.1) 0%, rgba(30, 30, 30, 0.95) 100%);
+        border-color: rgba(184, 134, 11, 0.4);
+        box-shadow: 0 0 20px rgba(184, 134, 11, 0.15);
+
+        .membership-plan-name--max {
+          color: #f6e27f;
+          text-shadow: 0 0 12px rgba(246, 226, 127, 0.2);
+        }
+      }
+    }
+
+    .membership-plan-name--free {
+      color: #9ca3af;
+    }
+
+    .avatar-img {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}

@@ -1,0 +1,24 @@
+@use "sass:map";
+@import "../../../../shared/styles/theme";
+
+.sidebar-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 2px solid rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  transition: all 0.3s;
+
+  body.theme-dark & {
+    background-color: map.get($theme-colors, "bg-dark");
+    color: #e5e7eb;
+    border-right: 2px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+
+.rooms-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}

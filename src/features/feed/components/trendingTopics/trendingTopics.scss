@@ -1,0 +1,106 @@
+.trending-topics {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+
+  &__header {
+    margin-top: 0;
+    margin-bottom: 4px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 0;
+    }
+  }
+
+  &__icon {
+    color: #1877f2;
+    font-size: 20px;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: #f0f2f5;
+    }
+  }
+
+  &__rank {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1877f2;
+    background: rgba(24, 119, 242, 0.1);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__tag {
+    font-size: 14px;
+    font-weight: 600;
+    color: #050505;
+  }
+
+  &__count {
+    font-size: 12px;
+    color: #65676b;
+  }
+}
+
+// Dark Mode
+body.theme-dark {
+  .trending-topics {
+    background: #2d2d2d;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+
+    &__item {
+      &:hover {
+        background: #3a3b3c;
+      }
+    }
+
+    &__tag {
+      color: #e4e6eb;
+    }
+
+    &__count {
+      color: #b0b3b8;
+    }
+  }
+
+  .trending-topics__header {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+
+    h3 {
+      color: #e2e8f0;
+    }
+  }
+}

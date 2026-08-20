@@ -1,0 +1,255 @@
+@use "sass:map";
+@import "../../../shared/styles/theme";
+@import "../../../shared/styles/responsive";
+
+.feed-page {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #f0f2f5;
+  box-sizing: border-box;
+
+  &__top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: #ffffff;
+    padding: 12px 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1877f2;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    letter-spacing: -0.5px;
+
+    &-img {
+      height: 32px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+  }
+
+  &__search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #f0f2f5;
+    border-radius: 20px;
+    padding: 6px 14px;
+    width: 280px;
+    transition: width 0.3s ease, background 0.3s ease;
+
+    &:focus-within {
+      width: 320px;
+      background: #e4e6eb;
+    }
+
+    .search-icon {
+      color: #65676b;
+      font-size: 18px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    input {
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      font-size: 14px;
+      color: #050505;
+
+      &::placeholder {
+        color: #65676b;
+      }
+    }
+  }
+
+  .search-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 10;
+    animation: fadeIn 0.2s ease;
+
+    &__item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: #f0f2f5;
+      }
+    }
+
+    &__name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #050505;
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-5px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  &__layout {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    align-items: flex-start;
+    width: 100%;
+    padding: 20px 16px 30px;
+
+    @include Responsive($MEDIUM_DEVICE) {
+      gap: 20px;
+      padding: 20px 12px;
+    }
+
+    @include Responsive($WIDE_MOBILE) {
+      padding: 0;
+    }
+  }
+
+  &__inner {
+    flex: 1;
+    max-width: 620px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  &__right-side {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-self: stretch;
+
+    &>*:last-child {
+      position: sticky;
+      top: 15px;
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2px;
+  }
+
+  // Thin scrollbar
+  &::-webkit-scrollbar {
+    width: 8px !important;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 8px !important;
+  }
+}
+
+// ─── Dark Mode ───────────────────────────────────────────────
+body.theme-dark {
+  .feed-page {
+    background: #1a1a1a;
+
+    &__top-bar {
+      background: #242526;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    &__search-wrapper {
+      background: #3a3b3c;
+
+      &:focus-within {
+        background: #4e4f50;
+      }
+
+      .search-icon {
+        color: #b0b3b8;
+      }
+
+      input {
+        color: #e4e6eb;
+
+        &::placeholder {
+          color: #b0b3b8;
+        }
+      }
+    }
+
+    .search-dropdown {
+      background: #242526;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+      &__item {
+        &:hover {
+          background: #3a3b3c;
+        }
+      }
+
+      &__name {
+        color: #e4e6eb;
+      }
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// ─── Responsive ──────────────────────────────────────────────
+@include Responsive($TABLET_DEVICE) {
+  .feed-page__right-side {
+    display: none;
+  }
+}
+
+@include Responsive($WIDE_MOBILE) {
+  .feed-page__right-side {
+    display: none;
+  }
+}
+
+@include Responsive($TABLET_DEVICE) {
+  .feed-page {
+    padding: 16px 24px;
+  }
+}
+
+@include Responsive($MEDIUM_DEVICE) {
+  .feed-page {
+    padding: 16px;
+  }
+}

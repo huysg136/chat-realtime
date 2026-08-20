@@ -1,0 +1,268 @@
+import React, { useEffect, useState, useMemo } from "react";
+import { Avatar, Dropdown, Menu, Skeleton } from "antd";
+import { TeamOutlined, EllipsisOutlined, PushpinOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useAuthStore } from "../../../auth/store/auth.store";
+import CircularAvatarGroup from "../../../../shared/components/CircularAvatarGroup";
+import { decryptMessage } from "../../../../shared/firebase/firestore";
+import { doc, onSnapshot, setDoc, updateDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../../../../shared/firebase/firebaseClient";
+import "./roomList.scss";
+import { useUserStatus } from "../../../../shared/hooks/useUserStatus";
+import UserBadge from "../../../../shared/components/UserBadge";
+import { ROUTERS } from "../../../../app/router/routePaths";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+export default function RoomItem({ room, users, selectedRoomId, setSelectedRoomId }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
+  const [member, setMember] = useState(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
+
+  const memberUids = Array.isArray(room.members)
+    ? room.members.map((m) => (typeof m === "string" ? m : m?.uid)).filter(Boolean)
+    : [];
+
+  const membersData = memberUids
+    .map((uid) => users.find((u) => String(u.uid).trim() === String(uid).trim()))
+    .filter(Boolean);
+
+  const isPrivate = room.type === "private" || (room.type !== "group" && memberUids.length === 2);
+  const isGroup = room.type === "group" || (!isPrivate && memberUids.length > 2);
+
+  const otherUser = isPrivate ? membersData.find((u) => u.uid !== user?.uid) : null;
+  const otherUserStatus = useUserStatus(otherUser?.uid);
+
+  const usersById = useMemo(() => {
+    const map = {};
+    users.forEach((u) => {
+      if (u && u.uid) map[String(u.uid).trim()] = u;
+    });
+    return map;
+  }, [users]);
+
+  const lm = room.lastMessage || {};
+  const lmUid = lm?.uid ? String(lm.uid).trim() : "";
+  const currentUid = user?.uid ? String(user.uid).trim() : "";
+  const isOwnMessage = lmUid === currentUid;
+  const sender = usersById[lmUid] || null;
+  const senderName = isOwnMessage ? t('roomList.you') : sender?.displayName || lm.displayName || "";
+
+  const toMs = (ts) => {
+    if (!ts) return null;
+    if (typeof ts === "number") return ts;
+    if (ts.seconds) return ts.seconds * 1000;
+    if (ts instanceof Date) return ts.getTime();
+    if (typeof ts === "string") return Date.parse(ts);
+    return null;
+  };
+  const timeAgo = (timestamp) => {
+    const ms = toMs(timestamp);
+    if (!ms) return "";
+    const diff = Math.floor((Date.now() - ms) / 1000);
+    if (diff < 10) return t('roomList.now');
+    if (diff < 60) return t('roomList.secondsAgo', { count: diff });
+    if (diff < 3600) return t('roomList.minutesAgo', { count: Math.floor(diff / 60) });
+    if (diff < 86400) return t('roomList.hoursAgo', { count: Math.floor(diff / 3600) });
+    if (diff < 172800) return t('roomList.yesterday');
+    const d = new Date(ms);
+    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+  };
+
+  useEffect(() => {
+    if (!user?.uid || !room?.id) return;
+
+    const memberRef = doc(db, `rooms/${room.id}/members/${user.uid}`);
+    const unsubscribeMember = onSnapshot(memberRef, (docSnap) => {
+      setMember(docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null);
+    });
+
+    const pinRef = doc(db, `pinned/${user.uid}`);
+    const unsubscribePin = onSnapshot(pinRef, (snap) => {
+      const data = snap.data();
+      setIsPinned(Array.isArray(data?.rooms) && data.rooms.includes(room.id));
+    });
+
+    return () => {
+      unsubscribeMember();
+      unsubscribePin();
+    };
+  }, [user?.uid, room?.id]);
+
+
+  const handleClick = () => {
+    navigate(
+      ROUTERS.USER.CHAT.replace(":roomId", room.id)
+    );
+  };
+
+  const handlePin = async () => {
+    if (!user?.uid) return;
+    const pinRef = doc(db, "pinned", user.uid);
+    const docSnap = await getDoc(pinRef);
+    let pinnedRooms = docSnap.exists() ? docSnap.data().rooms || [] : [];
+    pinnedRooms = pinnedRooms.includes(room.id)
+      ? pinnedRooms.filter((r) => r !== room.id)
+      : [...pinnedRooms, room.id];
+    await setDoc(pinRef, { rooms: pinnedRooms }, { merge: true });
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm(t('roomList.confirmDelete'))) return;
+    try {
+      const messagesRef = collection(db, "messages");
+      const q = query(messagesRef, where("roomId", "==", room.id));
+      const snapshot = await getDocs(q);
+      snapshot.forEach(async (docSnap) => {
+        const msg = docSnap.data();
+        if (!Array.isArray(msg.visibleFor)) return;
+        if (msg.visibleFor.includes(user.uid)) {
+          await updateDoc(docSnap.ref, { visibleFor: msg.visibleFor.filter((id) => id !== user.uid) });
+        }
+      });
+      const roomRef = doc(db, "rooms", room.id);
+      const roomSnap = await getDoc(roomRef);
+      if (roomSnap.exists()) {
+        const lastMessage = roomSnap.data().lastMessage || {};
+        if (Array.isArray(lastMessage.visibleFor)) {
+          await updateDoc(roomRef, { "lastMessage.visibleFor": lastMessage.visibleFor.filter((id) => id !== user.uid) });
+        }
+      }
+      setSelectedRoomId(null);
+    } catch (err) { }
+  };
+
+  const menuItems = [
+    {
+      key: "pin",
+      icon: <PushpinOutlined />,
+      label: isPinned ? t('roomList.unpin') : t('roomList.pin'),
+      onClick: handlePin,
+    },
+    {
+      type: 'divider',
+      style: { margin: "0" }
+    },
+    {
+      key: "delete",
+      icon: <DeleteOutlined style={{ color: "#ff4d4f" }} />,
+      label: <span style={{ color: "#ff4d4f", fontWeight: "500" }}>{t('roomList.delete')}</span>,
+      onClick: handleDelete,
+    }
+  ];
+
+  if (users.length === 0) {
+    return (
+      <div className="room-item">
+        <Skeleton avatar active paragraph={{ rows: 1, width: ['100%'] }} title={{ width: '50%' }} />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`room-item ${selectedRoomId === room.id ? "active" : ""}`}
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="room-avatar">
+        {isPrivate ? (
+          <div style={{ position: "relative", display: "inline-block" }}>
+            <Avatar
+              src={otherUser?.photoURL}
+              size={40}
+            >
+              {(otherUser?.displayName || "?").charAt(0).toUpperCase()}
+            </Avatar>
+            {otherUserStatus?.isOnline && otherUser?.showOnlineStatus && user?.showOnlineStatus && (
+              <span
+                style={{
+                  position: "absolute",
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  backgroundColor: "#4caf50",
+                  border: "2px solid white",
+                  bottom: 0,
+                  right: 0,
+                  boxShadow: "0 0 2px rgba(0,0,0,0.3)",
+                }}
+              />
+            )}
+          </div>
+        ) : (
+          <CircularAvatarGroup
+            members={membersData.map((u) => ({ id: u.uid, avatar: u.photoURL, name: u.displayName }))}
+            maxDisplay={3}
+          />
+        )}
+      </div>
+
+      <div className="room-info">
+        <p className="room-name">
+          {isGroup && <TeamOutlined style={{ marginRight: 8, color: "#8c8c8c" }} />}
+          {isPrivate ? (
+            <span>
+              <UserBadge displayName={otherUser?.displayName || "..."} role={otherUser?.role} premiumLevel={otherUser?.premiumLevel} premiumUntil={otherUser?.premiumUntil} />
+            </span>
+          ) : (
+            room.name || "No Name"
+          )}
+        </p>
+        {room.lastMessage ? (
+          <p className="last-message">
+            {lm.isRevoked ? (
+              `${senderName}: ${t('roomList.revoked')}`
+            ) : (
+              <>
+                {senderName}:{" "}
+                {(() => {
+                  const kind = lm.kind || "text";
+                  const decrypted =
+                    kind === "text" && room.secretKey
+                      ? decryptMessage(lm.text, room.secretKey)
+                      : lm.text || lm.content || "";
+
+                  switch (kind) {
+                    case "text":
+                      return decrypted;
+                    case "picture":
+                      return t('chatInput.media.picture');
+                    case "video":
+                      return t('chatInput.media.video');
+                    case "file":
+                      return t('chatInput.media.file');
+                    case "audio":
+                      return t('chatInput.media.voice');
+                    default:
+                      return decrypted;
+                  }
+                })()}
+              </>
+            )}
+          </p>
+        ) : (
+          <p className="last-message">{t('roomList.noMessages')}</p>
+        )}
+      </div>
+
+      <div className="room-right">
+        {isHovered ? (
+          <Dropdown menu={{ items: menuItems }} trigger={["click"]} placement="bottomRight">
+            <EllipsisOutlined className="more-icon" />
+          </Dropdown>
+        ) : (
+          <>
+            <span className="room-time">
+              {room.lastMessage?.createdAt ? timeAgo(room.lastMessage.createdAt) : ""}
+            </span>
+            {isPinned && <PushpinOutlined className="pin-icon pinned" />}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

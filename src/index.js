@@ -1,16 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import './style/style.scss';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import './shared/styles/reset.css';
+import './shared/styles/style.scss';
+import { bootstrap } from './app/bootstrap';
+import reportWebVitals from './shared/lib/reportWebVitals';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+bootstrap();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

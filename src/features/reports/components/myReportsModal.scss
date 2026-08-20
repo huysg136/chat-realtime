@@ -1,0 +1,53 @@
+.my-reports-modal {
+  .reports-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .message-cell {
+    .message-kind {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: #8c8c8c;
+      margin-bottom: 4px;
+
+      span {
+        text-transform: capitalize;
+      }
+    }
+
+    .message-text {
+      font-size: 13px;
+      color: #262626;
+      line-height: 1.4;
+    }
+  }
+
+  .time-cell {
+    display: flex;
+    align-items: center;
+    color: #8c8c8c;
+  }
+
+  .btn-view-detail {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #1890ff;
+      color: white;
+    }
+  }
+}

@@ -1,0 +1,204 @@
+@use "sass:map";
+@import "../../../../shared/styles/theme";
+@import "../../../../shared/styles/responsive";
+
+.searching-panel {
+  background: #ffffff; // light theme
+  display: flex;
+  flex-direction: column;
+  transition: background 0.3s, color 0.3s;
+
+  .user-header {
+    display: flex;
+    align-items: center;
+    //justify-content: space-between;
+    padding: 10px 8px 8px 16px;
+
+    .username-wrapper {
+      display: flex;
+      flex-direction: column;
+      padding: 4px 8px 4px 4px;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+
+      .username {
+        font-size: 12px;
+        font-weight: 400;
+        color: #7c7c7c;
+        line-height: 1.2;
+        cursor: default;
+        margin-top: 2px;
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      align-items: center;
+      //gap: 8px;      
+      margin-left: auto;
+    }
+
+    // .add-friend-btn {
+    //   width: 35px;
+    //   height: 35px;
+    //   display: flex;
+    //   align-items: center;
+    //   justify-content: center;
+    //   padding: 0;
+    //   color: #000; // light theme
+    //   margin-top: 3px;
+    //   font-size: 22px;
+    //   border-radius: 50%;
+    //   transition: background 0.3s, color 0.3s;
+
+    //   &:hover {
+    //     background-color: #f0f0f0;
+    //     color: #000;
+    //   }
+
+    //   .anticon {
+    //     display: flex;
+    //     align-items: center;
+    //     justify-content: center;
+    //   }
+    // }
+
+    .create-btn {
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      color: #000; // light theme
+      font-size: 24px;
+      border-radius: 50%;
+      transition: background 0.3s, color 0.3s;
+
+      &:hover {
+        background-color: #f0f0f0;
+        color: #000;
+      }
+
+      .anticon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+
+  .search-wrapper {
+    padding: 0px 16px 0px 16px;
+
+    .search-input {
+      background: #efefef; // light theme
+      border-radius: 8px;
+      padding: 6px 12px;
+      height: 36px;
+      transition: background 0.3s, color 0.3s;
+
+      .ant-input {
+        background: transparent;
+        font-size: 14px;
+        color: #000; // light theme
+        transition: color 0.3s;
+
+        &::placeholder {
+          color: #8e8e8e;
+        }
+      }
+
+      .search-icon {
+        color: #8e8e8e;
+        font-size: 16px;
+        margin-right: 4px;
+        transition: color 0.3s;
+      }
+    }
+  }
+
+  .room-header {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fff; // light theme
+    z-index: 10;
+    transition: background 0.3s, color 0.3s;
+
+    .header-1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #000;
+      transition: color 0.3s;
+    }
+
+    .header-2 {
+      font-size: 14px;
+      font-weight: 500;
+      color: #7c7c7c;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+  }
+
+  // Dark theme overrides
+  body.theme-dark & {
+    background: map.get($theme-colors, "bg-dark");
+
+    .user-header {
+      .username-wrapper .display-name {
+        color: #f3d47a;
+        text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+      }
+
+      .username-wrapper .username {
+        color: #d1d5db;
+      }
+
+      .create-btn {
+        color: #f9fafb;
+        background-color: map.get($theme-colors, "bg-dark");
+        border: none;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+          color: #fff;
+          border: none;
+        }
+      }
+    }
+
+    .search-wrapper .search-input {
+      background: rgba(255, 255, 255, 0.1);
+
+      .ant-input {
+        color: #f9fafb;
+
+        &::placeholder {
+          color: #d1d5db;
+        }
+      }
+
+      .search-icon {
+        color: #d1d5db;
+      }
+    }
+
+    .room-header {
+      background: map.get($theme-colors, "bg-dark");
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+      .header-1 {
+        color: #f9fafb;
+      }
+
+      .header-2 {
+        color: #d1d5db;
+      }
+    }
+  }
+}

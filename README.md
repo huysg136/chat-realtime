@@ -1,103 +1,65 @@
-# ⚡ Quik - Real-Time Chat, Video Call & Social Network
+<div align="center">
+  <img src="./src/images/logo_quik.png" alt="Quik logo" width="96" />
 
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
-![Zustand](https://img.shields.io/badge/State-Zustand-4338CA?logo=react&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-FFCA28?logo=firebase&logoColor=black)
-![Ant Design](https://img.shields.io/badge/Ant%20Design-5.0-0170FE?logo=antdesign&logoColor=white)
-[![Stringee](https://img.shields.io/badge/Stringee-Video%20Call-FF0000)](https://stringee.com/)
-[![Cloudflare R2](https://img.shields.io/badge/Cloudflare-R2_Storage-F38020?logo=cloudflare&logoColor=white)](https://www.cloudflare.com/developer-platform/r2/)
-[![AI](https://img.shields.io/badge/AI-Gemini%20%26%20Llama%203-4285F4?logo=google-gemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
-[![AssemblyAI](https://img.shields.io/badge/AssemblyAI-Speech%20to%20Text-673AB7)](https://www.assemblyai.com/)
+  # Quik
 
-> **Quik** là nền tảng mạng xã hội và nhắn tin thời gian thực toàn diện được xây dựng trên **React 18** và **Node.js**. Quik mang đến trải nghiệm nhắn tin bảo mật mã hoá đầu cuối (E2EE), gọi thoại/video chất lượng cao, chia sẻ bài viết, trợ lý ảo AI thông minh và hệ thống quản trị mạnh mẽ.
+  **Kết nối nhanh hơn. Trò chuyện gần nhau hơn.**
 
-🌐 **Trang chủ & Trải nghiệm trực tiếp:** [https://quik.id.vn](https://quik.id.vn)
+  Quik là nền tảng mạng xã hội thời gian thực kết hợp nhắn tin, gọi thoại/video,
+  chia sẻ nội dung và trợ lý AI trong một trải nghiệm thống nhất.
+
+  [Trải nghiệm Quik](https://quik.id.vn)
+</div>
 
 ---
 
-## 🌟 Tính năng nổi bật (Features)
+## Về Quik
 
-### 💬 Nhắn tin Realtime & Bảo mật (Chat & Messaging)
-* **Realtime Chat**: Gửi và nhận tin nhắn tức thì qua **Firebase Firestore**.
-* **Mã hoá đầu cuối (E2EE)**: Mã hoá tin nhắn bằng khoá bí mật AES riêng biệt cho từng phòng trò chuyện.
-* **Đa phương tiện**: Gửi ảnh, video, tệp tin dung lượng lớn, ghi âm giọng nói (Voice Note) kèm biểu đồ sóng âm (Waveform).
-* **Tự động nhận diện liên kết (Smart URL Linkifier)**: Tự động phát hiện và chuyển đổi link web trong tin nhắn thành liên kết bấm được.
-* **Trạng thái Online/Offline & Heartbeat**: Theo dõi trạng thái hoạt động theo thời gian thực qua Firebase Realtime Database.
-* **Xem ảnh toàn màn hình (Lightbox)** & Trình phát âm thanh/video tích hợp.
+Quik được xây dựng để mọi người có thể kết nối, trò chuyện và chia sẻ những khoảnh khắc hằng ngày một cách nhanh chóng. Sản phẩm kết hợp các tính năng của ứng dụng nhắn tin và mạng xã hội, đồng thời bổ sung công cụ AI, quản lý quyền riêng tư và hệ thống quản trị tập trung.
 
-### 📹 Gọi Video & Thoại chất lượng cao (Voice & Video Calls)
-* **Stringee SDK**: Gọi thoại 1-1 và gọi video HD ổn định, độ trễ thấp.
-* Tự động điều hướng và đồng bộ cuộc gọi ngay trong phòng chat.
+Giao diện của Quik hỗ trợ cả máy tính và thiết bị di động, hướng đến trải nghiệm trực quan, liền mạch và nhất quán trong mọi hoạt động — từ một cuộc trò chuyện riêng tư đến việc khám phá nội dung trên bảng tin.
 
-### 🤖 Trợ lý thông minh AI (AI Assistants)
-* **Google Gemini 2.5 & Groq Llama 3.1**: Tích hợp chatbot AI thông minh trả lời câu hỏi, tóm tắt nội dung và hỗ trợ người dùng.
-* **Chuyển giọng nói thành văn bản (Speech-to-Text)**: Tích hợp **AssemblyAI** giúp chuyển đổi tin nhắn thoại thành văn bản tức thì.
+## Trải nghiệm nổi bật
 
-### 📰 Bảng tin Mạng xã hội (Social Feed)
-* **Dòng thời gian tương tác**: Đăng bài viết, chia sẻ hình ảnh/video, thả tim (Like) và bình luận.
-* **Chủ đề thịnh hành (Trending Topics)**: Tự động phân tích và gắn thẻ hashtag thịnh hành.
-* **Gợi ý kết bạn thông minh (Friend Suggestions)**: Thuật toán Graph (Friend-of-Friends) tìm kiếm bạn bè phù hợp.
-* **Danh sách bạn bè trực tuyến (Online Friends)**: Cập nhật trạng thái bạn bè đang online realtime.
+### Nhắn tin thời gian thực
 
-### 💎 Quản lý Gói thành viên & Giới hạn (Subscription & Quota)
-* Phân cấp tài khoản: **Free**, **Lite**, **Pro**, **Max**.
-* Tự động kiểm tra hạn sử dụng gói và điều chỉnh hạn mức (Quota) tài nguyên.
+Gửi và nhận tin nhắn tức thì, chia sẻ hình ảnh, video, tệp và tin nhắn thoại. Quik hỗ trợ trạng thái hoạt động, phản hồi hội thoại và trải nghiệm đa phương tiện ngay trong phòng chat.
 
-### 🛡️ Trang quản trị nâng cao (Admin Dashboard)
-* **Thống kê tổng quan**: Biểu đồ trực quan hoá số lượng người dùng, tin nhắn, phòng chat với **Recharts & Chart.js**.
-* **Quản lý người dùng & phòng chat**: Xem chi tiết, phân quyền (User / Moderator / Admin), khóa/mở tài khoản.
-* **Hệ thống báo cáo (Reports)**: Tiếp nhận và xử lý vi phạm, tự động gửi email thông báo qua **Resend** (`no-reply@quik.id.vn`).
-* **Thông báo hệ thống (Announcements)**: Phát thông báo toàn hệ thống hoặc theo nhóm đối tượng mục tiêu.
-* **Chế độ bảo trì hệ thống (Maintenance Mode)**: Kích hoạt màn hình bảo trì tức thì trên toàn app.
+### Gọi thoại và video
 
----
+Thực hiện cuộc gọi trực tiếp từ cuộc trò chuyện với trải nghiệm liền mạch, giúp người dùng chuyển từ nhắn tin sang trao đổi bằng giọng nói hoặc hình ảnh mà không làm gián đoạn kết nối.
 
-## 🛠️ Công nghệ sử dụng (Tech Stack)
+### Bảng tin xã hội
 
-### Frontend
-- **Core**: ReactJS 18 (CRA)
-- **State Management**: **Zustand** (Modular Stores: `useAuthStore`, `useModalStore`, `useChatStore`, `useAppStore`)
-- **Giao diện & Styling**: Ant Design 5, SCSS, Styled Components, Lucide Icons, React Icons
-- **Đa ngôn ngữ (i18n)**: `react-i18next` (Tiếng Việt / English)
-- **Biểu đồ & Thống kê**: Chart.js, Recharts
-- **Tiện ích**: `dayjs`, `date-fns`, `crypto-js`, `emoji-picker-react`, `react-markdown`
+Đăng tải nội dung, chia sẻ khoảnh khắc, tương tác bằng lượt thích và bình luận, theo dõi chủ đề thịnh hành và khám phá những kết nối mới trong cộng đồng.
 
-### Backend & Cloud Services
-- **Runtime & API**: Node.js, Express.js
-- **Database**: Firebase Firestore, Firebase Realtime Database
-- **Caching Layer**: Upstash Redis (lưu cache feed, metadata và atomic counters)
-- **Lưu trữ tệp (Object Storage)**: Cloudflare R2 (tương thích S3 API)
-- **Cuộc gọi RTC**: Stringee SDK
-- **Speech-to-Text**: AssemblyAI
-- **Email Service**: Resend
+### Bạn bè và thông báo
+
+Tìm kiếm người dùng, gửi lời mời kết bạn, theo dõi trạng thái trực tuyến và nhận thông báo về những tương tác quan trọng theo thời gian thực.
+
+### Trợ lý AI
+
+Trợ lý AI được tích hợp trực tiếp vào Quik để hỗ trợ hội thoại, giải đáp câu hỏi và xử lý nội dung theo ngữ cảnh, giúp trải nghiệm giao tiếp trở nên nhanh chóng và tiện lợi hơn.
+
+### Gói thành viên
+
+Hệ thống thành viên Free, Lite, Pro và Max cung cấp các hạn mức và quyền lợi khác nhau, phù hợp với nhiều nhu cầu sử dụng.
+
+### Quản trị hệ thống
+
+Khu vực quản trị hỗ trợ theo dõi hoạt động, quản lý người dùng và phòng chat, phân quyền, xử lý báo cáo, phát thông báo và vận hành chế độ bảo trì.
+
+## Nền tảng công nghệ
+
+Quik sử dụng React và Zustand cho trải nghiệm phía người dùng; Node.js và Express cho hệ thống API; Firebase cho dữ liệu thời gian thực; Cloudflare R2 cho lưu trữ nội dung; Stringee cho cuộc gọi thoại/video; cùng các dịch vụ AI và xử lý giọng nói để mở rộng khả năng tương tác.
+
+## Liên kết
+
+- [Quik](https://quik.id.vn)
+- [Backend API](https://github.com/huysg136/chat-realtime-api)
 
 ---
 
-## 📂 Cấu trúc thư mục (Project Structure)
-
-```bash
-src/
-├── components/          # Các Component giao diện UI
-│   ├── admin/           # Quản trị viên (Dashboard, Settings, User/Room/Report Manager)
-│   ├── common/          # Component dùng chung (Loading, Badge, FriendButton,...)
-│   ├── modals/          # Các cửa sổ tương tác (Profile, Settings, AddRoom, UpgradePlan,...)
-│   └── user/            # Giao diện người dùng (ChatPage, FeedPage, Message, Comment,...)
-├── configs/             # Cấu hình routes, hằng số hệ thống
-├── context/             # Adapter/Bridge providers (hỗ trợ tương thích ngược)
-├── firebase/            # Khởi tạo Firebase SDK & các hàm CRUD dịch vụ
-├── hooks/               # Custom Hooks (useFirestore, useFriends, useVideoCall,...)
-├── i18n/                # Cấu hình đa ngôn ngữ (vi, en)
-├── layouts/             # Bố cục trang (LandingPage, UserLayout, AdminLayout)
-├── pages/               # Các trang chính (ChatRoom, Feed, Profile, Login, Admin, Maintenance)
-├── routes/              # Điều hướng & Route Guards (PrivateRoute, AdminRoute)
-├── services/            # Kết nối API backend (Post, Friend, Quota, AI)
-├── stores/              # Zustand Global Stores (Auth, Chat, Modal, App)
-├── stringee/            # Cấu hình & Client gọi video/thoại Stringee
-├── style/               # Global SCSS, theme variables, reset css
-└── utils/               # Hàm tiện ích (Encryption, Validate file, Format date)
-```
-
-
-
-## 🔗 Liên kết liên quan
-* 📦 **Backend API Repository:** [**chat-realtime-api**](https://github.com/huysg136/chat-realtime-api)
+<div align="center">
+  Made for meaningful connections.
+</div>

@@ -1,0 +1,228 @@
+@use "sass:map";
+@import "../../../shared/styles/theme";
+
+.sidebar {
+  height: 100vh;
+  width: 64px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  box-sizing: border-box;
+  border-right: 2px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.expanded {
+    width: 240px;
+    align-items: flex-start;
+    padding: 4px 16px;
+    background-color: transparent;
+    border-right: none;
+
+    .icon-group {
+      align-items: flex-start;
+      width: 100%;
+      gap: 8px;
+
+      .icon-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        width: 100%;
+        padding: 12px 24px;
+        border-radius: 16px;
+        font-size: 22px;
+        color: #65676b;
+        background-color: transparent;
+        transition: all 0.2s ease;
+
+        .icon-label {
+          font-size: 15px;
+          font-weight: 500;
+        }
+
+        svg {
+          color: #65676b;
+        }
+
+        &:hover {
+          background-color: #f0f2f5;
+          color: #050505;
+
+          svg {
+            color: #050505;
+          }
+        }
+
+        &.active {
+          background-color: #e8f0fe;
+          color: #1877f2;
+
+          .icon-label {
+            font-weight: 600;
+          }
+
+          svg {
+            color: #1877f2;
+          }
+        }
+      }
+    }
+
+    .user-avatar {
+      margin-left: 8px;
+    }
+  }
+
+  .user-avatar {
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: #888;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .icon-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    &.top {
+      margin-top: 12px;
+    }
+
+    &.bottom {
+      margin-top: auto;
+      margin-bottom: 0px;
+    }
+
+    .icon-item {
+      position: relative;
+      font-size: 26px;
+      color: #606060;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: all 0.3s;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: #222;
+      }
+
+      &.active {
+        background-color: #e7e7e7;
+        color: #707070;
+      }
+
+      svg {
+        display: block;
+      }
+
+      .nav-badge {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        height: 16px;
+        padding: 0 4px;
+        border-radius: 8px;
+        background: #ff4d4f;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 16px;
+        text-align: center;
+        pointer-events: none;
+      }
+    }
+  }
+}
+
+.upgrade-pro-item {
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  background: linear-gradient(135deg, #feffe5 0%, #ffffff 100%) !important;
+  color: #eac700 !important;
+
+  &:hover {
+    background: linear-gradient(135deg, #feffe5 0%, #feffe5 100%) !important;
+    box-shadow: 0 2px 8px rgba(114, 46, 209, 0.15);
+  }
+}
+
+body.theme-dark {
+  .sidebar {
+    background-color: map.get($theme-colors, "bg-dark");
+    border-right: 2px solid rgba(255, 255, 255, 0.1);
+
+    &.expanded {
+      background-color: transparent;
+      border-right: none;
+
+      .icon-group {
+        .icon-item {
+          color: #b0b3b8;
+
+          svg {
+            color: #b0b3b8;
+          }
+
+          &:hover {
+            background-color: #3a3b3c;
+            color: #e4e6eb;
+
+            svg {
+              color: #e4e6eb;
+            }
+          }
+
+          &.active {
+            background-color: rgba(24, 119, 242, 0.2);
+            color: #2e89ff;
+
+            svg {
+              color: #2e89ff;
+            }
+          }
+        }
+      }
+    }
+
+    .user-avatar {
+      &:hover {
+        border-color: #bebebe;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+      }
+    }
+
+    .icon-group {
+      .icon-item {
+        color: #ffffff;
+
+        &:hover {
+          background-color: rgba(148, 163, 184, 0.1);
+          color: #e2e8f0;
+        }
+
+        &.active {
+          background-color: #3e3e40;
+          color: #f1f5f9;
+        }
+      }
+    }
+  }
+
+  .upgrade-pro-item {
+    background: linear-gradient(135deg, rgba(209, 187, 46, 0.2) 0%, rgba(35, 35, 30, 0.5) 100%) !important;
+    color: #FFD700 !important;
+
+    &:hover {
+      background: rgba(209, 201, 46, 0.3) !important;
+      color: #FFD700 !important;
+    }
+  }
+}
