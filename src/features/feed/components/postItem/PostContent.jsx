@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import 'react-image-lightbox/style.css';
-import Lightbox from 'react-image-lightbox';
 import { MdErrorOutline } from "react-icons/md";
+import ImageLightbox from "../../../../shared/components/ImageLightbox";
 
 export default function PostContent({ post, hasError, setHasError, isOwner }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,9 +51,10 @@ export default function PostContent({ post, hasError, setHasError, isOwner }) {
                 onError={() => setHasError(true)}
               />
               {isOpen && (
-                <Lightbox
-                  mainSrc={post.mediaUrl}
-                  onCloseRequest={() => setIsOpen(false)}
+                <ImageLightbox
+                  open={isOpen}
+                  sources={[post.mediaUrl]}
+                  onClose={() => setIsOpen(false)}
                 />
               )}
             </>

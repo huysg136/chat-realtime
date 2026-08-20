@@ -22,8 +22,7 @@ import { FaMagic } from "react-icons/fa";
 import { hasEnoughQuota, increaseQuota, formatBytes, getQuotaLimit } from "../../../../shared/lib/quota";
 import { db } from "../../../../shared/firebase/firebaseClient";
 import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
-import 'react-image-lightbox/style.css';
-import Lightbox from 'react-image-lightbox';
+import ImageLightbox from '../../../../shared/components/ImageLightbox';
 
 const getVisibleFor = (selectedRoom) => {
   if (!selectedRoom) return [];
@@ -525,10 +524,10 @@ export default function ChatInput({
                     style={{ cursor: "pointer" }}
                   />
                   {isPreviewOpen && (
-                    <Lightbox
-                      mainSrc={filePreview}
-                      onCloseRequest={() => setIsPreviewOpen(false)}
-                      imageTitle={selectedFile.name}
+                    <ImageLightbox
+                      open={isPreviewOpen}
+                      sources={[filePreview]}
+                      onClose={() => setIsPreviewOpen(false)}
                     />
                   )}
                 </>

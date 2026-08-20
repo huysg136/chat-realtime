@@ -3,13 +3,12 @@ import ReactPlayer from 'react-player';
 import { useTranslation } from 'react-i18next';
 import 'react-h5-audio-player/lib/styles.css';
 import { MdAttachFile, MdImageNotSupported } from "react-icons/md";
-import 'react-image-lightbox/style.css';
-import Lightbox from 'react-image-lightbox';
 import { SlSpeech } from "react-icons/sl";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import ImageLightbox from '../../../../shared/components/ImageLightbox';
 
 
 const NOT_FOUND_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/a/a3/Image-not-found.png";
@@ -145,10 +144,10 @@ const MediaRenderer = ({ kind, content, fileName, isOwn, isRevoked, action, acto
           onError={() => setHasError(true)}
         />
         {isOpen && (
-          <Lightbox
-            mainSrc={content}
-            onCloseRequest={() => setIsOpen(false)}
-            imageTitle={fileName}
+          <ImageLightbox
+            open={isOpen}
+            sources={[content]}
+            onClose={() => setIsOpen(false)}
           />
         )}
       </>

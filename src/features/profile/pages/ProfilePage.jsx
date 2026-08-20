@@ -12,9 +12,8 @@ import CreatePost from "../../feed/components/createPost/CreatePost";
 import { Avatar, Button, Spin, Modal, Popover } from "antd";
 import { sendFriendRequest, cancelFriendRequest, unfriend } from "../../friends/api/friend.api";
 import { toast } from "react-toastify";
-import Lightbox from "react-image-lightbox";
 import UserBadge from "../../../shared/components/UserBadge";
-import "react-image-lightbox/style.css";
+import ImageLightbox from "../../../shared/components/ImageLightbox";
 import {
   AiOutlineArrowLeft,
   AiOutlineMail,
@@ -536,17 +535,12 @@ export default function ProfilePage() {
       )}
       {/* Image Preview Lightbox */}
       {isOpen && visiblePhotos.length > 0 && (
-        <Lightbox
-          mainSrc={visiblePhotos[photoIndex]}
-          nextSrc={visiblePhotos[(photoIndex + 1) % visiblePhotos.length]}
-          prevSrc={visiblePhotos[(photoIndex + visiblePhotos.length - 1) % visiblePhotos.length]}
-          onCloseRequest={() => setIsOpen(false)}
-          onMovePrevRequest={() =>
-            setPhotoIndex((photoIndex + visiblePhotos.length - 1) % visiblePhotos.length)
-          }
-          onMoveNextRequest={() =>
-            setPhotoIndex((photoIndex + 1) % visiblePhotos.length)
-          }
+        <ImageLightbox
+          open={isOpen}
+          sources={visiblePhotos}
+          current={photoIndex}
+          onClose={() => setIsOpen(false)}
+          onChange={setPhotoIndex}
         />
       )}
 
