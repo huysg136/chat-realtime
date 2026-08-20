@@ -3,57 +3,57 @@
 
   # Quik
 
-  **Kết nối nhanh hơn. Trò chuyện gần nhau hơn.**
+  **Connect faster. Feel closer.**
 
-  Quik là nền tảng mạng xã hội thời gian thực kết hợp nhắn tin, gọi thoại/video,
-  chia sẻ nội dung và trợ lý AI trong một trải nghiệm thống nhất.
+  Quik is a real-time social platform that brings messaging, voice and video
+  calls, content sharing, and AI assistance into one connected experience.
 
-  [Trải nghiệm Quik](https://quik.id.vn)
+  [Explore Quik](https://quik.id.vn)
 </div>
 
 ---
 
-## Về Quik
+## About Quik
 
-Quik được xây dựng để mọi người có thể kết nối, trò chuyện và chia sẻ những khoảnh khắc hằng ngày một cách nhanh chóng. Sản phẩm kết hợp các tính năng của ứng dụng nhắn tin và mạng xã hội, đồng thời bổ sung công cụ AI, quản lý quyền riêng tư và hệ thống quản trị tập trung.
+Quik is built for people to connect, communicate, and share everyday moments instantly. It combines the immediacy of a modern messaging app with the discovery and interaction of a social network, supported by AI-powered tools, privacy controls, and centralized platform management.
 
-Giao diện của Quik hỗ trợ cả máy tính và thiết bị di động, hướng đến trải nghiệm trực quan, liền mạch và nhất quán trong mọi hoạt động — từ một cuộc trò chuyện riêng tư đến việc khám phá nội dung trên bảng tin.
+Designed for both desktop and mobile, Quik delivers a consistent and intuitive experience across every interaction — from a private conversation to discovering new content in the social feed.
 
-## Trải nghiệm nổi bật
+## Highlights
 
-### Nhắn tin thời gian thực
+### Real-time messaging
 
-Gửi và nhận tin nhắn tức thì, chia sẻ hình ảnh, video, tệp và tin nhắn thoại. Quik hỗ trợ trạng thái hoạt động, phản hồi hội thoại và trải nghiệm đa phương tiện ngay trong phòng chat.
+Send and receive messages instantly, share images, videos, files, and voice notes, follow presence updates, reply in context, and enjoy rich media directly inside each conversation.
 
-### Gọi thoại và video
+### Voice and video calls
 
-Thực hiện cuộc gọi trực tiếp từ cuộc trò chuyện với trải nghiệm liền mạch, giúp người dùng chuyển từ nhắn tin sang trao đổi bằng giọng nói hoặc hình ảnh mà không làm gián đoạn kết nối.
+Move seamlessly from messaging to a voice or video call without leaving the conversation, keeping communication natural and uninterrupted.
 
-### Bảng tin xã hội
+### Social feed
 
-Đăng tải nội dung, chia sẻ khoảnh khắc, tương tác bằng lượt thích và bình luận, theo dõi chủ đề thịnh hành và khám phá những kết nối mới trong cộng đồng.
+Publish content, share moments, interact through likes and comments, discover trending topics, and find new connections across the community.
 
-### Bạn bè và thông báo
+### Friends and notifications
 
-Tìm kiếm người dùng, gửi lời mời kết bạn, theo dõi trạng thái trực tuyến và nhận thông báo về những tương tác quan trọng theo thời gian thực.
+Find people, send friend requests, see who is online, and receive real-time notifications for the interactions that matter.
 
-### Trợ lý AI
+### AI assistance
 
-Trợ lý AI được tích hợp trực tiếp vào Quik để hỗ trợ hội thoại, giải đáp câu hỏi và xử lý nội dung theo ngữ cảnh, giúp trải nghiệm giao tiếp trở nên nhanh chóng và tiện lợi hơn.
+Quik integrates contextual AI assistance into conversations to help answer questions, work with content, and make communication faster and more useful.
 
-### Gói thành viên
+### Membership plans
 
-Hệ thống thành viên Free, Lite, Pro và Max cung cấp các hạn mức và quyền lợi khác nhau, phù hợp với nhiều nhu cầu sử dụng.
+Free, Lite, Pro, and Max membership tiers provide different limits and benefits for a variety of usage needs.
 
-### Quản trị hệ thống
+### Platform administration
 
-Khu vực quản trị hỗ trợ theo dõi hoạt động, quản lý người dùng và phòng chat, phân quyền, xử lý báo cáo, phát thông báo và vận hành chế độ bảo trì.
+A centralized administration area supports activity monitoring, user and room management, permissions, reports, announcements, and maintenance operations.
 
-## Nền tảng công nghệ
+## Technology
 
-Quik sử dụng React và Zustand cho trải nghiệm phía người dùng; Node.js và Express cho hệ thống API; Firebase cho dữ liệu thời gian thực; Cloudflare R2 cho lưu trữ nội dung; Stringee cho cuộc gọi thoại/video; cùng các dịch vụ AI và xử lý giọng nói để mở rộng khả năng tương tác.
+Quik uses React and Zustand for the client experience, Node.js and Express for its API, Firebase for real-time data, Cloudflare R2 for media storage, Stringee for voice and video calls, and AI and speech services for enhanced interaction.
 
-## Liên kết
+## Links
 
 - [Quik](https://quik.id.vn)
 - [Backend API](https://github.com/huysg136/chat-realtime-api)
