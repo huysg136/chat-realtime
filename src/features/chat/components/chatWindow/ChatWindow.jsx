@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef, useEffect, useLayoutEffect } from "react";
 import { Button, Avatar, Tooltip, Spin } from "antd";
 import { FaAngleDoubleDown } from "react-icons/fa";
 import {
@@ -23,6 +23,44 @@ import "./chatWindow.scss";
 import { useTranslation } from "react-i18next";
 
 const MESSAGES_PER_PAGE = 20;
+
+const LOADING_BUBBLES = [
+  { own: false, width: "42%", lines: 2 },
+  { own: true, width: "34%", lines: 1 },
+  { own: false, width: "55%", lines: 2 },
+  { own: true, width: "46%", lines: 2 },
+  { own: false, width: "30%", lines: 1 },
+];
+
+function ChatRoomLoading({ label }) {
+  return (
+    <div className="chat-room-loading" role="status" aria-live="polite">
+      <div className="chat-room-loading__label">
+        <Spin size="small" />
+        <span>{label}</span>
+      </div>
+
+      <div className="chat-room-loading__conversation" aria-hidden="true">
+        {LOADING_BUBBLES.map((bubble, index) => (
+          <div
+            className={`chat-room-loading__message ${bubble.own ? "is-own" : ""}`}
+            key={`${bubble.own}-${index}`}
+          >
+            {!bubble.own && <span className="chat-room-loading__avatar" />}
+            <div
+              className="chat-room-loading__bubble"
+              style={{ width: bubble.width }}
+            >
+              {Array.from({ length: bubble.lines }).map((_, lineIndex) => (
+                <span key={lineIndex} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function formatDate(timestamp) {
   if (!timestamp) return "";
@@ -50,6 +88,7 @@ export default function ChatWindow({ onToggleDetail }) {
   const [loadingMore, setLoadingMore] = useState(false);
   const [lastDoc, setLastDoc] = useState(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [loadedRoomId, setLoadedRoomId] = useState(null);
   const messageListRef = useRef(null);
   const scrollPositionRef = useRef(0);
   const prevScrollHeightRef = useRef(0);
@@ -108,6 +147,7 @@ export default function ChatWindow({ onToggleDetail }) {
     setHasMore(true);
     setLastDoc(null);
     setIsInitialLoad(true);
+    setShowScrollToBottom(false);
     shouldScrollToBottomRef.current = true;
 
     const q = query(
@@ -117,26 +157,33 @@ export default function ChatWindow({ onToggleDetail }) {
       limit(MESSAGES_PER_PAGE)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const newMessages = [];
-      let lastVisible = null;
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const newMessages = [];
+        let lastVisible = null;
 
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        if (Array.isArray(data.visibleFor) && data.visibleFor.includes(uid)) {
-          newMessages.push({ id: doc.id, ...data });
-        }
-        lastVisible = doc;
-      });
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (Array.isArray(data.visibleFor) && data.visibleFor.includes(uid)) {
+            newMessages.push({ id: doc.id, ...data });
+          }
+          lastVisible = doc;
+        });
 
-      setMessages(newMessages);
-      setLastDoc(lastVisible);
-      setHasMore(snapshot.docs.length === MESSAGES_PER_PAGE);
-
-      setTimeout(() => {
+        setMessages(newMessages);
+        setLastDoc(lastVisible);
+        setHasMore(snapshot.docs.length === MESSAGES_PER_PAGE);
+        setLoadedRoomId(selectedRoomId);
         setIsInitialLoad(false);
-      }, 100);
-    });
+      },
+      () => {
+        setMessages([]);
+        setHasMore(false);
+        setLoadedRoomId(selectedRoomId);
+        setIsInitialLoad(false);
+      }
+    );
 
     return () => unsubscribe();
   }, [selectedRoomId, uid]);
@@ -181,6 +228,20 @@ export default function ChatWindow({ onToggleDetail }) {
       (a, b) => (a.createdAt || 0) - (b.createdAt || 0)
     );
   }, [normalizedMessages]);
+
+  const isRoomLoading = isInitialLoad || loadedRoomId !== selectedRoomId;
+
+  // Position the first message batch before the browser paints it. Using a
+  // normal effect here makes the list briefly appear at the top and then jump.
+  useLayoutEffect(() => {
+    const messageList = messageListRef.current;
+    if (!messageList || isRoomLoading || !shouldScrollToBottomRef.current) return;
+
+    messageList.scrollTop = messageList.scrollHeight;
+    shouldScrollToBottomRef.current = false;
+    prevScrollHeightRef.current = 0;
+    scrollPositionRef.current = messageList.scrollTop;
+  }, [isRoomLoading, selectedRoomId, sortedMessages.length]);
 
   const loadMoreMessages = async () => {
     if (!selectedRoomId || !uid || !lastDoc || loadingMore || !hasMore) return;
@@ -252,26 +313,9 @@ export default function ChatWindow({ onToggleDetail }) {
 
   useEffect(() => {
     const messageList = messageListRef.current;
-    if (!messageList) return;
-
-    setTimeout(() => {
-      messageList.scrollTop = messageList.scrollHeight;
-    }, 300);
-
-    prevScrollHeightRef.current = 0;
-    scrollPositionRef.current = 0;
-    shouldScrollToBottomRef.current = true;
-  }, [selectedRoomId]);
-
-  useEffect(() => {
-    const messageList = messageListRef.current;
     if (!messageList || sortedMessages.length === 0) return;
 
     if (shouldScrollToBottomRef.current) {
-      setTimeout(() => {
-        messageList.scrollTop = messageList.scrollHeight;
-        shouldScrollToBottomRef.current = false;
-      }, 50);
       return;
     }
 
@@ -382,10 +426,14 @@ export default function ChatWindow({ onToggleDetail }) {
 
       <div className="chat-window__content">
         <div
-          className={`message-list-style ${sortedMessages.length < 7 ? "few-messages" : ""}`}
+          className={`message-list-style ${sortedMessages.length < 7 ? "few-messages" : ""} ${isRoomLoading ? "is-loading" : "is-ready"}`}
           ref={messageListRef}
           onScroll={handleScroll}
         >
+          {isRoomLoading ? (
+            <ChatRoomLoading label={t('chatWindow.chat.loadingMessages')} />
+          ) : (
+            <>
           {loadingMore && (
             <div style={{ textAlign: "center", padding: "10px" }}>
               <Spin indicator={<LoadingOutlined spin />} />
@@ -466,6 +514,8 @@ export default function ChatWindow({ onToggleDetail }) {
                 </React.Fragment>
               );
             })
+          )}
+            </>
           )}
         </div>
 
